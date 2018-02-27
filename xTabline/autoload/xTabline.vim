@@ -251,13 +251,15 @@ endfunction
 function! <SID>SelectBuffer(nr)
     """Switch to visible buffer in the tabline with [count]."""
 
-    let g:xtabline_changing_buffer = 1
-
     if a:nr == 0
         execute g:xtabline_alt_action
-    elseif (a:nr > len(s:accepted)) || s:NotEnoughBuffers()
+        return
+    endif
+
+    if (a:nr > len(s:accepted)) || s:NotEnoughBuffers()
         return
     else
+        let g:xtabline_changing_buffer = 1
         execute "buffer ".s:accepted[a:nr - 1]
     endif
 endfunction
