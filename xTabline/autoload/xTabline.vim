@@ -6,13 +6,17 @@
 if exists("g:loaded_xtabline")
   finish
 endif
-let g:loaded_xtabline = 1
+
+let s:xtabline_bookmaks = expand('$HOME/.vim/.XTablineBookmarks')
+if !filereadable(s:xtabline_bookmaks)
+    call writefile([], s:xtabline_bookmaks)
+endif
 
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Commands
 
-"com! XTablineToggleTabs call s:Toggle_tabs()
+"com! XTablineToggleTabs call s:ToggleTabs()
 
 "com! XTablineNextBuffer call s:NextBuffer()
 
@@ -28,10 +32,20 @@ com! TabBuffersDelete call fzf#run({'source': s:TabBuffers(),
                                   \ 'sink': 'bdelete', 'down': '30%',
                                   \ 'options': '--multi --reverse'})
 
+com! TabBookmarks call fzf#run({'source': s:TabBookmarks(),
+                              \ 'sink': 'XTablineBookmarksLoad', 'down': '30%',
+                              \ 'options': '--multi --reverse'})
+
+com! -nargs=* XTablineBookmarksLoad call s:TabBookmarksLoad(<f-args>)
+
+com! TabBookmarksSave call s:TabBookmarksSave()
+
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Variables
 
+let g:loaded_xtabline = 1
 let s:most_recent = -1
+let g:xtabline_filtering = 1
 let g:xtabline_excludes = []
 let g:xtabline_alt_action = "buffer #"
 let g:xtabline_append_tabs = ''
@@ -41,21 +55,35 @@ let g:airline#extensions#tabline#show_tabs = 1
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Mappings
 
-if !hasmapto('<Plug>XTablineToggleTabs')
-    map <unique> <F5> <Plug>XTablineToggleTabs
-endif
-if !hasmapto('<Plug>XTablineNextBuffer')
-    map <unique> }O <Plug>XTablineNextBuffer
-endif
-if !hasmapto('<Plug>XTablinePrevBuffer')
-    map <unique> {O <Plug>XTablinePrevBuffer
-endif
-if !hasmapto('<Plug>XTablineSelectBuffer')
-    map <unique> <leader>l <Plug>XTablineSelectBuffer
+if !exists('xtabline_keybindings')
+    if !hasmapto('<Plug>XTablineToggleTabs')
+        map <unique> <F5> <Plug>XTablineToggleTabs
+    endif
+    if !hasmapto('<Plug>XTablineToggleBuffers')
+        map <unique> <leader><F5> <Plug>XTablineToggleBuffers
+    endif
+    if !hasmapto('<Plug>XTablineNextBuffer')
+        map <unique> }O <Plug>XTablineNextBuffer
+    endif
+    if !hasmapto('<Plug>XTablinePrevBuffer')
+        map <unique> {O <Plug>XTablinePrevBuffer
+    endif
+    if !hasmapto('<Plug>XTablineBuffersOpen')
+        map <unique> <leader>BO <Plug>XTablineBuffersOpen
+    endif
+    if !hasmapto('<Plug>XTablineBuffersDelete')
+        map <unique> <leader>BD <Plug>XTablineBuffersDelete
+    endif
+    if !hasmapto('<Plug>XTablineSelectBuffer')
+        map <unique> <leader>l <Plug>XTablineSelectBuffer
+    endif
 endif
 
-nnoremap <unique> <script> <Plug>XTablineToggleTabs <SID>Toggle_tabs
-nnoremap <SID>Toggle_tabs :call <SID>Toggle_tabs()<cr>
+nnoremap <unique> <script> <Plug>XTablineToggleTabs <SID>ToggleTabs
+nnoremap <SID>ToggleTabs :call <SID>ToggleTabs()<cr>
+
+nnoremap <unique> <script> <Plug>XTablineToggleBuffers <SID>ToggleBuffers
+nnoremap <SID>ToggleBuffers :call <SID>ToggleBuffers()<cr>
 
 nnoremap <unique> <script> <Plug>XTablineNextBuffer <SID>NextBuffer
 nnoremap <SID>NextBuffer :call <SID>NextBuffer()<cr>
@@ -63,12 +91,18 @@ nnoremap <SID>NextBuffer :call <SID>NextBuffer()<cr>
 nnoremap <unique> <script> <Plug>XTablinePrevBuffer <SID>PrevBuffer
 nnoremap <SID>PrevBuffer :call <SID>PrevBuffer()<cr>
 
+nnoremap <unique> <script> <Plug>XTablineBuffersOpen <SID>TabBuffersOpen
+nnoremap <SID>TabBuffersOpen :TabBuffersOpen<cr>
+
+nnoremap <unique> <script> <Plug>XTablineBuffersDelete <SID>TabBuffersDelete
+nnoremap <SID>TabBuffersDelete :TabBuffersDelete<cr>
+
 nnoremap <unique> <script> <Plug>XTablineSelectBuffer <SID>SelectBuffer
 nnoremap <expr> <SID>SelectBuffer g:xtabline_changing_buffer ? "\<C-c>" : ":<C-u>call <SID>SelectBuffer(v:count)\<cr>"
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-function! <SID>Toggle_tabs()
+function! <SID>ToggleTabs()
     """Toggle between tabs/buffers tabline."""
 
     if tabpagenr("$") == 1
@@ -90,14 +124,34 @@ endfunction
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
+function! <SID>ToggleBuffers()
+    """Toggle buffer filtering in the tabline."""
+
+    if g:xtabline_filtering
+        let g:xtabline_filtering = 0
+        let g:airline#extensions#tabline#accepted = []
+        let g:airline#extensions#tabline#excludes = copy(g:xtabline_excludes)
+        call s:RefreshTabline()
+    else
+        let g:xtabline_filtering = 1
+        call s:FilterBuffers()
+    endif
+endfunction
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
 function! s:FilterBuffers()
     """Filter buffers so that only the ones within the tab's cwd will show up.
 
     " 'accepted' is a list of buffer numbers, for quick access.
     " 'excludes' is a list of paths, it will be used by Airline to hide buffers."""
 
+    if !g:xtabline_filtering
+        return
+    endif
+
     let g:airline#extensions#tabline#accepted = []
-    let g:airline#extensions#tabline#excludes = [] + g:xtabline_excludes
+    let g:airline#extensions#tabline#excludes = copy(g:xtabline_excludes)
     let s:accepted = g:airline#extensions#tabline#accepted
     let s:excludes = g:airline#extensions#tabline#excludes
 
@@ -118,6 +172,8 @@ function! s:FilterBuffers()
             call add(s:excludes, path)
         endif
     endfor
+
+    call s:RefreshTabline()
 endfunction
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -190,6 +246,9 @@ function! <SID>SelectBuffer(nr)
     endif
 endfunction
 
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" fzf functions
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 function! s:TabBuffers()
@@ -202,6 +261,61 @@ function! s:TabBuffers()
     return map(s:accepted, 'bufname(v:val)')
 endfunction
 
+function! s:TabBookmarks()
+    let bfile = readfile(g:NERDTreeBookmarksFile)
+    let bookmarks = []
+    "skip last emty line
+    for line in bfile[:-2]
+        let b = substitute(line, '^.\+ ', "", "")
+        call add(bookmarks, b)
+    endfor
+    return bookmarks
+endfunction
+
+function! s:TabBookmarksLoad(...)
+    for bm in a:000
+        let bm = expand(bm, ":p")
+        if isdirectory(bm)
+            tabnew
+            exe "cd ".bm
+            exe "NERDTree ".bm
+        elseif filereadable(bm)
+            exe "tabedit ".bm
+            exe "cd ".fnamemodify(bm, ":p:h")
+        endif
+    endfor
+endfunction
+
+function! s:TabBookmarksSave()
+    """Create an entry and add it to the bookmarks file."""
+
+    let entry = {}
+
+    " get cwd
+    try
+        let entry['cwd'] = t:cwd
+        let entry['name'] = t:cwd
+    catch
+        echo "Cwd for this tab hasn't been set, aborting."
+        return
+    endtry
+
+    " get buffers
+    let bufs = []
+    for buf in range(1, bufnr("$"))
+        if index(s:accepted, buf) >= 0
+            call add(bufs, bufname(buf))
+        endif
+    endfor
+    let entry['buffers'] = bufs
+
+    "trasform the dict to string, put in a list and append to file
+    let entry = [string(entry)]
+    call writefile(entry, s:xtabline_bookmaks, "a")
+endfunction
+
+
+    
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 function! <SID>XTablineAppend()
@@ -215,6 +329,8 @@ function! <SID>XTablineAppend()
 endfunction
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Helper functions
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 function! s:NotEnoughBuffers()
     """Just return if there aren't enough buffers."""
@@ -227,6 +343,11 @@ function! s:NotEnoughBuffers()
         endif
         return 1
     endif
+endfunction
+
+function! s:RefreshTabline()
+    execute "AirlineRefresh"
+    set tabline=%!airline#extensions#tabline#get()
 endfunction
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
