@@ -7,9 +7,20 @@ if exists("g:loaded_xtabline")
   finish
 endif
 
-let s:xtabline_bookmaks = expand('$HOME/.vim/.XTablineBookmarks')
-if !filereadable(s:xtabline_bookmaks)
-    call writefile([], s:xtabline_bookmaks)
+let s:xtabline_bookmaks_file = expand('$HOME/.vim/.XTablineBookmarks')
+function! s:TabBookmarks()
+    let bfile = readfile(g:NERDTreeBookmarksFile)
+    let bookmarks = []
+    "skip last emty line
+    for line in bfile[:-2]
+        let b = substitute(line, '^.\+ ', "", "")
+        call add(bookmarks, b)
+    endfor
+    return bookmarks
+endfunction
+
+if !filereadable(s:xtabline_bookmaks_file)
+    call writefile([], s:xtabline_bookmaks_file)
 endif
 
 
@@ -36,7 +47,12 @@ com! TabBookmarks call fzf#run({'source': s:TabBookmarks(),
                               \ 'sink': 'XTablineBookmarksLoad', 'down': '30%',
                               \ 'options': '--multi --reverse'})
 
+com! TabNERDBookmarks call fzf#run({'source': s:TabNERDBookmarks(),
+                                  \ 'sink': 'XTablineNERDBookmarksLoad', 'down': '30%',
+                                  \ 'options': '--multi --reverse'})
+
 com! -nargs=* XTablineBookmarksLoad call s:TabBookmarksLoad(<f-args>)
+com! -nargs=* XTablineNERDBookmarksLoad call s:TabNERDBookmarksLoad(<f-args>)
 
 com! TabBookmarksSave call s:TabBookmarksSave()
 
@@ -255,13 +271,13 @@ function! s:TabBuffers()
     """Open a list of buffers for this tab with fzf.vim."""
 
     "fun! Format(nr)
-        "return "[".a:nr."]".repeat(" ", 5 - len(a:nr)).bufname(a:nr) 
+        "return "[".a:nr."]".repeat(" ", 5 - len(a:nr)).bufname(a:nr)
     "endfunction
 
-    return map(s:accepted, 'bufname(v:val)')
+    return map(copy(s:accepted), 'bufname(v:val)')
 endfunction
 
-function! s:TabBookmarks()
+function! s:TabNERDBookmarks()
     let bfile = readfile(g:NERDTreeBookmarksFile)
     let bookmarks = []
     "skip last emty line
@@ -272,7 +288,7 @@ function! s:TabBookmarks()
     return bookmarks
 endfunction
 
-function! s:TabBookmarksLoad(...)
+function! s:TabNERDBookmarksLoad(...)
     for bm in a:000
         let bm = expand(bm, ":p")
         if isdirectory(bm)
@@ -283,6 +299,54 @@ function! s:TabBookmarksLoad(...)
             exe "tabedit ".bm
             exe "cd ".fnamemodify(bm, ":p:h")
         endif
+    endfor
+endfunction
+
+function! s:TabBookmarks()
+    let s:xtabline_bookmaks = []
+    let bookmarks = []
+    let bfile = readfile(s:xtabline_bookmaks_file)
+
+    for line in bfile
+        let line = eval(line)
+        call add(s:xtabline_bookmaks, line)
+        call add(bookmarks, line['name'])
+    endfor
+    return bookmarks
+endfunction
+
+function! s:TabBookmarksLoad(...)
+    let bfile = readfile(s:xtabline_bookmaks_file)
+
+    for bm in a:000
+        for line in bfile
+            let line = eval(line)
+
+            " not the correct entry
+            if line['name'] !=# bm
+                continue
+            endif
+
+            let cwd = expand(line['cwd'], ":p")
+            if isdirectory(cwd)
+                tabnew
+                exe "cd ".cwd
+                if empty(line['buffers'])
+                    continue
+                endif
+            else
+                echo line['name'].": invalid bookmark."
+                continue
+            endif
+
+            "add buffers
+            for buf in line['buffers']
+                execute "badd ".buf
+            endfor
+
+            "load the first buffer
+            execute "edit ".line['buffers'][0]
+        endfor
     endfor
 endfunction
 
@@ -302,8 +366,13 @@ function! s:TabBookmarksSave()
 
     " get buffers
     let bufs = []
+    let current = 0
+    if buflisted(bufnr("%"))
+        let current = bufnr("%")
+        call add(bufs, bufname(current))
+    endif
     for buf in range(1, bufnr("$"))
-        if index(s:accepted, buf) >= 0
+        if index(s:accepted, buf) >= 0 && (buf != current)
             call add(bufs, bufname(buf))
         endif
     endfor
@@ -311,11 +380,9 @@ function! s:TabBookmarksSave()
 
     "trasform the dict to string, put in a list and append to file
     let entry = [string(entry)]
-    call writefile(entry, s:xtabline_bookmaks, "a")
+    call writefile(entry, s:xtabline_bookmaks_file, "a")
 endfunction
 
-
-    
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 function! <SID>XTablineAppend()
