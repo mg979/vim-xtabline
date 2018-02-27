@@ -2,22 +2,11 @@
 " xTabline - extension for vim.airline
 " Copyright (C) 2018 Gianmaria Bajo <mg1979.git@gmail.com>
 " License: MIT License
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 if exists("g:loaded_xtabline")
   finish
 endif
-
-let s:xtabline_bookmaks_file = expand('$HOME/.vim/.XTablineBookmarks')
-function! s:TabBookmarks()
-    let bfile = readfile(g:NERDTreeBookmarksFile)
-    let bookmarks = []
-    "skip last emty line
-    for line in bfile[:-2]
-        let b = substitute(line, '^.\+ ', "", "")
-        call add(bookmarks, b)
-    endfor
-    return bookmarks
-endfunction
 
 if !filereadable(s:xtabline_bookmaks_file)
     call writefile([], s:xtabline_bookmaks_file)
@@ -26,14 +15,7 @@ endif
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Commands
-
-"com! XTablineToggleTabs call s:ToggleTabs()
-
-"com! XTablineNextBuffer call s:NextBuffer()
-
-"com! XTablinePrevBuffer call s:PrevBuffer()
-
-"com! XTablineSelectBuffer call s:SelectBuffer(v:count1)
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 com! TabBuffersOpen call fzf#run({'source': s:TabBuffers(),
                                 \ 'sink': 'vs', 'down': '30%',
@@ -56,11 +38,12 @@ com! -nargs=* XTablineNERDBookmarksLoad call s:TabNERDBookmarksLoad(<f-args>)
 
 com! TabBookmarksSave call s:TabBookmarksSave()
 
+
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Variables
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 let g:loaded_xtabline = 1
-let s:most_recent = -1
 let g:xtabline_filtering = 1
 let g:xtabline_excludes = []
 let g:xtabline_alt_action = "buffer #"
@@ -68,8 +51,12 @@ let g:xtabline_append_tabs = ''
 let g:xtabline_append_buffers = ''
 let g:airline#extensions#tabline#show_tabs = 1
 
+let s:most_recent = -1
+let s:xtabline_bookmaks_file = expand('$HOME/.vim/.XTablineBookmarks')
+
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Mappings
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 if !exists('xtabline_keybindings')
     if !hasmapto('<Plug>XTablineToggleTabs')
@@ -116,6 +103,9 @@ nnoremap <SID>TabBuffersDelete :TabBuffersDelete<cr>
 nnoremap <unique> <script> <Plug>XTablineSelectBuffer <SID>SelectBuffer
 nnoremap <expr> <SID>SelectBuffer g:xtabline_changing_buffer ? "\<C-c>" : ":<C-u>call <SID>SelectBuffer(v:count)\<cr>"
 
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Commands functions
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 function! <SID>ToggleTabs()
@@ -385,17 +375,6 @@ function! s:TabBookmarksSave()
     call writefile(entry, s:xtabline_bookmaks_file, "a")
 endfunction
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-function! <SID>XTablineAppend()
-    """Append a custom element to the tabline (default none)."""
-
-    if g:airline#extensions#tabline#show_tabs
-        return g:xtabline_append_tabs
-    else
-        return g:xtabline_append_buffers
-    endif
-endfunction
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Helper functions
@@ -419,7 +398,16 @@ function! s:RefreshTabline()
     set tabline=%!airline#extensions#tabline#get()
 endfunction
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+function! <SID>XTablineAppend()
+    """Append a custom element to the tabline (default none)."""
+
+    if g:airline#extensions#tabline#show_tabs
+        return g:xtabline_append_tabs
+    else
+        return g:xtabline_append_buffers
+    endif
+endfunction
+
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " TabPageCd
