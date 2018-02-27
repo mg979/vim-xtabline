@@ -3,13 +3,22 @@
 " Copyright (C) 2018 Gianmaria Bajo <mg1979.git@gmail.com>
 " License: MIT License
 
-com! XTablineToggleTabs call s:Toggle_tabs()
+if exists("g:loaded_xtabline")
+  finish
+endif
+let g:loaded_xtabline = 1
 
-com! XTablineNextBuffer call s:NextBuffer()
 
-com! XTablinePrevBuffer call s:PrevBuffer()
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Commands
 
-com! XTablineSelectBuffer call s:SelectBuffer(v:count1)
+"com! XTablineToggleTabs call s:Toggle_tabs()
+
+"com! XTablineNextBuffer call s:NextBuffer()
+
+"com! XTablinePrevBuffer call s:PrevBuffer()
+
+"com! XTablineSelectBuffer call s:SelectBuffer(v:count1)
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Variables
@@ -24,19 +33,41 @@ let g:airline#extensions#tabline#show_tabs = 1
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Mappings
 
-nnoremap <Plug>xTablinePrevBuffer {O :xTablinePrevBuffer<cr>
-nnoremap <Plug>xTablineNextBuffer }O :xTablineNextBuffer<cr>
-nnoremap <expr> <Plug>xTablineSelectBuffer <leader>l g:xtabline_changing_buffer ? "\<C-c>" : ":<C-u>call SelectBuffer(v:count)\<cr>"
+if !hasmapto('<Plug>XTablineToggleTabs')
+    map <unique> <F5> <Plug>XTablineToggleTabs
+endif
+if !hasmapto('<Plug>XTablineNextBuffer')
+    map <unique> }O <Plug>XTablineNextBuffer
+endif
+if !hasmapto('<Plug>XTablinePrevBuffer')
+    map <unique> {O <Plug>XTablinePrevBuffer
+endif
+if !hasmapto('<Plug>XTablineSelectBuffer')
+    map <unique> <leader>l <Plug>XTablineSelectBuffer
+endif
 
+nnoremap <unique> <script> <Plug>XTablineToggleTabs <SID>Toggle_tabs
+nnoremap <SID>Toggle_tabs :call <SID>Toggle_tabs()<cr>
+
+nnoremap <unique> <script> <Plug>XTablineNextBuffer <SID>NextBuffer
+nnoremap <SID>NextBuffer :call <SID>NextBuffer()<cr>
+
+nnoremap <unique> <script> <Plug>XTablinePrevBuffer <SID>PrevBuffer
+nnoremap <SID>PrevBuffer :call <SID>PrevBuffer()<cr>
+
+nnoremap <unique> <script> <Plug>XTablineSelectBuffer <SID>SelectBuffer
+nnoremap <expr> <SID>SelectBuffer g:xtabline_changing_buffer ? "\<C-c>" : ":<C-u>call <SID>SelectBuffer(v:count)\<cr>"
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-function! s:Toggle_tabs()
+function! <SID>Toggle_tabs()
     """Toggle between tabs/buffers tabline."""
+
     if tabpagenr("$") == 1
         echo "There is only one tab."
         return
     endif
+
     if g:airline#extensions#tabline#show_tabs
         let g:airline#extensions#tabline#show_tabs = 0
         echo "Showing buffers"
@@ -44,8 +75,9 @@ function! s:Toggle_tabs()
         let g:airline#extensions#tabline#show_tabs = 1
         echo "Showing tabs"
     endif
+
     execute "AirlineRefresh"
-    "let &tabline = airline#extensions#tabline#get().XTablineAppend()
+    "let &tabline = airline#extensions#tabline#get().<SID>XTablineAppend()
 endfunction
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -78,14 +110,11 @@ function! s:FilterBuffers()
             call add(s:excludes, path)
         endif
     endfor
-
-    let s:bufs = len(s:accepted)
-
 endfunction
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-function! s:NextBuffer()
+function! <SID>NextBuffer()
     """Switch to next visible buffer."""
 
     if s:NotEnoughBuffers()
@@ -112,7 +141,7 @@ endfunction
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-function! s:PrevBuffer()
+function! <SID>PrevBuffer()
     """Switch to previous visible buffer."""
 
     if s:NotEnoughBuffers()
@@ -139,7 +168,7 @@ endfunction
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-function! s:SelectBuffer(nr)
+function! <SID>SelectBuffer(nr)
     """Switch to visible buffer in the tabline with [count]."""
 
     let g:xtabline_changing_buffer = 1
@@ -155,7 +184,7 @@ endfunction
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-function! XTablineAppend()
+function! <SID>XTablineAppend()
     """Append a custom element to the tabline (default none)."""
 
     if g:airline#extensions#tabline#show_tabs
@@ -170,8 +199,8 @@ endfunction
 function! s:NotEnoughBuffers()
     """Just return if there aren't enough buffers."""
 
-    if s:bufs < 2
-        if !s:bufs
+    if len(s:accepted) < 2
+        if !len(s:accepted)
             echo "No available buffers for this tab."
         else
             echo "No other available buffers for this tab."
@@ -197,7 +226,7 @@ function! s:TabEnterCommands()
         cd `=t:cwd`
     endif
     call s:FilterBuffers()
-    "let &tabline = airline#extensions#tabline#get().XTablineAppend()
+    "let &tabline = airline#extensions#tabline#get().<SID>XTablineAppend()
 endfunction
 
 function! s:TabLeaveCommands()
