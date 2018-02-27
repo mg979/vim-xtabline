@@ -20,6 +20,14 @@ let g:loaded_xtabline = 1
 
 "com! XTablineSelectBuffer call s:SelectBuffer(v:count1)
 
+com! TabBuffersOpen call fzf#run({'source': s:TabBuffers(),
+                                \ 'sink': 'vs', 'down': '30%',
+                                \ 'options': '--multi --reverse'})
+
+com! TabBuffersDelete call fzf#run({'source': s:TabBuffers(),
+                                  \ 'sink': 'bdelete', 'down': '30%',
+                                  \ 'options': '--multi --reverse'})
+
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Variables
 
@@ -180,6 +188,18 @@ function! <SID>SelectBuffer(nr)
     else
         execute "buffer ".s:accepted[a:nr - 1]
     endif
+endfunction
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+function! s:TabBuffers()
+    """Open a list of buffers for this tab with fzf.vim."""
+
+    "fun! Format(nr)
+        "return "[".a:nr."]".repeat(" ", 5 - len(a:nr)).bufname(a:nr) 
+    "endfunction
+
+    return map(s:accepted, 'bufname(v:val)')
 endfunction
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
