@@ -42,6 +42,7 @@ com! TabTodo call <SID>TabTodo()
 
 let g:loaded_xtabline = 1
 let g:xtabline_filtering = 1
+let g:xtabline_autodelete_empty_buffers = 1
 let g:xtabline_excludes = []
 let g:xtabline_alt_action = "buffer #"
 let g:xtabline_append_tabs = ''
@@ -73,10 +74,10 @@ if !exists('g:xtabline_disable_keybindings')
         map <unique> <leader>l <Plug>XTablineSelectBuffer
     endif
     if !hasmapto('<Plug>XTablineNextBuffer')
-        map <unique> }O <Plug>XTablineNextBuffer
+        map <unique> <S-PageDown> <Plug>XTablineNextBuffer
     endif
     if !hasmapto('<Plug>XTablinePrevBuffer')
-        map <unique> {O <Plug>XTablinePrevBuffer
+        map <unique> <S-PageUp> <Plug>XTablinePrevBuffer
     endif
     if !hasmapto('<Plug>XTablineBuffersOpen')
         map <unique> <leader>BB <Plug>XTablineBuffersOpen
@@ -177,7 +178,7 @@ endfunction
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-function! s:FilterBuffers()
+function! s:FilterBuffers(...)
     """Filter buffers so that only the ones within the tab's cwd will show up.
 
     " 'accepted' is a list of buffer numbers, for quick access.
@@ -205,8 +206,15 @@ function! s:FilterBuffers()
         " confront with the cwd
         if path =~ getcwd()
             call add(s:accepted, buf)
-        else
+        elseif bufname(buf) != ''
             call add(s:excludes, path)
+        elseif a:000 == [] && g:xtabline_autodelete_empty_buffers
+            " buffer tabline breaks if there are empty 'paths'.
+            " if there are problems, this can be just skipped.
+            " since it seems useful, for now we're deleting 
+            " these temporary and empty buffers. This will happen
+            " only when the function is called without arguments.
+            execute "silent! bdelete ".buf
         endif
     endfor
 
@@ -422,11 +430,16 @@ function! <SID>TabBookmarksSave()
     " get cwd
     try
         let entry['cwd'] = t:cwd
-        let entry['name'] = t:cwd
+        let entry['name'] = input("Enter an optional name for this bookmark:  ", t:cwd, "file_in_path")
     catch
         echo "Cwd for this tab hasn't been set, aborting."
         return
     endtry
+
+    if entry['name'] == ""
+        echo "Bookmark not saved."
+        return
+    endif
 
     " get buffers
     let bufs = []
@@ -540,7 +553,11 @@ function! s:TabLeaveCommands()
 endfunction
 
 function! s:TabClosedCommands()
-    call remove(g:xtab_cwds, tabpagenr()-1)
+    if tabpagenr() == tabpagenr("$")
+        call remove(g:xtab_cwds, tabpagenr())
+    else
+        call remove(g:xtab_cwds, tabpagenr()-1)
+    endif
     call s:Update()
 endfunction
 
@@ -554,7 +571,7 @@ augroup plugin-xtabline
     autocmd TabClosed * call s:TabClosedCommands()
 
     autocmd BufEnter  * let g:xtabline_changing_buffer = 0
-    autocmd BufAdd,BufDelete,BufWrite * call s:FilterBuffers()
+    autocmd BufAdd,BufDelete,BufWrite * call s:FilterBuffers(1)
 
 augroup END
 
