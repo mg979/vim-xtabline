@@ -152,8 +152,9 @@ function! <SID>ToggleTabs()
         echo "Showing tabs"
     endif
 
-    call airline#extensions#tabline#buflist#invalidate()
-    "doautocmd BufAdd
+    execute "AirlineRefresh"
+    "call airline#extensions#tabline#buflist#invalidate()
+    doautocmd BufAdd
 endfunction
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -502,10 +503,30 @@ endfunction
 " Copyright (C) 2018 Gianmaria Bajo <mg1979.git@gmail.com>
 " License: MIT License
 
-function! s:TabEnterCommands()
-    if !exists('t:cwd')
-        return
+function! s:InitCwds(new)
+    if !exists('g:xtab_cwds')
+        let g:xtab_cwds = []
     endif
+    if a:new
+        call insert(g:xtab_cwds, getcwd(), tabpagenr()-1)
+    else
+        while len(g:xtab_cwds) < tabpagenr("$")
+            call add(g:xtab_cwds, getcwd())
+        endwhile
+    endif
+    call s:Update()
+endfunction
+
+function! s:Update()
+    let g:obsession_append = 'let g:xtab_cwds = '.string(g:xtab_cwds)
+endfunction
+
+function! s:TabEnterCommands()
+    try
+        let t:cwd = g:xtab_cwds[tabpagenr()-1]
+    catch
+        return
+    endtry
 
     cd `=t:cwd`
     let g:xtabline_todo['path'] = t:cwd.g:xtabline_todo_file
@@ -514,16 +535,26 @@ endfunction
 
 function! s:TabLeaveCommands()
     let t:cwd = getcwd()
+    let g:xtab_cwds[tabpagenr()-1] = t:cwd
+    call s:Update()
+endfunction
+
+function! s:TabClosedCommands()
+    call remove(g:xtab_cwds, tabpagenr()-1)
+    call s:Update()
 endfunction
 
 augroup plugin-xtabline
     autocmd!
 
-    autocmd TabEnter * call s:TabEnterCommands()
-    autocmd TabLeave * call s:TabLeaveCommands()
+    autocmd VimEnter  * call s:InitCwds(0)
+    autocmd TabNew    * call s:InitCwds(1)
+    autocmd TabEnter  * call s:TabEnterCommands()
+    autocmd TabLeave  * call s:TabLeaveCommands()
+    autocmd TabClosed * call s:TabClosedCommands()
 
+    autocmd BufEnter  * let g:xtabline_changing_buffer = 0
     autocmd BufAdd,BufDelete,BufWrite * call s:FilterBuffers()
-    autocmd BufEnter * let g:xtabline_changing_buffer = 0
 
 augroup END
 
