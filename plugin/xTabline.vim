@@ -214,7 +214,7 @@ function! s:FilterBuffers(...)
         elseif a:000 == [] && g:xtabline_autodelete_empty_buffers
             " buffer tabline breaks if there are empty 'paths'.
             " if there are problems, this can be just skipped.
-            " since it seems useful, for now we're deleting 
+            " since it seems useful, for now we're deleting
             " these temporary and empty buffers. This will happen
             " only when the function is called without arguments.
             execute "silent! bdelete ".buf

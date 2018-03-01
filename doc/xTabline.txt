@@ -230,9 +230,15 @@ To disable default mappings, add to your `.vimrc`
 
     `let g:xtabline_disable_keybindings = 1`
 >
-You can remap commands individually. These are the defaults.
+You can remap commands individually. These are the customizable options with
+their defaults. You can copy this section to your `.vimrc` and change the
+values to ones you prefer.
 
 >
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    " xtabline
+    """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
     nmap <F5>              <Plug>XTablineToggleTabs
     nmap <leader><F5>      <Plug>XTablineToggleBuffers
     nmap <leader>l         <Plug>XTablineSelectBuffer
@@ -245,6 +251,13 @@ You can remap commands individually. These are the defaults.
     nmap <leader>BS        <Plug>XTablineBookmarksSave
     nmap <leader>TT        <Plug>XTablineTabTodo
 
+    let g:xtabline_todo_file = "/.TODO"
+    let g:xtabline_todo = {'path': getcwd().g:xtabline_todo_file, 'command': 'sp', 'prefix': 'below', 'size': 20, 'syntax': 'markdown'}
+
+    let g:xtabline_autodelete_empty_buffers = 0
+    let g:xtabline_excludes = []
+    let g:xtabline_alt_action = "buffer #"
+    let g:xtabline_bookmaks_file  = expand('$HOME/.vim/.XTablineBookmarks')
 <
 
 WARNINGS                                                     *xtabline-warnings*
