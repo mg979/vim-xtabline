@@ -41,18 +41,21 @@ com! XTabTodo call <SID>TabTodo()
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 let g:loaded_xtabline = 1
-let g:xtabline_filtering = 1
-let g:xtabline_autodelete_empty_buffers = 0
-let g:xtabline_excludes = []
-let g:xtabline_alt_action = "buffer #"
-let g:xtabline_append_tabs = ''
-let g:xtabline_append_buffers = ''
-let g:airline#extensions#tabline#show_tabs = 1
-let g:xtabline_todo_file = "/.TODO"
-let g:xtabline_todo = {'path': getcwd().g:xtabline_todo_file, 'command': 'sp', 'prefix': 'below', 'size': 20, 'syntax': 'markdown'}
-let g:xtabline_bookmaks_file = expand('$HOME/.vim/.XTablineBookmarks')
-
 let s:most_recent = -1
+let g:xtabline_filtering = 1
+let g:airline#extensions#tabline#show_tabs = 1
+
+let g:xtabline_autodelete_empty_buffers = get(g:, 'xtabline_autodelete_empty_buffers', 0)
+let g:xtabline_excludes = get(g:, 'xtabline_excludes', [])
+let g:xtabline_alt_action = get(g:, 'xtabline_alt_action', "buffer #")
+let g:xtabline_bookmaks_file  = get(g:, 'xtabline_bookmaks_file ', expand('$HOME/.vim/.XTablineBookmarks'))
+let g:xtabline_append_tabs = get(g:, 'xtabline_append_tabs', '')
+let g:xtabline_append_buffers = get(g:, 'xtabline_append_buffers', '')
+
+if !exists("g:xtabline_todo_file")
+    let g:xtabline_todo_file = "/.TODO"
+    let g:xtabline_todo = {'path': getcwd().g:xtabline_todo_file, 'command': 'sp', 'prefix': 'below', 'size': 20, 'syntax': 'markdown'}
+endif
 
 if !filereadable(g:xtabline_bookmaks_file)
     call writefile([], g:xtabline_bookmaks_file)
