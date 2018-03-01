@@ -89,7 +89,7 @@ Use {vim-plug}{4} or any other Vim plugin manager.
 
 With vim-plug:
 
-    `Plug 'mg979/xtabline.vim'`
+    `Plug 'mg979/vim-xtabline'`
 
                                       {4} https://github.com/junegunn/vim-plug
 
