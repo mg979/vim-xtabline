@@ -13,28 +13,28 @@ endif
 " Commands
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-com! TabBuffersOpen call fzf#run({'source': s:TabBuffers(),
+com! XTabBuffersOpen call fzf#run({'source': s:TabBuffers(),
                                 \ 'sink': 'vs', 'down': '30%',
                                 \ 'options': '--multi --reverse'})
 
-com! TabBuffersDelete call fzf#run({'source': s:TabBuffers(),
+com! XTabBuffersDelete call fzf#run({'source': s:TabBuffers(),
                                   \ 'sink': function('s:TabBDelete'), 'down': '30%',
                                   \ 'options': '--multi --reverse'})
 
-com! TabAllBuffersDelete call fzf#run({'source': s:TabAllBuffers(),
+com! XTabAllBuffersDelete call fzf#run({'source': s:TabAllBuffers(),
                                      \ 'sink': 'bdelete', 'down': '30%',
                                      \ 'options': '--multi --reverse'})
 
-com! TabBookmarksLoad call fzf#run({'source': s:TabBookmarks(),
+com! XTabBookmarksLoad call fzf#run({'source': s:TabBookmarks(),
                                   \ 'sink': function('s:TabBookmarksLoad'), 'down': '30%',
                                   \ 'options': '--multi --reverse'})
 
-com! TabNERDBookmarks call fzf#run({'source': s:TabNERDBookmarks(),
+com! XTabNERDBookmarks call fzf#run({'source': s:TabNERDBookmarks(),
                                   \ 'sink': function('s:TabNERDBookmarksLoad'), 'down': '30%',
                                   \ 'options': '--multi --reverse'})
 
-com! TabBookmarksSave call <SID>TabBookmarksSave()
-com! TabTodo call <SID>TabTodo()
+com! XTabBookmarksSave call <SID>TabBookmarksSave()
+com! XTabTodo call <SID>TabTodo()
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Variables
@@ -42,7 +42,7 @@ com! TabTodo call <SID>TabTodo()
 
 let g:loaded_xtabline = 1
 let g:xtabline_filtering = 1
-let g:xtabline_autodelete_empty_buffers = 1
+let g:xtabline_autodelete_empty_buffers = 0
 let g:xtabline_excludes = []
 let g:xtabline_alt_action = "buffer #"
 let g:xtabline_append_tabs = ''
@@ -115,22 +115,22 @@ nnoremap <unique> <script> <Plug>XTablinePrevBuffer <SID>PrevBuffer
 nnoremap <SID>PrevBuffer :call <SID>PrevBuffer()<cr>
 
 nnoremap <unique> <script> <Plug>XTablineBuffersOpen <SID>TabBuffersOpen
-nnoremap <SID>TabBuffersOpen :TabBuffersOpen<cr>
+nnoremap <SID>TabBuffersOpen :XTabBuffersOpen<cr>
 
 nnoremap <unique> <script> <Plug>XTablineBuffersDelete <SID>TabBuffersDelete
-nnoremap <SID>TabBuffersDelete :TabBuffersDelete<cr>
+nnoremap <SID>TabBuffersDelete :XTabBuffersDelete<cr>
 
 nnoremap <unique> <script> <Plug>XTablineAllBuffersDelete <SID>TabAllBuffersDelete
-nnoremap <SID>TabAllBuffersDelete :TabAllBuffersDelete<cr>
+nnoremap <SID>TabAllBuffersDelete :XTabAllBuffersDelete<cr>
 
 nnoremap <unique> <script> <Plug>XTablineBookmarksLoad <SID>TabBookmarksLoad
-nnoremap <SID>TabBookmarksLoad :TabBookmarksLoad<cr>
+nnoremap <SID>TabBookmarksLoad :XTabBookmarksLoad<cr>
 
 nnoremap <unique> <script> <Plug>XTablineBookmarksSave <SID>TabBookmarksSave
-nnoremap <SID>TabBookmarksSave :TabBookmarksSave<cr>
+nnoremap <SID>TabBookmarksSave :XTabBookmarksSave<cr>
 
 nnoremap <unique> <script> <Plug>XTablineTabTodo <SID>TabTodo
-nnoremap <SID>TabTodo :TabTodo<cr>
+nnoremap <SID>TabTodo :XTabTodo<cr>
 
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
