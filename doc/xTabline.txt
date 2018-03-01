@@ -55,7 +55,7 @@ path is within that tab's CWD.
 
     * Toggle buffer filtering on/off
 
-    * Tab buffers quick navigation (next, previous, with [count])
+    * Tab buffers quick navigation (next, previous, with |[count]|)
 
     * Tab bookmarks: save and reload a tab with all its buffers and its CWD
 
@@ -65,7 +65,7 @@ path is within that tab's CWD.
         - open/delete multiple `Tab Buffers` at once.
         - access `Tab Bookmarks` or |NERDTreeBookmarks|.
 
-    * |vim-obsession| support for CWDs persistance across sessions
+    * vim-|obsession| support for CWDs persistance across sessions
 
 
 
@@ -127,8 +127,8 @@ also work when in `tabs mode` (see 'xtabline-toggle' ).
 
 `XTablineSelectBuffer` has two peculiarities:
 
-* it needs a [count] to work, eg. 2<leader>l would bring you to buffer #2
-* when not using a [count], it will execute a command of your choice
+* it needs a |[count]| to work, eg. 2<leader>l would bring you to buffer #2
+* when not using a |[count]|, it will execute a command of your choice
 
 Define this command by setting the `g:xtabline_alt_action` variable.
 Default is `buffer #`
@@ -157,7 +157,7 @@ You can toggle both between tabs and buffers, and buffers filtering on and off
 PERSISTANCE                                               *xtabline-persistance*
 ==============================================================================
 
-If you use |vim-obsession| your tabs CWDs will be remembered inside a session
+If you use vim-|obsession| your tabs CWDs will be remembered inside a session
 that is currently tracked. It's an automatic process and you don't need to do
 or set anything.
 
@@ -187,7 +187,7 @@ TAB-TODO                                                         *xtabline-todo*
 This command opens a todo file at the tab's CWD. Default mapping is <leader>TT
 
 If you change the following options, make sure that both of them appear in
-your `.vimrc` file.
+your |.vimrc| file.
 
 You can define the filename (include the directory separator!):
 
@@ -199,9 +199,9 @@ And you can define other options:
                          \ 'command': 'sp', 'prefix': 'below',
                          \ 'size': 20, 'syntax': 'markdown'}
 <
-    `path`    : you shouldn't change this
-    `command` : can be `sp`, `vs`, `edit`, etc.
-    `prefix`  : will influence where the window appears (check `opening-window` for help)
+    `path`    : you shouldn't change this, only change `g:xtabline_todo_file`
+    `command` : can be |sp|, |vs|, |edit|, etc.
+    `prefix`  : will influence where the window appears (check |opening-window| for help)
     `size`    : the height/width of the window
     `syntax`  : the syntax that will be loaded
 
@@ -216,12 +216,12 @@ empty buffers that may be created for different reasons. If disabled, these
 buffers will show up in every tab. If enabled, they will be gone when you
 switch tab. It is disabled by default.
 
-To disable default mappings, add to your `.vimrc`
+To disable default mappings, add to your |.vimrc|
 
     `let g:xtabline_disable_keybindings = 1`
 >
 You can remap commands individually. These are the customizable options with
-their defaults. You can copy this section to your `.vimrc` and change the
+their defaults. You can copy this section to your |.vimrc| and change the
 values to ones you prefer.
 
 >
@@ -255,7 +255,7 @@ WARNINGS                                                     *xtabline-warnings*
 
 This is the first version and there may be bugs and imprecisions.
 
-Of special note, is that I called the `doautocmd BufAdd` command in a couple
+Of special note, is that I called the |doautocmd| |BufAdd| command in a couple
 of occasions, to force the redrawing of the tabline (this is handled by
 Airline). I couldn't find another method to force the redraw, this may change
 in the future. I don't think that calling it can cause much trouble, though.
@@ -268,6 +268,7 @@ CREDITS                                                       *xtabline-credits*
 Braam Moolenaar for Vim
 |vim-airline| authors
 Junegunn Choi for |fzf.vim|
+Tim Pope for vim-|obsession|
 
 
 

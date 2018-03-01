@@ -538,11 +538,11 @@ function! s:Update()
 endfunction
 
 function! s:TabEnterCommands()
-    try
-        let t:cwd = g:xtab_cwds[tabpagenr()-1]
-    catch
+    if !exists('g:obsession_append')
         return
-    endtry
+    else
+        let t:cwd = g:xtab_cwds[tabpagenr()-1]
+    endif
 
     cd `=t:cwd`
     let g:xtabline_todo['path'] = t:cwd.g:xtabline_todo_file
