@@ -240,8 +240,8 @@ function! <SID>NextBuffer()
         let s:most_recent = s:accepted[0]
 
     elseif ix == -1
-        " not in index, go back to most recent
-        if s:most_recent == -1
+        " not in index, go back to most recent or back to first
+        if s:most_recent == -1 || index(s:accepted, s:most_recent) == -1
             let s:most_recent = s:accepted[0]
         endif
     else
@@ -267,8 +267,8 @@ function! <SID>PrevBuffer()
         let s:most_recent = s:accepted[-1]
 
     elseif ix == -1
-        " not in index, go back to most recent
-        if s:most_recent == -1
+        " not in index, go back to most recent or back to first
+        if s:most_recent == -1 || index(s:accepted, s:most_recent) == -1
             let s:most_recent = s:accepted[0]
         endif
     else

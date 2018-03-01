@@ -3,29 +3,28 @@
 XTABLINE - TABLE OF CONTENTS                        *xtabline-vim* *xtabline-toc*
 ==============================================================================
 
-    Introduction
-    Features
-    Requirements
-    Installation
-    Interaction with vim-airline
-    Tab Buffers navigation
-    Toggling
-    Persistance
-    Bookmarks
-    TabTodo
-    fzf commands
-    Customization
-    Mappings
-    Warnings
-    Credits
-    License
+    Introduction                          |xtabline-intro|
+    Features                              |xtabline-features|
+    Requirements                          |xtabline-requirements|
+    Installation                          |xtabline-installation|
+    Interaction with vim-airline          |xtabline-airline|
+    Tab Buffers navigation                |xtabline-buffers|
+    Toggling                              |xtabline-toggle|
+    Persistance                           |xtabline-persistance|
+    Bookmarks                             |xtabline-mappings|
+    TabTodo                               |xtabline-todo|
+    fzf commands                          |xtabline-fzf|
+    Customization                         |xtabline-customize|
+    Warnings                              |xtabline-warnings|
+    Credits                               |xtabline-credits|
+    License                               |xtabline-license|
 
 
 
 INTRODUCTION                                                    *xtabline-intro*
 ==============================================================================
 
-XTabline is an extension for `vim-airline`
+XTabline is an extension for |vim-airline|
 
 Its main purpose is to provide a way to filter buffers in the tabline,
 depending on the current working directory. Since switching tabs without
@@ -33,7 +32,7 @@ switching the CWD would cause wrong buffers to be displayed in the tabline,
 XTabline also remembers the CWD for each tab, so that when you switch them,
 the CWD is automatically set to the last path that specific tab was set to.
 
-    Eg. you have 2 tabs, you set a CWD with `:cd` in the second tab; switching
+    Eg. you have 2 tabs, you set a CWD with |:cd| in the second tab; switching
     to #1 would set back the old CWD. Switching back to #2 would set the path
     you defined for that tab.
 
@@ -62,11 +61,11 @@ path is within that tab's CWD.
 
     * Tab-todo: customizable command to open a todo file for that tab
 
-    * `fzf-vim` integration:
+    * |fzf-vim| integration:
         - open/delete multiple `Tab Buffers` at once.
-        - access `Tab Bookmarks` or NERDTreeBookmarks.
+        - access `Tab Bookmarks` or |NERDTreeBookmarks|.
 
-    * `vim-obsession` support for CWDs persistance across sessions
+    * |vim-obsession| support for CWDs persistance across sessions
 
 
 
@@ -110,7 +109,7 @@ variable instead:
 TAB BUFFERS NAVIGATION                                        *xtabline-buffers*
 ==============================================================================
 
-If you use the normal `:bnext` command, you still cycle among the default
+If you use the normal |:bnext| command, you still cycle among the default
 (global) buffer list. If that buffer doesn't 'belong' to that tab, because its
 path is outside the current CWD, the buffer will be loaded, but it won't be
 shown in the tabline. Only the buffers that are relevant to that tab will be
@@ -158,43 +157,27 @@ You can toggle both between tabs and buffers, and buffers filtering on and off
 PERSISTANCE                                               *xtabline-persistance*
 ==============================================================================
 
-If you use `vim-obsession` your tabs CWDs will be remembered inside a session
+If you use |vim-obsession| your tabs CWDs will be remembered inside a session
 that is currently tracked. It's an automatic process and you don't need to do
 or set anything.
-
-
-
-MORE OPTIONS                                                *xtabline-customize*
-==============================================================================
-
-Some more options are available:
-
-
-    `let g:xtabline_bookmaks_file = expand('$HOME/.vim/.XTablineBookmarks')`
-    `let g:xtabline_autodelete_empty_buffers = 0`
-
-The second one has the effect of automatically deleting (by `bdelete`) unnamed
-empty buffers that may be created for different reasons. If disabled, these
-buffers will show up in every tab. If enabled, they will be gone when you
-switch tab. It is disabled by default.
 
 
 
 FZF COMMANDS                                                      *xtabline-fzf*
 ==============================================================================
 
-These commands require `fzf-vim`.
+These commands require |fzf-vim|.
 With most of them you can select multiple items by pressing <Tab>.
 
  -----------------------------+-----------------------------------------------------------------------
  Command                      | Effect                                                                  ~
  -----------------------------+-----------------------------------------------------------------------
  XTabBuffersOpen              | Open a list of `Tab Buffers` to choose from
- XTabBuffersDelete            | Same list, but use `bdelete` command on them
- XTabAllBuffersDelete         | `bdelete`, but choose from the global buffers list
+ XTabBuffersDelete            | Same list, but use |bdelete| command on them
+ XTabAllBuffersDelete         | |bdelete|, but choose from the global buffers list
  XTabBookmarksLoad            | Open the `Tab Bookmarks` list
  XTabBookmarksSave            | Save the current tab as a bookmark (custom naming)
- XTabNERDBookmarks            | Open the list of `NERDTreeBookmarks`
+ XTabNERDBookmarks            | Open the list of |NERDTreeBookmarks|
 
 
 
@@ -223,8 +206,15 @@ And you can define other options:
     `syntax`  : the syntax that will be loaded
 
 
-MAPPINGS                                                     *xtabline-mappings*
+CUSTOMIZATION                                               *xtabline-customize*
 ==============================================================================
+
+    `let g:xtabline_autodelete_empty_buffers = 0`
+
+This option has the effect of automatically deleting (by |bdelete|) unnamed
+empty buffers that may be created for different reasons. If disabled, these
+buffers will show up in every tab. If enabled, they will be gone when you
+switch tab. It is disabled by default.
 
 To disable default mappings, add to your `.vimrc`
 
@@ -276,8 +266,8 @@ CREDITS                                                       *xtabline-credits*
 ==============================================================================
 
 Braam Moolenaar for Vim
-`vim-airline` authors
-Junegunn Choi for `fzf.vim`
+|vim-airline| authors
+Junegunn Choi for |fzf.vim|
 
 
 
