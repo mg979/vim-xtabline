@@ -532,7 +532,13 @@ function! s:InitCwds()
 endfunction
 
 function! XTablineUpdateObsession()
-    let g:obsession_append = 'let g:xtab_cwds = '.string(g:xtab_cwds).' | call XTablineUpdateObsession()'
+    let string = 'let g:xtab_cwds = '.string(g:xtab_cwds).' | call XTablineUpdateObsession()'
+    if !exists('g:obsession_append')
+        let g:obsession_append = [string]
+    else
+        call filter(g:obsession_append, 'v:val !~# "^let g:xtab_cwds"')
+        call add(g:obsession_append, string)
+    endif
 endfunction
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -577,7 +583,7 @@ function! s:Do(action)
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-    let g:obsession_append = 'let g:xtab_cwds = '.string(g:xtab_cwds).' | call XTablineUpdateObsession()'
+    call XTablineUpdateObsession()
 endfunction
 
 augroup plugin-xtabline
