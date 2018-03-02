@@ -1,4 +1,6 @@
-#### Xtabline
+### Xtabline
+
+![pic](https://i.imgur.com/SN6FNnA.gif)
 
     Introduction
     Features
@@ -37,6 +39,8 @@ it, to display only the buffers whose path is within the CWD for that tab.
 
   
   
+---
+
 #### Features List
 
 With *Tab Buffer* is meant a buffer that is associated with a tab, because its
@@ -64,6 +68,8 @@ path is within that tab's CWD.
 
   
   
+---
+
 #### Requirements
 
 [vim-airline](https://github.com/vim-airline/vim-airline) is required.  
@@ -72,6 +78,8 @@ path is within that tab's CWD.
 
   
   
+---
+
 #### Installation
 
 Use {vim-plug}{4} or any other Vim plugin manager.
@@ -84,6 +92,8 @@ With vim-plug:
 
   
   
+---
+
 #### Interaction With Airline
 
 XTabline exploits the built-in Airline 'excludes' list to achieve buffer
@@ -95,6 +105,8 @@ variable instead:
 
   
   
+---
+
 #### Tab Buffers Navigation
 
 If you use the normal *:bnext* command, you still cycle among the default
@@ -127,6 +139,8 @@ Examples:
 
   
   
+---
+
 #### Toggling Options
 
 You can toggle both between tabs and buffers, and buffers filtering on and off
@@ -139,6 +153,8 @@ You can toggle both between tabs and buffers, and buffers filtering on and off
 
   
   
+---
+
 #### Persistance
 
 If you use *vim-obsession* your tabs CWDs will be remembered inside a session
@@ -147,6 +163,8 @@ or set anything.
 
   
   
+---
+
 #### Fzf Commands
 
 These commands require *fzf-vim*.
@@ -163,6 +181,8 @@ With most of them you can select multiple items by pressing <Tab>.
 
   
   
+---
+
 #### Tab-Todo
 
 This command opens a todo file at the tab's CWD. Default mapping is <leader>TT
@@ -187,6 +207,8 @@ And you can define other options:
     *syntax*  : the syntax that will be loaded
   
   
+---
+
 #### Customization
 
     `let g:xtabline_autodelete_empty_buffers = 0`
@@ -231,9 +253,11 @@ values to ones you prefer.
 ```
   
   
+---
+
 #### Warnings
 
-This README won-t be updated as often as the main help file. If you install the plugin, refer to that one instead.
+This README won't be updated as often as the main help file. If you install the plugin, refer to that one instead.
 
 This is the first version and there may be bugs and imprecisions.
 
@@ -244,6 +268,8 @@ in the future. I don't think that calling it can cause much trouble, though.
 
   
   
+---
+
 #### Credits
 
 Braam Moolenaar for Vim  
@@ -253,6 +279,8 @@ Tim Pope for *vim-obsession*
 
   
   
+---
+
 #### License
 
 MIT
