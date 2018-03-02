@@ -13,9 +13,10 @@ endif
 " Commands
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-com! XTabBuffersOpen call fzf#run({'source': s:TabBuffers(),
-                                \ 'sink': 'vs', 'down': '30%',
-                                \ 'options': '--multi --reverse'})
+com! -bang -nargs=? -complete=buffer XTabBuffersOpen call fzf#vim#files(<q-args>, {'source': s:TabBuffers()}, <bang>0)
+                         "fzf#run({'source': s:TabBuffers(),
+                                "\ 'sink': 'e', 'down': '30%',
+                                "\ 'options': '--multi --reverse'})
 
 com! XTabBuffersDelete call fzf#run({'source': s:TabBuffers(),
                                   \ 'sink': function('s:TabBDelete'), 'down': '30%',
@@ -519,59 +520,74 @@ endfunction
 " Copyright (C) 2018 Gianmaria Bajo <mg1979.git@gmail.com>
 " License: MIT License
 
-function! s:InitCwds(new)
-    if !exists('g:xtab_cwds')
-        let g:xtab_cwds = []
-    endif
-    if a:new
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+function! s:InitCwds()
+    if !exists('g:xtab_cwds') | let g:xtab_cwds = [] | endif
+
+    while len(g:xtab_cwds) < tabpagenr("$")
+        call add(g:xtab_cwds, getcwd())
+    endwhile
+    let s:state = 1
+endfunction
+
+function! XTablineUpdateObsession()
+    let g:obsession_append = 'let g:xtab_cwds = '.string(g:xtab_cwds).' | call XTablineUpdateObsession()'
+endfunction
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+function! s:Do(action)
+    let arg = a:action
+    if !s:state | call s:InitCwds() | return | endif
+
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+    if arg == 'new'
+
         call insert(g:xtab_cwds, getcwd(), tabpagenr()-1)
-    else
-        while len(g:xtab_cwds) < tabpagenr("$")
-            call add(g:xtab_cwds, getcwd())
-        endwhile
+
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+    elseif arg == 'enter'
+        if s:state != 2 | return | endif
+        let t:cwd =g:xtab_cwds[tabpagenr()-1]
+
+        cd `=t:cwd`
+        let g:xtabline_todo['path'] = t:cwd.g:xtabline_todo_file
+        call s:FilterBuffers()
+
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+    elseif arg == 'leave'
+
+        let s:state = 2
+        let t:cwd = getcwd()
+        let g:xtab_cwds[tabpagenr()-1] = t:cwd
+
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+    elseif arg == 'close'
+
+        if tabpagenr() == tabpagenr("$")
+            call remove(g:xtab_cwds, tabpagenr())
+        else
+            call remove(g:xtab_cwds, tabpagenr()-1) | endif
     endif
-    call s:Update()
-endfunction
 
-function! s:Update()
-    let g:obsession_append = 'let g:xtab_cwds = '.string(g:xtab_cwds)
-endfunction
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-function! s:TabEnterCommands()
-    if !exists('g:obsession_append')
-        return
-    else
-        let t:cwd = g:xtab_cwds[tabpagenr()-1]
-    endif
-
-    cd `=t:cwd`
-    let g:xtabline_todo['path'] = t:cwd.g:xtabline_todo_file
-    call s:FilterBuffers()
-endfunction
-
-function! s:TabLeaveCommands()
-    let t:cwd = getcwd()
-    let g:xtab_cwds[tabpagenr()-1] = t:cwd
-    call s:Update()
-endfunction
-
-function! s:TabClosedCommands()
-    if tabpagenr() == tabpagenr("$")
-        call remove(g:xtab_cwds, tabpagenr())
-    else
-        call remove(g:xtab_cwds, tabpagenr()-1)
-    endif
-    call s:Update()
+    let g:obsession_append = 'let g:xtab_cwds = '.string(g:xtab_cwds).' | call XTablineUpdateObsession()'
 endfunction
 
 augroup plugin-xtabline
     autocmd!
 
-    autocmd VimEnter  * call s:InitCwds(0)
-    autocmd TabNew    * call s:InitCwds(1)
-    autocmd TabEnter  * call s:TabEnterCommands()
-    autocmd TabLeave  * call s:TabLeaveCommands()
-    autocmd TabClosed * call s:TabClosedCommands()
+    autocmd VimEnter  * let s:state = 0
+    autocmd TabNew    * call s:Do('new')
+    autocmd TabEnter  * call s:Do('enter')
+    autocmd TabLeave  * call s:Do('leave')
+    autocmd TabClosed * call s:Do('close')
 
     autocmd BufEnter  * let g:xtabline_changing_buffer = 0
     autocmd BufAdd,BufDelete,BufWrite * call s:FilterBuffers(1)
