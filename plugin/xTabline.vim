@@ -13,10 +13,8 @@ endif
 " Commands
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-com! -bang -nargs=? -complete=buffer XTabBuffersOpen call fzf#vim#files(<q-args>, {'source': s:TabBuffers()}, <bang>0)
-                         "fzf#run({'source': s:TabBuffers(),
-                                "\ 'sink': 'e', 'down': '30%',
-                                "\ 'options': '--multi --reverse'})
+com! -bang -nargs=? -complete=buffer XTabBuffersOpen call fzf#vim#files(
+                                    \ <q-args>, {'source': s:TabBuffers()}, <bang>0)
 
 com! XTabBuffersDelete call fzf#run({'source': s:TabBuffers(),
                                   \ 'sink': function('s:TabBDelete'), 'down': '30%',
@@ -44,7 +42,6 @@ com! XTabTodo call <SID>TabTodo()
 let g:loaded_xtabline = 1
 let s:most_recent = -1
 let g:xtabline_filtering = 1
-let g:airline#extensions#tabline#show_tabs = 1
 
 let g:xtabline_autodelete_empty_buffers = get(g:, 'xtabline_autodelete_empty_buffers', 0)
 let g:xtabline_excludes = get(g:, 'xtabline_excludes', [])
@@ -596,7 +593,10 @@ augroup plugin-xtabline
     autocmd TabClosed * call s:Do('close')
 
     autocmd BufEnter  * let g:xtabline_changing_buffer = 0
-    autocmd BufAdd,BufDelete,BufWrite * call s:FilterBuffers(1)
+
+    if get(g:, 'xtabline_bufcmd_update', 0)
+        autocmd BufAdd,BufDelete,BufWrite * call s:FilterBuffers(1)
+    endif
 
 augroup END
 

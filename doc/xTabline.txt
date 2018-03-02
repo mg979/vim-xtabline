@@ -104,6 +104,10 @@ variable instead:
 
     `let g:xtabline_excludes = []`
 
+In any case, you should have this enabled:
+
+    `let g:airline#extensions#tabline#enabled = 1`
+
 
 
 TAB BUFFERS NAVIGATION                                        *xtabline-buffers*
@@ -220,6 +224,10 @@ To disable default mappings, add to your |.vimrc|
 
     `let g:xtabline_disable_keybindings = 1`
 >
+To enable refreshing after buffer events, add:
+
+    `let g:xtabline_bufcmd_update = 1`
+
 You can remap commands individually. These are the customizable options with
 their defaults. You can copy this section to your |.vimrc| and change the
 values to ones you prefer.
