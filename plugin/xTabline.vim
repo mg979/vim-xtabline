@@ -286,7 +286,7 @@ function! <SID>SelectBuffer(nr)
         return
     endif
 
-    if (a:nr > len(s:accepted)) || s:NotEnoughBuffers()
+    if (a:nr > len(s:accepted)) || s:NotEnoughBuffers() || s:accepted[a:nr - 1] == bufnr("%")
         return
     else
         let g:xtabline_changing_buffer = 1
