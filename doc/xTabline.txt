@@ -224,9 +224,9 @@ To disable default mappings, add to your |.vimrc|
 
     `let g:xtabline_disable_keybindings = 1`
 >
-To enable refreshing after buffer events, add:
+To disable refreshing after buffer events, add:
 
-    `let g:xtabline_bufcmd_update = 1`
+    `let g:xtabline_bufevent_update = 0`
 
 You can remap commands individually. These are the customizable options with
 their defaults. You can copy this section to your |.vimrc| and change the

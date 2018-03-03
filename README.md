@@ -88,8 +88,6 @@ With vim-plug:
 
     `Plug 'mg979/vim-xtabline'`
 
-                                      {4} https://github.com/junegunn/vim-plug
-
   
   
 ---

@@ -42,6 +42,7 @@ com! XTabTodo call <SID>TabTodo()
 let g:loaded_xtabline = 1
 let s:most_recent = -1
 let g:xtabline_filtering = 1
+let xtabline_bufevent_update = 1
 
 let g:xtabline_autodelete_empty_buffers = get(g:, 'xtabline_autodelete_empty_buffers', 0)
 let g:xtabline_excludes = get(g:, 'xtabline_excludes', [])
@@ -58,7 +59,6 @@ endif
 if !filereadable(g:xtabline_bookmaks_file)
     call writefile([], g:xtabline_bookmaks_file)
 endif
-
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Mappings
@@ -538,6 +538,10 @@ function! XTablineUpdateObsession()
     endif
 endfunction
 
+function! s:OnBufEvent()
+    if g:xtabline_bufevent_update | call s:FilterBuffers(1) | endif
+endfunction
+
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 function! s:Do(action)
@@ -593,10 +597,7 @@ augroup plugin-xtabline
     autocmd TabClosed * call s:Do('close')
 
     autocmd BufEnter  * let g:xtabline_changing_buffer = 0
-
-    if get(g:, 'xtabline_bufcmd_update', 0)
-        autocmd BufAdd,BufDelete,BufWrite * call s:FilterBuffers(1)
-    endif
+    autocmd BufAdd,BufDelete,BufWrite * call s:OnBufEvent()
 
 augroup END
 
