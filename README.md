@@ -86,7 +86,7 @@ Use {vim-plug}{4} or any other Vim plugin manager.
 
 With vim-plug:
 
-    `Plug 'mg979/vim-xtabline'`
+    Plug 'mg979/vim-xtabline'
 
   
   
@@ -99,7 +99,7 @@ filtering. The *g:airline#extensions#tabline#excludes* variable is overwritten
 at every tab switch, therefore if you use it, you will need to use this new
 variable instead:
 
-    `let g:xtabline_excludes = []`
+    let g:xtabline_excludes = []
 
   
   
@@ -132,8 +132,8 @@ Default is `buffer #`
 
 Examples:
 
-    `let g:xtabline_alt_action = "buffer #"`    (switch to alternative buffer)
-    `let g:xtabline_alt_action = "Buffers"`     (call fzf-vim `:Buffers` command)
+    let g:xtabline_alt_action = "buffer #"    (switch to alternative buffer)
+    let g:xtabline_alt_action = "Buffers"     (call fzf-vim :Buffers command)
 
   
   
@@ -190,7 +190,7 @@ your *.vimrc* file.
 
 You can define the filename (include the directory separator!):
 
-    `let g:xtabline_todo_file = "/.TODO"`
+    let g:xtabline_todo_file = "/.TODO"
 
 And you can define other options:
 ```vim
@@ -209,7 +209,7 @@ And you can define other options:
 
 #### Customization
 
-    `let g:xtabline_autodelete_empty_buffers = 0`
+    let g:xtabline_autodelete_empty_buffers = 0
 
 This option has the effect of automatically deleting (by `bdelete`) unnamed
 empty buffers that may be created for different reasons. If disabled, these

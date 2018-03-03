@@ -120,7 +120,7 @@ shown in the tabline. Only the buffers that are relevant to that tab will be
 shown there.
 
 There are new commands that allow you to cycle `Tab Buffers`; these commands
-also work when in `tabs mode` (see 'xtabline-toggle' ).
+also work when in `tabs mode` (see |xtabline-toggle| ).
 
  ---------------------------------+------------------------------------------
  Mapping                          | Default                              ~
