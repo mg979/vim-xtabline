@@ -34,6 +34,7 @@ com! XTabNERDBookmarks call fzf#run({'source': s:TabNERDBookmarks(),
 
 com! XTabBookmarksSave call <SID>TabBookmarksSave()
 com! XTabTodo call <SID>TabTodo()
+com! XTabPurge call <SID>PurgeBuffers()
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Variables
@@ -81,57 +82,63 @@ if !exists('g:xtabline_disable_keybindings')
         map <unique> <S-PageUp> <Plug>XTablinePrevBuffer
     endif
     if !hasmapto('<Plug>XTablineBuffersOpen')
-        map <unique> <leader>BB <Plug>XTablineBuffersOpen
+        map <unique> <leader>Xx <Plug>XTablineBuffersOpen
     endif
     if !hasmapto('<Plug>XTablineBuffersDelete')
-        map <unique> <leader>BD <Plug>XTablineBuffersDelete
+        map <unique> <leader>Xd <Plug>XTablineBuffersDelete
     endif
     if !hasmapto('<Plug>XTablineAllBuffersDelete')
-        map <unique> <leader>BA <Plug>XTablineAllBuffersDelete
+        map <unique> <leader>Xa <Plug>XTablineAllBuffersDelete
     endif
     if !hasmapto('<Plug>XTablineBookmarksLoad')
-        map <unique> <leader>BL <Plug>XTablineBookmarksLoad
+        map <unique> <leader>Xl <Plug>XTablineBookmarksLoad
     endif
     if !hasmapto('<Plug>XTablineBookmarksSave')
-        map <unique> <leader>BS <Plug>XTablineBookmarksSave
+        map <unique> <leader>Xs <Plug>XTablineBookmarksSave
+    endif
+    if !hasmapto('<Plug>XTablinePurge')
+        map <unique> <leader>Xp <Plug>XTablinePurge
     endif
     if !hasmapto('<Plug>XTablineTabTodo')
-        map <unique> <leader>TT <Plug>XTablineTabTodo
+        map <unique> <leader>Xtt <Plug>XTablineTabTodo
     endif
 endif
 
 nnoremap <unique> <script> <Plug>XTablineToggleTabs <SID>ToggleTabs
-nnoremap <SID>ToggleTabs :call <SID>ToggleTabs()<cr>
+nnoremap <silent> <SID>ToggleTabs :call <SID>ToggleTabs()<cr>
 
 nnoremap <unique> <script> <Plug>XTablineToggleBuffers <SID>ToggleBuffers
-nnoremap <SID>ToggleBuffers :call <SID>ToggleBuffers()<cr>
+nnoremap <silent> <SID>ToggleBuffers :call <SID>ToggleBuffers()<cr>
 
 nnoremap <unique> <script> <Plug>XTablineSelectBuffer <SID>SelectBuffer
-nnoremap <expr> <SID>SelectBuffer g:xtabline_changing_buffer ? "\<C-c>" : ":<C-u>call <SID>SelectBuffer(v:count)\<cr>"
+nnoremap <silent> <expr> <SID>SelectBuffer g:xtabline_changing_buffer ? "\<C-c>" : ":<C-u>call <SID>SelectBuffer(v:count)\<cr>"
 
 nnoremap <unique> <script> <Plug>XTablineNextBuffer <SID>NextBuffer
-nnoremap <SID>NextBuffer :call <SID>NextBuffer()<cr>
+nnoremap <silent> <SID>NextBuffer :call <SID>NextBuffer()<cr>
 
 nnoremap <unique> <script> <Plug>XTablinePrevBuffer <SID>PrevBuffer
-nnoremap <SID>PrevBuffer :call <SID>PrevBuffer()<cr>
+nnoremap <silent> <SID>PrevBuffer :call <SID>PrevBuffer()<cr>
 
 nnoremap <unique> <script> <Plug>XTablineBuffersOpen <SID>TabBuffersOpen
-nnoremap <SID>TabBuffersOpen :XTabBuffersOpen<cr>
+nnoremap <silent> <SID>TabBuffersOpen :XTabBuffersOpen<cr>
 
 nnoremap <unique> <script> <Plug>XTablineBuffersDelete <SID>TabBuffersDelete
-nnoremap <SID>TabBuffersDelete :XTabBuffersDelete<cr>
+nnoremap <silent> <SID>TabBuffersDelete :unsilent echo 'Deleting buffers for this tab:'<cr>:XTabBuffersDelete<cr>
 
 nnoremap <unique> <script> <Plug>XTablineAllBuffersDelete <SID>TabAllBuffersDelete
-nnoremap <SID>TabAllBuffersDelete :XTabAllBuffersDelete<cr>
+nnoremap <silent> <SID>TabAllBuffersDelete :unsilent echo 'Deleting buffers from all tabs:'<cr>:XTabAllBuffersDelete<cr>
 
 nnoremap <unique> <script> <Plug>XTablineBookmarksLoad <SID>TabBookmarksLoad
-nnoremap <SID>TabBookmarksLoad :XTabBookmarksLoad<cr>
+nnoremap <silent> <SID>TabBookmarksLoad :unsilent echo 'Load a tab from bookmarks:'<cr>:XTabBookmarksLoad<cr>
 
 nnoremap <unique> <script> <Plug>XTablineBookmarksSave <SID>TabBookmarksSave
-nnoremap <SID>TabBookmarksSave :XTabBookmarksSave<cr>
+nnoremap <silent> <SID>TabBookmarksSave :XTabBookmarksSave<cr>
+
+nnoremap <unique> <script> <Plug>XTablinePurge <SID>PurgeBuffers
+nnoremap <silent> <SID>PurgeBuffers :XTabPurge<cr>
 
 nnoremap <unique> <script> <Plug>XTablineTabTodo <SID>TabTodo
-nnoremap <SID>TabTodo :XTabTodo<cr>
+nnoremap <silent> <SID>TabTodo :XTabTodo<cr>
 
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -175,6 +182,27 @@ function! <SID>ToggleBuffers()
         call s:FilterBuffers()
         doautocmd BufAdd
     endif
+endfunction
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+function! <SID>PurgeBuffers()
+    """Remove unmodified buffers with invalid paths."""
+
+    if !g:xtabline_filtering | echo "Buffer filtering is turned off." | return | endif
+
+    let ix = 0 | let bcnt = 0
+    for buf in s:accepted
+        if !filereadable(fnamemodify(bufname(buf), ":p"))
+            if !getbufvar(buf, "&modified")
+                let bcnt += 1
+                call remove(s:accepted, ix)
+                execute "bdelete ".buf
+            endif
+        endif
+    endfor
+    call s:FilterBuffers()
+    let s = "Purged ".bcnt." buffer" | let s .= bcnt!=1 ? "s." : "." | echo s
 endfunction
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -312,10 +340,6 @@ endfunction
 
 function! s:TabBuffers()
     """Open a list of buffers for this tab with fzf.vim."""
-
-    "fun! Format(nr)
-        "return "[".a:nr."]".repeat(" ", 5 - len(a:nr)).bufname(a:nr)
-    "endfunction
 
     return map(copy(s:accepted), 'bufname(v:val)')
 endfunction
@@ -469,7 +493,7 @@ function! s:TabBDelete(...)
         execute "bdelete ".buf
         let ix = index(s:accepted, bufnr(buf))
         call remove(s:accepted, ix)
-        call s:RefreshTabline()
+        call s:FilterBuffers()
     endfor
 endfunction
 

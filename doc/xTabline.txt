@@ -11,9 +11,8 @@ XTABLINE - TABLE OF CONTENTS                        *xtabline-vim* *xtabline-toc
     Tab Buffers navigation                |xtabline-buffers|
     Toggling                              |xtabline-toggle|
     Persistance                           |xtabline-persistance|
-    Bookmarks                             |xtabline-mappings|
+    Commands                              |xtabline-commands|
     TabTodo                               |xtabline-todo|
-    fzf commands                          |xtabline-fzf|
     Customization                         |xtabline-customize|
     Warnings                              |xtabline-warnings|
     Credits                               |xtabline-credits|
@@ -167,21 +166,22 @@ or set anything.
 
 
 
-FZF COMMANDS                                                      *xtabline-fzf*
+COMMANDS                                                     *xtabline-commands*
 ==============================================================================
 
-These commands require |fzf-vim|.
+Most of these commands require |fzf-vim|.
 With most of them you can select multiple items by pressing <Tab>.
 
- -----------------------------+-----------------------------------------------------------------------
- Command                      | Effect                                                                  ~
- -----------------------------+-----------------------------------------------------------------------
- XTabBuffersOpen              | Open a list of `Tab Buffers` to choose from
- XTabBuffersDelete            | Same list, but use |bdelete| command on them
- XTabAllBuffersDelete         | |bdelete|, but choose from the global buffers list
- XTabBookmarksLoad            | Open the `Tab Bookmarks` list
- XTabBookmarksSave            | Save the current tab as a bookmark (custom naming)
- XTabNERDBookmarks            | Open the list of |NERDTreeBookmarks|
+ -----------------------+-----+-------------------------------------------------
+ Command                | fzf | Effect                                            ~
+ -----------------------+-----+-------------------------------------------------
+ XTabBuffersOpen        |  Y  | Open a list of `Tab Buffers` to choose from
+ XTabBuffersDelete      |  Y  | Same list, but use |bdelete| command on them
+ XTabAllBuffersDelete   |  Y  | |bdelete|, but choose from the global buffers list
+ XTabBookmarksLoad      |  Y  | Open the `Tab Bookmarks` list
+ XTabBookmarksSave      |  Y  | Save the current tab as a bookmark (custom naming)
+ XTabNERDBookmarks      |  Y  | Open the list of |NERDTreeBookmarks|
+ XTabPurge              |  N  | Purge orphaned buffers/previews
 
 
 
@@ -242,12 +242,12 @@ values to ones you prefer.
     nmap <leader>l         <Plug>XTablineSelectBuffer
     nmap <S-PageDown>      <Plug>XTablineNextBuffer
     nmap <S-PageUp>        <Plug>XTablinePrevBuffer
-    nmap <leader>BB        <Plug>XTablineBuffersOpen
-    nmap <leader>BD        <Plug>XTablineBuffersDelete
-    nmap <leader>BA        <Plug>XTablineAllBuffersDelete
-    nmap <leader>BL        <Plug>XTablineBookmarksLoad
-    nmap <leader>BS        <Plug>XTablineBookmarksSave
-    nmap <leader>TT        <Plug>XTablineTabTodo
+    nmap <leader>Xx        <Plug>XTablineBuffersOpen
+    nmap <leader>Xd        <Plug>XTablineBuffersDelete
+    nmap <leader>Xa        <Plug>XTablineAllBuffersDelete
+    nmap <leader>Xl        <Plug>XTablineBookmarksLoad
+    nmap <leader>Xs        <Plug>XTablineBookmarksSave
+    nmap <leader>Xtt       <Plug>XTablineTabTodo
 
     let g:xtabline_todo_file = "/.TODO"
     let g:xtabline_todo = {'path': getcwd().g:xtabline_todo_file, 'command': 'sp', 'prefix': 'below', 'size': 20, 'syntax': 'markdown'}
