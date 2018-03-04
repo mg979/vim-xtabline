@@ -35,6 +35,7 @@ com! XTabNERDBookmarks call fzf#run({'source': s:TabNERDBookmarks(),
 com! XTabBookmarksSave call <SID>TabBookmarksSave()
 com! XTabTodo call <SID>TabTodo()
 com! XTabPurge call <SID>PurgeBuffers()
+com! XTabReopen call <SID>ReopenLastTab()
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Variables
@@ -88,7 +89,7 @@ if !exists('g:xtabline_disable_keybindings')
         map <unique> <leader>Xd <Plug>XTablineBuffersDelete
     endif
     if !hasmapto('<Plug>XTablineAllBuffersDelete')
-        map <unique> <leader>Xa <Plug>XTablineAllBuffersDelete
+        map <unique> <leader>XD <Plug>XTablineAllBuffersDelete
     endif
     if !hasmapto('<Plug>XTablineBookmarksLoad')
         map <unique> <leader>Xl <Plug>XTablineBookmarksLoad
@@ -98,6 +99,9 @@ if !exists('g:xtabline_disable_keybindings')
     endif
     if !hasmapto('<Plug>XTablinePurge')
         map <unique> <leader>Xp <Plug>XTablinePurge
+    endif
+   if !hasmapto('<Plug>XTablineReopen')
+        map <unique> <leader>Xr <Plug>XTablineReopen
     endif
     if !hasmapto('<Plug>XTablineTabTodo')
         map <unique> <leader>Xtt <Plug>XTablineTabTodo
@@ -136,6 +140,9 @@ nnoremap <silent> <SID>TabBookmarksSave :XTabBookmarksSave<cr>
 
 nnoremap <unique> <script> <Plug>XTablinePurge <SID>PurgeBuffers
 nnoremap <silent> <SID>PurgeBuffers :XTabPurge<cr>
+
+nnoremap <unique> <script> <Plug>XTablineReopen <SID>ReopenLastTab
+nnoremap <silent> <SID>ReopenLastTab :XTabReopen<cr>
 
 nnoremap <unique> <script> <Plug>XTablineTabTodo <SID>TabTodo
 nnoremap <silent> <SID>TabTodo :XTabTodo<cr>
@@ -192,17 +199,33 @@ function! <SID>PurgeBuffers()
     if !g:xtabline_filtering | echo "Buffer filtering is turned off." | return | endif
 
     let ix = 0 | let bcnt = 0
-    for buf in s:accepted
+    for buf in t:accepted
         if !filereadable(fnamemodify(bufname(buf), ":p"))
             if !getbufvar(buf, "&modified")
                 let bcnt += 1
-                call remove(s:accepted, ix)
+                call remove(t:accepted, ix)
                 execute "bdelete ".buf
             endif
         endif
     endfor
     call s:FilterBuffers()
     let s = "Purged ".bcnt." buffer" | let s .= bcnt!=1 ? "s." : "." | echo s
+endfunction
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+function! <SID>ReopenLastTab()
+    """Reopen the last closed tab."""
+
+    let tab = s:most_recently_closed_tab
+    tabnew
+    let empty = bufnr("%")
+    let t:cwd = tab['cwd']
+    cd `=t:cwd`
+    let t:name = tab['name']
+    for buf in tab['buffers'] | execute "badd ".buf | endfor
+    execute "edit ".tab['buffers'][0]
+    execute "bdelete ".empty
 endfunction
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -219,7 +242,7 @@ function! s:FilterBuffers(...)
 
     let g:airline#extensions#tabline#accepted = []
     let g:airline#extensions#tabline#excludes = copy(g:xtabline_excludes)
-    let s:accepted = g:airline#extensions#tabline#accepted
+    let t:accepted = g:airline#extensions#tabline#accepted
     let s:excludes = g:airline#extensions#tabline#excludes
 
     " bufnr(0) is the alternate buffer
@@ -234,7 +257,7 @@ function! s:FilterBuffers(...)
 
         " confront with the cwd
         if path =~ getcwd()
-            call add(s:accepted, buf)
+            call add(t:accepted, buf)
         elseif bufname(buf) != ''
             call add(s:excludes, path)
         elseif a:000 == [] && g:xtabline_autodelete_empty_buffers
@@ -259,19 +282,19 @@ function! <SID>NextBuffer()
         return
     endif
 
-    let ix = index(s:accepted, bufnr("%"))
+    let ix = index(t:accepted, bufnr("%"))
 
-    if bufnr("%") == s:accepted[-1]
+    if bufnr("%") == t:accepted[-1]
         " last buffer, go to first
-        let s:most_recent = s:accepted[0]
+        let s:most_recent = t:accepted[0]
 
     elseif ix == -1
         " not in index, go back to most recent or back to first
-        if s:most_recent == -1 || index(s:accepted, s:most_recent) == -1
-            let s:most_recent = s:accepted[0]
+        if s:most_recent == -1 || index(t:accepted, s:most_recent) == -1
+            let s:most_recent = t:accepted[0]
         endif
     else
-        let s:most_recent = s:accepted[ix + 1]
+        let s:most_recent = t:accepted[ix + 1]
     endif
 
     execute "buffer " . s:most_recent
@@ -286,19 +309,19 @@ function! <SID>PrevBuffer()
         return
     endif
 
-    let ix = index(s:accepted, bufnr("%"))
+    let ix = index(t:accepted, bufnr("%"))
 
-    if bufnr("%") == s:accepted[0]
+    if bufnr("%") == t:accepted[0]
         " first buffer, go to last
-        let s:most_recent = s:accepted[-1]
+        let s:most_recent = t:accepted[-1]
 
     elseif ix == -1
         " not in index, go back to most recent or back to first
-        if s:most_recent == -1 || index(s:accepted, s:most_recent) == -1
-            let s:most_recent = s:accepted[0]
+        if s:most_recent == -1 || index(t:accepted, s:most_recent) == -1
+            let s:most_recent = t:accepted[0]
         endif
     else
-        let s:most_recent = s:accepted[ix - 1]
+        let s:most_recent = t:accepted[ix - 1]
     endif
 
     execute "buffer " . s:most_recent
@@ -314,11 +337,11 @@ function! <SID>SelectBuffer(nr)
         return
     endif
 
-    if (a:nr > len(s:accepted)) || s:NotEnoughBuffers() || s:accepted[a:nr - 1] == bufnr("%")
+    if (a:nr > len(t:accepted)) || s:NotEnoughBuffers() || t:accepted[a:nr - 1] == bufnr("%")
         return
     else
         let g:xtabline_changing_buffer = 1
-        execute "buffer ".s:accepted[a:nr - 1]
+        execute "buffer ".t:accepted[a:nr - 1]
     endif
 endfunction
 
@@ -341,7 +364,7 @@ endfunction
 function! s:TabBuffers()
     """Open a list of buffers for this tab with fzf.vim."""
 
-    return map(copy(s:accepted), 'bufname(v:val)')
+    return map(copy(t:accepted), 'bufname(v:val)')
 endfunction
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -474,7 +497,7 @@ function! <SID>TabBookmarksSave()
         call add(bufs, bufname(current))
     endif
     for buf in range(1, bufnr("$"))
-        if index(s:accepted, buf) >= 0 && (buf != current)
+        if index(t:accepted, buf) >= 0 && (buf != current)
             call add(bufs, bufname(buf))
         endif
     endfor
@@ -491,8 +514,8 @@ function! s:TabBDelete(...)
 
     for buf in a:000
         execute "bdelete ".buf
-        let ix = index(s:accepted, bufnr(buf))
-        call remove(s:accepted, ix)
+        let ix = index(t:accepted, bufnr(buf))
+        call remove(t:accepted, ix)
         call s:FilterBuffers()
     endfor
 endfunction
@@ -504,8 +527,8 @@ endfunction
 function! s:NotEnoughBuffers()
     """Just return if there aren't enough buffers."""
 
-    if len(s:accepted) < 2
-        if !len(s:accepted)
+    if len(t:accepted) < 2
+        if !len(t:accepted)
             echo "No available buffers for this tab."
         else
             echo "No other available buffers for this tab."
@@ -550,6 +573,8 @@ function! s:InitCwds()
         call add(g:xtab_cwds, getcwd())
     endwhile
     let s:state = 1
+    let t:cwd = getcwd()
+    call s:FilterBuffers()
 endfunction
 
 function! XTablineUpdateObsession()
@@ -581,7 +606,7 @@ function! s:Do(action)
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
     elseif arg == 'enter'
-        if s:state != 2 | return | endif
+
         let t:cwd =g:xtab_cwds[tabpagenr()-1]
 
         cd `=t:cwd`
@@ -592,13 +617,17 @@ function! s:Do(action)
 
     elseif arg == 'leave'
 
-        let s:state = 2
         let t:cwd = getcwd()
         let g:xtab_cwds[tabpagenr()-1] = t:cwd
+
+        if !exists('t:name') | let t:name = t:cwd | endif
+        let s:most_recent_tab = {'cwd': t:cwd, 'name': t:name, 'buffers': s:TabBuffers()}
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
     elseif arg == 'close'
+
+        let s:most_recently_closed_tab = copy(s:most_recent_tab)
 
         if tabpagenr() == tabpagenr("$")
             call remove(g:xtab_cwds, tabpagenr())

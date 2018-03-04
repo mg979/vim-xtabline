@@ -175,13 +175,14 @@ With most of them you can select multiple items by pressing <Tab>.
  -----------------------+-----+-------------------------------------------------
  Command                | fzf | Effect                                            ~
  -----------------------+-----+-------------------------------------------------
+ XTabReopen             |  N  | Reopen last closed tab
+ XTabPurge              |  N  | Purge orphaned buffers/previews
  XTabBuffersOpen        |  Y  | Open a list of `Tab Buffers` to choose from
  XTabBuffersDelete      |  Y  | Same list, but use |bdelete| command on them
  XTabAllBuffersDelete   |  Y  | |bdelete|, but choose from the global buffers list
  XTabBookmarksLoad      |  Y  | Open the `Tab Bookmarks` list
  XTabBookmarksSave      |  Y  | Save the current tab as a bookmark (custom naming)
  XTabNERDBookmarks      |  Y  | Open the list of |NERDTreeBookmarks|
- XTabPurge              |  N  | Purge orphaned buffers/previews
 
 
 
@@ -244,7 +245,9 @@ values to ones you prefer.
     nmap <S-PageUp>        <Plug>XTablinePrevBuffer
     nmap <leader>Xx        <Plug>XTablineBuffersOpen
     nmap <leader>Xd        <Plug>XTablineBuffersDelete
-    nmap <leader>Xa        <Plug>XTablineAllBuffersDelete
+    nmap <leader>XD        <Plug>XTablineAllBuffersDelete
+    nmap <leader>Xr        <Plug>XTablineReopen
+    nmap <leader>Xp        <Plug>XTablinePurge
     nmap <leader>Xl        <Plug>XTablineBookmarksLoad
     nmap <leader>Xs        <Plug>XTablineBookmarksSave
     nmap <leader>Xtt       <Plug>XTablineTabTodo

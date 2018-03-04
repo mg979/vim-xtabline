@@ -22,6 +22,9 @@
   
 #### Introduction
 
+*This README won't be updated as often as the main help file. If you install
+the plugin, refer to that one instead.*
+
 XTabline is an extension for *vim-airline*
 
 Its main purpose is to provide a way to filter buffers in the tabline,
@@ -82,7 +85,7 @@ path is within that tab's CWD.
 
 #### Installation
 
-Use {vim-plug}{4} or any other Vim plugin manager.
+Use [vim-plug](https://github.com/junegunn/vim-plug) or any other Vim plugin manager.
 
 With vim-plug:
 
@@ -254,8 +257,6 @@ values to ones you prefer.
 ---
 
 #### Warnings
-
-This README won't be updated as often as the main help file. If you install the plugin, refer to that one instead.
 
 This is the first version and there may be bugs and imprecisions.
 
