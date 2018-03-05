@@ -1,10 +1,10 @@
 xTabline.txt	xTabline.txt	/*xTabline.txt*
 xtabline-airline	xTabline.txt	/*xtabline-airline*
 xtabline-buffers	xTabline.txt	/*xtabline-buffers*
+xtabline-commands	xTabline.txt	/*xtabline-commands*
 xtabline-credits	xTabline.txt	/*xtabline-credits*
 xtabline-customize	xTabline.txt	/*xtabline-customize*
 xtabline-features	xTabline.txt	/*xtabline-features*
-xtabline-fzf	xTabline.txt	/*xtabline-fzf*
 xtabline-installation	xTabline.txt	/*xtabline-installation*
 xtabline-intro	xTabline.txt	/*xtabline-intro*
 xtabline-license	xTabline.txt	/*xtabline-license*

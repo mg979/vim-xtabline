@@ -100,7 +100,7 @@ if !exists('g:xtabline_disable_keybindings')
     if !hasmapto('<Plug>XTablinePurge')
         map <unique> <leader>Xp <Plug>XTablinePurge
     endif
-   if !hasmapto('<Plug>XTablineReopen')
+    if !hasmapto('<Plug>XTablineReopen')
         map <unique> <leader>Xr <Plug>XTablineReopen
     endif
     if !hasmapto('<Plug>XTablineTabTodo')
@@ -216,6 +216,9 @@ endfunction
 
 function! <SID>ReopenLastTab()
     """Reopen the last closed tab."""
+
+    if !exists(s:most_recently_closed_tab)
+        echo "No recent tabs." | return | endif
 
     let tab = s:most_recently_closed_tab
     tabnew
