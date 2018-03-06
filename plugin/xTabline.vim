@@ -217,7 +217,7 @@ endfunction
 function! <SID>ReopenLastTab()
     """Reopen the last closed tab."""
 
-    if !exists(s:most_recently_closed_tab)
+    if !exists('s:most_recently_closed_tab')
         echo "No recent tabs." | return | endif
 
     let tab = s:most_recently_closed_tab
@@ -340,8 +340,9 @@ function! <SID>SelectBuffer(nr)
         return
     endif
 
-    if (a:nr > len(t:accepted)) || s:NotEnoughBuffers() || t:accepted[a:nr - 1] == bufnr("%")
-        return
+    if index(t:accepted, bufnr("%")) >= 0
+        if (a:nr > len(t:accepted)) || s:NotEnoughBuffers() || t:accepted[a:nr - 1] == bufnr("%")
+            return | endif
     else
         let g:xtabline_changing_buffer = 1
         execute "buffer ".t:accepted[a:nr - 1]
@@ -352,7 +353,7 @@ endfunction
 
 function! <SID>TabTodo()
     let todo = g:xtabline_todo
-    if todo['command'] == 'edit'
+    if todo[' command'] == 'edit'
         execute "edit ".todo['path']
     else
         execute todo['prefix']." ".todo['size'].todo['command']." ".todo['path']
