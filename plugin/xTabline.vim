@@ -340,9 +340,8 @@ function! <SID>SelectBuffer(nr)
         return
     endif
 
-    if index(t:accepted, bufnr("%")) >= 0
-        if (a:nr > len(t:accepted)) || s:NotEnoughBuffers() || t:accepted[a:nr - 1] == bufnr("%")
-            return | endif
+    if (a:nr > len(t:accepted)) || s:NotEnoughBuffers() || t:accepted[a:nr - 1] == bufnr("%")
+        return
     else
         let g:xtabline_changing_buffer = 1
         execute "buffer ".t:accepted[a:nr - 1]
@@ -532,7 +531,9 @@ function! s:NotEnoughBuffers()
     """Just return if there aren't enough buffers."""
 
     if len(t:accepted) < 2
-        if !len(t:accepted)
+        if index(t:accepted, bufnr("%")) == -1
+            return
+        elseif !len(t:accepted)
             echo "No available buffers for this tab."
         else
             echo "No other available buffers for this tab."
