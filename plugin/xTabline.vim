@@ -259,7 +259,7 @@ function! s:FilterBuffers(...)
         let path = expand("#".buf.":p")
 
         " confront with the cwd
-        if path =~ getcwd()
+        if path =~ "^".getcwd()
             call add(t:accepted, buf)
         elseif bufname(buf) != ''
             call add(s:excludes, path)
