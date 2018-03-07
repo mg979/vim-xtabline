@@ -44,7 +44,8 @@ com! XTabReopen call <SID>ReopenLastTab()
 let g:loaded_xtabline = 1
 let s:most_recent = -1
 let g:xtabline_filtering = 1
-let xtabline_bufevent_update = 1
+let g:xtabline_bufevent_update = get(g:, 'xtabline_bufevent_update', 1)
+let g:xtabline_include_previews = get(g:, 'xtabline_include_previews', 1)
 
 let g:xtabline_autodelete_empty_buffers = get(g:, 'xtabline_autodelete_empty_buffers', 0)
 let g:xtabline_excludes = get(g:, 'xtabline_excludes', [])
@@ -197,9 +198,14 @@ function! <SID>PurgeBuffers()
     """Remove unmodified buffers with invalid paths."""
 
     if !g:xtabline_filtering | echo "Buffer filtering is turned off." | return | endif
+    let ix = 0 | let bcnt = 0 | let bufs = []
+ 
+    " include previews if not showing in tabline
+    for buf in tabpagebuflist(tabpagenr())
+        if index(t:accepted, buf) == -1 | call add(bufs, buf) | endif
+    endfor
 
-    let ix = 0 | let bcnt = 0
-    for buf in t:accepted
+    for buf in (t:accepted + bufs)
         if !filereadable(fnamemodify(bufname(buf), ":p"))
             if !getbufvar(buf, "&modified")
                 let bcnt += 1
@@ -247,6 +253,7 @@ function! s:FilterBuffers(...)
     let g:airline#extensions#tabline#excludes = copy(g:xtabline_excludes)
     let t:accepted = g:airline#extensions#tabline#accepted
     let s:excludes = g:airline#extensions#tabline#excludes
+    let previews = g:xtabline_include_previews
 
     " bufnr(0) is the alternate buffer
     for buf in range(1, bufnr("$"))
@@ -259,7 +266,9 @@ function! s:FilterBuffers(...)
         let path = expand("#".buf.":p")
 
         " confront with the cwd
-        if path =~ "^".getcwd()
+        if !previews && path =~ "^".getcwd()
+            call add(t:accepted, buf)
+        elseif previews && path =~ getcwd()
             call add(t:accepted, buf)
         elseif bufname(buf) != ''
             call add(s:excludes, path)

@@ -224,13 +224,11 @@ empty buffers that may be created for different reasons. If disabled, these
 buffers will show up in every tab. If enabled, they will be gone when you
 switch tab. It is disabled by default.
 
-To disable default mappings, add to your |.vimrc|
+To prevent previews (eg. |vim-fugitive| logs) from being displayed, add:
 
-    `let g:xtabline_disable_keybindings = 1`
->
-To disable refreshing after buffer events, add:
+    `let g:xtabline_include_previews = 0`
 
-    `let g:xtabline_bufevent_update = 0`
+(You'll still be able to purge them with XTabPurge)
 
 You can remap commands individually. These are the customizable options with
 their defaults. You can copy this section to your |.vimrc| and change the
@@ -263,6 +261,19 @@ values to ones you prefer.
     let g:xtabline_alt_action = "buffer #"
     let g:xtabline_bookmaks_file  = expand('$HOME/.vim/.XTablineBookmarks')
 <
+
+OTHER OPTIONS                                                   *xtabline-other*
+==============================================================================
+
+You can add any of these to your |.vimrc|
+
+ --------------------------------+------------------------------------------
+ Option                          | Effect                           ~
+ --------------------------------+------------------------------------------
+ g:xtabline_disable_keybindings  |
+ g:xtabline_bufevent_update      | disable refreshing after buffer events
+>
+
 
 WARNINGS                                                     *xtabline-warnings*
 ==============================================================================
