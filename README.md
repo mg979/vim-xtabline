@@ -166,16 +166,16 @@ or set anything.
   
 ---
 
-#### Fzf Commands
+#### Commands
 
-These commands require *fzf-vim*.
-With most of them you can select multiple items by pressing <Tab>.
+Many of these commands require *fzf-vim*.
+With most of them you can select multiple items by pressing `<Tab>`.
 Default mappings are meant prefixed by `<leader>`. Personally I use lowercase
 mappings for quicker access, but default mappings have uppercase X to lower
 chance of conflicts.
 
  Command                | fzf | Map | Effect                                    |
- -----------------------------|-----|-------------------------------------------|
+ -----------------------|-----|-----|-------------------------------------------|
  XTabReopen             |  N  |  Xr | Reopen last closed tab|
  XTabPurge              |  N  |  Xp | Purge orphaned buffers/previews|
  XTabBuffersOpen        |  Y  |  Xx | Open a list of *Tab Buffers* to choose from|
