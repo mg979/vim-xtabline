@@ -171,18 +171,21 @@ COMMANDS                                                     *xtabline-commands*
 
 Most of these commands require |fzf-vim|.
 With most of them you can select multiple items by pressing <Tab>.
+Default mappings are meant prefixed by <leader>. Personally I use lowercase
+mappings for quicker access, but default mappings have uppercase X to lower
+chance of conflicts.
 
- -----------------------+-----+-------------------------------------------------
- Command                | fzf | Effect                                            ~
- -----------------------+-----+-------------------------------------------------
- XTabReopen             |  N  | Reopen last closed tab
- XTabPurge              |  N  | Purge orphaned buffers/previews
- XTabBuffersOpen        |  Y  | Open a list of `Tab Buffers` to choose from
- XTabBuffersDelete      |  Y  | Same list, but use |bdelete| command on them
- XTabAllBuffersDelete   |  Y  | |bdelete|, but choose from the global buffers list
- XTabBookmarksLoad      |  Y  | Open the `Tab Bookmarks` list
- XTabBookmarksSave      |  Y  | Save the current tab as a bookmark (custom naming)
- XTabNERDBookmarks      |  Y  | Open the list of |NERDTreeBookmarks|
+ -----------------------+-----+-----+-------------------------------------------------
+ Command                | fzf | Map | Effect                                            ~
+ -----------------------+-----+-----+-------------------------------------------------
+ XTabReopen             |  N  |  Xr | Reopen last closed tab
+ XTabPurge              |  N  |  Xp | Purge orphaned buffers/previews
+ XTabBuffersOpen        |  Y  |  Xx | Open a list of `Tab Buffers` to choose from
+ XTabBuffersDelete      |  Y  |  Xd | Same list, but use |bdelete| command on them
+ XTabAllBuffersDelete   |  Y  |  XD | |bdelete|, but choose from the global buffers list
+ XTabBookmarksLoad      |  Y  |  Xl | Open the `Tab Bookmarks` list
+ XTabBookmarksSave      |  Y  |  Xs | Save the current tab as a bookmark (custom naming)
+ XTabNERDBookmarks      |  Y  |     | Open the list of |NERDTreeBookmarks|
 
 
 

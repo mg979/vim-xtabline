@@ -170,15 +170,20 @@ or set anything.
 
 These commands require *fzf-vim*.
 With most of them you can select multiple items by pressing <Tab>.
+Default mappings are meant prefixed by `<leader>`. Personally I use lowercase
+mappings for quicker access, but default mappings have uppercase X to lower
+chance of conflicts.
 
- Command                      | Effect                                           |
- -----------------------------|-------------------------------------------------|
- XTabBuffersOpen              | Open a list of *Tab Buffers* to choose from|
- XTabBuffersDelete            | Same list, but use `bdelete` command on them|
- XTabAllBuffersDelete         | `bdelete`, but choose from the global buffers list|
- XTabBookmarksLoad            | Open the *Tab Bookmarks* list|
- XTabBookmarksSave            | Save the current tab as a bookmark (custom naming)|
- XTabNERDBookmarks            | Open the list of *NERDTreeBookmarks*|
+ Command                | fzf | Map | Effect                                    |
+ -----------------------------|-----|-------------------------------------------|
+ XTabReopen             |  N  |  Xr | Reopen last closed tab|
+ XTabPurge              |  N  |  Xp | Purge orphaned buffers/previews|
+ XTabBuffersOpen        |  Y  |  Xx | Open a list of *Tab Buffers* to choose from|
+ XTabBuffersDelete      |  Y  |  Xd | Same list, but use `bdelete` command on them|
+ XTabAllBuffersDelete   |  Y  |  XD | `bdelete`, but choose from the global buffers list|
+ XTabBookmarksLoad      |  Y  |  Xl | Open the *Tab Bookmarks* list|
+ XTabBookmarksSave      |  Y  |  Xs | Save the current tab as a bookmark (custom naming)|
+ XTabNERDBookmarks      |  Y  |     | Open the list of *NERDTreeBookmarks*|
 
   
   
@@ -201,11 +206,11 @@ And you can define other options:
                          \ 'command': 'sp', 'prefix': 'below',
                          \ 'size': 20, 'syntax': 'markdown'}
 ```
-    *path*    : you shouldn't change this, only change *g:xtabline_todo_file*
-    *command* : can be `sp`, `vs`, `edit`, etc.
-    *prefix*  : will influence where the window appears (check `opening-window` for help)
-    *size*    : the height/width of the window
-    *syntax*  : the syntax that will be loaded
+__*path*__    : you shouldn't change this, only change *g:xtabline_todo_file*
+__*command*__ : can be `sp`, `vs`, `edit`, etc.
+__*prefix*__  : will influence where the window appears (check `opening-window` for help)
+__*size*__    : the height/width of the window
+__*syntax*__  : the syntax that will be loaded
   
   
 ---
@@ -272,9 +277,10 @@ in the future. I don't think that calling it can cause much trouble, though.
 #### Credits
 
 Braam Moolenaar for Vim  
-*vim-airline* authors  
-Junegunn Choi for *fzf.vim*  
-Tim Pope for *vim-obsession*  
+[vim-airline](https://github.com/vim-airline/vim-airline) authors  
+Junegunn Choi for [fzf-vim](https://github.com/junegunn/fzf.vim)  
+Tim Pope for [vim-obsession](https://github.com/tpope/vim-obsession)  
+Kana Natsuno for (*tabpagecd*)(https://github.com/kana/vim-tabpagecd)  
 
   
   
