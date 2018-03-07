@@ -168,10 +168,7 @@ endif
 function! <SID>ToggleTabs()
     """Toggle between tabs/buffers tabline."""
 
-    if tabpagenr("$") == 1
-        echo "There is only one tab."
-        return
-    endif
+    if tabpagenr("$") == 1 | echo "There is only one tab." | return | endif
 
     if g:airline#extensions#tabline#show_tabs
         let g:airline#extensions#tabline#show_tabs = 0
@@ -257,9 +254,7 @@ function! s:FilterBuffers(...)
     " 'accepted' is a list of buffer numbers, for quick access.
     " 'excludes' is a list of paths, it will be used by Airline to hide buffers."""
 
-    if !g:xtabline_filtering
-        return
-    endif
+    if !g:xtabline_filtering | return | endif
 
     let g:airline#extensions#tabline#accepted = []
     let g:airline#extensions#tabline#excludes = copy(g:xtabline_excludes)
@@ -270,9 +265,7 @@ function! s:FilterBuffers(...)
     " bufnr(0) is the alternate buffer
     for buf in range(1, bufnr("$"))
 
-        if !buflisted(buf)
-            continue
-        endif
+        if !buflisted(buf) | continue | endif
 
         " get the path
         let path = expand("#".buf.":p")
@@ -302,9 +295,7 @@ endfunction
 function! <SID>NextBuffer()
     """Switch to next visible buffer."""
 
-    if s:NotEnoughBuffers() || !g:xtabline_filtering
-        return
-    endif
+    if ( s:NotEnoughBuffers() || !g:xtabline_filtering ) | return | endif
 
     let ix = index(t:accepted, bufnr("%"))
 
@@ -329,9 +320,7 @@ endfunction
 function! <SID>PrevBuffer()
     """Switch to previous visible buffer."""
 
-    if s:NotEnoughBuffers() || !g:xtabline_filtering
-        return
-    endif
+    if ( s:NotEnoughBuffers() || !g:xtabline_filtering ) | return | endif
 
     let ix = index(t:accepted, bufnr("%"))
 
@@ -356,10 +345,7 @@ endfunction
 function! <SID>SelectBuffer(nr)
     """Switch to visible buffer in the tabline with [count]."""
 
-    if a:nr == 0
-        execute g:xtabline_alt_action
-        return
-    endif
+    if ( a:nr == 0 || !g:xtabline_filtering ) | execute g:xtabline_alt_action | return | endif
 
     if (a:nr > len(t:accepted)) || s:NotEnoughBuffers() || t:accepted[a:nr - 1] == bufnr("%")
         return
@@ -398,9 +384,7 @@ function! s:TabAllBuffers()
 
     let listed = []
     for buf in range(1, bufnr("$"))
-        if buflisted(buf)
-            call add(listed, buf)
-        endif
+        if buflisted(buf) | call add(listed, buf) | endif
     endfor
     return map(listed, 'bufname(v:val)')
 endfunction
@@ -460,26 +444,19 @@ function! s:TabBookmarksLoad(...)
             let line = eval(line)
 
             " not the correct entry
-            if line['name'] !=# bm
-                continue
-            endif
+            if line['name'] !=# bm | continue | endif
 
             let cwd = expand(line['cwd'], ":p")
             if isdirectory(cwd)
                 tabnew
                 exe "cd ".cwd
-                if empty(line['buffers'])
-                    continue
-                endif
+                if empty(line['buffers']) | continue | endif
             else
-                echo line['name'].": invalid bookmark."
-                continue
+                echo line['name'].": invalid bookmark." | continue
             endif
 
             "add buffers
-            for buf in line['buffers']
-                execute "badd ".buf
-            endfor
+            for buf in line['buffers'] | execute "badd ".buf | endfor
 
             "load the first buffer
             execute "edit ".line['buffers'][0]
@@ -493,9 +470,7 @@ endfunction
 function! <SID>TabBookmarksSave()
     """Create an entry and add it to the bookmarks file."""
 
-    if !g:xtabline_filtering
-        echo "Activate tab filtering first."
-    endif
+    if !g:xtabline_filtering | echo "Activate tab filtering first." | return | endif
 
     let entry = {}
 
@@ -509,9 +484,7 @@ function! <SID>TabBookmarksSave()
     endtry
 
     if entry['name'] == ""
-        echo "Bookmark not saved."
-        return
-    endif
+        echo "Bookmark not saved." | return | endif
 
     " get buffers
     let bufs = []

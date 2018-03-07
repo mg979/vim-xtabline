@@ -11,11 +11,11 @@ XTABLINE - TABLE OF CONTENTS                        *xtabline-vim* *xtabline-toc
     Tab Buffers navigation                |xtabline-buffers|
     Toggling                              |xtabline-toggle|
     Persistance                           |xtabline-persistance|
+    Options summary                       |xtabline-summary|
     Commands                              |xtabline-commands|
       TabTodo                             |xtabline-todo|
       Fast CWD selection                  |xtabline-cwd|
     Customization                         |xtabline-customize|
-    Other options                         |xtabline-other|
     Warnings                              |xtabline-warnings|
     Credits                               |xtabline-credits|
     License                               |xtabline-license|
@@ -59,6 +59,8 @@ path is within that tab's CWD.
     * Tab buffers quick navigation (next, previous, with |[count]|)
 
     * Tab bookmarks: save and reload a tab with all its buffers and its CWD
+
+    * Reopen last closed tab (with buffers and CWD)
 
     * Tab-todo: customizable command to open a todo file for that tab
 
@@ -135,7 +137,7 @@ also work when in `tabs mode` (see |xtabline-toggle| ).
 * it needs a |[count]| to work, eg. 2<leader>l would bring you to buffer #2
 * when not using a |[count]|, it will execute a command of your choice
 
-Define this command by setting the `g:xtabline_alt_action` variable.
+Define this command by setting the *g:xtabline_alt_action* variable.
 Default is `buffer #`
 
 Examples:
@@ -165,6 +167,25 @@ PERSISTANCE                                               *xtabline-persistance*
 If you use vim-|obsession| your tabs CWDs will be remembered inside a session
 that is currently tracked. It's an automatic process and you don't need to do
 or set anything.
+
+
+
+OPTIONS SUMMARY                                               *xtabline-summary*
+==============================================================================
+
+You can add any of these to your |.vimrc|
+
+------------------------------------+------------------------------------------
+Option                              | Effect (defalult)                     ~
+------------------------------------+------------------------------------------
+g:xtabline_disable_keybindings      | (0)
+g:xtabline_bufevent_update          | enable refreshing after buffer events (1)
+|g:xtabline_cd_commands|              | enable CWD selection commands (0)
+|g:xtabline_autodelete_empty_buffers| | remove empty unsaved buffers (0)
+|g:xtabline_include_previews|         | display fugitive logs buffers (1)
+|g:xtabline_alt_action|               | SelectBuffer alternative command ("buffer #")
+g:|xtabline_todo|                     | todo command customization
+g:xtabline_excludes                 | airline excludes compatibility ([])
 
 
 
@@ -221,7 +242,7 @@ CWD SELECTION                                                     *xtabline-cwd*
 
 Disabled by default, you can enable them by setting:
 
-    `let g:xtabline_cd_commands = 1`
+    let *g:xtabline_cd_commands* = 1
 
 These commands allow you to quickly change your tab CWD, and update the
 tabline at the same time.
@@ -240,7 +261,7 @@ tabline at the same time.
 CUSTOMIZATION                                               *xtabline-customize*
 ==============================================================================
 
-    `let g:xtabline_autodelete_empty_buffers = 0`
+    let *g:xtabline_autodelete_empty_buffers* = 0
 
 This option has the effect of automatically deleting (by |bdelete|) unnamed
 empty buffers that may be created for different reasons. If disabled, these
@@ -249,7 +270,7 @@ switch tab. It is disabled by default.
 
 To prevent previews (eg. |vim-fugitive| logs) from being displayed, add:
 
-    `let g:xtabline_include_previews = 0`
+    let *g:xtabline_include_previews* = 0
 
 (You'll still be able to purge them with XTabPurge)
 
@@ -284,19 +305,6 @@ values to ones you prefer.
     let g:xtabline_alt_action = "buffer #"
     let g:xtabline_bookmaks_file  = expand('$HOME/.vim/.XTablineBookmarks')
 <
-
-OTHER OPTIONS                                                   *xtabline-other*
-==============================================================================
-
-You can add any of these to your |.vimrc|
-
- --------------------------------+------------------------------------------
- Option                          | Effect                           ~
- --------------------------------+------------------------------------------
- g:xtabline_disable_keybindings  |
- g:xtabline_bufevent_update      | disable refreshing after buffer events
- g:xtabline_cd_commands          | enable CWD selection commands
-
 
 WARNINGS                                                     *xtabline-warnings*
 ==============================================================================
