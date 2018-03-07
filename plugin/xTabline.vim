@@ -352,7 +352,7 @@ endfunction
 
 function! <SID>TabTodo()
     let todo = g:xtabline_todo
-    if todo[' command'] == 'edit'
+    if todo['command'] == 'edit'
         execute "edit ".todo['path']
     else
         execute todo['prefix']." ".todo['size'].todo['command']." ".todo['path']
@@ -547,16 +547,6 @@ function! s:RefreshTabline()
     call airline#extensions#tabline#buflist#invalidate()
     "execute "AirlineRefresh"
 endfunction
-
-"function! <SID>XTablineAppend()
-    """"Append a custom element to the tabline (default none)."""
-
-    "if g:airline#extensions#tabline#show_tabs
-        "return g:xtabline_append_tabs
-    "else
-        "return g:xtabline_append_buffers
-    "endif
-"endfunction
 
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
