@@ -148,6 +148,18 @@ nnoremap <silent> <SID>ReopenLastTab :XTabReopen<cr>
 nnoremap <unique> <script> <Plug>XTablineTabTodo <SID>TabTodo
 nnoremap <silent> <SID>TabTodo :XTabTodo<cr>
 
+if get(g:, 'xtabline_cd_commands', 0)
+    map <unique> <leader>cdc <Plug>XTablineCdCurrent
+    map <unique> <leader>cdd <Plug>XTablineCdDown1
+    map <unique> <leader>cd2 <Plug>XTablineCdDown2
+    map <unique> <leader>cd3 <Plug>XTablineCdDown3
+    map <unique> <leader>cdh <Plug>XTablineCdHome
+    nnoremap <unique> <script> <Plug>XTablineCdCurrent :cd %:p:h<cr>:doautocmd BufAdd<cr>:pwd<cr>
+    nnoremap <unique> <script> <Plug>XTablineCdDown1   :cd %:p:h:h<cr>:doautocmd BufAdd<cr>:pwd<cr>
+    nnoremap <unique> <script> <Plug>XTablineCdDown2   :cd %:p:h:h:h<cr>:doautocmd BufAdd<cr>:pwd<cr>
+    nnoremap <unique> <script> <Plug>XTablineCdDown3   :cd %:p:h:h:h:h<cr>:doautocmd BufAdd<cr>:pwd<cr>
+    nnoremap <unique> <script> <Plug>XTablineCdHome    :cd ~<cr>:doautocmd BufAdd<cr>:pwd<cr>
+endif
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Commands functions
@@ -199,7 +211,7 @@ function! <SID>PurgeBuffers()
 
     if !g:xtabline_filtering | echo "Buffer filtering is turned off." | return | endif
     let ix = 0 | let bcnt = 0 | let bufs = []
- 
+
     " include previews if not showing in tabline
     for buf in tabpagebuflist(tabpagenr())
         if index(t:accepted, buf) == -1 | call add(bufs, buf) | endif

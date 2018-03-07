@@ -12,8 +12,10 @@ XTABLINE - TABLE OF CONTENTS                        *xtabline-vim* *xtabline-toc
     Toggling                              |xtabline-toggle|
     Persistance                           |xtabline-persistance|
     Commands                              |xtabline-commands|
-    TabTodo                               |xtabline-todo|
+      TabTodo                             |xtabline-todo|
+      Fast CWD selection                  |xtabline-cwd|
     Customization                         |xtabline-customize|
+    Other options                         |xtabline-other|
     Warnings                              |xtabline-warnings|
     Credits                               |xtabline-credits|
     License                               |xtabline-license|
@@ -214,6 +216,27 @@ And you can define other options:
     `syntax`  : the syntax that will be loaded
 
 
+CWD SELECTION                                                     *xtabline-cwd*
+==============================================================================
+
+Disabled by default, you can enable them by setting:
+
+    `let g:xtabline_cd_commands = 1`
+
+These commands allow you to quickly change your tab CWD, and update the
+tabline at the same time.
+
+ ---------------------------------+------------------------------------------
+ Mapping                          | Default                              ~
+ ---------------------------------+------------------------------------------
+ <Plug>XTablineCdCurrent          | <leader>cdc
+ <Plug>XTablineCdDown1            | <leader>cdd
+ <Plug>XTablineCdDown2            | <leader>cd2
+ <Plug>XTablineCdDown3            | <leader>cd3
+ <Plug>XTablineCdHome             | <leader>cdh
+
+
+
 CUSTOMIZATION                                               *xtabline-customize*
 ==============================================================================
 
@@ -272,7 +295,7 @@ You can add any of these to your |.vimrc|
  --------------------------------+------------------------------------------
  g:xtabline_disable_keybindings  |
  g:xtabline_bufevent_update      | disable refreshing after buffer events
->
+ g:xtabline_cd_commands          | enable CWD selection commands
 
 
 WARNINGS                                                     *xtabline-warnings*
@@ -294,6 +317,8 @@ Braam Moolenaar for Vim
 |vim-airline| authors
 Junegunn Choi for |fzf.vim|
 Tim Pope for vim-|obsession|
+Kana Natsuno for |tabpagecd|              https://github.com/kana/vim-tabpagecd
+
 
 
 
