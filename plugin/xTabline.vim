@@ -207,22 +207,40 @@ function! <SID>PurgeBuffers()
     """Remove unmodified buffers with invalid paths."""
 
     if !g:xtabline_filtering | echo "Buffer filtering is turned off." | return | endif
-    let ix = 0 | let bcnt = 0 | let bufs = []
+    let bcnt = 0 | let bufs = [] | let purged = []
 
     " include previews if not showing in tabline
     for buf in tabpagebuflist(tabpagenr())
         if index(t:accepted, buf) == -1 | call add(bufs, buf) | endif
     endfor
 
+    " purge the buffer if:
+    " 1. non-existant path and file unmodified
+    " 2. path doesn't belong to cwd, but it has been accepted for partial match
+
     for buf in (t:accepted + bufs)
-        if !filereadable(fnamemodify(bufname(buf), ":p"))
+        let bufpath = fnamemodify(bufname(buf), ":p")
+
+        if !filereadable(bufpath)
             if !getbufvar(buf, "&modified")
-                let bcnt += 1
-                call remove(t:accepted, ix)
-                execute "bdelete ".buf
+                let bcnt += 1 | let ix = index(t:accepted, buf)
+                if ix >= 0 | call add(purged, remove(t:accepted, ix))
+                else | call add(purged, buf) | endif
             endif
+
+        elseif bufpath !~ "^".t:cwd
+            let bcnt += 1 | let ix = index(t:accepted, buf)
+            if ix >= 0 | call add(purged, remove(t:accepted, ix))
+            else | call add(purged, buf) | endif
         endif
     endfor
+
+    " the tab may be closed if there is one window, and it's going to be purged
+    if len(tabpagebuflist()) == 1 && !empty(t:accepted) && index(purged, bufnr("%")) >= 0
+        execute "buffer ".t:accepted[0] | endif
+
+    for buf in purged | execute "silent! bdelete ".buf | endfor
+
     call s:FilterBuffers()
     let s = "Purged ".bcnt." buffer" | let s .= bcnt!=1 ? "s." : "." | echo s
 endfunction
@@ -510,7 +528,7 @@ endfunction
 function! s:TabBDelete(...)
 
     for buf in a:000
-        execute "bdelete ".buf
+        execute "silent! bdelete ".buf
         let ix = index(t:accepted, bufnr(buf))
         call remove(t:accepted, ix)
         call s:FilterBuffers()
