@@ -466,7 +466,7 @@ function! s:TabBookmarksLoad(...)
 
             let cwd = expand(line['cwd'], ":p")
             if isdirectory(cwd)
-                tabnew
+                tabnew | let newbuf = bufnr("%")
                 exe "cd ".cwd
                 let t:cwd = cwd
                 if empty(line['buffers']) | continue | endif
@@ -479,6 +479,9 @@ function! s:TabBookmarksLoad(...)
 
             "load the first buffer
             execute "edit ".line['buffers'][0]
+
+            " purge the empty buffer that was created
+            execute "bdelete ".newbuf
         endfor
     endfor
     doautocmd BufAdd
