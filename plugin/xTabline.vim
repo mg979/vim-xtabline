@@ -468,6 +468,7 @@ function! s:TabBookmarksLoad(...)
             if isdirectory(cwd)
                 tabnew
                 exe "cd ".cwd
+                let t:cwd = cwd
                 if empty(line['buffers']) | continue | endif
             else
                 echo line['name'].": invalid bookmark." | continue
@@ -480,7 +481,7 @@ function! s:TabBookmarksLoad(...)
             execute "edit ".line['buffers'][0]
         endfor
     endfor
-    call s:RefreshTabline()
+    doautocmd BufAdd
 endfunction
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -494,7 +495,7 @@ function! <SID>TabBookmarksSave()
 
     " get cwd
     try
-        let entry['cwd'] = t:cwd
+        let entry['cwd'] = getcwd()
         let entry['name'] = input("Enter an optional name for this bookmark:  ", t:cwd, "file_in_path")
     catch
         echo "Cwd for this tab hasn't been set, aborting."
@@ -513,7 +514,7 @@ function! <SID>TabBookmarksSave()
     endif
     for buf in range(1, bufnr("$"))
         if index(t:accepted, buf) >= 0 && (buf != current)
-            call add(bufs, bufname(buf))
+            call add(bufs, fnameescape(bufname(buf)))
         endif
     endfor
     let entry['buffers'] = bufs
