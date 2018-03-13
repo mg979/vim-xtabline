@@ -13,6 +13,7 @@ XTABLINE - TABLE OF CONTENTS                        *xtabline-vim* *xtabline-toc
     Persistance                           |xtabline-persistance|
     Options summary                       |xtabline-summary|
     Commands                              |xtabline-commands|
+      TabPurge                            |xtabline-purge|
       TabTodo                             |xtabline-todo|
       Fast CWD selection                  |xtabline-cwd|
     Customization                         |xtabline-customize|
@@ -209,6 +210,18 @@ chance of conflicts.
  XTabBookmarksLoad      |  Y  |  Xl | Open the `Tab Bookmarks` list
  XTabBookmarksSave      |  Y  |  Xs | Save the current tab as a bookmark (custom naming)
  XTabNERDBookmarks      |  Y  |     | Open the list of |NERDTreeBookmarks|
+
+
+
+PURGE BUFFERS                                                   *xtabline-purge*
+==============================================================================
+
+This command is handy to close all buffers that aren't bound to a physical
+file (such |vim-fugitive| logs, |vim-gitgutter| previews, quickfix windows
+etc). If the only window in the tab is going to be closed, the buffer switches
+to the first tab buffer, so that you won't lose the tab.
+
+Default mapping: <leader>Xp
 
 
 

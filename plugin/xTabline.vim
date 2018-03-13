@@ -14,23 +14,23 @@ endif
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 com! -bang -nargs=? -complete=buffer XTabBuffersOpen call fzf#vim#files(
-                                    \ <q-args>, {'source': s:TabBuffers()}, <bang>0)
+                                    \ <q-args>, {'source': s:TabBuffers(), 'options': '--multi --prompt "Open Tab Buffer >>>  "'}, <bang>0)
 
 com! XTabBuffersDelete call fzf#run({'source': s:TabBuffers(),
                                   \ 'sink': function('s:TabBDelete'), 'down': '30%',
-                                  \ 'options': '--multi --reverse'})
+                                  \ 'options': '--multi --prompt "Delete Tab Buffer >>>  "'})
 
 com! XTabAllBuffersDelete call fzf#run({'source': s:TabAllBuffers(),
                                      \ 'sink': 'bdelete', 'down': '30%',
-                                     \ 'options': '--multi --reverse'})
+                                     \ 'options': '--multi --prompt "Delete Any Buffer >>>  "'})
 
 com! XTabBookmarksLoad call fzf#run({'source': s:TabBookmarks(),
                                   \ 'sink': function('s:TabBookmarksLoad'), 'down': '30%',
-                                  \ 'options': '--multi --reverse'})
+                                  \ 'options': '--multi --prompt "Load Tab Bookmark >>>  "'})
 
 com! XTabNERDBookmarks call fzf#run({'source': s:TabNERDBookmarks(),
                                   \ 'sink': function('s:TabNERDBookmarksLoad'), 'down': '30%',
-                                  \ 'options': '--multi --reverse'})
+                                  \ 'options': '--multi --prompt "Load NERD Bookmark >>>  "'})
 
 com! XTabBookmarksSave call <SID>TabBookmarksSave()
 com! XTabTodo call <SID>TabTodo()
@@ -128,13 +128,13 @@ nnoremap <unique> <script> <Plug>XTablineBuffersOpen <SID>TabBuffersOpen
 nnoremap <silent> <SID>TabBuffersOpen :XTabBuffersOpen<cr>
 
 nnoremap <unique> <script> <Plug>XTablineBuffersDelete <SID>TabBuffersDelete
-nnoremap <silent> <SID>TabBuffersDelete :unsilent echo 'Deleting buffers for this tab:'<cr>:XTabBuffersDelete<cr>
+nnoremap <silent> <SID>TabBuffersDelete :XTabBuffersDelete<cr>
 
 nnoremap <unique> <script> <Plug>XTablineAllBuffersDelete <SID>TabAllBuffersDelete
-nnoremap <silent> <SID>TabAllBuffersDelete :unsilent echo 'Deleting buffers from all tabs:'<cr>:XTabAllBuffersDelete<cr>
+nnoremap <silent> <SID>TabAllBuffersDelete :XTabAllBuffersDelete<cr>
 
 nnoremap <unique> <script> <Plug>XTablineBookmarksLoad <SID>TabBookmarksLoad
-nnoremap <silent> <SID>TabBookmarksLoad :unsilent echo 'Load a tab from bookmarks:'<cr>:XTabBookmarksLoad<cr>
+nnoremap <silent> <SID>TabBookmarksLoad :XTabBookmarksLoad<cr>
 
 nnoremap <unique> <script> <Plug>XTablineBookmarksSave <SID>TabBookmarksSave
 nnoremap <silent> <SID>TabBookmarksSave :XTabBookmarksSave<cr>
