@@ -14,6 +14,7 @@ XTABLINE - TABLE OF CONTENTS                        *xtabline-vim* *xtabline-toc
     Options summary                       |xtabline-summary|
     Commands                              |xtabline-commands|
       TabPurge                            |xtabline-purge|
+      CloseBuffer                         |xtabline-closebuf|
       TabTodo                             |xtabline-todo|
       Fast CWD selection                  |xtabline-cwd|
     Customization                         |xtabline-customize|
@@ -132,6 +133,7 @@ also work when in `tabs mode` (see |xtabline-toggle| ).
  <Plug>XTablineSelectBuffer       | [count]<leader>l
  <Plug>XTablineNextBuffer         | <S-PageDown>
  <Plug>XTablinePrevBuffer         | <S-PageUp>
+ <Plug>XTablineCloseBuffer        | <leader>Xq
 
 `XTablineSelectBuffer` has two peculiarities:
 
@@ -146,6 +148,9 @@ Examples:
     `let g:xtabline_alt_action = "buffer #"`    (switch to alternative buffer)
     `let g:xtabline_alt_action = "Buffers"`     (call fzf-vim `:Buffers` command)
 
+`XTablineCloseBuffer` will close and |bdelete| the current buffer, but it will
+not try to close the tab page, unless |g:xtabline_close_buffer_can_close_tab|
+is set to 1.
 
 
 TOGGLING OPTIONS                                               *xtabline-toggle*

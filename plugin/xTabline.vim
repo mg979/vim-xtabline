@@ -36,6 +36,7 @@ com! XTabBookmarksSave call <SID>TabBookmarksSave()
 com! XTabTodo call <SID>TabTodo()
 com! XTabPurge call <SID>PurgeBuffers()
 com! XTabReopen call <SID>ReopenLastTab()
+com! XTabCloseBuffer call <SID>CloseBuffer()
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Variables
@@ -46,6 +47,7 @@ let s:most_recent = -1
 let g:xtabline_filtering = 1
 let g:xtabline_bufevent_update = get(g:, 'xtabline_bufevent_update', 1)
 let g:xtabline_include_previews = get(g:, 'xtabline_include_previews', 1)
+let g:xtabline_close_buffer_can_close_tab = get(g:, 'xtabline_close_buffer_can_close_tab', 0)
 
 let g:xtabline_autodelete_empty_buffers = get(g:, 'xtabline_autodelete_empty_buffers', 0)
 let g:xtabline_excludes = get(g:, 'xtabline_excludes', [])
@@ -82,6 +84,9 @@ if !exists('g:xtabline_disable_keybindings')
     endif
     if !hasmapto('<Plug>XTablinePrevBuffer')
         map <unique> <S-PageUp> <Plug>XTablinePrevBuffer
+    endif
+    if !hasmapto('<Plug>XTablineCloseBuffer')
+        map <unique> <leader>Xq <Plug>XTablineCloseBuffer
     endif
     if !hasmapto('<Plug>XTablineBuffersOpen')
         map <unique> <leader>Xx <Plug>XTablineBuffersOpen
@@ -123,6 +128,9 @@ nnoremap <silent> <SID>NextBuffer :call <SID>NextBuffer()<cr>
 
 nnoremap <unique> <script> <Plug>XTablinePrevBuffer <SID>PrevBuffer
 nnoremap <silent> <SID>PrevBuffer :call <SID>PrevBuffer()<cr>
+
+nnoremap <unique> <script> <Plug>XTablineCloseBuffer <SID>CloseBuffer
+nnoremap <silent> <SID>CloseBuffer :call <SID>CloseBuffer()<cr>
 
 nnoremap <unique> <script> <Plug>XTablineBuffersOpen <SID>TabBuffersOpen
 nnoremap <silent> <SID>TabBuffersOpen :XTabBuffersOpen<cr>
@@ -306,6 +314,40 @@ function! s:FilterBuffers(...)
     endfor
 
     call s:RefreshTabline()
+endfunction
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:Close(buf)
+    if !getbufvar(a:buf, 'modified') | execute("silent! bdelete ".a:buf) | call s:FilterBuffers() | endif
+endfun
+
+fun! s:is_tab_buffer(...)
+    if a:0
+        return index(t:accepted, bufnr(a:0)) != -1 | endif
+    return index(t:accepted, bufnr("%")) != -1
+endfun
+
+function! <SID>CloseBuffer()
+    """Close and delete a buffer, without closing the tab."""
+    let current = bufnr("%") | let alt = bufnr("#") | let tabnr = tabpagenr()
+
+    if buflisted(alt) && s:is_tab_buffer(alt)
+        execute "buffer ".alt | call s:Close(current)
+
+    elseif len(t:accepted) > 1 || (len(t:accepted) && !s:is_tab_buffer())
+        call <SID>NextBuffer() | call s:Close(current)
+
+    elseif !g:xtabline_close_buffer_can_close_tab
+        return
+
+    elseif getbufvar(current, 'modified')
+        echo "Not closing because of unsaved changes"
+
+    elseif tabnr > 1 || tabpagenr("$") != tabnr
+        tabnext | silent call s:Close(current)
+    else
+        quit | endif
 endfunction
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -498,7 +540,8 @@ function! <SID>TabBookmarksSave()
 
     " get cwd
     try
-        let entry['cwd'] = getcwd()
+        let t:cwd = getcwd()
+        let entry['cwd'] = t:cwd
         let entry['name'] = input("Enter an optional name for this bookmark:  ", t:cwd, "file_in_path")
     catch
         echo "Cwd for this tab hasn't been set, aborting."
