@@ -124,10 +124,10 @@ nnoremap <unique> <script> <Plug>XTablineSelectBuffer <SID>SelectBuffer
 nnoremap <silent> <expr> <SID>SelectBuffer g:xtabline_changing_buffer ? "\<C-c>" : ":<C-u>call <SID>SelectBuffer(v:count)\<cr>"
 
 nnoremap <unique> <script> <Plug>XTablineNextBuffer <SID>NextBuffer
-nnoremap <silent> <SID>NextBuffer :call <SID>NextBuffer()<cr>
+nnoremap <silent> <expr> <SID>NextBuffer <SID>NextBuffer(v:count1)
 
 nnoremap <unique> <script> <Plug>XTablinePrevBuffer <SID>PrevBuffer
-nnoremap <silent> <SID>PrevBuffer :call <SID>PrevBuffer()<cr>
+nnoremap <silent> <expr> <SID>PrevBuffer <SID>PrevBuffer(v:count1)
 
 nnoremap <unique> <script> <Plug>XTablineCloseBuffer <SID>CloseBuffer
 nnoremap <silent> <SID>CloseBuffer :call <SID>CloseBuffer()<cr>
@@ -352,52 +352,57 @@ endfunction
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-function! <SID>NextBuffer()
+function! <SID>NextBuffer(nr)
     """Switch to next visible buffer."""
 
     if ( s:NotEnoughBuffers() || !g:xtabline_filtering ) | return | endif
 
     let ix = index(t:accepted, bufnr("%"))
+    let target = ix + a:nr
+    let total = len(t:accepted)
 
-    if bufnr("%") == t:accepted[-1]
-        " last buffer, go to first
-        let s:most_recent = t:accepted[0]
+    if target >= total
+        " over last buffer
+        let s:most_recent = target - total
 
     elseif ix == -1
         " not in index, go back to most recent or back to first
         if s:most_recent == -1 || index(t:accepted, s:most_recent) == -1
-            let s:most_recent = t:accepted[0]
+            let s:most_recent = 0
         endif
     else
-        let s:most_recent = t:accepted[ix + 1]
+        let s:most_recent = target
     endif
 
-    execute "buffer " . s:most_recent
+    return ":buffer " . t:accepted[s:most_recent] . "\<cr>"
 endfunction
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-function! <SID>PrevBuffer()
+function! <SID>PrevBuffer(nr)
     """Switch to previous visible buffer."""
 
     if ( s:NotEnoughBuffers() || !g:xtabline_filtering ) | return | endif
 
     let ix = index(t:accepted, bufnr("%"))
+    let target = ix - a:nr
+    let total = len(t:accepted)
+    echom a:nr." ".target
 
-    if bufnr("%") == t:accepted[0]
-        " first buffer, go to last
-        let s:most_recent = t:accepted[-1]
+    if target < 0
+        " before first buffer
+        let s:most_recent = total + target
 
     elseif ix == -1
         " not in index, go back to most recent or back to first
         if s:most_recent == -1 || index(t:accepted, s:most_recent) == -1
-            let s:most_recent = t:accepted[0]
+            let s:most_recent = 0
         endif
     else
-        let s:most_recent = t:accepted[ix - 1]
+        let s:most_recent = target
     endif
 
-    execute "buffer " . s:most_recent
+    return ":buffer " . t:accepted[s:most_recent] . "\<cr>"
 endfunction
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
