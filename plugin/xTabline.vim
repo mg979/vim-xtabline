@@ -387,7 +387,6 @@ function! <SID>PrevBuffer(nr)
     let ix = index(t:accepted, bufnr("%"))
     let target = ix - a:nr
     let total = len(t:accepted)
-    echom a:nr." ".target
 
     if target < 0
         " before first buffer
