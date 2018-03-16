@@ -198,8 +198,6 @@ function! <SID>ToggleBuffers()
 
     if g:xtabline_filtering
         let g:xtabline_filtering = 0
-        let g:airline#extensions#tabline#accepted = []
-        let g:airline#extensions#tabline#excludes = copy(g:xtabline_excludes)
         doautocmd BufAdd
         "call s:RefreshTabline()
     else
@@ -282,10 +280,9 @@ function! s:FilterBuffers(...)
 
     if !g:xtabline_filtering | return | endif
 
-    let g:airline#extensions#tabline#accepted = []
-    let g:airline#extensions#tabline#excludes = copy(g:xtabline_excludes)
-    let t:accepted = g:airline#extensions#tabline#accepted
-    let s:excludes = g:airline#extensions#tabline#excludes
+    let g:airline#extensions#tabline#exclude_buffers = []
+    let t:excluded = g:airline#extensions#tabline#exclude_buffers
+    let t:accepted = []
     let previews = g:xtabline_include_previews
 
     " bufnr(0) is the alternate buffer
@@ -302,7 +299,7 @@ function! s:FilterBuffers(...)
         elseif previews && path =~ getcwd()
             call add(t:accepted, buf)
         elseif bufname(buf) != ''
-            call add(s:excludes, path)
+            call add(t:excluded, buf)
         elseif a:000 == [] && g:xtabline_autodelete_empty_buffers
             " buffer tabline breaks if there are empty 'paths'.
             " if there are problems, this can be just skipped.
