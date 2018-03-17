@@ -64,7 +64,7 @@ function! xtabline#fzf#tab_buffers()
 
     let current = bufnr("%") | let alt = bufnr("#")
     let l = sort(map(copy(t:xtl_accepted), 's:format_buffer(v:val)'))
-    if alt != -1
+    if alt != -1 && index(t:xtl_accepted, alt) >= 0
         call insert(l, remove(l, index(l, s:format_buffer(current))))
     endif
     call insert(l, remove(l, index(l, s:format_buffer(current))))
@@ -79,7 +79,8 @@ function! xtabline#fzf#bufdelete(name)
     endif
     let b = matchstr(a:name, '^.*]')
     let b = substitute(b[1:], ']', '', '')
-    execute 'silent! bdelete' b
+    execute 'silent! bdelete '.b
+    call xtabline#filter_buffers()
 endfunction
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
