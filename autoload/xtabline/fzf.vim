@@ -1,23 +1,85 @@
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" fzf helper functions
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+function! s:get_color(attr, ...)
+    let gui = has('termguicolors') && &termguicolors
+    let fam = gui ? 'gui' : 'cterm'
+    let pat = gui ? '^#[a-f0-9]\+' : '^[0-9]\+$'
+    for group in a:000
+        let code = synIDattr(synIDtrans(hlID(group)), a:attr, fam)
+        if code =~? pat
+            return code
+        endif
+    endfor
+    return ''
+endfunction
+
+let s:ansi = {'black': 30, 'red': 31, 'green': 32, 'yellow': 33, 'blue': 34, 'magenta': 35, 'cyan': 36}
+
+function! s:csi(color, fg)
+    let prefix = a:fg ? '38;' : '48;'
+    if a:color[0] == '#'
+        return prefix.'2;'.join(map([a:color[1:2], a:color[3:4], a:color[5:6]], 'str2nr(v:val, 16)'), ';')
+    endif
+    return prefix.'5;'.a:color
+endfunction
+
+function! s:ansi(str, group, default, ...)
+    let fg = s:get_color('fg', a:group)
+    let bg = s:get_color('bg', a:group)
+    let color = s:csi(empty(fg) ? s:ansi[a:default] : fg, 1) .
+                \ (empty(bg) ? '' : s:csi(bg, 0))
+    return printf("\x1b[%s%sm%s\x1b[m", color, a:0 ? ';1' : '', a:str)
+endfunction
+
+for s:color_name in keys(s:ansi)
+    execute "function! s:".s:color_name."(str, ...)\n"
+                \ "  return s:ansi(a:str, get(a:, 1, ''), '".s:color_name."')\n"
+                \ "endfunction"
+endfor
+
+function! s:strip(str)
+    return substitute(a:str, '^\s*\|\s*$', '', 'g')
+endfunction
+
+function! s:format_buffer(b)
+    let name = bufname(a:b)
+    let name = empty(name) ? '[No Name]' : fnamemodify(name, ":~:.")
+    let flag = a:b == bufnr('')  ? s:blue('%', 'Conditional') :
+                \ (a:b == bufnr('#') ? s:magenta('#', 'Special') : ' ')
+    let modified = getbufvar(a:b, '&modified') ? s:red(' [+]', 'Exception') : ''
+    let readonly = getbufvar(a:b, '&modifiable') ? '' : s:green(' [RO]', 'Constant')
+    let extra = join(filter([modified, readonly], '!empty(v:val)'), '')
+    return s:strip(printf("[%s] %s\t%s\t%s", s:yellow(a:b, 'Number'), flag, name, extra))
+endfunction
+
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " fzf functions
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 function! xtabline#fzf#tab_buffers()
     """Open a list of buffers for this tab with fzf.vim."""
 
-    return map(copy(t:accepted), 'bufname(v:val)')
+    let current = bufnr("%") | let alt = bufnr("#")
+    let l = sort(map(copy(t:xtl_accepted), 's:format_buffer(v:val)'))
+    if alt != -1
+        call insert(l, remove(l, index(l, s:format_buffer(current))))
+    endif
+    call insert(l, remove(l, index(l, s:format_buffer(current))))
+    return l
 endfunction
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-function! xtabline#fzf#tab_all_buffers()
-    """Open a list of all buffers with fzf.vim."""
-
-    let listed = []
-    for buf in range(1, bufnr("$"))
-        if buflisted(buf) | call add(listed, buf) | endif
-    endfor
-    return map(listed, 'bufname(v:val)')
+function! xtabline#fzf#bufdelete(name)
+    if len(a:name) < 2
+        return
+    endif
+    let b = matchstr(a:name, '^.*]')
+    let b = substitute(b[1:], ']', '', '')
+    execute 'silent! bdelete' b
 endfunction
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -130,7 +192,7 @@ function! xtabline#fzf#tab_bookmarks_save()
         call add(bufs, bufname(current))
     endif
     for buf in range(1, bufnr("$"))
-        if index(t:accepted, buf) >= 0 && (buf != current)
+        if index(t:xtl_accepted, buf) >= 0 && (buf != current)
             call add(bufs, fnameescape(bufname(buf)))
         endif
     endfor
@@ -147,8 +209,8 @@ function! xtabline#fzf#tab_delete(...)
 
     for buf in a:000
         execute "silent! bdelete ".buf
-        let ix = index(t:accepted, bufnr(buf))
-        call remove(t:accepted, ix)
+        let ix = index(t:xtl_accepted, bufnr(buf))
+        call remove(t:xtl_accepted, ix)
         call xtabline#filter_buffers()
     endfor
 endfunction
