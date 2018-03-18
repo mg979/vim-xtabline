@@ -27,6 +27,11 @@ com! -bang -nargs=? -complete=buffer XTabAllBuffersDelete call fzf#vim#buffers(<
                                   \ 'sink': function('xtabline#fzf#bufdelete'), 'down': '30%',
                                   \ 'options': '--multi --prompt "Delete Any Buffer >>>  "'})
 
+com! -bang -nargs=? -complete=buffer XTabSessionLoad call fzf#vim#files(<q-args>, {
+                                  \ 'source': xtabline#fzf#sessions_list(),
+                                  \ 'sink': function('xtabline#fzf#session_load'), 'down': '30%',
+                                  \ 'options': '--prompt "Load Session >>>  "'})
+
 com! XTabBookmarksLoad call fzf#run({'source': xtabline#fzf#tab_bookmarks(),
                                   \ 'sink': function('xtabline#fzf#tab_bookmarks_load'), 'down': '30%',
                                   \ 'options': '--multi --prompt "Load Tab Bookmark >>>  "'})
@@ -36,6 +41,7 @@ com! XTabNERDBookmarks call fzf#run({'source': xtabline#fzf#tab_nerd_bookmarks()
                                   \ 'options': '--multi --prompt "Load NERD Bookmark >>>  "'})
 
 com! XTabBookmarksSave call xtabline#fzf#tab_bookmarks_save()
+com! XTabSessionSave call xtabline#fzf#session_save()
 com! XTabTodo call xtabline#tab_todo()
 com! XTabPurge call xtabline#purge_buffers()
 com! XTabReopen call xtabline#reopen_last_tab()
@@ -45,6 +51,7 @@ com! XTabCloseBuffer call xtabline#close_buffer()
 " Variables
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
+let g:xtabline_sessions_path              = get(g:, 'xtabline_sessions_path', '$HOME/.vim/session')
 let g:xtabline_filtering                  = 1
 let g:xtabline_map_prefix                 = '<leader>X'
 let g:xtabline_include_previews           = get(g:, 'xtabline_include_previews', 1)

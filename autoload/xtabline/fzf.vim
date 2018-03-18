@@ -54,6 +54,9 @@ function! s:format_buffer(b)
     return s:strip(printf("[%s] %s\t%s\t%s", s:yellow(a:b, 'Number'), flag, name, extra))
 endfunction
 
+fun! s:sep()
+    return exists('+shellslash') && &shellslash ? '\' : '/'
+endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " fzf functions
@@ -64,9 +67,13 @@ function! xtabline#fzf#tab_buffers()
 
     let current = bufnr("%") | let alt = bufnr("#")
     let l = sort(map(copy(t:xtl_accepted), 's:format_buffer(v:val)'))
+
+    "put alternate buffer last (but current will go after it)
     if alt != -1 && index(t:xtl_accepted, alt) >= 0
-        call insert(l, remove(l, index(l, s:format_buffer(current))))
+        call insert(l, remove(l, index(l, s:format_buffer(alt))))
     endif
+
+    "put current buffer last
     call insert(l, remove(l, index(l, s:format_buffer(current))))
     return l
 endfunction
@@ -216,4 +223,82 @@ function! xtabline#fzf#tab_delete(...)
     endfor
 endfunction
 
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Sessions
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
+function! s:desc_string(s, n, sfile)
+    let active_mark = (a:s == v:this_session) ? ' [%] ' : ''
+    let description = get(a:sfile, a:n, '')
+    if !empty(description) | let description = description[10+len(active_mark):] | endif
+    let spaces = 30 - len(a:n)
+    let spaces = printf("%".spaces."s", "")
+    let time = system('date=`stat -c %Y '.fnameescape(a:s).'` && date -d@"$date" +%Y.%m.%d')[:-2]
+    return a:n.spaces."\t".time.active_mark.description
+endfunction
+
+function! xtabline#fzf#sessions_list()
+    let data = [] | let sfile = {}
+    let data_file = expand(get(g:, 'xtabline_sessions_data', '$HOME/.vim/.XTablineSessions'), ":p")
+    let sessions = split(globpath(expand(g:xtabline_sessions_path, ":p"), "*"), '\n')
+    if filereadable(data_file) | let sfile = eval(readfile(data_file)[0]) | endif
+
+    for s in sessions
+        let active_mark = (s == v:this_session) ? '[%]   ' : ''
+        let n = fnamemodify(expand(s), ':t:r')
+        let description = s:desc_string(s, n, sfile)
+        call add(data, description)
+    endfor
+    return data
+endfunction
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+function! xtabline#fzf#session_load(file)
+
+    " abort if there are unsaved changes
+    for b in range(1, bufnr("$"))
+        if getbufvar(b, '&modified')
+            echo "Some buffer has unsaved changes. Aborting." | return | endif | endfor
+
+    let session = a:file
+    if match(session, "\t") | let session = substitute(session, " *\t.*", "", "") | endif
+    let file = expand(g:xtabline_sessions_path.s:sep().session, ":p")
+
+    if !filereadable(file) | echo "Session file doesn't exist." | return | endif
+    if file == v:this_session | echo "Session is already loaded. Aborting." | return | endif
+
+    " upadate and pause Obsession
+    if ObsessionStatus() == "[$]" | exe "silent Obsession ".fnameescape(g:this_obsession) | silent Obsession | endif
+
+    if input("Confirm (y/n)? Current session will be unloaded. ") ==# 'y'
+        execute "silent! %bdelete"
+        execute "source ".fnameescape(file)
+        call xtabline#init_cwds()
+    endif
+endfunction
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+function! xtabline#fzf#session_save()
+    let data_file = expand(get(g:, 'xtabline_sessions_data', '$HOME/.vim/.XTablineSessions'), ":p")
+    if filereadable(data_file) | let data = eval(readfile(data_file)[0])
+    else | let data = {} | execute "!touch ".data_file | endif
+
+    let defname = empty(v:this_session) ? '' : fnamemodify(v:this_session, ":t")
+    let defdesc = get(data, defname) ? data[defname][15:] : ''
+    let time = strftime("%Y.%m.%d")."     "
+    let name = input('Enter a name for this session:   ', defname)
+    if !empty(name)
+        let description = input('Enter an optional description:   ', defdesc)
+        let data[name] = time.description
+        if input("Confirm (y/n) ") ==# 'y'
+            call writefile([string(data)], data_file, "")
+            let file = expand(g:xtabline_sessions_path.s:sep().name, ":p")
+            silent execute "Obsession ".fnameescape(file)
+            echo "\nSession '".file."' has been saved."
+            return
+        endif
+    endif
+    echo "\nSession not saved."
+endfunction

@@ -23,6 +23,8 @@ function! xtabline#maps#init()
     call s:mapkeys(X.'D','<Plug>XTablineAllBuffersDelete')
     call s:mapkeys(X.'l','<Plug>XTablineBookmarksLoad')
     call s:mapkeys(X.'s','<Plug>XTablineBookmarksSave')
+    call s:mapkeys(X.'L','<Plug>XTablineSessionLoad')
+    call s:mapkeys(X.'S','<Plug>XTablineSessionSave')
     call s:mapkeys(X.'p','<Plug>XTablinePurge')
     call s:mapkeys(X.'r','<Plug>XTablineReopen')
     call s:mapkeys(X.'tt','<Plug>XTablineTabTodo')
@@ -59,6 +61,12 @@ function! xtabline#maps#init()
 
     nnoremap <unique> <script> <Plug>XTablineBookmarksSave <SID>TabBookmarksSave
     nnoremap <silent> <SID>TabBookmarksSave :XTabBookmarksSave<cr>
+
+    nnoremap <unique> <script> <Plug>XTablineSessionLoad <SID>SessionLoad
+    nnoremap <silent> <SID>SessionLoad :XTabSessionLoad<cr>
+
+    nnoremap <unique> <script> <Plug>XTablineSessionSave <SID>SessionSave
+    nnoremap <silent> <SID>SessionSave :XTabSessionSave<cr>
 
     nnoremap <unique> <script> <Plug>XTablinePurge <SID>PurgeBuffers
     nnoremap <silent> <SID>PurgeBuffers :XTabPurge<cr>
