@@ -230,11 +230,11 @@ endfunction
 function! s:desc_string(s, n, sfile)
     let active_mark = (a:s == v:this_session) ? ' [%] ' : ''
     let description = get(a:sfile, a:n, '')
-    if !empty(description) | let description = description[10+len(active_mark):] | endif
     let spaces = 30 - len(a:n)
     let spaces = printf("%".spaces."s", "")
+    let pad = empty(active_mark) ? '     ' : ''
     let time = system('date=`stat -c %Y '.fnameescape(a:s).'` && date -d@"$date" +%Y.%m.%d')[:-2]
-    return a:n.spaces."\t".time.active_mark.description
+    return a:n.spaces."\t".time.pad.active_mark.description
 endfunction
 
 function! xtabline#fzf#sessions_list()
@@ -271,7 +271,7 @@ function! xtabline#fzf#session_load(file)
     " upadate and pause Obsession
     if ObsessionStatus() == "[$]" | exe "silent Obsession ".fnameescape(g:this_obsession) | silent Obsession | endif
 
-    if input("Confirm (y/n)? Current session will be unloaded. ") ==# 'y'
+    if input("Current session will be unloaded. Confirm (y/n)? ") ==# 'y'
         execute "silent! %bdelete"
         execute "source ".fnameescape(file)
         call xtabline#init_cwds()
@@ -286,12 +286,10 @@ function! xtabline#fzf#session_save()
     else | let data = {} | execute "!touch ".data_file | endif
 
     let defname = empty(v:this_session) ? '' : fnamemodify(v:this_session, ":t")
-    let defdesc = get(data, defname) ? data[defname][15:] : ''
-    let time = strftime("%Y.%m.%d")."     "
+    let defdesc = get(data, defname, '')
     let name = input('Enter a name for this session:   ', defname)
     if !empty(name)
-        let description = input('Enter an optional description:   ', defdesc)
-        let data[name] = time.description
+        let data[name] = input('Enter an optional description:   ', defdesc)
         if input("Confirm (y/n) ") ==# 'y'
             call writefile([string(data)], data_file, "")
             let file = expand(g:xtabline_sessions_path.s:sep().name, ":p")
