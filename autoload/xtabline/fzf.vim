@@ -39,6 +39,8 @@ for s:color_name in keys(s:ansi)
                 \ "endfunction"
 endfor
 
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
 function! s:strip(str)
     return substitute(a:str, '^\s*\|\s*$', '', 'g')
 endfunction
@@ -54,9 +56,16 @@ function! s:format_buffer(b)
     return s:strip(printf("[%s] %s\t%s\t%s", s:yellow(a:b, 'Number'), flag, name, extra))
 endfunction
 
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
 fun! s:sep()
     return exists('+shellslash') && &shellslash ? '\' : '/'
 endfun
+
+
+
+
+
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " fzf functions
@@ -268,10 +277,10 @@ function! xtabline#fzf#session_load(file)
     if !filereadable(file) | echo "Session file doesn't exist." | return | endif
     if file == v:this_session | echo "Session is already loaded. Aborting." | return | endif
 
-    " upadate and pause Obsession
-    if ObsessionStatus() == "[$]" | exe "silent Obsession ".fnameescape(g:this_obsession) | silent Obsession | endif
-
     if input("Current session will be unloaded. Confirm (y/n)? ") ==# 'y'
+        " upadate and pause Obsession
+        if ObsessionStatus() == "[$]" | exe "silent Obsession ".fnameescape(g:this_obsession) | silent Obsession | endif
+
         execute "silent! %bdelete"
         execute "source ".fnameescape(file)
         call xtabline#init_cwds()
