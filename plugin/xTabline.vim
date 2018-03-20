@@ -123,6 +123,7 @@ function! s:Do(action)
 
         let t:cwd = getcwd()
         let g:xtab_cwds[tabpagenr()-1] = t:cwd
+        let s:last_tab = tabpagenr() - 1
 
         if !exists('t:name') | let t:name = t:cwd | endif
         let s:most_recent_tab = {'cwd': t:cwd, 'name': t:name, 'buffers': xtabline#tab_buffers()}
@@ -132,11 +133,7 @@ function! s:Do(action)
     elseif arg == 'close'
 
         let g:most_recently_closed_tab = copy(s:most_recent_tab)
-
-        if tabpagenr() == tabpagenr("$")
-            call remove(g:xtab_cwds, tabpagenr())
-        else
-            call remove(g:xtab_cwds, tabpagenr()-1) | endif
+        call remove(g:xtab_cwds, s:last_tab)
     endif
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
