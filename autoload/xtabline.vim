@@ -142,28 +142,30 @@ fun! s:close_buffer(buf)
 endfun
 
 fun! s:is_tab_buffer(...)
-    if a:0
-        return index(t:xtl_accepted, bufnr(a:0)) != -1 | endif
-    return index(t:xtl_accepted, bufnr("%")) != -1
+    return (index(t:xtl_accepted, a:1) != -1)
 endfun
 
 function! xtabline#close_buffer()
     """Close and delete a buffer, without closing the tab."""
-    let current = bufnr("%") | let alt = bufnr("#") | let tabnr = tabpagenr()
+    let current = bufnr("%") | let alt = bufnr("#") | let tbufs = len(t:xtl_accepted)
 
     if buflisted(alt) && s:is_tab_buffer(alt)
-        execute "buffer ".alt | call s:close_buffer(current)
+        execute "buffer #" | call s:close_buffer(current)
 
-    elseif len(t:xtl_accepted) > 1 || (len(t:xtl_accepted) && !s:is_tab_buffer())
-        call xtabline#next_buffer(1) | call s:close_buffer(current)
+    elseif ( tbufs > 1 ) || ( tbufs && !s:is_tab_buffer(current) )
+        execute "normal \<Plug>XTablineNextBuffer" | call s:close_buffer(current)
 
     elseif !g:xtabline_close_buffer_can_close_tab
+        echo "Last buffer for this tab."
         return
 
-    elseif getbufvar(current, 'modified')
+    elseif getbufvar(current, '&modified')
+        echohl WarningMsg
         echo "Not closing because of unsaved changes"
+        echohl None
+        return
 
-    elseif tabnr > 1 || tabpagenr("$") != tabnr
+    elseif tabpagenr() > 1 || tabpagenr("$") != tabpagenr()
         tabnext | silent call s:close_buffer(current)
     else
         quit | endif
