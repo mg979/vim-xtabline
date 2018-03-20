@@ -1,7 +1,8 @@
+g:xtabline-todo	xTabline.txt	/*g:xtabline-todo*
 g:xtabline_alt_action	xTabline.txt	/*g:xtabline_alt_action*
-g:xtabline_autodelete_empty_buffers	xTabline.txt	/*g:xtabline_autodelete_empty_buffers*
 g:xtabline_cd_commands	xTabline.txt	/*g:xtabline_cd_commands*
 g:xtabline_include_previews	xTabline.txt	/*g:xtabline_include_previews*
+g:xtabline_sessions_path	xTabline.txt	/*g:xtabline_sessions_path*
 xTabline.txt	xTabline.txt	/*xTabline.txt*
 xtabline-airline	xTabline.txt	/*xtabline-airline*
 xtabline-buffers	xTabline.txt	/*xtabline-buffers*
@@ -14,11 +15,12 @@ xtabline-installation	xTabline.txt	/*xtabline-installation*
 xtabline-intro	xTabline.txt	/*xtabline-intro*
 xtabline-license	xTabline.txt	/*xtabline-license*
 xtabline-persistance	xTabline.txt	/*xtabline-persistance*
+xtabline-prefix	xTabline.txt	/*xtabline-prefix*
 xtabline-purge	xTabline.txt	/*xtabline-purge*
 xtabline-requirements	xTabline.txt	/*xtabline-requirements*
+xtabline-sessions	xTabline.txt	/*xtabline-sessions*
 xtabline-summary	xTabline.txt	/*xtabline-summary*
 xtabline-toc	xTabline.txt	/*xtabline-toc*
 xtabline-todo	xTabline.txt	/*xtabline-todo*
 xtabline-toggle	xTabline.txt	/*xtabline-toggle*
 xtabline-vim	xTabline.txt	/*xtabline-vim*
-xtabline-warnings	xTabline.txt	/*xtabline-warnings*

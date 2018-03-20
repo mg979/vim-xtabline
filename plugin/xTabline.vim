@@ -15,30 +15,32 @@ let g:loaded_xtabline = 1
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 com! -bang -nargs=? -complete=buffer XTabBuffersOpen call fzf#vim#buffers(<q-args>, {
-                                  \ 'source': xtabline#fzf#tab_buffers(),
-                                  \ 'options': '--multi --prompt "Open Tab Buffer >>>  "'}, <bang>0)
+            \ 'source': xtabline#fzf#tab_buffers(),
+            \ 'options': '--multi --prompt "Open Tab Buffer >>>  "'}, <bang>0)
 
 com! -bang -nargs=? -complete=buffer XTabBuffersDelete call fzf#vim#buffers(<q-args>, {
-                                  \ 'source': xtabline#fzf#tab_buffers(),
-                                  \ 'sink': function('xtabline#fzf#bufdelete'), 'down': '30%',
-                                  \ 'options': '--multi --prompt "Delete Tab Buffer >>>  "'})
+            \ 'source': xtabline#fzf#tab_buffers(),
+            \ 'sink': function('xtabline#fzf#bufdelete'), 'down': '30%',
+            \ 'options': '--multi --prompt "Delete Tab Buffer >>>  "'})
 
 com! -bang -nargs=? -complete=buffer XTabAllBuffersDelete call fzf#vim#buffers(<q-args>, {
-                                  \ 'sink': function('xtabline#fzf#bufdelete'), 'down': '30%',
-                                  \ 'options': '--multi --prompt "Delete Any Buffer >>>  "'})
+            \ 'sink': function('xtabline#fzf#bufdelete'), 'down': '30%',
+            \ 'options': '--multi --prompt "Delete Any Buffer >>>  "'})
 
 com! -bang -nargs=? -complete=buffer XTabSessionLoad call fzf#vim#files(<q-args>, {
-                                  \ 'source': xtabline#fzf#sessions_list(),
-                                  \ 'sink': function('xtabline#fzf#session_load'), 'down': '30%',
-                                  \ 'options': '--prompt "Load Session >>>  "'})
+            \ 'source': xtabline#fzf#sessions_list(),
+            \ 'sink': function('xtabline#fzf#session_load'), 'down': '30%',
+            \ 'options': '--prompt "Load Session >>>  "'})
 
-com! XTabBookmarksLoad call fzf#run({'source': xtabline#fzf#tab_bookmarks(),
-                                  \ 'sink': function('xtabline#fzf#tab_bookmarks_load'), 'down': '30%',
-                                  \ 'options': '--multi --prompt "Load Tab Bookmark >>>  "'})
+command! -bang -nargs=? -complete=buffer XTabBookmarksLoad call fzf#vim#ag(<q-args>, {
+            \ 'source': xtabline#fzf#tab_bookmarks(),
+            \ 'sink': function('xtabline#fzf#tab_bookmarks_load'), 'down': '30%',
+            \ 'options': '--multi --prompt "Load Tab Bookmark >>>  "'})
 
-com! XTabNERDBookmarks call fzf#run({'source': xtabline#fzf#tab_nerd_bookmarks(),
-                                  \ 'sink': function('xtabline#fzf#tab_nerd_bookmarks_load'), 'down': '30%',
-                                  \ 'options': '--multi --prompt "Load NERD Bookmark >>>  "'})
+command! -bang -nargs=? -complete=buffer XTabNERDBookmarks call fzf#vim#ag(<q-args>, {
+            \ 'source': xtabline#fzf#tab_nerd_bookmarks(),
+            \ 'sink': function('xtabline#fzf#tab_nerd_bookmarks_load'), 'down': '30%',
+            \ 'options': '--multi --prompt "Load NERD Bookmark >>>  "'})
 
 com! XTabBookmarksSave call xtabline#fzf#tab_bookmarks_save()
 com! XTabSessionSave call xtabline#fzf#session_save()
