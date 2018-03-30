@@ -7,7 +7,7 @@ function! xtabline#maps#init()
     let X = g:xtabline_map_prefix
 
     fun! s:mapkeys(keys, plug)
-        if !hasmapto(a:plug)
+        if mapcheck(a:keys) == '' && !hasmapto(a:plug)
             execute 'map <unique> '.a:keys.' '.a:plug
         endif
     endfun

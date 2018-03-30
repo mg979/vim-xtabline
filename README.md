@@ -107,7 +107,7 @@ filtering. In any case, you should have this enabled:
 
 #### Mapping prefix
 
-Most of |xtabline| mappings can be associated to a prefix. Default is:
+Most of XTabline mappings can be associated to a prefix. Default is:
 
     let g:xtabline_map_prefix = '<leader>X'
 
@@ -230,16 +230,17 @@ chance of conflicts.
 
 |Command                | fzf | Map | Effect                                    |
 |-----------------------|-----|-----|-------------------------------------------|
-|XTabReopen             |  N  |  Xr | Reopen last closed tab|
+|XTabReopen             |  N  |  r  | Reopen last closed tab|
+|XTabPurge              |  N  |  p  | Purge orphaned buffers/previews|
 |XTabRestrictCwd        |  N  |  R  | Restrict filtering to root directory only|
-|XTabPurge              |  N  |  Xp | Purge orphaned buffers/previews|
-|XTabBuffersOpen        |  Y  |  Xx | Open a list of *Tab Buffers* to choose from|
-|XTabBuffersDelete      |  Y  |  Xd | Same list, but use `bdelete` command on them|
-|XTabAllBuffersDelete   |  Y  |  XD | `bdelete`, but choose from the global buffers list|
-|XTabBookmarksLoad      |  Y  |  Xl | Open the *Tab Bookmarks* list|
-|XTabBookmarksSave      |  Y  |  Xs | Save the current tab as a bookmark (custom naming)|
-|XTabNERDBookmarks      |  Y  |     | Open the list of *NERDTreeBookmarks*|
-
+|XTabBuffersOpen        |  Y  |  x  | Open a list of `Tab Buffers` to choose from|
+|XTabBuffersDelete      |  Y  |  d  | Same list, but use |bdelete| command on them|
+|XTabAllBuffersDelete   |  Y  |  D  | `bdelete`, but choose from the global buffers list|
+|XTabBookmarksLoad      |  Y  |  l  | Open the `Tab Bookmarks` list|
+|XTabBookmarksSave      |  Y  |  s  | Save the current tab as a bookmark (custom naming)|
+|XTabSessionLoad        |  Y  |  L  | Open the `Sessions` list|
+|XTabSessionSave        |  Y  |  S  | Save the current session (custom description)|
+|XTabNERDBookmarks      |  Y  |     | Open the list of `NERDTreeBookmarks`|
 
 ---
 
@@ -321,7 +322,7 @@ To prevent previews (eg. vim-fugitive logs) from being displayed, add:
 (You'll still be able to purge them with XTabPurge)
 
 You can remap commands individually. These are the customizable options with
-their defaults. You can copy this section to your |.vimrc| and change the
+their defaults. You can copy this section to your *.vimrc* and change the
 values to ones you prefer.
 
 

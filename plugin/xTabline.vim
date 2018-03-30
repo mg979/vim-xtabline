@@ -56,19 +56,19 @@ com! XTabRestrictCwd call xtabline#restrict_cwd()
 
 let g:xtabline_sessions_path              = get(g:, 'xtabline_sessions_path', '$HOME/.vim/session')
 let g:xtabline_filtering                  = 1
-let g:xtabline_map_prefix                 = '<leader>X'
+let g:xtabline_map_prefix                 = get(g:, 'xtabline_map_prefix', '<leader>X')
 let g:xtabline_include_previews           = get(g:, 'xtabline_include_previews', 1)
 let g:xtabline_close_buffer_can_close_tab = get(g:, 'xtabline_close_buffer_can_close_tab', 0)
 
-let t:xtl_excluded = get(g:, 'airline#extensions#tabline#exclude_buffers', [])
+let t:xtl_excluded                        = get(g:, 'airline#extensions#tabline#exclude_buffers', [])
 let t:xtl_accepted = []
 
 let g:xtabline_alt_action                 = get(g:, 'xtabline_alt_action', "buffer #")
 let g:xtabline_bookmaks_file              = get(g:, 'xtabline_bookmaks_file ', expand('$HOME/.vim/.XTablineBookmarks'))
 
 if !exists("g:xtabline_todo_file")
-    let g:xtabline_todo_file = "/.TODO"
-    let g:xtabline_todo = {'path': getcwd().g:xtabline_todo_file, 'command': 'sp', 'prefix': 'below', 'size': 20, 'syntax': 'markdown'}
+    let g:xtabline_todo_file              = get(g:, 'xtabline_todo_file', "/.TODO")
+    let g:xtabline_todo                   = {'path': getcwd().g:xtabline_todo_file, 'command': 'sp', 'prefix': 'below', 'size': 20, 'syntax': 'markdown'}
 endif
 
 if !filereadable(g:xtabline_bookmaks_file)
