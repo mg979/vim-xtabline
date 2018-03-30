@@ -62,6 +62,7 @@ let g:xtabline_close_buffer_can_close_tab = get(g:, 'xtabline_close_buffer_can_c
 
 let t:xtl_excluded                        = get(g:, 'airline#extensions#tabline#exclude_buffers', [])
 let t:xtl_accepted = []
+let t:cwd = getcwd()
 
 let g:xtabline_alt_action                 = get(g:, 'xtabline_alt_action', "buffer #")
 let g:xtabline_bookmaks_file              = get(g:, 'xtabline_bookmaks_file ', expand('$HOME/.vim/.XTablineBookmarks'))
