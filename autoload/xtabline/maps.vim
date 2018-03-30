@@ -8,7 +8,7 @@ function! xtabline#maps#init()
 
     fun! s:mapkeys(keys, plug)
         if mapcheck(a:keys) == '' && !hasmapto(a:plug)
-            execute 'map <unique> '.a:keys.' '.a:plug
+            silent! execute 'map <unique> '.a:keys.' '.a:plug
         endif
     endfun
 
@@ -82,12 +82,12 @@ function! xtabline#maps#init()
     nnoremap <silent> <SID>TabTodo :XTabTodo<cr>
 
     if get(g:, 'xtabline_cd_commands', 0)
-        map <unique> <leader>cdc <Plug>XTablineCdCurrent
-        map <unique> <leader>cdd <Plug>XTablineCdDown1
-        map <unique> <leader>cd2 <Plug>XTablineCdDown2
-        map <unique> <leader>cd3 <Plug>XTablineCdDown3
-        map <unique> <leader>cdh <Plug>XTablineCdHome
-        map <unique> <leader>cdr <Plug>XTablineRestrictCwd
+        silent! map <unique> <leader>cdc <Plug>XTablineCdCurrent
+        silent! map <unique> <leader>cdd <Plug>XTablineCdDown1
+        silent! map <unique> <leader>cd2 <Plug>XTablineCdDown2
+        silent! map <unique> <leader>cd3 <Plug>XTablineCdDown3
+        silent! map <unique> <leader>cdh <Plug>XTablineCdHome
+        silent! map <unique> <leader>cdr <Plug>XTablineRestrictCwd
         nnoremap <unique> <script> <Plug>XTablineCdCurrent :cd %:p:h<cr>:doautocmd BufAdd<cr>:pwd<cr>
         nnoremap <unique> <script> <Plug>XTablineCdDown1   :cd %:p:h:h<cr>:doautocmd BufAdd<cr>:pwd<cr>
         nnoremap <unique> <script> <Plug>XTablineCdDown2   :cd %:p:h:h:h<cr>:doautocmd BufAdd<cr>:pwd<cr>

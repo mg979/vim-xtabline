@@ -18,6 +18,7 @@ xtabline-persistance	xTabline.txt	/*xtabline-persistance*
 xtabline-prefix	xTabline.txt	/*xtabline-prefix*
 xtabline-purge	xTabline.txt	/*xtabline-purge*
 xtabline-requirements	xTabline.txt	/*xtabline-requirements*
+xtabline-restrict	xTabline.txt	/*xtabline-restrict*
 xtabline-sessions	xTabline.txt	/*xtabline-sessions*
 xtabline-summary	xTabline.txt	/*xtabline-summary*
 xtabline-toc	xTabline.txt	/*xtabline-toc*
