@@ -18,8 +18,7 @@
     Credits
     License
 
-  
-  
+
 #### Introduction
 
 *This README won't be updated as often as the main help file. If you install
@@ -40,8 +39,7 @@ the CWD is automatically set to the last path that specific tab was set to.
 Since each tab has its own CWD, XTabline filters the buffers to be shown on
 it, to display only the buffers whose path is within the CWD for that tab.
 
-  
-  
+
 ---
 
 #### Features List
@@ -61,16 +59,20 @@ path is within that tab's CWD.
 
 * Tab bookmarks: save and reload a tab with all its buffers and its CWD
 
+* Session management: load/save sessions, with timestamping and descroiptions
+
+* Reopen last closed tab (with buffers and CWD)
+
 * Tab-todo: customizable command to open a todo file for that tab
 
 * *fzf-vim* integration:
     - open/delete multiple *Tab Buffers* at once.
     - access *Tab Bookmarks* or *NERDTreeBookmarks*.
+    - session management
 
 * *vim-obsession* support for CWDs persistance across sessions
 
-  
-  
+
 ---
 
 #### Requirements
@@ -79,8 +81,7 @@ path is within that tab's CWD.
 [vim-obsession](https://github.com/tpope/vim-obsession) is required for persistance.  
 [fzf-vim](https://github.com/junegunn/fzf.vim) is required for bookmarks commands.  
 
-  
-  
+
 ---
 
 #### Installation
@@ -91,21 +92,29 @@ With vim-plug:
 
     Plug 'mg979/vim-xtabline'
 
-  
-  
+
 ---
 
 #### Interaction With Airline
 
 XTabline exploits the built-in Airline 'excludes' list to achieve buffer
-filtering. The *g:airline#extensions#tabline#excludes* variable is overwritten
-at every tab switch, therefore if you use it, you will need to use this new
-variable instead:
+filtering. In any case, you should have this enabled:
 
-    let g:xtabline_excludes = []
+    let g:airline#extensions#tabline#enabled = 1
 
-  
-  
+
+---
+
+#### Mapping prefix
+
+Most of |xtabline| mappings can be associated to a prefix. Default is:
+
+    let g:xtabline_map_prefix = '<leader>X'
+
+This means that most commands will be mapped to \<leader>X + a modifier.
+You can change the prefix and all mappings will be changed accordingly.
+
+
 ---
 
 #### Tab Buffers Navigation
@@ -124,10 +133,15 @@ also work when in *tabs mode* (see 'xtabline-toggle' ).
 |\<Plug>XTablineSelectBuffer       | [count]\<leader>l|
 |\<Plug>XTablineNextBuffer         | \<S-PageDown>|
 |\<Plug>XTablinePrevBuffer         | \<S-PageUp>|
+|\<Plug>XTablineCloseBuffer        | \<prefix\>q|
 
-*XTablineSelectBuffer* has two peculiarities:
+*XTablineNextBuffer* and *XTablinePrevBuffer* accept a [count], to move to ±[N]
+buffer, as they are shown in the tabline. If moving beyond the limit, it
+will start from the start (or the end).
 
-* it needs a *[count]* to work, eg. 2<leader>l would bring you to buffer #2
+*XTablineSelectBuffer* works this way:
+
+* it needs a *[count]* to work, eg. 2\<leader>l would bring you to buffer #2
 * when not using a *[count]*, it will execute a command of your choice
 
 Define this command by setting the *g:xtabline_alt_action* variable.
@@ -138,8 +152,10 @@ Examples:
     let g:xtabline_alt_action = "buffer #"    (switch to alternative buffer)
     let g:xtabline_alt_action = "Buffers"     (call fzf-vim :Buffers command)
 
-  
-  
+*XTablineCloseBuffer* will close and delete the current buffer, but it will
+not try to close the tab page, unless _g:xtabline_close_buffer_can_close_tab_
+is set to 1.
+
 ---
 
 #### Toggling Options
@@ -152,8 +168,8 @@ You can toggle both between tabs and buffers, and buffers filtering on and off
 |\<Plug>XTablineToggleTabs         | \<F5>|
 |\<Plug>XTablineToggleBuffers      | \<leader>\<F5>|
 
-  
-  
+
+
 ---
 
 #### Persistance
@@ -162,8 +178,46 @@ If you use *vim-obsession* your tabs CWDs will be remembered inside a session
 that is currently tracked. It's an automatic process and you don't need to do
 or set anything.
 
-  
-  
+ 
+---
+
+#### Session Management
+
+Both _vim-obsession_ and _fzf-vim_ are required.
+
+|Command               |Mapping                          | Default     |
+|----------------------|---------------------------------|-------------|
+|XTabSessionLoad       |\<Plug>XTablineSessionLoad       | \<prefix\>L  |
+|XTabSessionSave       |\<Plug>XTablineSessionSave       | \<prefix\>S  |
+
+Both commands operate on sessions found in the specified directory. Default:
+
+  let g:xtabline_sessions_path = '$HOME/.vim/session'
+
+When saving sessions, you can add a description, that defaults to the current
+one. Descriptions are saved in `$HOME/.vim/.XTablineSessions`.
+
+When loading sessions, the last modification date will be shown, along with
+the description and the symbol `[%]` that marks the active session (if any).
+
+
+
+---
+
+#### Options summary
+
+You can add any of these to your *.vimrc*
+
+|Option                           | Effect (defalult) |
+|---------------------------------|----------------|
+|g:xtabline_disable_keybindings      | (0)        |
+|g:xtabline_cd_commands              | enable CWD selection commands (0)   |
+|g:xtabline_autodelete_empty_buffers | remove empty unsaved buffers (0)    |
+|g:xtabline_include_previews         | display fugitive logs buffers (1)   |
+|g:xtabline_alt_action               | SelectBuffer alternative command    |
+|g:xtabline_todo                     | todo command customization          |
+|g:xtabline_sessions_path            | sessions directory                  |
+
 ---
 
 #### Commands
@@ -174,19 +228,32 @@ Default mappings are meant prefixed by `<leader>`. Personally I use lowercase
 mappings for quicker access, but default mappings have uppercase X to lower
 chance of conflicts.
 
- Command                | fzf | Map | Effect                                    |
- -----------------------|-----|-----|-------------------------------------------|
- XTabReopen             |  N  |  Xr | Reopen last closed tab|
- XTabPurge              |  N  |  Xp | Purge orphaned buffers/previews|
- XTabBuffersOpen        |  Y  |  Xx | Open a list of *Tab Buffers* to choose from|
- XTabBuffersDelete      |  Y  |  Xd | Same list, but use `bdelete` command on them|
- XTabAllBuffersDelete   |  Y  |  XD | `bdelete`, but choose from the global buffers list|
- XTabBookmarksLoad      |  Y  |  Xl | Open the *Tab Bookmarks* list|
- XTabBookmarksSave      |  Y  |  Xs | Save the current tab as a bookmark (custom naming)|
- XTabNERDBookmarks      |  Y  |     | Open the list of *NERDTreeBookmarks*|
+|Command                | fzf | Map | Effect                                    |
+|-----------------------|-----|-----|-------------------------------------------|
+|XTabReopen             |  N  |  Xr | Reopen last closed tab|
+|XTabRestrictCwd        |  N  |  R  | Restrict filtering to root directory only|
+|XTabPurge              |  N  |  Xp | Purge orphaned buffers/previews|
+|XTabBuffersOpen        |  Y  |  Xx | Open a list of *Tab Buffers* to choose from|
+|XTabBuffersDelete      |  Y  |  Xd | Same list, but use `bdelete` command on them|
+|XTabAllBuffersDelete   |  Y  |  XD | `bdelete`, but choose from the global buffers list|
+|XTabBookmarksLoad      |  Y  |  Xl | Open the *Tab Bookmarks* list|
+|XTabBookmarksSave      |  Y  |  Xs | Save the current tab as a bookmark (custom naming)|
+|XTabNERDBookmarks      |  Y  |     | Open the list of *NERDTreeBookmarks*|
 
-  
-  
+
+---
+
+#### Purge Buffers
+
+This command is handy to close all buffers that aren't bound to a physical
+file (such vim-fugitive logs, vim-gitgutter previews, quickfix windows etc).
+If the only window in the tab is going to be closed, the buffer switches
+to the first tab buffer, so that you won't lose the tab.
+
+Default mapping: `<prefix>p`
+
+
+
 ---
 
 #### Tab-Todo
@@ -211,67 +278,86 @@ __*command*__ : can be `sp`, `vs`, `edit`, etc.
 __*prefix*__  : will influence where the window appears (check `opening-window` for help)
 __*size*__    : the height/width of the window
 __*syntax*__  : the syntax that will be loaded
-  
-  
+
 ---
+
+#### Cwd selection
+
+Disabled by default, you can enable them by setting:
+
+    let g:xtabline_cd_commands = 1
+
+These commands allow you to quickly change your tab CWD, and update the
+tabline at the same time.
+
+|Mapping                          | Default        |
+|---------------------------------|----------------|
+|\<Plug>XTablineCdCurrent         | \<leader>cdc   |
+|\<Plug>XTablineCdDown1           | \<leader>cdd   |
+|\<Plug>XTablineCdDown2           | \<leader>cd2   |
+|\<Plug>XTablineCdDown3           | \<leader>cd3   |
+|\<Plug>XTablineCdHome            | \<leader>cdh   |
+|\<Plug>XTablineRestrictCwd       | \<leader>cdr   |
+
+
+
+#### Restrict Cwd
+
+Run this command to temporarily restrict filter buffering to the files at the
+root of the current cwd, ignoring not only the files that are outside of it,
+but also the ones in subdirectories. This option is toggled on a per-tab basis
+and is not persistent across sessions.
+
+Default mapping: `<prefix>R`
+
+
 
 #### Customization
 
-    let g:xtabline_autodelete_empty_buffers = 0
+To prevent previews (eg. vim-fugitive logs) from being displayed, add:
 
-This option has the effect of automatically deleting (by `bdelete`) unnamed
-empty buffers that may be created for different reasons. If disabled, these
-buffers will show up in every tab. If enabled, they will be gone when you
-switch tab. It is disabled by default.
+    let g:xtabline_include_previews = 0
 
-To disable default mappings, add to your *.vimrc*
-
-    `let g:xtabline_disable_keybindings = 1`
+(You'll still be able to purge them with XTabPurge)
 
 You can remap commands individually. These are the customizable options with
-their defaults. You can copy this section to your *.vimrc* and change the
+their defaults. You can copy this section to your |.vimrc| and change the
 values to ones you prefer.
+
 
 ```vim
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
     " xtabline
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-    nmap <F5>              <Plug>XTablineToggleTabs
-    nmap <leader><F5>      <Plug>XTablineToggleBuffers
-    nmap <leader>l         <Plug>XTablineSelectBuffer
-    nmap <S-PageDown>      <Plug>XTablineNextBuffer
-    nmap <S-PageUp>        <Plug>XTablinePrevBuffer
-    nmap <leader>BB        <Plug>XTablineBuffersOpen
-    nmap <leader>BD        <Plug>XTablineBuffersDelete
-    nmap <leader>BA        <Plug>XTablineAllBuffersDelete
-    nmap <leader>BL        <Plug>XTablineBookmarksLoad
-    nmap <leader>BS        <Plug>XTablineBookmarksSave
-    nmap <leader>TT        <Plug>XTablineTabTodo
+    nmap <F5>             <Plug>XTablineToggleTabs
+    nmap <leader><F5>     <Plug>XTablineToggleBuffers
+    nmap <leader>l        <Plug>XTablineSelectBuffer
+    nmap <S-PageDown>     <Plug>XTablineNextBuffer
+    nmap <S-PageUp>       <Plug>XTablinePrevBuffer
+    nmap {prefix}x        <Plug>XTablineBuffersOpen
+    nmap {prefix}d        <Plug>XTablineBuffersDelete
+    nmap {prefix}D        <Plug>XTablineAllBuffersDelete
+    nmap {prefix}r        <Plug>XTablineReopen
+    nmap {prefix}p        <Plug>XTablinePurge
+    nmap {prefix}l        <Plug>XTablineBookmarksLoad
+    nmap {prefix}s        <Plug>XTablineBookmarksSave
+    nmap {prefix}L        <Plug>XTablineSessionLoad
+    nmap {prefix}S        <Plug>XTablineSessionSave
+    nmap {prefix}tt       <Plug>XTablineTabTodo
 
-    let g:xtabline_todo_file = "/.TODO"
-    let g:xtabline_todo = {'path': getcwd().g:xtabline_todo_file, 'command': 'sp', 'prefix': 'below', 'size': 20, 'syntax': 'markdown'}
+    let g:xtabline_map_prefix    = '<leader>X'
+    let g:xtabline_alt_action    = "buffer #"
 
-    let g:xtabline_autodelete_empty_buffers = 0
-    let g:xtabline_excludes = []
-    let g:xtabline_alt_action = "buffer #"
-    let g:xtabline_bookmaks_file  = expand('$HOME/.vim/.XTablineBookmarks')
+    let g:xtabline_bookmaks_file = expand('$HOME/.vim/.XTablineBookmarks')
+    let g:xtabline_sessions_path = '$HOME/.vim/session'
+
+    let g:xtabline_todo_file     = "/.TODO"
+    let g:xtabline_todo          = {'path': getcwd().g:xtabline_todo_file, 'command': 'sp', 'prefix': 'below', 'size': 20, 'syntax': 'markdown'}
+
 ```
-  
-  
----
 
-#### Warnings
 
-This is the first version and there may be bugs and imprecisions.
-
-Of special note, is that I called the `doautocmd BufAdd` command in a couple
-of occasions, to force the redrawing of the tabline (this is handled by
-Airline). I couldn't find another method to force the redraw, this may change
-in the future. I don't think that calling it can cause much trouble, though.
-
-  
-  
 ---
 
 #### Credits
@@ -282,8 +368,7 @@ Junegunn Choi for [fzf-vim](https://github.com/junegunn/fzf.vim)
 Tim Pope for [vim-obsession](https://github.com/tpope/vim-obsession)  
 Kana Natsuno for [tabpagecd](https://github.com/kana/vim-tabpagecd)  
 
-  
-  
+
 ---
 
 #### License

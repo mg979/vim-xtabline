@@ -19,6 +19,7 @@ XTABLINE - TABLE OF CONTENTS                        *xtabline-vim* *xtabline-toc
       CloseBuffer                         |xtabline-closebuf|
       TabTodo                             |xtabline-todo|
       Fast CWD selection                  |xtabline-cwd|
+      Restrict to CWD                     |xtabline-restrict|
     Customization                         |xtabline-customize|
     Credits                               |xtabline-credits|
     License                               |xtabline-license|
@@ -110,8 +111,8 @@ INTERACTION WITH AIRLINE                                      *xtabline-airline*
 
 XTabline exploits the built-in Airline 'excludes' list to achieve buffer
 filtering. In any case, you should have this enabled:
-
-    `let g:airline#extensions#tabline#enabled = 1`
+>
+    let g:airline#extensions#tabline#enabled = 1
 
 
 
@@ -235,6 +236,7 @@ g:xtabline_disable_keybindings      | (0)
 |g:xtabline_sessions_path|            | sessions directory
 
 
+
 COMMANDS                                                     *xtabline-commands*
 ==============================================================================
 
@@ -249,6 +251,7 @@ Command                | fzf | Map | Effect                                     
 -----------------------+-----+-----+-------------------------------------------------
 XTabReopen             |  N  |  r  | Reopen last closed tab
 XTabPurge              |  N  |  p  | Purge orphaned buffers/previews
+XTabRestrictCwd        |  N  |  R  | Restrict filtering to root directory only
 XTabBuffersOpen        |  Y  |  x  | Open a list of `Tab Buffers` to choose from
 XTabBuffersDelete      |  Y  |  d  | Same list, but use |bdelete| command on them
 XTabAllBuffersDelete   |  Y  |  D  | |bdelete|, but choose from the global buffers list
@@ -297,6 +300,7 @@ And you can define other options:
     `syntax`  : the syntax that will be loaded
 
 
+
 CWD SELECTION                              *g:xtabline_cd_commands* *xtabline-cwd*
 ==============================================================================
 
@@ -315,6 +319,19 @@ Mapping                          | Default                              ~
 <Plug>XTablineCdDown2            | <leader>cd2
 <Plug>XTablineCdDown3            | <leader>cd3
 <Plug>XTablineCdHome             | <leader>cdh
+<Plug>XTablineRestrictCwd        | <leader>cdr
+
+
+
+RESTRICT CWD                                                 *xtabline-restrict*
+==============================================================================
+
+Run this command to temporarily restrict filter buffering to the files at the
+root of the current cwd, ignoring not only the files that are outside of it,
+but also the ones in subdirectories. This option is toggled on a per-tab basis
+and is not persistent across sessions.
+
+Default mapping: <prefix>R
 
 
 
@@ -341,16 +358,16 @@ values to ones you prefer.
     nmap <leader>l        <Plug>XTablineSelectBuffer
     nmap <S-PageDown>     <Plug>XTablineNextBuffer
     nmap <S-PageUp>       <Plug>XTablinePrevBuffer
-    nmap <prefix>x        <Plug>XTablineBuffersOpen
-    nmap <prefix>d        <Plug>XTablineBuffersDelete
-    nmap <prefix>D        <Plug>XTablineAllBuffersDelete
-    nmap <prefix>r        <Plug>XTablineReopen
-    nmap <prefix>p        <Plug>XTablinePurge
-    nmap <prefix>l        <Plug>XTablineBookmarksLoad
-    nmap <prefix>s        <Plug>XTablineBookmarksSave
-    nmap <prefix>L        <Plug>XTablineSessionLoad
-    nmap <prefix>S        <Plug>XTablineSessionSave
-    nmap <prefix>tt       <Plug>XTablineTabTodo
+    nmap {prefix}x        <Plug>XTablineBuffersOpen
+    nmap {prefix}d        <Plug>XTablineBuffersDelete
+    nmap {prefix}D        <Plug>XTablineAllBuffersDelete
+    nmap {prefix}r        <Plug>XTablineReopen
+    nmap {prefix}p        <Plug>XTablinePurge
+    nmap {prefix}l        <Plug>XTablineBookmarksLoad
+    nmap {prefix}s        <Plug>XTablineBookmarksSave
+    nmap {prefix}L        <Plug>XTablineSessionLoad
+    nmap {prefix}S        <Plug>XTablineSessionSave
+    nmap {prefix}tt       <Plug>XTablineTabTodo
 
     let g:xtabline_map_prefix    = '<leader>X'
     let g:xtabline_alt_action    = "buffer #"

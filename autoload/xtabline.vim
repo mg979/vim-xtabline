@@ -38,6 +38,22 @@ endfunction
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
+function! xtabline#restrict_cwd()
+    """Ignore buffers that are outside the cwd, both upwards and downwards."""
+    let t:restrict_cwd = get(t:, 'restrict_cwd', 0)
+
+    if t:restrict_cwd
+        let t:restrict_cwd = 0
+        echo "Buffer filtering is not restricted anymore"
+    else
+        let t:restrict_cwd = 1
+        echo "Buffer filtering is now restricted to ".getcwd()
+    endif
+    doautocmd BufAdd
+endfunction
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
 function! xtabline#purge_buffers()
     """Remove unmodified buffers with invalid paths."""
 
@@ -113,6 +129,7 @@ function! xtabline#filter_buffers()
     let t:xtl_excluded = g:airline#extensions#tabline#exclude_buffers
     let t:xtl_accepted = [] | let accepted = t:xtl_accepted
     let previews = g:xtabline_include_previews
+    let cwd = getcwd() | let t:restrict_cwd = get(t:, 'restrict_cwd', 0)
 
     " bufnr(0) is the alternate buffer
     for buf in range(1, bufnr("$"))
@@ -123,9 +140,11 @@ function! xtabline#filter_buffers()
         let path = expand("#".buf.":p")
 
         " confront with the cwd
-        if !previews && path =~ "^".getcwd()
+        if t:restrict_cwd && path != cwd.s:sep().fnamemodify(path, ":t")
+            call add(t:xtl_excluded, buf)
+        elseif !previews && path =~ "^".cwd
             call add(accepted, buf)
-        elseif previews && path =~ getcwd()
+        elseif previews && path =~ cwd
             call add(accepted, buf)
         else
             call add(t:xtl_excluded, buf)
@@ -153,7 +172,7 @@ function! xtabline#close_buffer()
         execute "buffer #" | call s:close_buffer(current)
 
     elseif ( tbufs > 1 ) || ( tbufs && !s:is_tab_buffer(current) )
-        execute "normal \<Plug>XTablineNextBuffer" | call s:close_buffer(current)
+        execute "normal \<Plug>XTablinePrevBufferBuffer" | call s:close_buffer(current)
 
     elseif !g:xtabline_close_buffer_can_close_tab
         echo "Last buffer for this tab."
@@ -259,6 +278,11 @@ endfunction
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Helper functions
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:sep()
+    return exists('+shellslash') && &shellslash ? '\' : '/'
+endfun
+
 
 function! xtabline#tab_buffers()
     """Return a list of buffers names for this tab."""

@@ -48,6 +48,7 @@ com! XTabTodo call xtabline#tab_todo()
 com! XTabPurge call xtabline#purge_buffers()
 com! XTabReopen call xtabline#reopen_last_tab()
 com! XTabCloseBuffer call xtabline#close_buffer()
+com! XTabRestrictCwd call xtabline#restrict_cwd()
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Variables
@@ -64,8 +65,6 @@ let t:xtl_accepted = []
 
 let g:xtabline_alt_action                 = get(g:, 'xtabline_alt_action', "buffer #")
 let g:xtabline_bookmaks_file              = get(g:, 'xtabline_bookmaks_file ', expand('$HOME/.vim/.XTablineBookmarks'))
-let g:xtabline_append_tabs                = get(g:, 'xtabline_append_tabs', '')
-let g:xtabline_append_buffers             = get(g:, 'xtabline_append_buffers', '')
 
 if !exists("g:xtabline_todo_file")
     let g:xtabline_todo_file = "/.TODO"

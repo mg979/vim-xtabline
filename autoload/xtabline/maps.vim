@@ -27,6 +27,7 @@ function! xtabline#maps#init()
     call s:mapkeys(X.'S','<Plug>XTablineSessionSave')
     call s:mapkeys(X.'p','<Plug>XTablinePurge')
     call s:mapkeys(X.'r','<Plug>XTablineReopen')
+    call s:mapkeys(X.'R','<Plug>XTablineRestrictCwd')
     call s:mapkeys(X.'tt','<Plug>XTablineTabTodo')
 
     nnoremap <unique> <script> <Plug>XTablineToggleTabs <SID>ToggleTabs
@@ -74,6 +75,9 @@ function! xtabline#maps#init()
     nnoremap <unique> <script> <Plug>XTablineReopen <SID>ReopenLastTab
     nnoremap <silent> <SID>ReopenLastTab :XTabReopen<cr>
 
+    nnoremap <unique> <script> <Plug>XTablineRestrictCwd <SID>RestrictCwd
+    nnoremap <silent> <SID>RestrictCwd :XTabRestrictCwd<cr>
+
     nnoremap <unique> <script> <Plug>XTablineTabTodo <SID>TabTodo
     nnoremap <silent> <SID>TabTodo :XTabTodo<cr>
 
@@ -83,6 +87,7 @@ function! xtabline#maps#init()
         map <unique> <leader>cd2 <Plug>XTablineCdDown2
         map <unique> <leader>cd3 <Plug>XTablineCdDown3
         map <unique> <leader>cdh <Plug>XTablineCdHome
+        map <unique> <leader>cdr <Plug>XTablineRestrictCwd
         nnoremap <unique> <script> <Plug>XTablineCdCurrent :cd %:p:h<cr>:doautocmd BufAdd<cr>:pwd<cr>
         nnoremap <unique> <script> <Plug>XTablineCdDown1   :cd %:p:h:h<cr>:doautocmd BufAdd<cr>:pwd<cr>
         nnoremap <unique> <script> <Plug>XTablineCdDown2   :cd %:p:h:h:h<cr>:doautocmd BufAdd<cr>:pwd<cr>
