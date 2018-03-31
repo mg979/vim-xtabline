@@ -252,6 +252,7 @@ Command                | fzf | Map | Effect                                     
 XTabReopen             |  N  |  r  | Reopen last closed tab
 XTabPurge              |  N  |  p  | Purge orphaned buffers/previews
 XTabRestrictCwd        |  N  |  R  | Restrict filtering to root directory only
+XTabTodo               |  N  |  tt | Open the tab todo file
 XTabBuffersOpen        |  Y  |  x  | Open a list of `Tab Buffers` to choose from
 XTabBuffersDelete      |  Y  |  d  | Same list, but use |bdelete| command on them
 XTabAllBuffersDelete   |  Y  |  D  | |bdelete|, but choose from the global buffers list
@@ -278,12 +279,12 @@ Default mapping: <prefix>p
 TAB-TODO                                         *g:xtabline-todo* *xtabline-todo*
 ==============================================================================
 
-This command opens a todo file at the tab's CWD. Default mapping is <leader>TT
+This command opens a todo file at the tab's CWD. Default mapping is <prefix>tt
 
 If you change the following options, make sure that both of them appear in
 your |.vimrc| file.
 
-You can define the filename (include the directory separator!):
+You can define the filename (include the directory separator):
 >
     let g:xtabline_todo_file = "/.TODO"
 <

@@ -192,7 +192,7 @@ Both _vim-obsession_ and _fzf-vim_ are required.
 
 Both commands operate on sessions found in the specified directory. Default:
 
-  let g:xtabline_sessions_path = '$HOME/.vim/session'
+    let g:xtabline_sessions_path = '$HOME/.vim/session'
 
 When saving sessions, you can add a description, that defaults to the current
 one. Descriptions are saved in `$HOME/.vim/.XTablineSessions`.
@@ -233,8 +233,9 @@ chance of conflicts.
 |XTabReopen             |  N  |  r  | Reopen last closed tab|
 |XTabPurge              |  N  |  p  | Purge orphaned buffers/previews|
 |XTabRestrictCwd        |  N  |  R  | Restrict filtering to root directory only|
+|XTabTodo               |  N  |  tt | Open the tab todo file|
 |XTabBuffersOpen        |  Y  |  x  | Open a list of `Tab Buffers` to choose from|
-|XTabBuffersDelete      |  Y  |  d  | Same list, but use |bdelete| command on them|
+|XTabBuffersDelete      |  Y  |  d  | Same list, but use `bdelete` command on them|
 |XTabAllBuffersDelete   |  Y  |  D  | `bdelete`, but choose from the global buffers list|
 |XTabBookmarksLoad      |  Y  |  l  | Open the `Tab Bookmarks` list|
 |XTabBookmarksSave      |  Y  |  s  | Save the current tab as a bookmark (custom naming)|
@@ -259,12 +260,12 @@ Default mapping: `<prefix>p`
 
 #### Tab-Todo
 
-This command opens a todo file at the tab's CWD. Default mapping is <leader>TT
+This command opens a todo file at the tab's CWD. Default mapping is \<prefix\>tt
 
 If you change the following options, make sure that both of them appear in
 your *.vimrc* file.
 
-You can define the filename (include the directory separator!):
+You can define the filename (include the directory separator):
 
     let g:xtabline_todo_file = "/.TODO"
 
@@ -300,7 +301,7 @@ tabline at the same time.
 |\<Plug>XTablineCdHome            | \<leader>cdh   |
 |\<Plug>XTablineRestrictCwd       | \<leader>cdr   |
 
-
+---
 
 #### Restrict Cwd
 
@@ -311,7 +312,7 @@ and is not persistent across sessions.
 
 Default mapping: `<prefix>R`
 
-
+---
 
 #### Customization
 
