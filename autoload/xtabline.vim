@@ -98,6 +98,45 @@ endfunction
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
+function! s:all_buffers()
+    " get all buffers
+    redir => all
+    silent buffers
+    redir END
+    let all = split(all, '\n')[2:]
+    let all_ = []
+    for b in all
+        let b = b[:3]
+        call add(all_, substitute(b, '\s', '', 'g'))
+    endfor
+    return all_
+endfunction
+
+function! xtabline#clean_up(...)
+    let del = [] | let all = s:all_buffers() | let ok = []
+
+    if a:0
+        for b in all
+            for cwd in g:xtab_cwds
+                if expand("#".b.":p") =~ cwd
+                    call add(ok, b)
+                endif
+            endfor
+        endfor
+    else
+        for i in range(tabpagenr('$')) | call extend(ok, tabpagebuflist(i + 1)) | endfor
+        let ok = map(ok, 'string(v:val)')
+    endif
+
+    for b in all
+        if index(ok, b) == -1 && bufnr("%") != b
+            execute "silent! bdelete ".b
+        endif
+    endfor
+endfunction
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
 function! xtabline#reopen_last_tab()
     """Reopen the last closed tab."""
 
@@ -272,6 +311,7 @@ function! xtabline#tab_todo()
         execute todo['prefix']." ".todo['size'].todo['command']." ".todo['path']
     endif
     execute "setlocal syntax=".todo['syntax']
+    nmap <silent> <buffer> q :unmap <buffer> q<cr>:quit<cr>
 endfunction
 
 

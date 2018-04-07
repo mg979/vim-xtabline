@@ -49,6 +49,8 @@ com! XTabPurge call xtabline#purge_buffers()
 com! XTabReopen call xtabline#reopen_last_tab()
 com! XTabCloseBuffer call xtabline#close_buffer()
 com! XTabRestrictCwd call xtabline#restrict_cwd()
+com! XTabCleanTabs call xtabline#clean_up()
+com! XTabCleanUp call xtabline#clean_up(1)
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Variables

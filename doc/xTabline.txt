@@ -369,6 +369,7 @@ values to ones you prefer.
     nmap {prefix}L        <Plug>XTablineSessionLoad
     nmap {prefix}S        <Plug>XTablineSessionSave
     nmap {prefix}tt       <Plug>XTablineTabTodo
+    nmap {prefix}R        <Plug>XTablineRestrictCwd
 
     let g:xtabline_map_prefix    = '<leader>X'
     let g:xtabline_alt_action    = "buffer #"

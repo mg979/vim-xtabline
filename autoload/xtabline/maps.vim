@@ -28,6 +28,8 @@ function! xtabline#maps#init()
     call s:mapkeys(X.'p','<Plug>XTablinePurge')
     call s:mapkeys(X.'r','<Plug>XTablineReopen')
     call s:mapkeys(X.'R','<Plug>XTablineRestrictCwd')
+    call s:mapkeys(X.'c','<Plug>XTablineCleanUp')
+    call s:mapkeys(X.'C','<Plug>XTablineCleanTabs')
     call s:mapkeys(X.'tt','<Plug>XTablineTabTodo')
 
     nnoremap <unique> <script> <Plug>XTablineToggleTabs <SID>ToggleTabs
@@ -71,6 +73,12 @@ function! xtabline#maps#init()
 
     nnoremap <unique> <script> <Plug>XTablinePurge <SID>PurgeBuffers
     nnoremap <silent> <SID>PurgeBuffers :XTabPurge<cr>
+
+    nnoremap <unique> <script> <Plug>XTablineCleanTabs <SID>CleanTabs
+    nnoremap <silent> <SID>CleanTabs :XTabCleanTabs<cr>
+
+    nnoremap <unique> <script> <Plug>XTablineCleanUp <SID>CleanUp
+    nnoremap <silent> <SID>CleanUp :XTabCleanUp<cr>
 
     nnoremap <unique> <script> <Plug>XTablineReopen <SID>ReopenLastTab
     nnoremap <silent> <SID>ReopenLastTab :XTabReopen<cr>

@@ -260,7 +260,7 @@ Default mapping: `<prefix>p`
 
 #### Tab-Todo
 
-This command opens a todo file at the tab's CWD. Default mapping is \<prefix\>tt
+This command opens a todo file at the tab's CWD. Default mapping is `\<prefix\>tt`
 
 If you change the following options, make sure that both of them appear in
 your *.vimrc* file.
@@ -347,6 +347,7 @@ values to ones you prefer.
     nmap {prefix}L        <Plug>XTablineSessionLoad
     nmap {prefix}S        <Plug>XTablineSessionSave
     nmap {prefix}tt       <Plug>XTablineTabTodo
+    nmap {prefix}R        <Plug>XTablineRestrictCwd
 
     let g:xtabline_map_prefix    = '<leader>X'
     let g:xtabline_alt_action    = "buffer #"
