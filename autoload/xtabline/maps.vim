@@ -8,12 +8,12 @@ function! xtabline#maps#init()
 
     fun! s:mapkeys(keys, plug)
         if mapcheck(a:keys) == '' && !hasmapto(a:plug)
-            silent! execute 'map <unique> '.a:keys.' '.a:plug
+            silent! execute 'nmap <unique> '.a:keys.' '.a:plug
         endif
     endfun
 
     call s:mapkeys('<F5>','<Plug>XTablineToggleTabs')
-    call s:mapkeys('<leader><F5>','<Plug>XTablineToggleBuffers')
+    call s:mapkeys('<leader><F5>','<Plug>XTablineToggleFiltering')
     call s:mapkeys('<leader>l','<Plug>XTablineSelectBuffer')
     call s:mapkeys(']l','<Plug>XTablineNextBuffer')
     call s:mapkeys('[l','<Plug>XTablinePrevBuffer')
@@ -29,14 +29,14 @@ function! xtabline#maps#init()
     call s:mapkeys(X.'r','<Plug>XTablineReopen')
     call s:mapkeys(X.'R','<Plug>XTablineRestrictCwd')
     call s:mapkeys(X.'c','<Plug>XTablineCleanUp')
-    call s:mapkeys(X.'C','<Plug>XTablineCleanTabs')
-    call s:mapkeys(X.'tt','<Plug>XTablineTabTodo')
+    call s:mapkeys(X.'C','<Plug>XTablineWipe')
+    call s:mapkeys(X.'t','<Plug>XTablineTabTodo')
 
     nnoremap <unique> <script> <Plug>XTablineToggleTabs <SID>ToggleTabs
     nnoremap <silent> <SID>ToggleTabs :call xtabline#toggle_tabs()<cr>
 
-    nnoremap <unique> <script> <Plug>XTablineToggleBuffers <SID>ToggleBuffers
-    nnoremap <silent> <SID>ToggleBuffers :call xtabline#toggle_buffers()<cr>
+    nnoremap <unique> <script> <Plug>XTablineToggleFiltering <SID>ToggleFiltering
+    nnoremap <silent> <SID>ToggleFiltering :call xtabline#toggle_buffers()<cr>
 
     nnoremap <unique> <script> <Plug>XTablineSelectBuffer <SID>SelectBuffer
     nnoremap <silent> <expr> <SID>SelectBuffer g:xtabline_changing_buffer ? "\<C-c>" : ":<C-u>call xtabline#select_buffer(v:count)\<cr>"
@@ -74,8 +74,8 @@ function! xtabline#maps#init()
     nnoremap <unique> <script> <Plug>XTablinePurge <SID>PurgeBuffers
     nnoremap <silent> <SID>PurgeBuffers :XTabPurge<cr>
 
-    nnoremap <unique> <script> <Plug>XTablineCleanTabs <SID>CleanTabs
-    nnoremap <silent> <SID>CleanTabs :XTabCleanTabs<cr>
+    nnoremap <unique> <script> <Plug>XTablineWipe <SID>Wipe
+    nnoremap <silent> <SID>Wipe :XTabWipe<cr>
 
     nnoremap <unique> <script> <Plug>XTablineCleanUp <SID>CleanUp
     nnoremap <silent> <SID>CleanUp :XTabCleanUp<cr>

@@ -9,10 +9,10 @@ function! xtabline#toggle_tabs()
 
     if g:airline#extensions#tabline#show_tabs
         let g:airline#extensions#tabline#show_tabs = 0
-        echo "Showing buffers"
+        call s:msg ([[ "Showing buffers", 'StorageClass' ]])
     else
         let g:airline#extensions#tabline#show_tabs = 1
-        echo "Showing tabs"
+        call s:msg ([[ "Showing tabs", 'StorageClass' ]])
     endif
 
     execute "AirlineRefresh"
@@ -27,11 +27,13 @@ function! xtabline#toggle_buffers()
     if g:xtabline_filtering
         let g:xtabline_filtering = 0
         let g:airline#extensions#tabline#accepted = []
-        let g:airline#extensions#tabline#excludes = copy(g:xtabline_excludes)
+        let g:airline#extensions#tabline#exclude_buffers = []
+        call s:msg ([[ "Buffer filtering turned off", 'WarningMsg' ]])
         doautocmd BufAdd
     else
         let g:xtabline_filtering = 1
         call xtabline#filter_buffers()
+        call s:msg ([[ "Buffer filtering turned on", 'StorageClass' ]])
         doautocmd BufAdd
     endif
 endfunction
@@ -44,10 +46,10 @@ function! xtabline#restrict_cwd()
 
     if t:restrict_cwd
         let t:restrict_cwd = 0
-        echo "Buffer filtering is not restricted anymore"
+        call s:msg ([[ "Buffer filtering is not restricted anymore", 'StorageClass' ]])
     else
         let t:restrict_cwd = 1
-        echo "Buffer filtering is now restricted to ".getcwd()
+        call s:msg ([[ "Buffer filtering is now restricted to ", 'WarningMsg'], [ getcwd(), 'None' ]])
     endif
     doautocmd BufAdd
 endfunction
@@ -128,11 +130,16 @@ function! xtabline#clean_up(...)
         let ok = map(ok, 'string(v:val)')
     endif
 
+    let nr = 0
     for b in all
         if index(ok, b) == -1 && bufnr("%") != b
             execute "silent! bdelete ".b
+            let nr += 1
         endif
     endfor
+
+    let s = "Cleaned ".nr." buffer" | let s .= nr!=1 ? "s." : "."
+    call s:msg([[s, 'WarningMsg']])
 endfunction
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -323,6 +330,13 @@ fun! s:sep()
     return exists('+shellslash') && &shellslash ? '\' : '/'
 endfun
 
+fun! s:msg(txt)
+    for txt in a:txt
+        exe "echohl ".txt[1]
+        echon txt[0]
+        echohl None
+    endfor
+endfun
 
 function! xtabline#tab_buffers()
     """Return a list of buffers names for this tab."""
@@ -339,9 +353,9 @@ function! xtabline#not_enough_buffers()
         if index(t:xtl_accepted, bufnr("%")) == -1
             return
         elseif !len(t:xtl_accepted)
-            echo "No available buffers for this tab."
+            call s:msg ([[ "No available buffers for this tab.", 'WarningMsg' ]])
         else
-            echo "No other available buffers for this tab."
+            call s:msg ([[ "No other available buffers for this tab.", 'WarningMsg' ]])
         endif
         return 1
     endif

@@ -6,6 +6,7 @@ g:xtabline_sessions_path	xTabline.txt	/*g:xtabline_sessions_path*
 xTabline.txt	xTabline.txt	/*xTabline.txt*
 xtabline-airline	xTabline.txt	/*xtabline-airline*
 xtabline-buffers	xTabline.txt	/*xtabline-buffers*
+xtabline-cleanup	xTabline.txt	/*xtabline-cleanup*
 xtabline-commands	xTabline.txt	/*xtabline-commands*
 xtabline-credits	xTabline.txt	/*xtabline-credits*
 xtabline-customize	xTabline.txt	/*xtabline-customize*
@@ -16,7 +17,6 @@ xtabline-intro	xTabline.txt	/*xtabline-intro*
 xtabline-license	xTabline.txt	/*xtabline-license*
 xtabline-persistance	xTabline.txt	/*xtabline-persistance*
 xtabline-prefix	xTabline.txt	/*xtabline-prefix*
-xtabline-purge	xTabline.txt	/*xtabline-purge*
 xtabline-requirements	xTabline.txt	/*xtabline-requirements*
 xtabline-restrict	xTabline.txt	/*xtabline-restrict*
 xtabline-sessions	xTabline.txt	/*xtabline-sessions*
