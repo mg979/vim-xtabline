@@ -62,9 +62,9 @@ path is within that tab's CWD.
 
     * Tab buffers quick navigation (next, previous, with |[count]|)
 
-    * Tab bookmarks: save and reload a tab with all its buffers and its CWD
+    * Tab bookmarks: load/save/delete a tab with all its buffers and its CWD
 
-    * Session management: load/save sessions, with timestamping and descriptions
+    * Session management: load/save/delete sessions, with timestamping and descriptions
 
     * Reopen last closed tab (with buffers and CWD)
 
@@ -149,7 +149,7 @@ Mapping                          | Default                              ~
 <Plug>XTablineSelectBuffer       | [count] <leader>l
 <Plug>XTablineNextBuffer         | [count] ]l
 <Plug>XTablinePrevBuffer         | [count] [l
-<Plug>XTablineCloseBuffer        | <prefix>q
+<Plug>XTablineCloseBuffer        | <prefix>z
 
 
 ----------------------------------------------------------------------------
@@ -218,8 +218,9 @@ Command                |  Mapping                        | Default       ~
 -----------------------+---------------------------------+-------------------
 XTabSessionLoad        |<Plug>XTablineSessionLoad        | <prefix>L
 XTabSessionSave        |<Plug>XTablineSessionSave        | <prefix>S
+XTabSessionDelete      |<Plug>XTablineSessionDelete      | <prefix>Q
 
-Both commands operate on sessions found in the specified directory. Default:
+These commands operate on sessions found in the specified directory. Default:
 >
   let g:xtabline_sessions_path = '$HOME/.vim/session'
 <
@@ -271,9 +272,11 @@ XTabBuffersOpen        |  Y  |  x  | Open a list of `Tab Buffers` to choose from
 XTabBuffersDelete      |  Y  |  d  | Same list, but use |bdelete| command on them
 XTabAllBuffersDelete   |  Y  |  D  | |bdelete|, but choose from the global buffers list
 XTabBookmarksLoad      |  Y  |  l  | Open the `Tab Bookmarks` list
-XTabBookmarksSave      |  Y  |  s  | Save the current tab as a bookmark (custom naming)
+XTabBookmarksSave      |  Y  |  s  | Save the current tab as a bookmark
+XTabBookmarksDelete    |  Y  |  s  | Delete the selected tab bookmark
 XTabSessionLoad        |  Y  |  L  | Open the `Sessions` list
-XTabSessionSave        |  Y  |  S  | Save the current session (custom description)
+XTabSessionSave        |  Y  |  S  | Save the current session
+XTabSessionDelete      |  Y  |  S  | Delete the selected session
 XTabNERDBookmarks      |  Y  |     | Open the list of |NERDTreeBookmarks|
 
 

@@ -148,7 +148,7 @@ function! xtabline#reopen_last_tab()
     """Reopen the last closed tab."""
 
     if !exists('g:most_recently_closed_tab')
-        echo "No recent tabs." | return | endif
+        call xtabline#msg("No recent tabs.", 1) | return | endif
 
     let tab = g:most_recently_closed_tab
     tabnew
@@ -163,19 +163,11 @@ endfunction
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-function! xtabline#filter_buffers(...)
+function! xtabline#filter_buffers()
     """Filter buffers so that only the ones within the tab's cwd will show up.
 
     " 'accepted' is a list of buffer numbers, for quick access.
     " 'excludes' is a list of paths, it will be used by Airline to hide buffers."""
-
-    " disable tabline while session is loading
-    if exists('g:SessionLoad') && !a:0
-        let g:airline#extensions#tabline#enabled   = 0
-        return
-    else
-        let g:airline#extensions#tabline#enabled = 1
-    endif
 
     if !g:xtabline_filtering | return | endif
 
@@ -214,7 +206,8 @@ endfunction
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:close_buffer(buf)
-    if !getbufvar(a:buf, '&modified') | execute("silent! bdelete ".a:buf) | call xtabline#filter_buffers() | endif
+    if !getbufvar(a:buf, '&modified')  | exe "silent! bdelete ".a:buf
+        call xtabline#filter_buffers() | endif
 endfun
 
 fun! s:is_tab_buffer(...)
@@ -391,7 +384,7 @@ function! xtabline#init_cwds()
     while len(g:xtab_cwds) < tabpagenr("$") | call add(g:xtab_cwds, getcwd()) | endwhile
     while len(g:xtab_cwds) > tabpagenr('$') | call remove(g:xtab_cwds, -1)    | endwhile
     let t:cwd = getcwd()
-    call xtabline#filter_buffers(1)
+    call xtabline#filter_buffers()
 endfunction
 
 function! xtabline#update_obsession()
@@ -402,7 +395,5 @@ function! xtabline#update_obsession()
         call filter(g:obsession_append, 'v:val !~# "^let g:xtab_cwds"')
         call add(g:obsession_append, string)
     endif
-
-    call xtabline#init_cwds()
 endfunction
 

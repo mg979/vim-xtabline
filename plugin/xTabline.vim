@@ -5,7 +5,7 @@
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 if exists("g:loaded_xtabline")
-  finish
+    finish
 endif
 
 let g:loaded_xtabline = 1
@@ -18,29 +18,39 @@ com! -bang -nargs=? -complete=buffer XTabBuffersOpen call fzf#vim#buffers(<q-arg
             \ 'source': xtabline#fzf#tab_buffers(),
             \ 'options': '--multi --prompt "Open Tab Buffer >>>  "'}, <bang>0)
 
-com! -bang -nargs=? -complete=buffer XTabBuffersDelete call fzf#vim#buffers(<q-args>, {
+com! -bang -nargs=? -complete=buffer XTabBuffersDelete call fzf#vim#files(<q-args>, {
             \ 'source': xtabline#fzf#tab_buffers(),
             \ 'sink': function('xtabline#fzf#bufdelete'), 'down': '30%',
-            \ 'options': '--multi --prompt "Delete Tab Buffer >>>  "'})
+            \ 'options': '--multi --no-preview --ansi --prompt "Delete Tab Buffer >>>  "'})
 
-com! -bang -nargs=? -complete=buffer XTabAllBuffersDelete call fzf#vim#buffers(<q-args>, {
+com! -bang -nargs=? -complete=buffer XTabAllBuffersDelete call fzf#vim#files(<q-args>, {
             \ 'sink': function('xtabline#fzf#bufdelete'), 'down': '30%',
-            \ 'options': '--multi --prompt "Delete Any Buffer >>>  "'})
+            \ 'options': '--multi --no-preview --ansi --prompt "Delete Any Buffer >>>  "'})
 
-com! -bang -nargs=? -complete=buffer XTabSessionLoad call fzf#vim#files(<q-args>, {
+com! -bang -nargs=? XTabSessionLoad call fzf#vim#files(<q-args>, {
             \ 'source': xtabline#fzf#sessions_list(),
             \ 'sink': function('xtabline#fzf#session_load'), 'down': '30%',
-            \ 'options': '--prompt "Load Session >>>  "'})
+            \ 'options': '--header-lines=1 --no-preview --ansi --prompt "Load Session >>>  "'})
 
-command! -bang -nargs=? -complete=buffer XTabBookmarksLoad call fzf#vim#ag(<q-args>, {
+com! -bang -nargs=? XTabSessionDelete call fzf#vim#files(<q-args>, {
+            \ 'source': xtabline#fzf#sessions_list(),
+            \ 'sink': function('xtabline#fzf#session_delete'), 'down': '30%',
+            \ 'options': '--header-lines=1 --no-multi --no-preview --ansi --prompt "Delete Session >>>  "'})
+
+command! -bang -nargs=? XTabBookmarksLoad call fzf#vim#files(<q-args>, {
             \ 'source': xtabline#fzf#tab_bookmarks(),
             \ 'sink': function('xtabline#fzf#tab_bookmarks_load'), 'down': '30%',
-            \ 'options': '--multi --prompt "Load Tab Bookmark >>>  "'})
+            \ 'options': '--header-lines=1 --multi --no-preview --ansi --prompt "Load Tab Bookmark >>>  "'})
 
-command! -bang -nargs=? -complete=buffer XTabNERDBookmarks call fzf#vim#ag(<q-args>, {
+command! -bang -nargs=? XTabBookmarksDelete call fzf#vim#files(<q-args>, {
+            \ 'source': xtabline#fzf#tab_bookmarks(),
+            \ 'sink': function('xtabline#fzf#tab_bookmarks_delete'), 'down': '30%',
+            \ 'options': '--header-lines=1 --multi --no-preview --ansi --prompt "Delete Tab Bookmark >>>  "'})
+
+command! -bang -nargs=? XTabNERDBookmarks call fzf#vim#files(<q-args>, {
             \ 'source': xtabline#fzf#tab_nerd_bookmarks(),
             \ 'sink': function('xtabline#fzf#tab_nerd_bookmarks_load'), 'down': '30%',
-            \ 'options': '--multi --prompt "Load NERD Bookmark >>>  "'})
+            \ 'options': '--multi --no-preview --ansi --prompt "Load NERD Bookmark >>>  "'})
 
 com! XTabBookmarksSave call xtabline#fzf#tab_bookmarks_save()
 com! XTabSessionSave call xtabline#fzf#session_save()
@@ -68,14 +78,14 @@ let t:cwd = getcwd()
 
 let g:xtabline_alt_action                 = get(g:, 'xtabline_alt_action', "buffer #")
 let g:xtabline_bookmaks_file              = get(g:, 'xtabline_bookmaks_file ', expand('$HOME/.vim/.XTablineBookmarks'))
+let g:xtabline_sessions_data              = get(g:, 'xtabline_sessions_data', expand('$HOME/.vim/.XTablineSessions'))
+
+if !filereadable(g:xtabline_bookmaks_file) | call writefile(['{}'], g:xtabline_bookmaks_file) | endif
+if !filereadable(g:xtabline_sessions_data) | call writefile(['{}'], g:xtabline_sessions_data) | endif
 
 if !exists("g:xtabline_todo_file")
     let g:xtabline_todo_file              = get(g:, 'xtabline_todo_file', "/.TODO")
     let g:xtabline_todo                   = {'path': getcwd().g:xtabline_todo_file, 'command': 'sp', 'prefix': 'below', 'size': 20, 'syntax': 'markdown'}
-endif
-
-if !filereadable(g:xtabline_bookmaks_file)
-    call writefile([], g:xtabline_bookmaks_file)
 endif
 
 call xtabline#init_vars()
@@ -103,7 +113,6 @@ endif
 
 function! s:Do(action)
     let arg = a:action
-    if exists('g:SessionLoad')                                | return | endif
     if !s:state | call xtabline#init_cwds() | let s:state = 1 | return | endif
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -111,7 +120,6 @@ function! s:Do(action)
     if arg == 'new'
 
         call insert(g:xtab_cwds, getcwd(), tabpagenr()-1)
-        call xtabline#update_obsession()
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
@@ -121,7 +129,7 @@ function! s:Do(action)
 
         cd `=t:cwd`
         let g:xtabline_todo['path'] = t:cwd.g:xtabline_todo_file
-        call xtabline#update_obsession()
+        call xtabline#filter_buffers()
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
@@ -140,9 +148,11 @@ function! s:Do(action)
 
         let g:most_recently_closed_tab = copy(s:most_recent_tab)
         call remove(g:xtab_cwds, s:last_tab)
-        call xtabline#update_obsession()
     endif
 
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+    call xtabline#update_obsession()
 endfunction
 
 augroup plugin-xtabline
@@ -154,10 +164,9 @@ augroup plugin-xtabline
     autocmd TabLeave  * call s:Do('leave')
     autocmd TabClosed * call s:Do('close')
 
-    autocmd BufEnter         * let g:xtabline_changing_buffer = 0
-    autocmd BufWrite         * call xtabline#update_obsession()
-    autocmd BufAdd,BufDelete * call xtabline#filter_buffers()
-    autocmd SessionLoadPost  * call xtabline#filter_buffers()
+    autocmd BufEnter  * let g:xtabline_changing_buffer = 0
+    autocmd BufAdd,BufDelete,BufWrite * call xtabline#filter_buffers()
+    autocmd SessionLoadPost           * let t:cwd = g:xtab_cwds[tabpagenr()-1] | cd `=t:cwd` | doautocmd BufAdd
 
 augroup END
 

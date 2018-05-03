@@ -18,6 +18,18 @@
     Credits
     License
 
+---
+
+#### Note if upgrading: 
+
+File format for bookmarks and sessions has changed to json. Old files won't work but you can convert them by calling these two functions:
+
+    call xtabline#fzf#update_sessions_file()
+    call xtabline#fzf#update_bookmarks_file()
+
+Only call them once on the same file!
+
+---
 
 #### Introduction
 
@@ -57,9 +69,9 @@ path is within that tab's CWD.
 
 * Tab buffers quick navigation (next, previous, with *[count]*)
 
-* Tab bookmarks: save and reload a tab with all its buffers and its CWD
+* Tab bookmarks: load/save/delete a tab with all its buffers and its CWD
 
-* Session management: load/save sessions, with timestamping and descriptions
+* Session management: load/save/delete sessions, with timestamping and descriptions
 
 * Reopen last closed tab (with buffers and CWD)
 
@@ -136,7 +148,7 @@ also work when in *tabs mode* (see 'xtabline-toggle' ).
 |\<Plug>XTablineSelectBuffer       | [count]\<leader>l|
 |\<Plug>XTablineNextBuffer         | \<S-PageDown>|
 |\<Plug>XTablinePrevBuffer         | \<S-PageUp>|
-|\<Plug>XTablineCloseBuffer        | \<prefix\>q|
+|\<Plug>XTablineCloseBuffer        | \<prefix\>z|
 
 *XTablineNextBuffer* and *XTablinePrevBuffer* accept a [count], to move to ±[N]
 buffer, as they are shown in the tabline. If moving beyond the limit, it
@@ -205,8 +217,9 @@ Both _vim-obsession_ and _fzf-vim_ are required.
 |----------------------|---------------------------------|-------------|
 |XTabSessionLoad       |\<Plug>XTablineSessionLoad       | \<prefix\>L  |
 |XTabSessionSave       |\<Plug>XTablineSessionSave       | \<prefix\>S  |
+|XTabSessionDelete     |\<Plug>XTablineSessionDelete     | \<prefix\>Q  |
 
-Both commands operate on sessions found in the specified directory. Default:
+These commands operate on sessions found in the specified directory. Default:
 
     let g:xtabline_sessions_path = '$HOME/.vim/session'
 
@@ -256,9 +269,11 @@ chance of conflicts.
 |XTabBuffersDelete      |  Y  |  d  | Same list, but use `bdelete` command on them|
 |XTabAllBuffersDelete   |  Y  |  D  | `bdelete`, but choose from the global buffers list|
 |XTabBookmarksLoad      |  Y  |  l  | Open the `Tab Bookmarks` list|
-|XTabBookmarksSave      |  Y  |  s  | Save the current tab as a bookmark (custom naming)|
+|XTabBookmarksSave      |  Y  |  s  | Save the current tab as a bookmark|
+|XTabBookmarksDelete    |  Y  |  q  | Delete the selected tab bookmark|
 |XTabSessionLoad        |  Y  |  L  | Open the `Sessions` list|
-|XTabSessionSave        |  Y  |  S  | Save the current session (custom description)|
+|XTabSessionSave        |  Y  |  S  | Save the current session|
+|XTabSessionDelete      |  Y  |  Q  | Delete the selected session|
 |XTabNERDBookmarks      |  Y  |     | Open the list of `NERDTreeBookmarks`|
 
 ---
