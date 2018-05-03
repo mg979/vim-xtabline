@@ -9,10 +9,10 @@ function! xtabline#toggle_tabs()
 
     if g:airline#extensions#tabline#show_tabs
         let g:airline#extensions#tabline#show_tabs = 0
-        call s:msg ([[ "Showing buffers", 'StorageClass' ]])
+        call xtabline#msg ([[ "Showing buffers", 'StorageClass' ]])
     else
         let g:airline#extensions#tabline#show_tabs = 1
-        call s:msg ([[ "Showing tabs", 'StorageClass' ]])
+        call xtabline#msg ([[ "Showing tabs", 'StorageClass' ]])
     endif
 
     execute "AirlineRefresh"
@@ -28,12 +28,12 @@ function! xtabline#toggle_buffers()
         let g:xtabline_filtering = 0
         let g:airline#extensions#tabline#accepted = []
         let g:airline#extensions#tabline#exclude_buffers = []
-        call s:msg ([[ "Buffer filtering turned off", 'WarningMsg' ]])
+        call xtabline#msg ([[ "Buffer filtering turned off", 'WarningMsg' ]])
         doautocmd BufAdd
     else
         let g:xtabline_filtering = 1
         call xtabline#filter_buffers()
-        call s:msg ([[ "Buffer filtering turned on", 'StorageClass' ]])
+        call xtabline#msg ([[ "Buffer filtering turned on", 'StorageClass' ]])
         doautocmd BufAdd
     endif
 endfunction
@@ -46,10 +46,10 @@ function! xtabline#restrict_cwd()
 
     if t:restrict_cwd
         let t:restrict_cwd = 0
-        call s:msg ([[ "Buffer filtering is not restricted anymore", 'StorageClass' ]])
+        call xtabline#msg ([[ "Buffer filtering is not restricted anymore", 'StorageClass' ]])
     else
         let t:restrict_cwd = 1
-        call s:msg ([[ "Buffer filtering is now restricted to ", 'WarningMsg'], [ getcwd(), 'None' ]])
+        call xtabline#msg ([[ "Buffer filtering is now restricted to ", 'WarningMsg'], [ getcwd(), 'None' ]])
     endif
     doautocmd BufAdd
 endfunction
@@ -139,7 +139,7 @@ function! xtabline#clean_up(...)
     endfor
 
     let s = "Cleaned ".nr." buffer" | let s .= nr!=1 ? "s." : "."
-    call s:msg([[s, 'WarningMsg']])
+    call xtabline#msg([[s, 'WarningMsg']])
 endfunction
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -236,9 +236,7 @@ function! xtabline#close_buffer()
         return
 
     elseif getbufvar(current, '&modified')
-        echohl WarningMsg
-        echo "Not closing because of unsaved changes"
-        echohl None
+        call xtabline#msg("Not closing because of unsaved changes", 1)
         return
 
     elseif tabpagenr() > 1 || tabpagenr("$") != tabpagenr()
@@ -341,7 +339,12 @@ fun! s:sep()
     return exists('+shellslash') && &shellslash ? '\' : '/'
 endfun
 
-fun! s:msg(txt)
+fun! xtabline#msg(txt, ...)
+    if type(a:txt) == v:t_string
+        exe "echohl" a:1? "WarningMsg" : "Label"
+        echon a:txt | echohl None
+        return | endif
+
     for txt in a:txt
         exe "echohl ".txt[1]
         echon txt[0]
@@ -364,9 +367,9 @@ function! xtabline#not_enough_buffers()
         if index(t:xtl_accepted, bufnr("%")) == -1
             return
         elseif !len(t:xtl_accepted)
-            call s:msg ([[ "No available buffers for this tab.", 'WarningMsg' ]])
+            call xtabline#msg ([[ "No available buffers for this tab.", 'WarningMsg' ]])
         else
-            call s:msg ([[ "No other available buffers for this tab.", 'WarningMsg' ]])
+            call xtabline#msg ([[ "No other available buffers for this tab.", 'WarningMsg' ]])
         endif
         return 1
     endif

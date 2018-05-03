@@ -163,7 +163,7 @@ function! xtabline#fzf#tab_bookmarks_load(...)
                 let t:cwd = cwd
                 if empty(line['buffers']) | continue | endif
             else
-                echo line['name'].": invalid bookmark." | continue
+                call xtabline#msg(line['name'].": invalid bookmark.", 1) | continue
             endif
 
             "add buffers
@@ -184,7 +184,8 @@ endfunction
 function! xtabline#fzf#tab_bookmarks_save()
     """Create an entry and add it to the bookmarks file."""
 
-    if !g:xtabline_filtering | echo "Activate tab filtering first." | return | endif
+    if !g:xtabline_filtering
+        call xtabline#msg("Activate tab filtering first.", 1) | return | endif
 
     let entry = {}
 
@@ -194,12 +195,10 @@ function! xtabline#fzf#tab_bookmarks_save()
         let entry['cwd'] = t:cwd
         let entry['name'] = input("Enter an optional name for this bookmark:  ", t:cwd, "file_in_path")
     catch
-        echo "Cwd for this tab hasn't been set, aborting."
-        return
-    endtry
+        call xtabline#msg("Cwd for this tab hasn't been set, aborting.", 1) | return | endtry
 
     if entry['name'] == ""
-        echo "Bookmark not saved." | return | endif
+        call xtabline#msg("Bookmark not saved.", 1) | return | endif
 
     " get buffers
     let bufs = []
@@ -218,6 +217,7 @@ function! xtabline#fzf#tab_bookmarks_save()
     "trasform the dict to string, put in a list and append to file
     let entry = [string(entry)]
     call writefile(entry, g:xtabline_bookmaks_file, "a")
+    call xtabline#msg("Tab bookmark saved.", 0)
 endfunction
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -268,22 +268,27 @@ function! xtabline#fzf#session_load(file)
     " abort if there are unsaved changes
     for b in range(1, bufnr("$"))
         if getbufvar(b, '&modified')
-            echo "Some buffer has unsaved changes. Aborting." | return | endif | endfor
+            call xtabline#msg("Some buffer has unsaved changes. Aborting.", 1)
+            return | endif | endfor
 
     let session = a:file
     if match(session, "\t") | let session = substitute(session, " *\t.*", "", "") | endif
     let file = expand(g:xtabline_sessions_path.s:sep().session, ":p")
 
-    if !filereadable(file) | echo "Session file doesn't exist." | return | endif
-    if file == v:this_session | echo "Session is already loaded. Aborting." | return | endif
+    if !filereadable(file)    | call xtabline#msg("Session file doesn't exist.", 1) | return | endif
+    if file == v:this_session | call xtabline#msg("Session is already loaded.", 1)  | return | endif
 
-    if input("Current session will be unloaded. Confirm (y/n)? ") ==# 'y'
-        " upadate and pause Obsession
-        if ObsessionStatus() == "[$]" | exe "silent Obsession ".fnameescape(g:this_obsession) | silent Obsession | endif
+    call xtabline#msg ([[ "Current session will be unloaded.", 'WarningMsg' ],
+                       \[ " Confirm (y/n)? ", 'Type' ]])
 
-        execute "silent! %bdelete"
-        execute "source ".fnameescape(file)
-    endif
+    if nr2char(getchar()) !=? 'y'
+        call xtabline#msg ([[ "Canceled.", 'WarningMsg' ]]) | return | endif
+
+    " upadate and pause Obsession
+    if ObsessionStatus() == "[$]" | exe "silent Obsession ".fnameescape(g:this_obsession) | silent Obsession | endif
+
+    execute "silent! %bdelete"
+    execute "source ".fnameescape(file)
 endfunction
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -298,13 +303,14 @@ function! xtabline#fzf#session_save()
     let name = input('Enter a name for this session:   ', defname)
     if !empty(name)
         let data[name] = input('Enter an optional description:   ', defdesc)
-        if input("Confirm (y/n) ") ==# 'y'
+        call xtabline#msg("\nConfirm (y/n)\t", 0)
+        if nr2char(getchar()) ==? 'y'
             call writefile([string(data)], data_file, "")
             let file = expand(g:xtabline_sessions_path.s:sep().name, ":p")
             silent execute "Obsession ".fnameescape(file)
-            echo "\nSession '".file."' has been saved."
+            call xtabline#msg("Session '".file."' has been saved.", 0)
             return
         endif
     endif
-    echo "\nSession not saved."
+    call xtabline#msg("Session not saved.", 1)
 endfunction
