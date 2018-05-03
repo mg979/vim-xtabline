@@ -103,6 +103,7 @@ endif
 
 function! s:Do(action)
     let arg = a:action
+    if exists('g:SessionLoad')                                | return | endif
     if !s:state | call xtabline#init_cwds() | let s:state = 1 | return | endif
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -110,6 +111,7 @@ function! s:Do(action)
     if arg == 'new'
 
         call insert(g:xtab_cwds, getcwd(), tabpagenr()-1)
+        call xtabline#update_obsession()
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
@@ -119,7 +121,7 @@ function! s:Do(action)
 
         cd `=t:cwd`
         let g:xtabline_todo['path'] = t:cwd.g:xtabline_todo_file
-        call xtabline#filter_buffers()
+        call xtabline#update_obsession()
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
@@ -138,11 +140,9 @@ function! s:Do(action)
 
         let g:most_recently_closed_tab = copy(s:most_recent_tab)
         call remove(g:xtab_cwds, s:last_tab)
+        call xtabline#update_obsession()
     endif
 
-    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-    call xtabline#update_obsession()
 endfunction
 
 augroup plugin-xtabline
@@ -154,8 +154,10 @@ augroup plugin-xtabline
     autocmd TabLeave  * call s:Do('leave')
     autocmd TabClosed * call s:Do('close')
 
-    autocmd BufEnter  * let g:xtabline_changing_buffer = 0
-    autocmd BufAdd,BufDelete,BufWrite * call xtabline#filter_buffers()
+    autocmd BufEnter         * let g:xtabline_changing_buffer = 0
+    autocmd BufWrite         * call xtabline#update_obsession()
+    autocmd BufAdd,BufDelete * call xtabline#filter_buffers()
+    autocmd SessionLoadPost  * call xtabline#filter_buffers()
 
 augroup END
 

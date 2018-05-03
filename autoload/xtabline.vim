@@ -163,19 +163,30 @@ endfunction
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-function! xtabline#filter_buffers()
+function! xtabline#filter_buffers(...)
     """Filter buffers so that only the ones within the tab's cwd will show up.
 
     " 'accepted' is a list of buffer numbers, for quick access.
     " 'excludes' is a list of paths, it will be used by Airline to hide buffers."""
 
+    " disable tabline while session is loading
+    if exists('g:SessionLoad') && !a:0
+        let g:airline#extensions#tabline#enabled   = 0
+        return
+    else
+        let g:airline#extensions#tabline#enabled = 1
+    endif
+
     if !g:xtabline_filtering | return | endif
 
     let g:airline#extensions#tabline#exclude_buffers = []
-    let t:xtl_excluded = g:airline#extensions#tabline#exclude_buffers
-    let t:xtl_accepted = [] | let accepted = t:xtl_accepted
-    let previews = g:xtabline_include_previews
-    let cwd = getcwd() | let t:restrict_cwd = get(t:, 'restrict_cwd', 0)
+
+    let t:xtl_accepted  = []
+    let t:xtl_excluded  = g:airline#extensions#tabline#exclude_buffers
+    let accepted        = t:xtl_accepted
+    let previews        = g:xtabline_include_previews
+    let t:restrict_cwd  = get(t:, 'restrict_cwd', 0)
+    let cwd             = getcwd()
 
     " bufnr(0) is the alternate buffer
     for buf in range(1, bufnr("$"))
@@ -203,7 +214,7 @@ endfunction
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:close_buffer(buf)
-    if !getbufvar(a:buf, 'modified') | execute("silent! bdelete ".a:buf) | call xtabline#filter_buffers() | endif
+    if !getbufvar(a:buf, '&modified') | execute("silent! bdelete ".a:buf) | call xtabline#filter_buffers() | endif
 endfun
 
 fun! s:is_tab_buffer(...)
@@ -374,11 +385,10 @@ endfunction
 function! xtabline#init_cwds()
     if !exists('g:xtab_cwds') | let g:xtab_cwds = [] | endif
 
-    while len(g:xtab_cwds) < tabpagenr("$")
-        call add(g:xtab_cwds, getcwd())
-    endwhile
+    while len(g:xtab_cwds) < tabpagenr("$") | call add(g:xtab_cwds, getcwd()) | endwhile
+    while len(g:xtab_cwds) > tabpagenr('$') | call remove(g:xtab_cwds, -1)    | endwhile
     let t:cwd = getcwd()
-    call xtabline#filter_buffers()
+    call xtabline#filter_buffers(1)
 endfunction
 
 function! xtabline#update_obsession()
@@ -389,5 +399,7 @@ function! xtabline#update_obsession()
         call filter(g:obsession_append, 'v:val !~# "^let g:xtab_cwds"')
         call add(g:obsession_append, string)
     endif
+
+    call xtabline#init_cwds()
 endfunction
 

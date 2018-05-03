@@ -96,12 +96,20 @@ function! xtabline#maps#init()
         silent! map <unique> <leader>cd3 <Plug>XTablineCdDown3
         silent! map <unique> <leader>cdh <Plug>XTablineCdHome
         silent! map <unique> <leader>cdr <Plug>XTablineRestrictCwd
-        nnoremap <unique> <script> <Plug>XTablineCdCurrent :cd %:p:h<cr>:doautocmd BufAdd<cr>:pwd<cr>
-        nnoremap <unique> <script> <Plug>XTablineCdDown1   :cd %:p:h:h<cr>:doautocmd BufAdd<cr>:pwd<cr>
-        nnoremap <unique> <script> <Plug>XTablineCdDown2   :cd %:p:h:h:h<cr>:doautocmd BufAdd<cr>:pwd<cr>
-        nnoremap <unique> <script> <Plug>XTablineCdDown3   :cd %:p:h:h:h:h<cr>:doautocmd BufAdd<cr>:pwd<cr>
-        nnoremap <unique> <script> <Plug>XTablineCdHome    :cd ~<cr>:doautocmd BufAdd<cr>:pwd<cr>
+        nnoremap <unique> <script> <Plug>XTablineCdCurrent :call <sid>cd('%:p:h')<cr>
+        nnoremap <unique> <script> <Plug>XTablineCdDown1   :call <sid>cd('%:p:h:h')<cr>
+        nnoremap <unique> <script> <Plug>XTablineCdDown2   :call <sid>cd('%:p:h:h:h')<cr>
+        nnoremap <unique> <script> <Plug>XTablineCdDown3   :call <sid>cd('%:p:h:h:h:h')<cr>
+        nnoremap <unique> <script> <Plug>XTablineCdHome    :call <sid>cd('~')<cr> 
     endif
 
+    fun! s:cd(path)
+        let t:cwd = expand(a:path)
+        cd `=t:cwd`
+        doautocmd BufAdd
+        let g:xtab_cwds[tabpagenr()-1] = t:cwd
+        call xtabline#update_obsession()
+        pwd
+    endfun
 endfunction
 

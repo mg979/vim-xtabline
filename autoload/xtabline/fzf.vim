@@ -283,7 +283,6 @@ function! xtabline#fzf#session_load(file)
 
         execute "silent! %bdelete"
         execute "source ".fnameescape(file)
-        call xtabline#init_cwds()
     endif
 endfunction
 
