@@ -273,6 +273,8 @@ endfunction
 " Sessions
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
+let s:lastmod = { f -> str2nr(system('date -r '.f.' +%s')) }
+
 function! s:desc_string(s, n, sfile)
     let active_mark = (a:s == v:this_session) ? s:green(" [%]  ") : '      '
     let description = get(a:sfile, a:n, '')
@@ -288,8 +290,28 @@ function! xtabline#fzf#sessions_list()
     let sfile = json_decode(readfile(g:xtabline_sessions_data)[0])
     let sessions = split(globpath(expand(g:xtabline_sessions_path, ":p"), "*"), '\n')
 
+    "remove __LAST__ session
+    let last = expand(g:xtabline_sessions_path, ":p").s:sep().'__LAST__'
+    let _last = index(sessions, last)
+    if _last >= 0 | call remove(sessions, _last) | endif
+
+    "sort sessions by last modfication time
+    let times = {}
     for s in sessions
-        let active_mark = (s == v:this_session) ? '[%]   ' : ''
+        let t = s:lastmod(s)
+        "prevent key overwriting
+        while has_key(times, t) | let t += 1 | endwhile
+        let times[t] = s
+    endfor
+
+    let ord_times = map(keys(times), 'str2nr(v:val)')
+    let ord_times = reverse(sort(ord_times, 'n'))
+    let ordered = map(ord_times, 'times[v:val]')
+
+    "readd __LAST__ if found
+    if _last >= 0 | call add(ordered, last) | endif
+
+    for s in ordered
         let n = fnamemodify(expand(s), ':t:r')
         let description = s:desc_string(s, n, sfile)
         call add(data, description)
