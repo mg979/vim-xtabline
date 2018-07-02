@@ -153,12 +153,12 @@ endfunction
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 function! xtabline#fzf#tab_bookmarks()
-    let bookmarks = ["Name\t\t\tDescription\t\t\t\t\tBuffers\t\tWorking Dirctory"]
+    let bookmarks = ["Name\t\t\t\t\tDescription\t\t\t\tBuffers\t\tWorking Dirctory"]
     let json = json_decode(readfile(g:xtabline_bookmaks_file)[0])
 
     for bm in keys(json)
         let desc = has_key(json[bm], 'description')? json[bm].description : ''
-        let line = s:yellow(s:pad(bm, 20))."\t".s:cyan(s:pad(desc, 40))."\t".len(json[bm].buffers)." Buffers\t".json[bm].cwd
+        let line = s:yellow(s:pad(bm, 39))."\t".s:cyan(s:pad(desc, 39))."\t".len(json[bm].buffers)." Buffers\t".json[bm].cwd
         call add(bookmarks, line)
     endfor
     return bookmarks
@@ -193,6 +193,7 @@ function! xtabline#fzf#tab_bookmarks_load(...)
         execute "bdelete ".newbuf
     endfor
     doautocmd BufAdd
+    let g:xtabline_todo['path'] = t:cwd.g:xtabline_todo_file
 endfunction
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -317,11 +318,13 @@ function! xtabline#fzf#session_load(file)
 
     "-----------------------------------------------------------
 
-    call xtabline#msg ([[ "Current session will be unloaded.", 'WarningMsg' ],
-                       \[ " Confirm (y/n)? ", 'Type' ]])
+    if g:xtabline_ask_confirm
+        call xtabline#msg ([[ "Current session will be unloaded.", 'WarningMsg' ],
+                    \[ " Confirm (y/n)? ", 'Type' ]])
 
-    if nr2char(getchar()) !=? 'y'
-        call xtabline#msg ([[ "Canceled.", 'WarningMsg' ]]) | return | endif
+        if nr2char(getchar()) !=? 'y'
+            call xtabline#msg ([[ "Canceled.", 'WarningMsg' ]]) | return | endif
+    endif
 
     "-----------------------------------------------------------
 

@@ -108,7 +108,7 @@ function! xtabline#maps#init()
         nnoremap <unique> <script> <Plug>XTablineCdDown1   :call <sid>cd('%:p:h:h')<cr>
         nnoremap <unique> <script> <Plug>XTablineCdDown2   :call <sid>cd('%:p:h:h:h')<cr>
         nnoremap <unique> <script> <Plug>XTablineCdDown3   :call <sid>cd('%:p:h:h:h:h')<cr>
-        nnoremap <unique> <script> <Plug>XTablineCdHome    :call <sid>cd('~')<cr> 
+        nnoremap <unique> <script> <Plug>XTablineCdHome    :call <sid>cd('~')<cr>
     endif
 
     fun! s:cd(path)

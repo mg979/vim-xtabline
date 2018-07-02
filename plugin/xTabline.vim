@@ -71,6 +71,7 @@ let g:xtabline_filtering                  = 1
 let g:xtabline_map_prefix                 = get(g:, 'xtabline_map_prefix', '<leader>X')
 let g:xtabline_include_previews           = get(g:, 'xtabline_include_previews', 1)
 let g:xtabline_close_buffer_can_close_tab = get(g:, 'xtabline_close_buffer_can_close_tab', 0)
+let g:xtabline_ask_confirm                = get(g:, 'xtabline_ask_confirm', 1)
 
 let t:xtl_excluded                        = get(g:, 'airline#extensions#tabline#exclude_buffers', [])
 let t:xtl_accepted = []
