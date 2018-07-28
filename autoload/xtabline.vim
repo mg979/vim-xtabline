@@ -222,7 +222,7 @@ function! xtabline#close_buffer()
         execute "buffer #" | call s:close_buffer(current)
 
     elseif ( tbufs > 1 ) || ( tbufs && !s:is_tab_buffer(current) )
-        execute "normal \<Plug>XTablinePrevBufferBuffer" | call s:close_buffer(current)
+        execute "normal \<Plug>XTablinePrevBuffer" | call s:close_buffer(current)
 
     elseif !g:xtabline_close_buffer_can_close_tab
         echo "Last buffer for this tab."
@@ -320,7 +320,7 @@ function! xtabline#tab_todo()
         execute todo['prefix']." ".todo['size'].todo['command']." ".todo['path']
     endif
     execute "setlocal syntax=".todo['syntax']
-    nmap <silent> <buffer> q :unmap <buffer> q<cr>:quit<cr>
+    nmap <silent><nowait> <buffer> q :w<bar>bdelete<cr>
 endfunction
 
 

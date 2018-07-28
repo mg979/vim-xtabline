@@ -111,12 +111,18 @@ endfunction
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 function! xtabline#fzf#bufdelete(name)
+    let current = bufnr('%')
     if len(a:name) < 2
         return
     endif
     let b = matchstr(a:name, '^.*]')
     let b = substitute(b[1:], ']', '', '')
-    execute 'silent! bdelete '.b
+    if b != current
+        execute 'silent! bdelete '.b
+        execute 'buffer '.current
+    else
+        call xtabline#close_buffer()
+    endif
     call xtabline#filter_buffers()
 endfunction
 
@@ -387,16 +393,21 @@ endfunction
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-function! xtabline#fzf#session_save()
+function! xtabline#fzf#session_save(new)
     let data = json_decode(readfile(g:xtabline_sessions_data)[0])
 
-    let defname = empty(v:this_session) ? '' : fnamemodify(v:this_session, ":t")
+    let defname = a:new || empty(v:this_session) ? '' : fnamemodify(v:this_session, ":t")
     let defdesc = get(data, defname, '')
     let name = input('Enter a name for this session:   ', defname)
     if !empty(name)
         let data[name] = input('Enter an optional description:   ', defdesc)
         call xtabline#msg("\nConfirm (y/n)\t", 0)
         if nr2char(getchar()) ==? 'y'
+            if a:new
+                "update and pause Obsession, then clean buffers
+                if ObsessionStatus() == "[$]" | exe "silent Obsession ".fnameescape(g:this_obsession) | silent Obsession | endif
+                execute "silent! %bdelete"
+            endif
             call writefile([json_encode(data)], g:xtabline_sessions_data)
             let file = expand(g:xtabline_sessions_path.s:sep().name, ":p")
             silent execute "Obsession ".fnameescape(file)

@@ -14,53 +14,54 @@ let g:loaded_xtabline = 1
 " Commands
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-com! -bang -nargs=? -complete=buffer XTabBuffersOpen call fzf#vim#buffers(<q-args>, {
+com! -nargs=? -complete=buffer XTabBuffersOpen call fzf#vim#buffers(<q-args>, {
             \ 'source': xtabline#fzf#tab_buffers(),
-            \ 'options': '--multi --prompt "Open Tab Buffer >>>  "'}, <bang>0)
+            \ 'options': '--multi --prompt "Open Tab Buffer >>>  "'})
 
-com! -bang -nargs=? -complete=buffer XTabBuffersDelete call fzf#vim#files(<q-args>, {
+com! -nargs=? -complete=buffer XTabBuffersDelete call fzf#vim#files(<q-args>, {
             \ 'source': xtabline#fzf#tab_buffers(),
             \ 'sink': function('xtabline#fzf#bufdelete'), 'down': '30%',
             \ 'options': '--multi --no-preview --ansi --prompt "Delete Tab Buffer >>>  "'})
 
-com! -bang -nargs=? -complete=buffer XTabAllBuffersDelete call fzf#vim#files(<q-args>, {
+com! -nargs=? -complete=buffer XTabAllBuffersDelete call fzf#vim#buffers(<q-args>, {
             \ 'sink': function('xtabline#fzf#bufdelete'), 'down': '30%',
             \ 'options': '--multi --no-preview --ansi --prompt "Delete Any Buffer >>>  "'})
 
-com! -bang -nargs=? XTabSessionLoad call fzf#vim#files(<q-args>, {
+com! -nargs=? XTabSessionLoad call fzf#vim#files(<q-args>, {
             \ 'source': xtabline#fzf#sessions_list(),
             \ 'sink': function('xtabline#fzf#session_load'), 'down': '30%',
             \ 'options': '--header-lines=1 --no-preview --ansi --prompt "Load Session >>>  "'})
 
-com! -bang -nargs=? XTabSessionDelete call fzf#vim#files(<q-args>, {
+com! -nargs=? XTabSessionDelete call fzf#vim#files(<q-args>, {
             \ 'source': xtabline#fzf#sessions_list(),
             \ 'sink': function('xtabline#fzf#session_delete'), 'down': '30%',
             \ 'options': '--header-lines=1 --no-multi --no-preview --ansi --prompt "Delete Session >>>  "'})
 
-command! -bang -nargs=? XTabBookmarksLoad call fzf#vim#files(<q-args>, {
+com! -nargs=? XTabBookmarksLoad call fzf#vim#files(<q-args>, {
             \ 'source': xtabline#fzf#tab_bookmarks(),
             \ 'sink': function('xtabline#fzf#tab_bookmarks_load'), 'down': '30%',
             \ 'options': '--header-lines=1 --multi --no-preview --ansi --prompt "Load Tab Bookmark >>>  "'})
 
-command! -bang -nargs=? XTabBookmarksDelete call fzf#vim#files(<q-args>, {
+com! -nargs=? XTabBookmarksDelete call fzf#vim#files(<q-args>, {
             \ 'source': xtabline#fzf#tab_bookmarks(),
             \ 'sink': function('xtabline#fzf#tab_bookmarks_delete'), 'down': '30%',
             \ 'options': '--header-lines=1 --multi --no-preview --ansi --prompt "Delete Tab Bookmark >>>  "'})
 
-command! -bang -nargs=? XTabNERDBookmarks call fzf#vim#files(<q-args>, {
+com! -nargs=? XTabNERDBookmarks call fzf#vim#files(<q-args>, {
             \ 'source': xtabline#fzf#tab_nerd_bookmarks(),
             \ 'sink': function('xtabline#fzf#tab_nerd_bookmarks_load'), 'down': '30%',
             \ 'options': '--multi --no-preview --ansi --prompt "Load NERD Bookmark >>>  "'})
 
 com! XTabBookmarksSave call xtabline#fzf#tab_bookmarks_save()
-com! XTabSessionSave call xtabline#fzf#session_save()
-com! XTabTodo call xtabline#tab_todo()
-com! XTabPurge call xtabline#purge_buffers()
-com! XTabReopen call xtabline#reopen_last_tab()
-com! XTabCloseBuffer call xtabline#close_buffer()
-com! XTabRestrictCwd call xtabline#restrict_cwd()
-com! XTabWipe call xtabline#clean_up()
-com! XTabCleanUp call xtabline#clean_up(1)
+com! XTabSessionSave   call xtabline#fzf#session_save(0)
+com! XTabSessionCreate call xtabline#fzf#session_save(1)
+com! XTabTodo          call xtabline#tab_todo()
+com! XTabPurge         call xtabline#purge_buffers()
+com! XTabReopen        call xtabline#reopen_last_tab()
+com! XTabCloseBuffer   call xtabline#close_buffer()
+com! XTabRestrictCwd   call xtabline#restrict_cwd()
+com! XTabWipe          call xtabline#clean_up()
+com! XTabCleanUp       call xtabline#clean_up(1)
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Variables
@@ -107,7 +108,6 @@ endif
 " tabpagecd - Turn :cd into :tabpagecd, to use one tab page per project
 " expanded version by mg979
 " Copyright (C) 2012-2013 Kana Natsuno <http://whileimautomaton.net/>
-" Copyright (C) 2018 Gianmaria Bajo <mg1979.git@gmail.com>
 " License: MIT License
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
