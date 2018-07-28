@@ -1,279 +1,194 @@
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" fzf helper functions
+" fzf commands
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-function! s:get_color(attr, ...)
-    let gui = has('termguicolors') && &termguicolors
-    let fam = gui ? 'gui' : 'cterm'
-    let pat = gui ? '^#[a-f0-9]\+' : '^[0-9]\+$'
-    for group in a:000
-        let code = synIDattr(synIDtrans(hlID(group)), a:attr, fam)
-        if code =~? pat
-            return code
-        endif
-    endfor
-    return ''
-endfunction
-
-function! s:csi(color, fg)
-    let prefix = a:fg ? '38;' : '48;'
-    if a:color[0] == '#'
-        return prefix.'2;'.join(map([a:color[1:2], a:color[3:4], a:color[5:6]], 'str2nr(v:val, 16)'), ';')
-    endif
-    return prefix.'5;'.a:color
-endfunction
-
-function! s:ansi(str, group, default, ...)
-    let fg = s:get_color('fg', a:group)
-    let bg = s:get_color('bg', a:group)
-    let color = s:csi(empty(fg) ? s:ansi[a:default] : fg, 1) .
-                \ (empty(bg) ? '' : s:csi(bg, 0))
-    return printf("\x1b[%s%sm%s\x1b[m", color, a:0 ? ';1' : '', a:str)
-endfunction
-
-fun! xtabline#fzf#colors()
-    if &t_Co == 256 && !empty(get(g:, 'xtabline_fzf_colors', {}))
-        let s:ansi = g:xtabline_fzf_colors
-    elseif &t_Co == 256
-        let s:ansi = {'black': 234, 'red': 196, 'green': 41, 'yellow': 229, 'blue': 63, 'magenta': 213, 'cyan': 159}
-    elseif &t_Co == 16
-        let s:ansi = {'black': 0, 'red': 9, 'green': 10, 'yellow': 11, 'blue': 12, 'magenta': 13, 'cyan': 14}
-    else
-        let s:ansi = {'black': 0, 'red': 1, 'green': 2, 'yellow': 3, 'blue': 4, 'magenta': 5, 'cyan': 6}
-    endif
-
-    for s:color_name in keys(s:ansi)
-        execute "function! s:".s:color_name."(str, ...)\n"
-                    \ "  return s:ansi(a:str, get(a:, 1, ''), '".s:color_name."')\n"
-                    \ "endfunction"
-    endfor
-endfun
-call xtabline#fzf#colors()
+let s:X = g:xtabline
+let s:F = g:xtabline.Funcs
+let s:V = g:xtabline.Vars
+let s:Sets = g:xtabline_settings
+let s:T =  { -> s:X.Tabs[tabpagenr()-1]               }
+let s:B =  { -> s:X.Tabs[tabpagenr()-1].buffers       }
+let s:vB = { -> s:X.Tabs[tabpagenr()-1].buffers.valid }
+let s:oB = { -> s:X.Tabs[tabpagenr()-1].buffers.order }
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-function! s:strip(str)
-    return substitute(a:str, '^\s*\|\s*$', '', 'g')
-endfunction
+fun! xtabline#fzf#tab_buffers()
+  """Open a list of buffers for this tab with fzf.vim."""
 
-function! s:format_buffer(b)
-    let name = bufname(a:b)
-    let name = empty(name) ? '[No Name]' : fnamemodify(name, ":~:.")
-    let flag = a:b == bufnr('')  ? s:blue('%', 'Conditional') :
-                \ (a:b == bufnr('#') ? s:magenta('#', 'Special') : ' ')
-    let modified = getbufvar(a:b, '&modified') ? s:red(' [+]', 'Exception') : ''
-    let readonly = getbufvar(a:b, '&modifiable') ? '' : s:green(' [RO]', 'Constant')
-    let extra = join(filter([modified, readonly], '!empty(v:val)'), '')
-    return s:strip(printf("[%s] %s\t%s\t%s", s:yellow(a:b, 'Number'), flag, name, extra))
-endfunction
+  let current = bufnr("%") | let alt = bufnr("#")
+  let l = sort(map(copy(s:vB()), 's:format_buffer(v:val)'))
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+  "put alternate buffer last (but current will go after it)
+  if alt != -1 && index(s:vB(), alt) >= 0
+    call insert(l, remove(l, index(l, s:format_buffer(alt))))
+  endif
 
-fun! s:sep()
-    return exists('+shellslash') && &shellslash ? '\' : '/'
+  "put current buffer last
+  call insert(l, remove(l, index(l, s:format_buffer(current))))
+  return l
 endfun
 
-function! s:pad(t, n)
-    if len(a:t) > a:n
-        return a:t[:(a:n-1)]."…"
-    else
-        let spaces = a:n - len(a:t)
-        let spaces = printf("%".spaces."s", "")
-        return a:t.spaces
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! xtabline#fzf#bufdelete(name)
+  let current = bufnr('%')
+  if len(a:name) < 2
+    return
+  endif
+  let b = matchstr(a:name, '^.*]')
+  let b = substitute(b[1:], ']', '', '')
+  if b != current
+    execute 'silent! bdelete '.b
+    execute 'buffer '.current
+  else
+    call xtabline#cmds#run('close_buffer')
+  endif
+  call xtabline#filter_buffers()
+endfun
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! xtabline#fzf#tab_nerd_bookmarks()
+  let bfile = readfile(g:NERDTreeBookmarksFile)
+  let bookmarks = []
+  "skip last emty line
+  for line in bfile[:-2]
+    let b = substitute(line, '^.\+ ', "", "")
+    call add(bookmarks, b)
+  endfor
+  return bookmarks
+endfun
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! xtabline#fzf#tab_nerd_bookmarks_load(...)
+  for bm in a:000
+    let bm = expand(bm, ":p")
+    if isdirectory(bm)
+      tabnew
+      exe "cd ".bm
+      exe "NERDTree ".bm
+    elseif filereadable(bm)
+      exe "tabedit ".bm
+      exe "cd ".fnamemodify(bm, ":p:h")
     endif
-endfunction
-
-
-
-
-
+  endfor
+  call s:F.refresh_tabline()
+endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" fzf functions
+
+fun! xtabline#fzf#tabs()
+  let bookmarks = ["Name\t\t\t\t\tDescription\t\t\t\tBuffers\t\tWorking Dirctory"]
+  let json = json_decode(readfile(s:Sets.bookmaks_file)[0])
+
+  for bm in keys(json)
+    let desc = has_key(json[bm], 'description')? json[bm].description : ''
+    let line = s:yellow(s:pad(bm, 39))."\t".s:cyan(s:pad(desc, 39))."\t".len(json[bm].buffers)." Buffers\t".json[bm].cwd
+    call add(bookmarks, line)
+  endfor
+  return bookmarks
+endfun
+
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-function! xtabline#fzf#tab_buffers()
-    """Open a list of buffers for this tab with fzf.vim."""
+fun! xtabline#fzf#tab_load(...)
+  """Load a tab bookmark."""
+  let json = json_decode(readfile(s:Sets.bookmaks_file)[0])
 
-    let current = bufnr("%") | let alt = bufnr("#")
-    let l = sort(map(copy(t:xtl_accepted), 's:format_buffer(v:val)'))
+  for bm in a:000
+    let tbook = json[substitute(bm, '\(\w*\)\s*\t.*', '\1', '')]
+    let cwd = expand(tbook['cwd'], ":p")
 
-    "put alternate buffer last (but current will go after it)
-    if alt != -1 && index(t:xtl_accepted, alt) >= 0
-        call insert(l, remove(l, index(l, s:format_buffer(alt))))
+    if isdirectory(cwd)                                 "valid bookmark
+      if empty(tbook.buffers) | continue | endif        "no buffers
+    else                                                "invalid bookmark
+      call s:F.msg(tbook['name'].": invalid bookmark.", 1) | continue
     endif
 
-    "put current buffer last
-    call insert(l, remove(l, index(l, s:format_buffer(current))))
-    return l
-endfunction
+    "tab properties defined here will be applied by new_tab(), run by autocommand
+    let s:V.tab_properties = s:F.tab_template({'cwd': cwd})
+    for prop in keys(tbook)
+      let s:V.tab_properties[prop] = tbook[prop]
+    endfor
+
+    $tabnew | let newbuf = bufnr("%")
+    cd `=cwd`
+
+    "add buffers
+    for buf in tbook['buffers'] | execute "badd ".buf | endfor
+
+    "load the first buffer
+    execute "edit ".tbook['buffers'][0]
+
+    " purge the empty buffer that was created
+    execute "bdelete ".newbuf
+  endfor
+  call xtabline#filter_buffers()
+  doautocmd BufAdd
+endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-function! xtabline#fzf#bufdelete(name)
-    let current = bufnr('%')
-    if len(a:name) < 2
-        return
+fun! xtabline#fzf#tab_delete(...)
+  """Delete a tab bookmark."""
+  let json = json_decode(readfile(s:Sets.bookmaks_file)[0])
+
+  for bm in a:000
+    let name = substitute(bm, '\(\w*\)\s*\t.*', '\1', '')
+    call remove(json, name)
+  endfor
+
+  "write the file
+  call writefile([json_encode(json)],s:Sets.bookmaks_file)
+  call s:F.msg ([[ "Tab bookmark ", 'WarningMsg' ],
+        \[ name, 'Type' ],
+        \[ " deleted.", 'WarningMsg' ]])
+endfun
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! xtabline#fzf#tab_save()
+  """Create an entry and add it to the bookmarks file."""
+
+  if !s:V.filtering
+    call s:F.msg("Activate buffer filtering first.", 1) | return | endif
+
+  let json = json_decode(readfile(s:Sets.bookmaks_file)[0])
+  let T = s:T()
+
+  "get name
+  let s = !empty(T.name)? T.name : fnamemodify(T.cwd, ':t')
+  let name = input("Enter a name for this bookmark:  ", s, "file_in_path")
+  if empty(name) | call s:F.msg("Bookmark not saved.", 1) | return | endif
+
+  let json[name] = {}
+
+  "get description
+  let json[name].description = input("Enter an optional short description for this bookmark:  ")
+
+  " get cwd
+  let json[name].cwd = T.cwd
+
+  " get buffers
+  let bufs = []
+  let current = 0
+  if buflisted(bufnr("%")) && index(s:vB(), bufnr("%"))
+    let current = bufnr("%")
+    call add(bufs, bufname(current))
+  endif
+  for buf in range(1, bufnr("$"))
+    if index(s:vB(), buf) >= 0 && (buf != current)
+      call add(bufs, fnameescape(bufname(buf)))
     endif
-    let b = matchstr(a:name, '^.*]')
-    let b = substitute(b[1:], ']', '', '')
-    if b != current
-        execute 'silent! bdelete '.b
-        execute 'buffer '.current
-    else
-        call xtabline#close_buffer()
-    endif
-    call xtabline#filter_buffers()
-endfunction
+  endfor
+  let json[name].buffers = bufs
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-function! xtabline#fzf#tab_nerd_bookmarks()
-    let bfile = readfile(g:NERDTreeBookmarksFile)
-    let bookmarks = []
-    "skip last emty line
-    for line in bfile[:-2]
-        let b = substitute(line, '^.\+ ', "", "")
-        call add(bookmarks, b)
-    endfor
-    return bookmarks
-endfunction
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-function! xtabline#fzf#tab_nerd_bookmarks_load(...)
-    for bm in a:000
-        let bm = expand(bm, ":p")
-        if isdirectory(bm)
-            tabnew
-            exe "cd ".bm
-            exe "NERDTree ".bm
-        elseif filereadable(bm)
-            exe "tabedit ".bm
-            exe "cd ".fnamemodify(bm, ":p:h")
-        endif
-    endfor
-    call xtabline#refresh_tabline()
-endfunction
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-function! xtabline#fzf#tab_bookmarks()
-    let bookmarks = ["Name\t\t\t\t\tDescription\t\t\t\tBuffers\t\tWorking Dirctory"]
-    let json = json_decode(readfile(g:xtabline_bookmaks_file)[0])
-
-    for bm in keys(json)
-        let desc = has_key(json[bm], 'description')? json[bm].description : ''
-        let line = s:yellow(s:pad(bm, 39))."\t".s:cyan(s:pad(desc, 39))."\t".len(json[bm].buffers)." Buffers\t".json[bm].cwd
-        call add(bookmarks, line)
-    endfor
-    return bookmarks
-endfunction
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-function! xtabline#fzf#tab_bookmarks_load(...)
-    """Load a tab bookmark."""
-    let json = json_decode(readfile(g:xtabline_bookmaks_file)[0])
-
-    for bm in a:000
-        let name = json[substitute(bm, '\(\w*\)\s*\t.*', '\1', '')]
-        let cwd = expand(name['cwd'], ":p")
-
-        if isdirectory(cwd)
-            tabnew | let newbuf = bufnr("%")
-            exe "cd ".cwd
-            let t:cwd = cwd
-            if empty(name['buffers']) | continue | endif
-        else
-            call xtabline#msg(name['name'].": invalid bookmark.", 1) | continue
-        endif
-
-        "add buffers
-        for buf in name['buffers'] | execute "badd ".buf | endfor
-
-        "load the first buffer
-        execute "edit ".name['buffers'][0]
-
-        " purge the empty buffer that was created
-        execute "bdelete ".newbuf
-    endfor
-    doautocmd BufAdd
-    let g:xtabline_todo['path'] = t:cwd.g:xtabline_todo_file
-endfunction
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-function! xtabline#fzf#tab_bookmarks_delete(...)
-    """Delete a tab bookmark."""
-    let json = json_decode(readfile(g:xtabline_bookmaks_file)[0])
-
-    for bm in a:000
-        let name = substitute(bm, '\(\w*\)\s*\t.*', '\1', '')
-        call remove(json, name)
-    endfor
-
-    "write the file
-    call writefile([json_encode(json)],g:xtabline_bookmaks_file)
-    call xtabline#msg ([[ "Tab bookmark ", 'WarningMsg' ],
-                       \[ name, 'Type' ],
-                       \[ " deleted.", 'WarningMsg' ]])
-endfunction
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-function! xtabline#fzf#tab_bookmarks_save()
-    """Create an entry and add it to the bookmarks file."""
-
-    if !g:xtabline_filtering
-        call xtabline#msg("Activate buffer filtering first.", 1) | return | endif
-
-    let json = json_decode(readfile(g:xtabline_bookmaks_file)[0])
-
-    "get name
-    let s = fnamemodify(t:cwd, ':t')
-    let name = input("Enter a name for this bookmark:  ", s, "file_in_path")
-    if empty(name) | call xtabline#msg("Bookmark not saved.", 1) | return | endif
-
-    let json[name] = {}
-
-    "get description
-    let json[name].description = input("Enter an optional short description for this bookmark:  ")
-
-    " get cwd
-    let t:cwd = getcwd()
-    let json[name].cwd = t:cwd
-
-    " get buffers
-    let bufs = []
-    let current = 0
-    if buflisted(bufnr("%")) && index(t:xtl_accepted, bufnr("%"))
-        let current = bufnr("%")
-        call add(bufs, bufname(current))
-    endif
-    for buf in range(1, bufnr("$"))
-        if index(t:xtl_accepted, buf) >= 0 && (buf != current)
-            call add(bufs, fnameescape(bufname(buf)))
-        endif
-    endfor
-    let json[name].buffers = bufs
-
-    "write the file
-    call writefile([json_encode(json)], g:xtabline_bookmaks_file)
-    call xtabline#msg("\tTab bookmark saved.", 0)
-endfunction
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-function! xtabline#fzf#tab_delete(...)
-
-    for buf in a:000
-        execute "silent! bdelete ".buf
-        let ix = index(t:xtl_accepted, bufnr(buf))
-        call remove(t:xtl_accepted, ix)
-        call xtabline#filter_buffers()
-    endfor
-endfunction
+  "write the file
+  call writefile([json_encode(json)], s:Sets.bookmaks_file)
+  call s:F.msg("\tTab bookmark saved.", 0)
+endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Sessions
@@ -281,167 +196,254 @@ endfunction
 
 let s:lastmod = { f -> str2nr(system('date -r '.f.' +%s')) }
 
-function! s:desc_string(s, n, sfile)
-    let active_mark = (a:s == v:this_session) ? s:green(" [%]  ") : '      '
-    let description = get(a:sfile, a:n, '')
-    let spaces = 30 - len(a:n)
-    let spaces = printf("%".spaces."s", "")
-    let pad = empty(active_mark) ? '     ' : ''
-    let time = system('date=`stat -c %Y '.fnameescape(a:s).'` && date -d@"$date" +%Y.%m.%d')[:-2]
-    return s:yellow(a:n).spaces."\t".s:cyan(time).pad.active_mark.description
-endfunction
+fun! s:desc_string(s, n, sfile)
+  let active_mark = (a:s ==# v:this_session) ? s:green(" [%]  ") : '      '
+  let description = get(a:sfile, a:n, '')
+  let spaces = 30 - len(a:n)
+  let spaces = printf("%".spaces."s", "")
+  let pad = empty(active_mark) ? '     ' : ''
+  let time = system('date=`stat -c %Y '.fnameescape(a:s).'` && date -d@"$date" +%Y.%m.%d')[:-2]
+  return s:yellow(a:n).spaces."\t".s:cyan(time).pad.active_mark.description
+endfun
 
-function! xtabline#fzf#sessions_list()
-    let data = ["Session\t\t\t\tTimestamp\tDescription"] | let sfile = {}
-    let sfile = json_decode(readfile(g:xtabline_sessions_data)[0])
-    let sessions = split(globpath(expand(g:xtabline_sessions_path, ":p"), "*"), '\n')
+fun! xtabline#fzf#sessions_list()
+  let data = ["Session\t\t\t\tTimestamp\tDescription"] | let sfile = {}
+  let sfile = json_decode(readfile(s:Sets.sessions_data)[0])
+  let sessions = split(globpath(expand(s:Sets.sessions_path, ":p"), "*"), '\n')
 
-    "remove __LAST__ session
-    let last = expand(g:xtabline_sessions_path, ":p").s:sep().'__LAST__'
-    let _last = index(sessions, last)
-    if _last >= 0 | call remove(sessions, _last) | endif
+  "remove __LAST__ session
+  let last = expand(s:Sets.sessions_path, ":p").s:F.sep().'__LAST__'
+  let _last = index(sessions, last)
+  if _last >= 0 | call remove(sessions, _last) | endif
 
-    "sort sessions by last modfication time
-    let times = {}
-    for s in sessions
-        let t = s:lastmod(s)
-        "prevent key overwriting
-        while has_key(times, t) | let t += 1 | endwhile
-        let times[t] = s
-    endfor
+  "sort sessions by last modfication time
+  let times = {}
+  for s in sessions
+    let t = s:lastmod(s)
+    "prevent key overwriting
+    while has_key(times, t) | let t += 1 | endwhile
+    let times[t] = s
+  endfor
 
-    let ord_times = map(keys(times), 'str2nr(v:val)')
-    let ord_times = reverse(sort(ord_times, 'n'))
-    let ordered = map(ord_times, 'times[v:val]')
+  let ord_times = map(keys(times), 'str2nr(v:val)')
+  let ord_times = reverse(sort(ord_times, 'n'))
+  let ordered = map(ord_times, 'times[v:val]')
 
-    "readd __LAST__ if found
-    if _last >= 0 | call add(ordered, last) | endif
+  "readd __LAST__ if found
+  if _last >= 0 | call add(ordered, last) | endif
 
-    for s in ordered
-        let n = fnamemodify(expand(s), ':t:r')
-        let description = s:desc_string(s, n, sfile)
-        call add(data, description)
-    endfor
-    return data
-endfunction
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-function! xtabline#fzf#session_load(file)
-
-    " abort if there are unsaved changes
-    for b in range(1, bufnr("$"))
-        if getbufvar(b, '&modified')
-            call xtabline#msg("Some buffer has unsaved changes. Aborting.", 1)
-            return | endif | endfor
-
-    "-----------------------------------------------------------
-
-    let session = a:file
-    if match(session, "\t") | let session = substitute(session, " *\t.*", "", "") | endif
-    let file = expand(g:xtabline_sessions_path.s:sep().session, ":p")
-
-    if !filereadable(file)    | call xtabline#msg("Session file doesn't exist.", 1) | return | endif
-    if file == v:this_session | call xtabline#msg("Session is already loaded.", 1)  | return | endif
-
-    "-----------------------------------------------------------
-
-    if g:xtabline_ask_confirm
-        call xtabline#msg ([[ "Current session will be unloaded.", 'WarningMsg' ],
-                    \[ " Confirm (y/n)? ", 'Type' ]])
-
-        if nr2char(getchar()) !=? 'y'
-            call xtabline#msg ([[ "Canceled.", 'WarningMsg' ]]) | return | endif
-    endif
-
-    "-----------------------------------------------------------
-
-    " upadate and pause Obsession
-    if ObsessionStatus() == "[$]" | exe "silent Obsession ".fnameescape(g:this_obsession) | silent Obsession | endif
-
-    execute "silent! %bdelete"
-    execute "source ".fnameescape(file)
-endfunction
+  for s in ordered
+    let n = fnamemodify(expand(s), ':t:r')
+    let description = s:desc_string(s, n, sfile)
+    call add(data, description)
+  endfor
+  return data
+endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-function! xtabline#fzf#session_delete(file)
+fun! xtabline#fzf#session_load(file)
 
-    let session = a:file
-    if match(session, "\t") | let session = substitute(session, " *\t.*", "", "") | endif
-    let file = expand(g:xtabline_sessions_path.s:sep().session, ":p")
+  " abort if there are unsaved changes
+  for b in range(1, bufnr("$"))
+    if getbufvar(b, '&modified')
+      call s:F.msg("Some buffer has unsaved changes. Aborting.", 1)
+      return
+    endif | endfor
 
-    if !filereadable(file)    | call xtabline#msg("Session file doesn't exist.", 1) | return | endif
+  "-----------------------------------------------------------
 
-    "-----------------------------------------------------------
+  let session = a:file
+  if match(session, "\t") | let session = substitute(session, " *\t.*", "", "") | endif
+  let file = expand(s:Sets.sessions_path.s:F.sep().session, ":p")
 
-    call xtabline#msg ([[ "Selected session will be deleted.", 'WarningMsg' ],
-                       \[ " Confirm (y/n)? ", 'Type' ]])
+  if !filereadable(file)     | call s:F.msg("Session file doesn't exist.", 1) | return | endif
+  if file ==# v:this_session | call s:F.msg("Session is already loaded.", 1)  | return | endif
+
+  "-----------------------------------------------------------
+
+  if s:Sets.unload_session_ask_confirm
+    call s:F.msg ([[ "Current session will be unloaded.", 'WarningMsg' ],
+          \[ " Confirm (y/n)? ", 'Type' ]])
 
     if nr2char(getchar()) !=? 'y'
-        call xtabline#msg ([[ "Canceled.", 'WarningMsg' ]]) | return | endif
+      call s:F.msg ([[ "Canceled.", 'WarningMsg' ]]) | return | endif
+  endif
 
-    "-----------------------------------------------------------
+  "-----------------------------------------------------------
 
-    if file == v:this_session | silent Obsession!
-    else                      | silent exe "!rm ".file | endif
+  " upadate and pause Obsession
+  if ObsessionStatus() == "[$]" | exe "silent Obsession ".fnameescape(g:this_obsession) | silent Obsession | endif
 
-    call xtabline#msg ([[ "Session ", 'WarningMsg' ],
-                       \[ file, 'Type' ],
-                       \[ " has been deleted.", 'WarningMsg' ]])
-endfunction
+  execute "silent! %bdelete"
+  execute "source ".fnameescape(file)
+endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-function! xtabline#fzf#session_save(new)
-    let data = json_decode(readfile(g:xtabline_sessions_data)[0])
+fun! xtabline#fzf#session_delete(file)
 
-    let defname = a:new || empty(v:this_session) ? '' : fnamemodify(v:this_session, ":t")
-    let defdesc = get(data, defname, '')
-    let name = input('Enter a name for this session:   ', defname)
-    if !empty(name)
-        let data[name] = input('Enter an optional description:   ', defdesc)
-        call xtabline#msg("\nConfirm (y/n)\t", 0)
-        if nr2char(getchar()) ==? 'y'
-            if a:new
-                "update and pause Obsession, then clean buffers
-                if ObsessionStatus() == "[$]" | exe "silent Obsession ".fnameescape(g:this_obsession) | silent Obsession | endif
-                execute "silent! %bdelete"
-            endif
-            call writefile([json_encode(data)], g:xtabline_sessions_data)
-            let file = expand(g:xtabline_sessions_path.s:sep().name, ":p")
-            silent execute "Obsession ".fnameescape(file)
-            call xtabline#msg("Session '".file."' has been saved.", 0)
-            return
-        endif
+  let session = a:file
+  if match(session, "\t") | let session = substitute(session, " *\t.*", "", "") | endif
+  let file = expand(s:Sets.sessions_path.s:F.sep().session, ":p")
+
+  if !filereadable(file)    | call s:F.msg("Session file doesn't exist.", 1) | return | endif
+
+  "-----------------------------------------------------------
+
+  call s:F.msg ([[ "Selected session will be deleted.", 'WarningMsg' ],
+        \[ " Confirm (y/n)? ", 'Type' ]])
+
+  if nr2char(getchar()) !=? 'y'
+    call s:F.msg ([[ "Canceled.", 'WarningMsg' ]]) | return | endif
+
+  "-----------------------------------------------------------
+
+  if file == v:this_session | silent Obsession!
+  else                      | silent exe "!rm ".file | endif
+
+  call s:F.msg ([[ "Session ", 'WarningMsg' ],
+        \[ file, 'Type' ],
+        \[ " has been deleted.", 'WarningMsg' ]])
+endfun
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! xtabline#fzf#session_save(new)
+  let data = json_decode(readfile(s:Sets.sessions_data)[0])
+
+  let defname = a:new || empty(v:this_session) ? '' : fnamemodify(v:this_session, ":t")
+  let defdesc = get(data, defname, '')
+  let name = input('Enter a name for this session:   ', defname)
+  if !empty(name)
+    let data[name] = input('Enter an optional description:   ', defdesc)
+    call s:F.msg("\nConfirm (y/n)\t", 0)
+    if nr2char(getchar()) ==? 'y'
+      if a:new
+        "update and pause Obsession, then clean buffers
+        if ObsessionStatus() == "[$]" | exe "silent Obsession ".fnameescape(g:this_obsession) | silent Obsession | endif
+        execute "silent! %bdelete"
+      endif
+      call writefile([json_encode(data)], s:Sets.sessions_data)
+      let file = expand(s:Sets.sessions_path.s:F.sep().name, ":p")
+      silent execute "Obsession ".fnameescape(file)
+      call s:F.msg("Session '".file."' has been saved.", 0)
+      return
     endif
-    call xtabline#msg("Session not saved.", 1)
-endfunction
+  endif
+  call s:F.msg("Session not saved.", 1)
+endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! xtabline#fzf#update_sessions_file()
-    let sfile = readfile(g:xtabline_sessions_data)
-    let json = {}
+  let sfile = readfile(s:Sets.sessions_data)
+  let json = {}
 
-    for key in sfile
-        let json[key] = sfile[key]
-    endfor
-    call writefile([json_encode(json)], g:xtabline_sessions_data)
+  for key in sfile
+    let json[key] = sfile[key]
+  endfor
+  call writefile([json_encode(json)], s:Sets.sessions_data)
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! xtabline#fzf#update_bookmarks_file()
-    let bfile = readfile(g:xtabline_bookmaks_file)
-    let json = {}
+  let bfile = readfile(s:Sets.bookmaks_file)
+  let json = {}
 
-    for line in bfile
-        let line = eval(line)
-        let name = line['name']
-        call remove(line, 'name')
-        let json[name] = line
-        let json[name]['description'] = ""
-    endfor
-    call writefile([json_encode(json)], g:xtabline_bookmaks_file)
+  for line in bfile
+    let line = eval(line)
+    let name = line['name']
+    call remove(line, 'name')
+    let json[name] = line
+    let json[name]['description'] = ""
+  endfor
+  call writefile([json_encode(json)], s:Sets.bookmaks_file)
 endfun
+
+
+
+
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" fzf helper functions
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:get_color(attr, ...)
+  let gui = has('termguicolors') && &termguicolors
+  let fam = gui ? 'gui' : 'cterm'
+  let pat = gui ? '^#[a-f0-9]\+' : '^[0-9]\+$'
+  for group in a:000
+    let code = synIDattr(synIDtrans(hlID(group)), a:attr, fam)
+    if code =~? pat
+      return code
+    endif
+  endfor
+  return ''
+endfun
+
+fun! s:csi(color, fg)
+  let prefix = a:fg ? '38;' : '48;'
+  if a:color[0] == '#'
+    return prefix.'2;'.join(map([a:color[1:2], a:color[3:4], a:color[5:6]], 'str2nr(v:val, 16)'), ';')
+  endif
+  return prefix.'5;'.a:color
+endfun
+
+fun! s:ansi(str, group, default, ...)
+  let fg = s:get_color('fg', a:group)
+  let bg = s:get_color('bg', a:group)
+  let color = s:csi(empty(fg) ? s:ansi[a:default] : fg, 1) .
+        \ (empty(bg) ? '' : s:csi(bg, 0))
+  return printf("\x1b[%s%sm%s\x1b[m", color, a:0 ? ';1' : '', a:str)
+endfun
+
+fun! xtabline#fzf#colors()
+  if &t_Co == 256 && !empty(get(g:, 'xtabline_fzf_colors', {}))
+    let s:ansi = s:Sets.fzf_colors
+  elseif &t_Co == 256
+    let s:ansi = {'black': 234, 'red': 196, 'green': 41, 'yellow': 229, 'blue': 63, 'magenta': 213, 'cyan': 159}
+  elseif &t_Co == 16
+    let s:ansi = {'black': 0, 'red': 9, 'green': 10, 'yellow': 11, 'blue': 12, 'magenta': 13, 'cyan': 14}
+  else
+    let s:ansi = {'black': 0, 'red': 1, 'green': 2, 'yellow': 3, 'blue': 4, 'magenta': 5, 'cyan': 6}
+  endif
+
+  for s:color_name in keys(s:ansi)
+    execute "fun! s:".s:color_name."(str, ...)\n"
+          \ "  return s:ansi(a:str, get(a:, 1, ''), '".s:color_name."')\n"
+          \ "endfun"
+  endfor
+endfun
+call xtabline#fzf#colors()
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:strip(str)
+  return substitute(a:str, '^\s*\|\s*$', '', 'g')
+endfun
+
+fun! s:format_buffer(b)
+  let name = bufname(a:b)
+  let name = empty(name) ? '[No Name]' : fnamemodify(name, ":~:.")
+  let flag = a:b == bufnr('')  ? s:blue('%', 'Conditional') :
+        \ (a:b == bufnr('#') ? s:magenta('#', 'Special') : ' ')
+  let modified = getbufvar(a:b, '&modified') ? s:red(' [+]', 'Exception') : ''
+  let readonly = getbufvar(a:b, '&modifiable') ? '' : s:green(' [RO]', 'Constant')
+  let extra = join(filter([modified, readonly], '!empty(v:val)'), '')
+  return s:strip(printf("[%s] %s\t%s\t%s", s:yellow(a:b, 'Number'), flag, name, extra))
+endfun
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:pad(t, n)
+  if len(a:t) > a:n
+    return a:t[:(a:n-1)]."…"
+  else
+    let spaces = a:n - len(a:t)
+    let spaces = printf("%".spaces."s", "")
+    return a:t.spaces
+  endif
+endfun
+

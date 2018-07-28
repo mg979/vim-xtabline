@@ -1,399 +1,283 @@
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Commands functions
+" Script variables
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-function! xtabline#toggle_tabs()
-    """Toggle between tabs/buffers tabline."""
+let s:X = g:xtabline
+let s:V = s:X.Vars
+let s:V.tab_properties = {}
+let s:V.filtering = 1
+let s:V.showing_tabs = 0
+let s:V.buftail = 0
+let s:Sets = g:xtabline_settings
 
-    if tabpagenr("$") == 1 | echo "There is only one tab." | return | endif
+let s:T =  { -> s:X.Tabs[tabpagenr()-1]               }
+let s:B =  { -> s:X.Tabs[tabpagenr()-1].buffers       }
+let s:vB = { -> s:X.Tabs[tabpagenr()-1].buffers.valid }
+let s:oB = { -> s:X.Tabs[tabpagenr()-1].buffers.order }
 
-    if g:airline#extensions#tabline#show_tabs
-        let g:airline#extensions#tabline#show_tabs = 0
-        call xtabline#msg ([[ "Showing buffers", 'StorageClass' ]])
+let s:most_recent = -1
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Main functions
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! xtabline#new_tab(...)
+  """Create an entry in the Tabs list.
+  """tab_properties can be set by a command, before this function is called.
+
+  let p = a:0? a:1 : s:V.tab_properties
+
+  "cwd:     (string)  working directory
+  "name:    (string)  tab name
+  "buffers: (list)    accepted buffer numbers
+  "exclude: (list)    excluded buffer numbers
+  "index:   (int)     tabpagenr() - 1, when tab is set
+  "locked:  (bool)    when filtering is independent from cwd
+  "depth:   (int)     filtering recursive depth (n. of directories below cwd)
+  "                   0 means infinite
+  "vimrc:   (dict)    settings to be sourced when entering the tab
+  "                   it can hold: {'file': string, 'commands': list} (one, both or empty)
+
+  let cwd     = has_key(p, 'cwd')?     p.cwd     : getcwd()
+  " let name    = has_key(p, 'name')?    p.name    : fnamemodify(expand(cwd), ':t:r')
+  let name    = has_key(p, 'name')?    p.name    : ''
+  let buffers = has_key(p, 'buffers')? p.buffers : {'valid': [], 'order': []}
+  let exclude = has_key(p, 'exclude')? p.exclude : []
+  let locked  = has_key(p, 'locked')?  p.locked  : 0
+  let depth   = has_key(p, 'depth')?   p.depth   : 0
+  let vimrc   = has_key(p, 'vimrc')?   p.vimrc   : {}
+
+  let s:V.tab_properties = {}
+
+  return {'name':    name,       'cwd':     cwd,
+        \ 'buffers': buffers,    'exclude': exclude,
+        \ 'vimrc':   vimrc,      'index':   tabpagenr()-1,
+        \ 'locked':  locked,     'depth':   depth}
+endfun
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! xtabline#filter_buffers(...)
+  """Filter buffers so that only the ones within the tab's cwd will show up.
+
+  " 'accepted' is a list of buffer numbers, for quick access.
+  " 'excludes' is a list of paths, it will be used by Airline to hide buffers."""
+
+  if empty(g:xtabline) || exists('g:SessionLoad') | return
+  elseif s:V.showing_tabs | set tabline=%!xtabline#render#tabs()
+    return
+  endif
+
+  let T = s:T()
+
+  let locked          = T.locked
+  let accepted        = locked? T.buffers.valid   : []
+  let excluded        = locked? T.exclude : []
+  let depth           = T.depth
+  let cwd             = getcwd()
+  let exact           = s:Sets.include_previews? '' : '^'
+
+  for buf in range(1, bufnr("$"))
+
+    if s:F.invalid_buffer(buf)             | continue
+    elseif T.depth < 0 || !s:V.filtering   | call add(accepted, buf) | continue | endif
+
+    " get the path
+    let path = expand("#".buf.":p")
+
+    " accept or exclude buffer
+    if locked && index(accepted, buf) < 0
+      call add(excluded, buf)
+
+    elseif path =~ exact.cwd && s:F.within_depth(path, depth)
+      call add(accepted, buf)
+
     else
-        let g:airline#extensions#tabline#show_tabs = 1
-        call xtabline#msg ([[ "Showing tabs", 'StorageClass' ]])
+      call add(excluded, buf)
     endif
+  endfor
 
-    execute "AirlineRefresh"
-    doautocmd BufAdd
-endfunction
+  let T.buffers.valid = accepted
+  let T.exclude  = excluded
+  call s:F.update_buffers()
+  call s:F.refresh_tabline()
+  call xtabline#update_obsession()
+endfun
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! xtabline#next_buffer(nr)
+  """Switch to next visible buffer."""
+
+  if ( s:F.not_enough_buffers() || !s:V.filtering ) | return | endif
+  let accepted = s:vB()
+
+  let ix = index(accepted, bufnr("%"))
+  let target = ix + a:nr
+  let total = len(accepted)
+
+  if target >= total
+    " over last buffer
+    let s:most_recent = target - total
+
+  elseif ix == -1
+    " not in index, go back to most recent or back to first
+    if s:most_recent == -1 || index(accepted, s:most_recent) == -1
+      let s:most_recent = 0
+    endif
+  else
+    let s:most_recent = target
+  endif
+
+  return ":buffer " . accepted[s:most_recent] . "\<cr>"
+endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-function! xtabline#toggle_buffers()
-    """Toggle buffer filtering in the tabline."""
+fun! xtabline#prev_buffer(nr)
+  """Switch to previous visible buffer."""
 
-    if g:xtabline_filtering
-        let g:xtabline_filtering = 0
-        let g:airline#extensions#tabline#accepted = []
-        let g:airline#extensions#tabline#exclude_buffers = []
-        call xtabline#msg ([[ "Buffer filtering turned off", 'WarningMsg' ]])
-        doautocmd BufAdd
-    else
-        let g:xtabline_filtering = 1
-        call xtabline#filter_buffers()
-        call xtabline#msg ([[ "Buffer filtering turned on", 'StorageClass' ]])
-        doautocmd BufAdd
+  if ( s:F.not_enough_buffers() || !s:V.filtering ) | return | endif
+  let accepted = s:vB()
+
+  let ix = index(accepted, bufnr("%"))
+  let target = ix - a:nr
+  let total = len(accepted)
+
+  if target < 0
+    " before first buffer
+    let s:most_recent = total + target
+
+  elseif ix == -1
+    " not in index, go back to most recent or back to first
+    if s:most_recent == -1 || index(accepted, s:most_recent) == -1
+      let s:most_recent = 0
     endif
-endfunction
+  else
+    let s:most_recent = target
+  endif
+
+  return ":buffer " . accepted[s:most_recent] . "\<cr>"
+endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-function! xtabline#restrict_cwd()
-    """Ignore buffers that are outside the cwd, both upwards and downwards."""
-    let t:restrict_cwd = get(t:, 'restrict_cwd', 0)
+fun! xtabline#select_buffer(nr)
+  """Switch to visible buffer in the tabline with [count]."""
 
-    if t:restrict_cwd
-        let t:restrict_cwd = 0
-        call xtabline#msg ([[ "Buffer filtering is not restricted anymore", 'StorageClass' ]])
-    else
-        let t:restrict_cwd = 1
-        call xtabline#msg ([[ "Buffer filtering is now restricted to ", 'WarningMsg'], [ getcwd(), 'None' ]])
-    endif
-    doautocmd BufAdd
-endfunction
+  if ( a:nr == 0 || !s:V.filtering ) | execute s:Sets.alt_action | return | endif
+  let accepted = s:vB()
+
+  if (a:nr > len(accepted)) || s:F.not_enough_buffers() || accepted[a:nr - 1] == bufnr("%")
+    return
+  else
+    let g:xtabline.Vars.changing_buffer = 1
+    execute "buffer ".accepted[a:nr - 1]
+  endif
+endfun
+
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Init functions
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! xtabline#init()
+  let s:X.Funcs = xtabline#funcs#init()
+  let s:F = s:X.Funcs
+
+  if !exists('g:xtabline_disable_keybindings')
+    call xtabline#maps#init()
+  endif
+
+  call s:F.check_tabs()
+endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-function! xtabline#purge_buffers()
-    """Remove unmodified buffers with invalid paths."""
-
-    if !g:xtabline_filtering | echo "Buffer filtering is turned off." | return | endif
-    let bcnt = 0 | let bufs = [] | let purged = [] | let accepted = t:xtl_accepted
-
-    " include previews if not showing in tabline
-    for buf in tabpagebuflist(tabpagenr())
-        if index(accepted, buf) == -1 | call add(bufs, buf) | endif
+fun! xtabline#update_obsession()
+  let string = 'let g:xtabline.Tabs = '.string(s:X.Tabs).' | call xtabline#update_obsession()'
+  if !exists('g:obsession_append')
+    let g:obsession_append = [string]
+  else
+    for i in g:obsession_append
+      if match(i, "^let g:xtabline") >= 0
+        call remove(g:obsession_append, i)
+        break
+      endif
     endfor
+    call add(g:obsession_append, string)
+  endif
+endfun
 
-    " purge the buffer if:
-    " 1. non-existant path and file unmodified
-    " 2. path doesn't belong to cwd, but it has been accepted for partial match
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Autocommand Functions
+" Inspired by TabPageCd
+" Copyright (C) 2012-2013 Kana Natsuno <http://whileimautomaton.net/>
+" License: MIT License
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-    for buf in (accepted + bufs)
-        let bufpath = fnamemodify(bufname(buf), ":p")
+function! s:Do(action)
+  if empty(g:xtabline.Tabs) | return | endif
 
-        if !filereadable(bufpath)
-            if !getbufvar(buf, "&modified")
-                let bcnt += 1 | let ix = index(accepted, buf)
-                if ix >= 0 | call add(purged, remove(accepted, ix))
-                else | call add(purged, buf) | endif
-            endif
+  let X = g:xtabline | let F = X.Funcs | let V = X.Vars
+  let N = tabpagenr() - 1
 
-        elseif bufpath !~ "^".t:cwd
-            let bcnt += 1 | let ix = index(accepted, buf)
-            if ix >= 0 | call add(purged, remove(accepted, ix))
-            else | call add(purged, buf) | endif
-        endif
-    endfor
+  """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-    " the tab may be closed if there is one window, and it's going to be purged
-    if len(tabpagebuflist()) == 1 && !empty(accepted) && index(purged, bufnr("%")) >= 0
-        execute "buffer ".accepted[0] | endif
+  if a:action == 'new'
 
-    for buf in purged | execute "silent! bdelete ".buf | endfor
-
+    call insert(X.Tabs, xtabline#new_tab({'cwd': '~'}), N)
+    call F.check_tabs()
     call xtabline#filter_buffers()
-    let s = "Purged ".bcnt." buffer" | let s .= bcnt!=1 ? "s." : "." | echo s
-endfunction
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-function! s:all_buffers()
-    " get all buffers
-    redir => all
-    silent buffers
-    redir END
-    let all = split(all, '\n')[2:]
-    let all_ = []
-    for b in all
-        let b = b[:3]
-        call add(all_, substitute(b, '\s', '', 'g'))
-    endfor
-    return all_
-endfunction
+  elseif a:action == 'enter'
 
-function! xtabline#clean_up(...)
-    let del = [] | let all = s:all_buffers() | let ok = []
+    call F.check_tabs()
+    let T = X.Tabs[N]
 
-    if a:0
-        for b in all
-            for cwd in g:xtab_cwds
-                if expand("#".b.":p") =~ cwd
-                    call add(ok, b)
-                endif
-            endfor
-        endfor
-    else
-        for i in range(tabpagenr('$')) | call extend(ok, tabpagebuflist(i + 1)) | endfor
-        let ok = map(ok, 'string(v:val)')
+    cd `=T.cwd`
+
+    if !empty(T)
+      if has_key(T.vimrc, 'commands')
+        for c in commands | exe c | endfor
+      endif
+      if has_key(T.vimrc, 'file')
+        exe "source ".T.vimrc.file
+      endif
     endif
-
-    let nr = 0
-    for b in all
-        if index(ok, b) == -1 && bufnr("%") != b
-            execute "silent! bdelete ".b
-            let nr += 1
-        endif
-    endfor
-
-    let s = "Cleaned ".nr." buffer" | let s .= nr!=1 ? "s." : "."
-    call xtabline#msg([[s, 'WarningMsg']])
-endfunction
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-function! xtabline#reopen_last_tab()
-    """Reopen the last closed tab."""
-
-    if !exists('g:most_recently_closed_tab')
-        call xtabline#msg("No recent tabs.", 1) | return | endif
-
-    let tab = g:most_recently_closed_tab
-    tabnew
-    let empty = bufnr("%")
-    let t:cwd = tab['cwd']
-    cd `=t:cwd`
-    let t:name = tab['name']
-    for buf in tab['buffers'] | execute "badd ".buf | endfor
-    execute "edit ".tab['buffers'][0]
-    execute "bdelete ".empty
-endfunction
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-function! xtabline#filter_buffers()
-    """Filter buffers so that only the ones within the tab's cwd will show up.
-
-    " 'accepted' is a list of buffer numbers, for quick access.
-    " 'excludes' is a list of paths, it will be used by Airline to hide buffers."""
-
-    if !g:xtabline_filtering | return | endif
-
-    let g:airline#extensions#tabline#exclude_buffers = []
-
-    let t:xtl_accepted  = []
-    let t:xtl_excluded  = g:airline#extensions#tabline#exclude_buffers
-    let accepted        = t:xtl_accepted
-    let previews        = g:xtabline_include_previews
-    let t:restrict_cwd  = get(t:, 'restrict_cwd', 0)
-    let cwd             = getcwd()
-
-    " bufnr(0) is the alternate buffer
-    for buf in range(1, bufnr("$"))
-
-        if !buflisted(buf) | continue | endif
-
-        " get the path
-        let path = expand("#".buf.":p")
-
-        " confront with the cwd
-        if t:restrict_cwd && path != cwd.s:sep().fnamemodify(path, ":t")
-            call add(t:xtl_excluded, buf)
-        elseif !previews && path =~ "^".cwd
-            call add(accepted, buf)
-        elseif previews && path =~ cwd
-            call add(accepted, buf)
-        else
-            call add(t:xtl_excluded, buf)
-        endif
-    endfor
-
-    call xtabline#refresh_tabline()
-endfunction
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! s:close_buffer(buf)
-    if !getbufvar(a:buf, '&modified')  | exe "silent! bdelete ".a:buf
-        call xtabline#filter_buffers() | endif
-endfun
-
-fun! s:is_tab_buffer(...)
-    return (index(t:xtl_accepted, a:1) != -1)
-endfun
-
-function! xtabline#close_buffer()
-    """Close and delete a buffer, without closing the tab."""
-    let current = bufnr("%") | let alt = bufnr("#") | let tbufs = len(t:xtl_accepted)
-
-    if buflisted(alt) && s:is_tab_buffer(alt)
-        execute "buffer #" | call s:close_buffer(current)
-
-    elseif ( tbufs > 1 ) || ( tbufs && !s:is_tab_buffer(current) )
-        execute "normal \<Plug>XTablinePrevBuffer" | call s:close_buffer(current)
-
-    elseif !g:xtabline_close_buffer_can_close_tab
-        echo "Last buffer for this tab."
-        return
-
-    elseif getbufvar(current, '&modified')
-        call xtabline#msg("Not closing because of unsaved changes", 1)
-        return
-
-    elseif tabpagenr() > 1 || tabpagenr("$") != tabpagenr()
-        tabnext | silent call s:close_buffer(current)
-    else
-        quit | endif
-endfunction
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-function! xtabline#next_buffer(nr)
-    """Switch to next visible buffer."""
-
-    if ( xtabline#not_enough_buffers() || !g:xtabline_filtering ) | return | endif
-    let accepted = t:xtl_accepted
-
-    let ix = index(accepted, bufnr("%"))
-    let target = ix + a:nr
-    let total = len(accepted)
-
-    if target >= total
-        " over last buffer
-        let s:most_recent = target - total
-
-    elseif ix == -1
-        " not in index, go back to most recent or back to first
-        if s:most_recent == -1 || index(accepted, s:most_recent) == -1
-            let s:most_recent = 0
-        endif
-    else
-        let s:most_recent = target
-    endif
-
-    return ":buffer " . accepted[s:most_recent] . "\<cr>"
-endfunction
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-function! xtabline#prev_buffer(nr)
-    """Switch to previous visible buffer."""
-
-    if ( xtabline#not_enough_buffers() || !g:xtabline_filtering ) | return | endif
-    let accepted = t:xtl_accepted
-
-    let ix = index(accepted, bufnr("%"))
-    let target = ix - a:nr
-    let total = len(accepted)
-
-    if target < 0
-        " before first buffer
-        let s:most_recent = total + target
-
-    elseif ix == -1
-        " not in index, go back to most recent or back to first
-        if s:most_recent == -1 || index(accepted, s:most_recent) == -1
-            let s:most_recent = 0
-        endif
-    else
-        let s:most_recent = target
-    endif
-
-    return ":buffer " . accepted[s:most_recent] . "\<cr>"
-endfunction
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-function! xtabline#select_buffer(nr)
-    """Switch to visible buffer in the tabline with [count]."""
-
-    if ( a:nr == 0 || !g:xtabline_filtering ) | execute g:xtabline_alt_action | return | endif
-    let accepted = t:xtl_accepted
-
-    if (a:nr > len(accepted)) || xtabline#not_enough_buffers() || accepted[a:nr - 1] == bufnr("%")
-        return
-    else
-        let g:xtabline_changing_buffer = 1
-        execute "buffer ".accepted[a:nr - 1]
-    endif
-endfunction
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-function! xtabline#tab_todo()
-    let todo = g:xtabline_todo
-    if todo['command'] == 'edit'
-        execute "edit ".todo['path']
-    else
-        execute todo['prefix']." ".todo['size'].todo['command']." ".todo['path']
-    endif
-    execute "setlocal syntax=".todo['syntax']
-    nmap <silent><nowait> <buffer> q :w<bar>bdelete<cr>
-endfunction
-
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Helper functions
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! s:sep()
-    return exists('+shellslash') && &shellslash ? '\' : '/'
-endfun
-
-fun! xtabline#msg(txt, ...)
-    if type(a:txt) == v:t_string
-        exe "echohl" a:1? "WarningMsg" : "Label"
-        echon a:txt | echohl None
-        return | endif
-
-    for txt in a:txt
-        exe "echohl ".txt[1]
-        echon txt[0]
-        echohl None
-    endfor
-endfun
-
-function! xtabline#tab_buffers()
-    """Return a list of buffers names for this tab."""
-
-    return map(copy(t:xtl_accepted), 'bufname(v:val)')
-endfunction
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-function! xtabline#not_enough_buffers()
-    """Just return if there aren't enough buffers."""
-
-    if len(t:xtl_accepted) < 2
-        if index(t:xtl_accepted, bufnr("%")) == -1
-            return
-        elseif !len(t:xtl_accepted)
-            call xtabline#msg ([[ "No available buffers for this tab.", 'WarningMsg' ]])
-        else
-            call xtabline#msg ([[ "No other available buffers for this tab.", 'WarningMsg' ]])
-        endif
-        return 1
-    endif
-endfunction
-
-function! xtabline#refresh_tabline()
-    call airline#extensions#tabline#buflist#invalidate()
-endfunction
-
-function! xtabline#init_vars()
-    let s:most_recent = -1
-endfunction
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-function! xtabline#init_cwds()
-    if !exists('g:xtab_cwds') | let g:xtab_cwds = [] | endif
-
-    while len(g:xtab_cwds) < tabpagenr("$") | call add(g:xtab_cwds, getcwd()) | endwhile
-    while len(g:xtab_cwds) > tabpagenr('$') | call remove(g:xtab_cwds, -1)    | endwhile
-    let t:cwd = getcwd()
     call xtabline#filter_buffers()
+
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+  elseif a:action == 'leave'
+
+    let V.last_tab = N
+    let X.Tabs[N].cwd = getcwd()
+    call xtabline#update_obsession()
+
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+  elseif a:action == 'close'
+
+    let V.most_recently_closed_tab = copy(X.Tabs[V.last_tab])
+    call remove(X.Tabs, V.last_tab)
+    call xtabline#update_obsession()
+  endif
 endfunction
 
-function! xtabline#update_obsession()
-    let string = 'let g:xtab_cwds = '.string(g:xtab_cwds).' | call xtabline#update_obsession()'
-    if !exists('g:obsession_append')
-        let g:obsession_append = [string]
-    else
-        call filter(g:obsession_append, 'v:val !~# "^let g:xtab_cwds"')
-        call add(g:obsession_append, string)
-    endif
-endfunction
+augroup plugin-xtabline
+  autocmd!
+
+  autocmd TabNew    * call s:Do('new')
+  autocmd TabEnter  * call s:Do('enter')
+  autocmd TabLeave  * call s:Do('leave')
+  autocmd TabClosed * call s:Do('close')
+  autocmd BufEnter  * let g:xtabline.Vars.changing_buffer = 0
+
+  autocmd BufAdd,BufDelete,BufWrite,BufEnter  * call timer_start(200, 'xtabline#filter_buffers')
+  autocmd QuitPre  * call xtabline#update_obsession()
+  autocmd SessionLoadPost  * let cwd = g:xtabline.Tabs[tabpagenr()-1].cwd | cd `=cwd` | doautocmd BufAdd
+augroup END
 

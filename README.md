@@ -178,7 +178,7 @@ For quicker access, you could define bindings like these:
   nnoremap <nowait> <silent> <expr> <Right> v:count? xtabline#next_buffer(v:count) : "\<Right>"
   nnoremap <nowait> <silent> <expr> <Left>  v:count? xtabline#prev_buffer(v:count) : "\<Left>"
 
-  nmap <nowait> <silent> <expr> <BS> g:xtabline_changing_buffer ? "\<C-c>" :
+  nmap <nowait> <silent> <expr> <BS> g:xtabline.Vars.changing_buffer ? "\<C-c>" :
                 \ v:count? ":<C-u>call xtabline#select_buffer(v:count)\<cr>" : ":Buffers\<cr>"
 ```
 
@@ -263,7 +263,7 @@ chance of conflicts.
 |XTabPurge              |  N  |  p  | Purge orphaned buffers/previews|
 |XTabCleanUp            |  N  |  c  | Clean up the global buffers list|
 |XTabWipe               |  N  |  C  | Only leaves buffers with open windows in each tab|
-|XTabRestrictCwd        |  N  |  R  | Restrict filtering to root directory only|
+|XTabDepth              |  N  |  R  | Restrict filtering to root directory only|
 |XTabTodo               |  N  |  t  | Open the tab todo file|
 |XTabBuffersOpen        |  Y  |  x  | Open a list of `Tab Buffers` to choose from|
 |XTabBuffersDelete      |  Y  |  d  | Same list, but use `bdelete` command on them|
