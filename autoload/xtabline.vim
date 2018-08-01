@@ -160,22 +160,6 @@ fun! xtabline#prev_buffer(nr)
   return ":buffer " . accepted[s:most_recent] . "\<cr>"
 endfun
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! xtabline#select_buffer(nr)
-  """Switch to visible buffer in the tabline with [count]."""
-
-  if ( a:nr == 0 || !s:V.filtering ) | execute s:Sets.alt_action | return | endif
-  let accepted = s:vB()
-
-  if (a:nr > len(accepted)) || s:F.not_enough_buffers() || accepted[a:nr - 1] == bufnr("%")
-    return
-  else
-    let g:xtabline.Vars.changing_buffer = 1
-    execute "buffer ".accepted[a:nr - 1]
-  endif
-endfun
-
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Init functions

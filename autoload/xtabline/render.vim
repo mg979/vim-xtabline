@@ -19,7 +19,6 @@ let s:indicators = {
 let s:Sets.bufline_numbers           = get(s:Sets, 'bufline_numbers',    1)
 let s:Sets.bufline_indicators        = get(s:Sets, 'bufline_indicators', s:indicators)
 let s:Sets.bufline_separators        = get(s:Sets, 'bufline_separators', '') "old: nr2char(0x23B8)
-let s:Sets.bufline_plug_max          = get(s:Sets, 'bufline_plug_max',  10)
 let s:Sets.bufline_format            = get(s:Sets, 'bufline_format',  ' n - f +')
 let s:Sets.devicon_for_all_filetypes = get(s:Sets, 'devicon_for_all_filetypes', 0)
 let s:Sets.devicon_for_filetypes     = get(s:Sets, 'devicon_for_filetypes', [])
@@ -251,13 +250,6 @@ fun! s:get_buf_icon(buf)
   endif
 endfun
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-for s:n in range(1, s:Sets.bufline_plug_max) + ( s:Sets.bufline_plug_max > 0 ? [-1] : [] )
-  let s:b = s:n == -1 ? -1 : s:n - 1
-  execute printf("noremap <silent> <Plug>BufTabLine.Go(%d) :<C-U>exe 'b'.get(<sid>user_buffers(),%d,'')<cr>", s:n, s:b)
-endfor
-unlet! s:n s:b
 "}}}}}}
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
