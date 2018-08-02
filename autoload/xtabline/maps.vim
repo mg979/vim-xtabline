@@ -35,10 +35,11 @@ function! xtabline#maps#init()
   call s:mapkeys(X.'cu',         '<Plug>(XT-Clean-Up)')
   call s:mapkeys(X.'rt',         '<Plug>(XT-Reopen)')
   call s:mapkeys(X.'sd',         '<Plug>(XT-Set-Depth)')
-  call s:mapkeys(X.'tt',         '<Plug>(XT-Tab-Todo)')
+  call s:mapkeys(X.'ot',         '<Plug>(XT-Tab-Todo)')
   call s:mapkeys(X.'sti',        '<Plug>(XT-Set-Tab-Icon)')
   call s:mapkeys(X.'sbi',        '<Plug>(XT-Set-Buffer-Icon)')
   call s:mapkeys(X.'trp',        '<Plug>(XT-Relative-Paths)')
+  call s:mapkeys(X.'ttn',        '<Plug>(XT-Tab-Names)')
   call s:mapkeys(X.'cdc',        '<Plug>(XT-Cd-Current)')
   call s:mapkeys(X.'cdd',        '<Plug>(XT-Cd-Down)')
   call s:mapkeys(X.'cdr',        '<Plug>(XT-Reset)')
@@ -69,6 +70,7 @@ function! xtabline#maps#init()
   nnoremap <unique> <silent>        <Plug>(XT-Working-Directory)     :<c-u>XTabWD!<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Set-Depth)             :<c-u>call xtabline#cmds#run('depth', [0, v:count])<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Tab-Todo)              :<c-u>XTabTodo<cr>
+  nnoremap <unique> <silent>        <Plug>(XT-Tab-Names)             :<c-u>XTabToggleTabNames<cr>
   nnoremap <unique>                 <Plug>(XT-Set-Tab-Icon)          :<c-u>XTabIcon<Space>
   nnoremap <unique>                 <Plug>(XT-Set-Buffer-Icon)       :<c-u>XTabBufferIcon<Space>
   nnoremap <unique> <silent>        <Plug>(XT-Cd-Current)            :<c-u>call <sid>cd(0)<cr>
@@ -92,7 +94,7 @@ function! xtabline#maps#init()
         \'cu':  ["XTabCleanUp",                        "Clean Up"                ],
         \'wa':  ["XTabCleanUp!",                       "Wipe All"                ],
         \'rt':  ["XTabReopen",                         "Reopen Tab"              ],
-        \'tt':  ["XTabTodo",                           "Tab Todo"                ],
+        \'ot':  ["XTabTodo",                           "Open Todo"               ],
         \'wd':  ["XTabWD!",                            "Working Directory"       ],
         \'fb':  ["XTabFormatBuffer",                   "Format Buffer"           ],
         \'tp':  ["XTabTogglePin",                      "Toggle Pin"              ],

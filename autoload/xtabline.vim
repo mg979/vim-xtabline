@@ -6,6 +6,7 @@ let s:X = g:xtabline
 let s:V = s:X.Vars
 let s:V.tab_properties = {}
 let s:V.filtering = 1
+let s:V.show_tab_icons = 1
 let s:V.showing_tabs = 0
 let s:V.buftail = 0
 let s:Sets = g:xtabline_settings
@@ -116,7 +117,8 @@ fun! xtabline#filter_buffers(...)
   let excluded        = locked? T.exclude : []
   let depth           = T.depth
   let cwd             = getcwd()
-  let exact           = s:Sets.include_previews? '' : '^'
+  let _pre            = s:Sets.exact_paths? '^' : ''
+  let post_           = s:Sets.exact_paths? s:F.sep() : ''
 
   for buf in range(1, bufnr("$"))
 
@@ -130,7 +132,7 @@ fun! xtabline#filter_buffers(...)
     if locked && index(accepted, buf) < 0
       call add(excluded, buf)
 
-    elseif path =~ exact.cwd && s:F.within_depth(path, depth)
+    elseif s:F.within_depth(path, depth) && path =~ _pre.cwd.post_
       call add(accepted, buf)
 
     else

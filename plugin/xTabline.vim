@@ -70,6 +70,7 @@ com! -nargs=1       XTabOpen            call xtabline#cmds#run("new_tab", <q-arg
 com!                XTabReset           call xtabline#cmds#run("reset_tab")
 com!                XTabRelativePaths   call xtabline#cmds#run("relative_paths")
 com!                XTabFormatBuffer    call xtabline#cmds#run("format_buffer")
+com!                XTabToggleTabNames  call xtabline#cmds#run("toggle_tab_names")
 com! -nargs=?       XTabTogglePin       call xtabline#cmds#run("toggle_pin_buffer", <q-args>)
 
 com! -nargs=? -bang -complete=file                       XTabWD               call xtabline#cmds#run("set_cwd", [<bang>0, <q-args>])
@@ -85,7 +86,7 @@ let s:S = get(g:, 'xtabline_settings', {})
 
 let s:S.sessions_path              = get(s:S, 'sessions_path', '$HOME/.vim/session')
 let s:S.map_prefix                 = get(s:S, 'map_prefix', '<leader>x')
-let s:S.include_previews           = get(s:S, 'include_previews', 1)
+let s:S.exact_paths                = get(s:S, 'exact_paths', 0)
 let s:S.close_buffer_can_close_tab = get(s:S, 'close_buffer_can_close_tab', 0)
 let s:S.unload_session_ask_confirm = get(s:S, 'unload_session_ask_confirm', 1)
 

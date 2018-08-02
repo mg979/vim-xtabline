@@ -242,7 +242,7 @@ You can add any of these to your *.vimrc*
 |g:xtabline_disable_keybindings      | (0)        |
 |g:xtabline_cd_commands              | enable CWD selection commands (0)   |
 |g:xtabline_autodelete_empty_buffers | remove empty unsaved buffers (0)    |
-|g:xtabline_include_previews         | display fugitive logs buffers (1)   |
+|g:xtabline_exact_paths              | require exact match for cwd (excluding possibliy related files) (0)   |
 |g:xtabline_alt_action               | SelectBuffer alternative command    |
 |g:xtabline_todo                     | todo command customization          |
 |g:xtabline_sessions_path            | sessions directory                  |
@@ -372,7 +372,7 @@ Default mapping: `<prefix>R`
 
 To prevent previews (eg. vim-fugitive logs) from being displayed, add:
 
-    let g:xtabline_include_previews = 0
+    let g:xtabline_exact_paths = 1
 
 (You'll still be able to purge them with XTabPurge)
 

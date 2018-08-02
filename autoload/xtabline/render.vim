@@ -6,6 +6,7 @@ let s:T =  { -> s:X.Tabs[tabpagenr()-1] }       "current tab
 let s:B =  { -> s:X.Buffers             }       "customized buffers
 let s:vB = { -> s:T().buffers.valid     }       "valid buffers for tab
 let s:oB = { -> s:T().buffers.order     }       "ordered buffers for tab
+
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Bufline/Tabline settings
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -432,6 +433,9 @@ fun! s:bufpath(tabnr)
 endfun
 
 fun! s:get_tab_icon(tabnr)
+  if !s:V.show_tab_icons
+    return get(s:Sets, 'tab_icon', ["📂", "📁"]) | endif
+
   let T = s:X.Tabs[a:tabnr-1]
   let icon = s:has_tab_icon(T)
 
@@ -487,7 +491,11 @@ fun! s:tabcwd(tabnr)
 endfun
 
 fun! s:tabname(tabnr)
-  return s:X.Tabs[a:tabnr-1].name
+  if s:V.show_tab_icons
+    return s:X.Tabs[a:tabnr-1].name
+  else
+    return s:short_cwd(a:tabnr, 2)
+  endif
 endfun
 
 fun! s:windows(tabnr)

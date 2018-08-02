@@ -106,14 +106,14 @@ fun! s:purge_buffers()
     if !filereadable(bufpath)
       if !getbufvar(buf, "&modified")
         let bcnt += 1 | let ix = index(accepted, buf)
-        if ix >= 0 | call add(purged, remove(accepted, ix))
-        else | call add(purged, buf) | endif
+        if ix >= 0    | call add(purged, remove(accepted, ix))
+        else          | call add(purged, buf) | endif
       endif
 
     elseif bufpath !~ "^".s:T().cwd
-      let bcnt += 1 | let ix = index(accepted, buf)
-      if ix >= 0 | call add(purged, remove(accepted, ix))
-      else | call add(purged, buf) | endif
+      let bcnt += 1   | let ix = index(accepted, buf)
+      if ix >= 0      | call add(purged, remove(accepted, ix))
+      else            | call add(purged, buf) | endif
     endif
   endfor
 
@@ -368,6 +368,14 @@ fun! s:reset_tab(...)
   "Reset the tab to a pristine state.
   let s:X.Tabs[tabpagenr()-1] = xtabline#new_tab({'cwd': a:0? expand(a:1) : expand("~")})
   call xtabline#filter_buffers()
+endfun
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:toggle_tab_names()
+    """Toggle between custom icon/name and short path/folder icons."""
+    let s:V.show_tab_icons = !s:V.show_tab_icons
+    call xtabline#filter_buffers()
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
