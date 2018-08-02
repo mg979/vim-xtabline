@@ -6,10 +6,11 @@ let s:X = g:xtabline
 let s:F = g:xtabline.Funcs
 let s:V = g:xtabline.Vars
 let s:Sets = g:xtabline_settings
-let s:T =  { -> s:X.Tabs[tabpagenr()-1]               }
-let s:B =  { -> s:X.Tabs[tabpagenr()-1].buffers       }
-let s:vB = { -> s:X.Tabs[tabpagenr()-1].buffers.valid }
-let s:oB = { -> s:X.Tabs[tabpagenr()-1].buffers.order }
+
+let s:T =  { -> s:X.Tabs[tabpagenr()-1] }       "current tab
+let s:B =  { -> s:X.Buffers             }       "customized buffers
+let s:vB = { -> s:T().buffers.valid     }       "valid buffers for tab
+let s:oB = { -> s:T().buffers.order     }       "ordered buffers for tab
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 

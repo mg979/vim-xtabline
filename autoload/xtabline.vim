@@ -10,12 +10,46 @@ let s:V.showing_tabs = 0
 let s:V.buftail = 0
 let s:Sets = g:xtabline_settings
 
-let s:T =  { -> s:X.Tabs[tabpagenr()-1]               }
-let s:B =  { -> s:X.Tabs[tabpagenr()-1].buffers       }
-let s:vB = { -> s:X.Tabs[tabpagenr()-1].buffers.valid }
-let s:oB = { -> s:X.Tabs[tabpagenr()-1].buffers.order }
+let s:T =  { -> s:X.Tabs[tabpagenr()-1] }       "current tab
+let s:B =  { -> s:X.Buffers             }       "customized buffers
+let s:vB = { -> s:T().buffers.valid     }       "valid buffers for tab
+let s:oB = { -> s:T().buffers.order     }       "ordered buffers for tab
 
 let s:most_recent = -1
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Init functions
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! xtabline#init()
+  let s:X.Funcs = xtabline#funcs#init()
+  let s:F = s:X.Funcs
+
+  if !exists('g:xtabline_disable_keybindings')
+    call xtabline#maps#init()
+  endif
+
+  call s:F.check_tabs()
+endfun
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! xtabline#update_obsession()
+  let string = 'let g:xtabline.Tabs = '.string(s:X.Tabs).
+        \' | let g:xtabline.Buffers = '.string(s:X.Buffers).
+        \' | call xtabline#update_obsession()'
+  if !exists('g:obsession_append')
+    let g:obsession_append = [string]
+  else
+    for i in g:obsession_append
+      if match(i, "^let g:xtabline") >= 0
+        call remove(g:obsession_append, i)
+        break
+      endif
+    endfor
+    call add(g:obsession_append, string)
+  endif
+endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Main functions
@@ -160,41 +194,6 @@ fun! xtabline#prev_buffer(nr)
   return ":buffer " . accepted[s:most_recent] . "\<cr>"
 endfun
 
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Init functions
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! xtabline#init()
-  let s:X.Funcs = xtabline#funcs#init()
-  let s:F = s:X.Funcs
-  let s:X.pinned_buffers = []
-
-  if !exists('g:xtabline_disable_keybindings')
-    call xtabline#maps#init()
-  endif
-
-  call s:F.check_tabs()
-endfun
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! xtabline#update_obsession()
-  let string = 'let g:xtabline.Tabs = '.string(s:X.Tabs).
-              \' | let g:xtabline.pinned_buffers = '.string(s:X.pinned_buffers).
-              \' | call xtabline#update_obsession()'
-  if !exists('g:obsession_append')
-    let g:obsession_append = [string]
-  else
-    for i in g:obsession_append
-      if match(i, "^let g:xtabline") >= 0
-        call remove(g:obsession_append, i)
-        break
-      endif
-    endfor
-    call add(g:obsession_append, string)
-  endif
-endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Autocommand Functions

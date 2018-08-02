@@ -3,10 +3,11 @@ fun! xtabline#funcs#init()
   let s:V = s:X.Vars
   let s:Tabs = s:X.Tabs
   let s:Sets = g:xtabline_settings
-  let s:T =  { -> s:X.Tabs[tabpagenr()-1]               }
-  let s:B =  { -> s:X.Tabs[tabpagenr()-1].buffers       }
-  let s:vB = { -> s:X.Tabs[tabpagenr()-1].buffers.valid }
-  let s:oB = { -> s:X.Tabs[tabpagenr()-1].buffers.order }
+
+  let s:T =  { -> s:X.Tabs[tabpagenr()-1] }       "current tab
+  let s:B =  { -> s:X.Buffers             }       "customized buffers
+  let s:vB = { -> s:T().buffers.valid     }       "valid buffers for tab
+  let s:oB = { -> s:T().buffers.order     }       "ordered buffers for tab
   return s:Funcs
 endfun
 

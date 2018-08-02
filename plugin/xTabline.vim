@@ -71,14 +71,14 @@ com!                XTabReset           call xtabline#cmds#run("reset_tab")
 com!                XTabRelativePaths   call xtabline#cmds#run("relative_paths")
 com! -nargs=?       XTabTogglePin       call xtabline#cmds#run("toggle_pin_buffer", <q-args>)
 
-com! -nargs=1 -complete=customlist,<sid>icons      XTabIcon            call xtabline#cmds#run("tab_icon", <q-args>)
-com! -nargs=1 -complete=customlist,<sid>icons      XTabBufferIcon      call xtabline#cmds#run("buffer_icon", <q-args>)
+com! -nargs=? -bang -complete=customlist,<sid>icons      XTabIcon            call xtabline#cmds#run("tab_icon", [<bang>0, <q-args>])
+com! -nargs=? -bang -complete=customlist,<sid>icons      XTabBufferIcon      call xtabline#cmds#run("buffer_icon", [<bang>0, <q-args>])
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Variables
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-let g:xtabline = {'Tabs': [], 'Vars': {}}
+let g:xtabline = {'Tabs': [], 'Vars': {}, 'Buffers': {'pinned': []}}
 let s:S = get(g:, 'xtabline_settings', {})
 
 let s:S.sessions_path              = get(s:S, 'sessions_path', '$HOME/.vim/session')
@@ -90,7 +90,7 @@ let s:S.unload_session_ask_confirm = get(s:S, 'unload_session_ask_confirm', 1)
 let s:S.alt_action                 = get(s:S, 'alt_action', "buffer #")
 let s:S.bookmaks_file              = get(s:S, 'bookmaks_file ', expand('$HOME/.vim/.XTablineBookmarks'))
 let s:S.sessions_data              = get(s:S, 'sessions_data', expand('$HOME/.vim/.XTablineSessions'))
-let s:S.default_named_tab_icon     = get(s:S, 'default_named_tab_icon', ['📌','📌'])
+let s:S.default_named_tab_icon     = get(s:S, 'default_named_tab_icon', [])
 
 let s:S.todo                       = get(s:S, 'todo', {})
 let s:S.todo.command               = get(s:S.todo, 'command', 'sp')
@@ -100,8 +100,6 @@ let s:S.todo.size                  = get(s:S.todo, 'size',    20)
 let s:S.todo.syntax                = get(s:S.todo, 'syntax',  'markdown')
 
 let s:S.custom_icons               = extend({
-                                    \'folder_open': '📂',
-                                    \'folder_closed': '📁',
                                     \'pin': '📌',
                                     \'star': '★',
                                     \'book': '📖',
@@ -109,6 +107,8 @@ let s:S.custom_icons               = extend({
                                     \'hammer': '🔨',
                                     \}, get(s:S, 'custom_icons', {}))
 
+                                    " \'folder_open': '📂',
+                                    " \'folder_closed': '📁',
 if !filereadable(s:S.bookmaks_file) | call writefile(['{}'], S.bookmaks_file) | endif
 if !filereadable(s:S.sessions_data) | call writefile(['{}'], S.sessions_data) | endif
 

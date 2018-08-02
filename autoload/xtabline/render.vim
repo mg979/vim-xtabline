@@ -1,11 +1,11 @@
 let s:X    = g:xtabline
 let s:V    = g:xtabline.Vars
 let s:Sets = g:xtabline_settings
-let s:T =  { -> s:X.Tabs[tabpagenr()-1]               }
-let s:B =  { -> s:X.Tabs[tabpagenr()-1].buffers       }
-let s:vB = { -> s:X.Tabs[tabpagenr()-1].buffers.valid }
-let s:oB = { -> s:X.Tabs[tabpagenr()-1].buffers.order }
 
+let s:T =  { -> s:X.Tabs[tabpagenr()-1] }       "current tab
+let s:B =  { -> s:X.Buffers             }       "customized buffers
+let s:vB = { -> s:T().buffers.valid     }       "valid buffers for tab
+let s:oB = { -> s:T().buffers.order     }       "ordered buffers for tab
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Bufline/Tabline settings
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -20,7 +20,7 @@ let s:indicators = {
 let s:Sets.bufline_numbers           = get(s:Sets, 'bufline_numbers',    1)
 let s:Sets.bufline_indicators        = get(s:Sets, 'bufline_indicators', s:indicators)
 let s:Sets.bufline_separators        = get(s:Sets, 'bufline_separators', '') "old: nr2char(0x23B8)
-let s:Sets.bufline_format            = get(s:Sets, 'bufline_format',  ' n - l +')
+let s:Sets.bufline_format            = get(s:Sets, 'bufline_format',  ' n i- l +')
 let s:Sets.devicon_for_all_filetypes = get(s:Sets, 'devicon_for_all_filetypes', 0)
 let s:Sets.devicon_for_filetypes     = get(s:Sets, 'devicon_for_filetypes', [])
 
@@ -49,10 +49,12 @@ hi default link BufTabLineActive  StatusLine
 hi default link BufTabLineHidden  TabLine
 hi default link BufTabLineFill    TabLineFill
 
-let s:dirsep          = fnamemodify(getcwd(),':p')[-1:]
-let s:centerbuf       = winbufnr(0)
-let s:scratch         = { nr -> index(['nofile','acwrite'], getbufvar(nr, '&buftype')) >= 0 }
-let s:nowrite         = { nr -> !getbufvar(nr, '&modifiable') }
+let s:dirsep            = fnamemodify(getcwd(),':p')[-1:]
+let s:centerbuf         = winbufnr(0)
+let s:scratch           = { nr -> index(['nofile','acwrite'], getbufvar(nr, '&buftype')) >= 0 }
+let s:nowrite           = { nr -> !getbufvar(nr, '&modifiable') }
+let s:pinned            = { -> s:X.Buffers.pinned               }
+let s:buffer_has_format = { buf -> has_key(s:B(), buf.nr) && has_key(s:B()[buf.nr], 'format') }
 "}}}
 
 " Main function {{{
@@ -71,7 +73,7 @@ fun! xtabline#render#buffers()
 
   "include pinned buffers and put them upfront
   let bufs = s:oB()
-  for b in s:X.pinned_buffers
+  for b in s:pinned()
     let i = index(bufs, b)
     if i >= 0 | call remove(bufs, i) | endif
     call insert(bufs, b, 0)
@@ -205,7 +207,7 @@ endfun
 
 fun! s:buf_indicator(bnr)
   let mods = s:Sets.bufline_indicators
-  let mod = index(s:X.pinned_buffers, a:bnr) >= 0 ? mods.pinned : ''
+  let mod = index(s:pinned(), a:bnr) >= 0 ? mods.pinned : ''
   if getbufvar(a:bnr, '&mod')
     return (mod . mods.modified)
   elseif s:scratch(a:bnr)

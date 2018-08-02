@@ -8,10 +8,10 @@ fun! xtabline#cmds#run(cmd, ...)
   let s:V = s:X.Vars
   let s:Sets = g:xtabline_settings
 
-  let s:T =  { -> s:X.Tabs[tabpagenr()-1]               }
-  let s:B =  { -> s:X.Tabs[tabpagenr()-1].buffers       }
-  let s:vB = { -> s:X.Tabs[tabpagenr()-1].buffers.valid }
-  let s:oB = { -> s:X.Tabs[tabpagenr()-1].buffers.order }
+  let s:T =  { -> s:X.Tabs[tabpagenr()-1] }       "current tab
+  let s:B =  { -> s:X.Buffers             }       "customized buffers
+  let s:vB = { -> s:T().buffers.valid     }       "valid buffers for tab
+  let s:oB = { -> s:T().buffers.order     }       "ordered buffers for tab
   let args = !a:0? '' : a:0==1? string(a:1) : string(a:000)
   exe "call s:".a:cmd."(".args.")"
 endfun
@@ -254,26 +254,37 @@ fun! s:get_icon(ico)
   endif
 endfun
 
-fun! s:tab_icon(ico)
+fun! s:tab_icon(...)
   """Set an icon for this tab."""
-  let icon = s:get_icon(a:ico)
-  if !empty(icon)
-    let T = s:T()
-    let T.icon = icon
-    call xtabline#filter_buffers()
+  let [bang, icon] = a:1
+  let T = s:T()
+  if bang
+    let T.icon = ''
+  else
+    let icon = s:get_icon(icon)
+    if !empty(icon)
+      let T = s:T()
+      let T.icon = icon
+    endif
   endif
+  call xtabline#filter_buffers()
 endfun
 
-fun! s:buffer_icon(ico)
+fun! s:buffer_icon(...)
   """Set an icon for this buffer."""
+  let [bang, icon] = a:1
   let B = s:F.set_buffer_var('icon')
   if empty(B) | return | endif
 
-  let icon = s:get_icon(a:ico)
-  if !empty(icon)
-    let B.icon = icon
-    call xtabline#filter_buffers()
+  if bang
+    let B.icon = ''
+  else
+    let icon = s:get_icon(icon)
+    if !empty(icon)
+      let B.icon = icon
+    endif
   endif
+  call xtabline#filter_buffers()
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -287,11 +298,11 @@ fun! s:toggle_pin_buffer(...)
   endif
 
   let B = bufnr('%')
-  let i = index(s:X.pinned_buffers, B)
+  let i = index(s:B().pinned, B)
   if i >= 0
-    call remove(s:X.pinned_buffers, i)
+    call remove(s:B().pinned, i)
   else
-    call add(s:X.pinned_buffers, B)
+    call add(s:B().pinned, B)
   endif
   call xtabline#filter_buffers()
 endfun
