@@ -57,7 +57,7 @@ fun! s:Funcs.set_buffer_var(var, ...) dict
   endif
   let bufs = s:B()
   if has_key(bufs, B) | let bufs[B][a:var] = a:0? a:1 : 0
-  else                | let bufs[B] = {a:var: a:0? a:1 : 0}
+  else                | let bufs[B] = {a:var: a:0? a:1 : 0, "path": expand("%:p")}
   endif
   return bufs[B]
 endfun
@@ -68,6 +68,7 @@ fun! s:Funcs.update_buffers()
   let valid = s:vB()
   let order = s:oB()
 
+  "clean up ordered buffers list
   let remove = []
   for buf in order
     if index(valid, buf) < 0
@@ -79,9 +80,18 @@ fun! s:Funcs.update_buffers()
     call remove(order, index(order, buf))
   endfor
 
+  " add missing entries in ordered list
   for buf in valid
     if index(order, buf) < 0
       call add(order, buf)
+    endif
+  endfor
+
+  " remove customized buffer entries, if buffers are not valid anymore
+  let bufs = s:B()
+  for b in keys(bufs)
+    if bufs[b].path !=# expand("#".b.":p")
+      unlet bufs[b]
     endif
   endfor
 endfun
@@ -153,6 +163,24 @@ endfunction
 fun! s:Funcs.is_tab_buffer(...) dict
   """Verify that the buffer belongs to the tab."""
   return (index(s:vB(), a:1) != -1)
+endfun
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:Funcs.all_valid_buffers()
+    """Return all valid buffers for all tabs."""
+  let valid = []
+  for i in range(tabpagenr('$')) | call extend(valid, s:X.Tabs[i].buffers.valid) | endfor
+  return valid
+endfun
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:Funcs.all_open_buffers()
+    """Return all open buffers for all tabs."""
+  let open = []
+  for i in range(tabpagenr('$')) | call extend(open, tabpagebuflist(i + 1)) | endfor
+  return open
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

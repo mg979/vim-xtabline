@@ -37,6 +37,7 @@ endfun
 fun! xtabline#update_obsession()
   let string = 'let g:xtabline.Tabs = '.string(s:X.Tabs).
         \' | let g:xtabline.Buffers = '.string(s:X.Buffers).
+        \' | let g:xtabline.pinned_buffers = '.string(s:X.pinned_buffers).
         \' | call xtabline#update_obsession()'
   if !exists('g:obsession_append')
     let g:obsession_append = [string]
@@ -63,17 +64,16 @@ fun! xtabline#new_tab(...)
 
   "cwd:     (string)  working directory
   "name:    (string)  tab name
-  "buffers: (list)    accepted buffer numbers
+  "buffers: (dict)    with accepted and ordered buffer numbers lists
   "exclude: (list)    excluded buffer numbers
   "index:   (int)     tabpagenr() - 1, when tab is set
   "locked:  (bool)    when filtering is independent from cwd
   "depth:   (int)     filtering recursive depth (n. of directories below cwd)
-  "                   0 means infinite
+  "                   0 means infinite, -1 means filtering disabled
   "vimrc:   (dict)    settings to be sourced when entering the tab
   "                   it can hold: {'file': string, 'commands': list} (one, both or empty)
 
   let cwd     = has_key(p, 'cwd')?     p.cwd     : getcwd()
-  " let name    = has_key(p, 'name')?    p.name    : fnamemodify(expand(cwd), ':t:r')
   let name    = has_key(p, 'name')?    p.name    : ''
   let buffers = has_key(p, 'buffers')? p.buffers : {'valid': [], 'order': []}
   let exclude = has_key(p, 'exclude')? p.exclude : []

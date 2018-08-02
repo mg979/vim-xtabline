@@ -1,17 +1,21 @@
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Commands
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+let s:X    = g:xtabline
+let s:F    = s:X.Funcs
+let s:V    = s:X.Vars
+let s:Sets = g:xtabline_settings
+
+let s:T    =  { -> s:X.Tabs[tabpagenr()-1] }       "current tab
+let s:B    =  { -> s:X.Buffers             }       "customized buffers
+let s:vB   =  { -> s:T().buffers.valid     }       "valid buffers for tab
+let s:oB   =  { -> s:T().buffers.order     }       "ordered buffers for tab
+
+let s:scratch =  { nr -> index(['nofile','acwrite','help'], getbufvar(nr, '&buftype')) >= 0 }
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! xtabline#cmds#run(cmd, ...)
-  let s:X = g:xtabline
-  let s:F = s:X.Funcs
-  let s:V = s:X.Vars
-  let s:Sets = g:xtabline_settings
-
-  let s:T =  { -> s:X.Tabs[tabpagenr()-1] }       "current tab
-  let s:B =  { -> s:X.Buffers             }       "customized buffers
-  let s:vB = { -> s:T().buffers.valid     }       "valid buffers for tab
-  let s:oB = { -> s:T().buffers.order     }       "ordered buffers for tab
   let args = !a:0? '' : a:0==1? string(a:1) : string(a:000)
   exe "call s:".a:cmd."(".args.")"
 endfun
@@ -126,24 +130,14 @@ endfun
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:clean_up(...)
-  let ok = []
+  """Remove all invalid/not open(!) buffers in all tabs.
+  let valid  = s:F.all_valid_buffers()
+  let active = s:F.all_open_buffers()
+  let ok     = !a:1? valid + active : active
 
-  if a:1
-    for tab in s:X.Tabs
-      for buf in tab.buffers.valid
-        if index(ok, buf) < 0
-          call add(ok, buf)
-        endif
-      endfor
-    endfor
-  else
-    for i in range(tabpagenr('$')) | call extend(ok, tabpagebuflist(i + 1)) | endfor
-  endif
-
-  call add(ok, bufnr("%"))
   let nr = 0
   for b in range(1, bufnr('$'))
-    if !buflisted(b) | continue | endif
+    if !buflisted(b) && !s:scratch(b) | continue | endif
     if index(ok, b) == -1
       execute "silent! bdelete ".string(b)
       let nr += 1
@@ -201,6 +195,7 @@ endfun
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:relative_paths()
+  """Toggle between full relative path and tail only, in the bufline.
   let s:V.buftail = !s:V.buftail
   call xtabline#filter_buffers()
   if s:V.buftail
@@ -213,6 +208,7 @@ endfun
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:tab_todo()
+  """Open the Tab todo file.
   let todo = s:Sets.todo
   if todo['command'] == 'edit'
     execute "edit ".s:F.todo_path()
@@ -243,6 +239,7 @@ endfun
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:get_icon(ico)
+  """Get current icon for this tab."""
   let I = get(s:Sets, 'custom_icons', {})
   if index(keys(I), a:ico) >= 0
     return I[a:ico]
@@ -298,11 +295,11 @@ fun! s:toggle_pin_buffer(...)
   endif
 
   let B = bufnr('%')
-  let i = index(s:B().pinned, B)
+  let i = index(s:X.pinned_buffers, B)
   if i >= 0
-    call remove(s:B().pinned, i)
+    call remove(s:X.pinned_buffers, i)
   else
-    call add(s:B().pinned, B)
+    call add(s:X.pinned_buffers, B)
   endif
   call xtabline#filter_buffers()
 endfun
@@ -317,14 +314,60 @@ fun! s:new_tab(...)
   call xtabline#filter_buffers()
 endfun
 
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:format_buffer()
+    """Specify a custom format for this buffer."""
+    let och = &ch
+    set ch=2
+
+    let n = bufnr("%")
+    if !s:F.is_tab_buffer(n)
+      call s:F.msg ([[ "Invalid buffer.", 'WarningMsg']]) | return | endif
+
+    let has_format = has_key(s:B(), n) && has_key(s:B()[n], 'format')
+    let current = has_format? s:B()[n].format : s:Sets.bufline_format
+    echohl Label | echo "Current  │" | echohl Special | echon current | echohl Label
+
+    let new = input("New      │", current) | echohl None
+    if !empty(new) | call s:F.set_buffer_var('format', new)
+    else           | call s:F.msg ([[ "Canceled.", 'WarningMsg' ]])
+    endif
+
+    let &ch = och
+    call xtabline#filter_buffers()
+endfun
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:set_cwd(...)
+  """Set new working directory."""
+  let [bang, cwd] = a:1
+  let cwd = expand(cwd, ":p")
+
+  if !bang && empty(cwd)
+    call s:F.msg ([[ "Canceled.", 'WarningMsg' ]]) | return
+  elseif bang
+    let home = expand("~", ":p") | echohl Label
+    let cwd = input("Enter a new working directory: ", home, "file") | echohl None
+  endif
+
+  if !isdirectory(cwd)
+    call s:F.msg ([[ "Wrong directory.", 'WarningMsg' ]])
+  else
+    cd `=cwd`
+    redraw!
+    call s:F.msg ([[ "New working directory set: ", 'Label' ], [ cwd, 'None' ]])
+    let s:X.Tabs[tabpagenr()-1].cwd = cwd
+    call xtabline#filter_buffers()
+  endif
+endfun
+
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:reset_tab()
+fun! s:reset_tab(...)
   "Reset the tab to a pristine state.
-  let s:X.Tabs[tabpagenr()-1] = {'name':    '',  'cwd':     expand("~"),
-                               \ 'exclude': [],  'buffers': {'valid': [], 'order': []},
-                               \ 'vimrc':   {},  'index':   tabpagenr()-1,
-                               \ 'locked':  0,   'depth':   0}
+  let s:X.Tabs[tabpagenr()-1] = xtabline#new_tab({'cwd': a:0? expand(a:1) : expand("~")})
   call xtabline#filter_buffers()
 endfun
 

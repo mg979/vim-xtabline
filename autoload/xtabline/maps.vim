@@ -21,7 +21,7 @@ function! xtabline#maps#init()
   call s:mapkeys(X.'q',          '<Plug>(XT-Close-Buffer)')
   call s:mapkeys(X.'b',          '<Plug>(XT-Open-Buffers)')
   call s:mapkeys(X.'db',         '<Plug>(XT-Delete-Buffers)')
-  call s:mapkeys(X.'dB',         '<Plug>(XT-Delete-Global-Buffers)')
+  call s:mapkeys(X.'dgb',        '<Plug>(XT-Delete-Global-Buffers)')
   call s:mapkeys(X.'lt',         '<Plug>(XT-Load-Tab)')
   call s:mapkeys(X.'st',         '<Plug>(XT-Save-Tab)')
   call s:mapkeys(X.'dt',         '<Plug>(XT-Delete-Tab)')
@@ -30,9 +30,10 @@ function! xtabline#maps#init()
   call s:mapkeys(X.'ds',         '<Plug>(XT-Delete-Session)')
   call s:mapkeys(X.'p',          '<Plug>(XT-Purge)')
   call s:mapkeys(X.'tp',         '<Plug>(XT-Toggle-Pin)')
-  call s:mapkeys(X.'C',          '<Plug>(XT-Wipe)')
-  call s:mapkeys(X.'c',          '<Plug>(XT-Clean-Up)')
-  call s:mapkeys(X.'r',          '<Plug>(XT-Reopen)')
+  call s:mapkeys(X.'wa',         '<Plug>(XT-Wipe-All)')
+  call s:mapkeys(X.'wd',         '<Plug>(XT-Working-Directory)')
+  call s:mapkeys(X.'cu',         '<Plug>(XT-Clean-Up)')
+  call s:mapkeys(X.'rt',         '<Plug>(XT-Reopen)')
   call s:mapkeys(X.'sd',         '<Plug>(XT-Set-Depth)')
   call s:mapkeys(X.'tt',         '<Plug>(XT-Tab-Todo)')
   call s:mapkeys(X.'trp',        '<Plug>(XT-Relative-Paths)')
@@ -60,9 +61,10 @@ function! xtabline#maps#init()
   nnoremap <unique> <silent>        <Plug>(XT-Delete-Session)        :<c-u>XTabDeleteSession<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Purge)                 :<c-u>XTabPurge<cr>
   nnoremap <unique>                 <Plug>(XT-Toggle-Pin)            :<c-u>XTabTogglePin<Space>
-  nnoremap <unique> <silent>        <Plug>(XT-Wipe)                  :<c-u>XTabCleanUp<cr>
-  nnoremap <unique> <silent>        <Plug>(XT-Clean-Up)              :<c-u>XTabCleanUp!<cr>
+  nnoremap <unique> <silent>        <Plug>(XT-Clean-Up)              :<c-u>XTabCleanUp<cr>
+  nnoremap <unique> <silent>        <Plug>(XT-Wipe-All)              :<c-u>XTabCleanUp!<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Reopen)                :<c-u>XTabReopen<cr>
+  nnoremap <unique> <silent>        <Plug>(XT-Working-Directory)     :<c-u>XTabWD!<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Set-Depth)             :<c-u>call xtabline#cmds#run('depth', [0, v:count])<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Tab-Todo)              :<c-u>XTabTodo<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Cd-Current)            :<c-u>call <sid>cd(0)<cr>
@@ -75,7 +77,7 @@ function! xtabline#maps#init()
         \'q':   ["XTabCloseBuffer",                    "Close Buffer"            ],
         \'b':   ["XTabOpenBuffers",                    "Open Buffer(s)"          ],
         \'db':  ["XTabDeleteBuffers",                  "Delete Tab Buffer(s)"    ],
-        \'dB':  ["XTabDeleteGlobalBuffers",            "Delete Global Buffer(s)" ],
+        \'dgb': ["XTabDeleteGlobalBuffers",            "Delete Global Buffer(s)" ],
         \'lt':  ["XTabLoadTab",                        "Load Tab Bookmark(s)"    ],
         \'st':  ["XTabSaveTab",                        "Save Tab Bookmark(s)"    ],
         \'dt':  ["XTabDeleteTab",                      "Delete Tab Bookmark(s)"  ],
@@ -83,10 +85,12 @@ function! xtabline#maps#init()
         \'ss':  ["XTabSaveSession",                    "Save Session"            ],
         \'ds':  ["XTabDeleteSession",                  "Delete Session"          ],
         \'p':   ["XTabPurge",                          "Purge"                   ],
-        \'C':   ["XTabCleanUp",                        "Clean Up Tabs"           ],
-        \'c':   ["XTabCleanUp!",                       "Clean Up Tabs!"          ],
-        \'r':   ["XTabReopen",                         "Reopen Tab"              ],
+        \'cu':  ["XTabCleanUp",                        "Clean Up"                ],
+        \'wa':  ["XTabCleanUp!",                       "Wipe All"                ],
+        \'rt':  ["XTabReopen",                         "Reopen Tab"              ],
         \'tt':  ["XTabTodo",                           "Tab Todo"                ],
+        \'wd':  ["XTabWD!",                            "Working Directory"       ],
+        \'fb':  ["XTabFormatBuffer",                   "Format Buffer"           ],
         \'tp':  ["XTabTogglePin",                      "Toggle Pin"              ],
         \'trp': ["XTabRelativePaths",                  "Toggle Relative Paths"   ],
         \}

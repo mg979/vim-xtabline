@@ -69,8 +69,10 @@ com! -nargs=1       XTabRenameBuffer    call xtabline#cmds#run("rename_buffer", 
 com! -nargs=1       XTabOpen            call xtabline#cmds#run("new_tab", <q-args>)
 com!                XTabReset           call xtabline#cmds#run("reset_tab")
 com!                XTabRelativePaths   call xtabline#cmds#run("relative_paths")
+com!                XTabFormatBuffer    call xtabline#cmds#run("format_buffer")
 com! -nargs=?       XTabTogglePin       call xtabline#cmds#run("toggle_pin_buffer", <q-args>)
 
+com! -nargs=? -bang -complete=file                       XTabWD               call xtabline#cmds#run("set_cwd", [<bang>0, <q-args>])
 com! -nargs=? -bang -complete=customlist,<sid>icons      XTabIcon            call xtabline#cmds#run("tab_icon", [<bang>0, <q-args>])
 com! -nargs=? -bang -complete=customlist,<sid>icons      XTabBufferIcon      call xtabline#cmds#run("buffer_icon", [<bang>0, <q-args>])
 
@@ -78,7 +80,7 @@ com! -nargs=? -bang -complete=customlist,<sid>icons      XTabBufferIcon      cal
 " Variables
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-let g:xtabline = {'Tabs': [], 'Vars': {}, 'Buffers': {'pinned': []}}
+let g:xtabline = {'Tabs': [], 'Vars': {}, 'Buffers': {}, 'pinned_buffers': []}
 let s:S = get(g:, 'xtabline_settings', {})
 
 let s:S.sessions_path              = get(s:S, 'sessions_path', '$HOME/.vim/session')

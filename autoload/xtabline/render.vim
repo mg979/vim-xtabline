@@ -53,7 +53,7 @@ let s:dirsep            = fnamemodify(getcwd(),':p')[-1:]
 let s:centerbuf         = winbufnr(0)
 let s:scratch           = { nr -> index(['nofile','acwrite'], getbufvar(nr, '&buftype')) >= 0 }
 let s:nowrite           = { nr -> !getbufvar(nr, '&modifiable') }
-let s:pinned            = { -> s:X.Buffers.pinned               }
+let s:pinned            = { -> s:X.pinned_buffers               }
 let s:buffer_has_format = { buf -> has_key(s:B(), buf.nr) && has_key(s:B()[buf.nr], 'format') }
 "}}}
 
@@ -183,7 +183,8 @@ endfun
 " =============================================================================
 
 fun! s:format_buffer(buf)
-  let chars = s:fmt_chars(s:Sets.bufline_format)
+  let fmt = s:buffer_has_format(a:buf)? s:B()[a:buf.nr].format : s:Sets.bufline_format
+  let chars = s:fmt_chars(fmt)
 
   let out = []
   for c in chars
