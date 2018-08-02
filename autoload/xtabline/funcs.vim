@@ -46,19 +46,17 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.set_buffer_var(var, ...)
+fun! s:Funcs.set_buffer_var(var, ...) dict
   """Init buffer variable in Tabs dict to 0 or a given value.
   """Return buffer dict if successful."""
   let B = bufnr('%')
-  if index(s:vB(), B) < 0
-    call s:F.msg ([[ "Invalid buffer.", 'WarningMsg']])
+  if !self.is_tab_buffer(B)
+    call self.msg ([[ "Invalid buffer.", 'WarningMsg']])
     return
   endif
   let bufs = s:B()
-  if has_key(bufs, B)
-    let bufs[B][a:var] = a:0? a:1 : 0
-  else
-    let bufs[B] = {a:var: a:0? a:1 : 0}
+  if has_key(bufs, B) | let bufs[B][a:var] = a:0? a:1 : 0
+  else                | let bufs[B] = {a:var: a:0? a:1 : 0}
   endif
   return bufs[B]
 endfun
@@ -66,20 +64,23 @@ endfun
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:Funcs.update_buffers()
-  let bufs = s:vB()
+  let valid = s:vB()
   let order = s:oB()
-  let invalid = s:T().exclude
 
-  for buf in bufs
-    if index(order, buf) < 0
-      call add(order, buf)
+  let remove = []
+  for buf in order
+    if index(valid, buf) < 0
+      call add(remove, buf)
     endif
   endfor
 
-  for buf in invalid
-    let i = index(order, buf)
-    if i >= 0
-      call remove(order, i)
+  for buf in remove
+    call remove(order, index(order, buf))
+  endfor
+
+  for buf in valid
+    if index(order, buf) < 0
+      call add(order, buf)
     endif
   endfor
 endfun

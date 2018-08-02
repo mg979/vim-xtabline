@@ -29,10 +29,11 @@ function! xtabline#maps#init()
   call s:mapkeys(X.'ss',         '<Plug>(XT-Save-Session)')
   call s:mapkeys(X.'ds',         '<Plug>(XT-Delete-Session)')
   call s:mapkeys(X.'p',          '<Plug>(XT-Purge)')
+  call s:mapkeys(X.'tp',         '<Plug>(XT-Toggle-Pin)')
   call s:mapkeys(X.'C',          '<Plug>(XT-Wipe)')
   call s:mapkeys(X.'c',          '<Plug>(XT-Clean-Up)')
   call s:mapkeys(X.'r',          '<Plug>(XT-Reopen)')
-  call s:mapkeys(X.'f',          '<Plug>(XT-Set-Depth)')
+  call s:mapkeys(X.'sd',         '<Plug>(XT-Set-Depth)')
   call s:mapkeys(X.'tt',         '<Plug>(XT-Tab-Todo)')
   call s:mapkeys(X.'trp',        '<Plug>(XT-Relative-Paths)')
   call s:mapkeys(X.'cdc',        '<Plug>(XT-Cd-Current)')
@@ -58,10 +59,11 @@ function! xtabline#maps#init()
   nnoremap <unique> <silent>        <Plug>(XT-Save-Session)          :<c-u>XTabSaveSession<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Delete-Session)        :<c-u>XTabDeleteSession<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Purge)                 :<c-u>XTabPurge<cr>
+  nnoremap <unique>                 <Plug>(XT-Toggle-Pin)            :<c-u>XTabTogglePin<Space>
   nnoremap <unique> <silent>        <Plug>(XT-Wipe)                  :<c-u>XTabCleanUp<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Clean-Up)              :<c-u>XTabCleanUp!<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Reopen)                :<c-u>XTabReopen<cr>
-  nnoremap <unique> <silent>        <Plug>(XT-Set-Depth)             :<c-u>call xtabline#cmds#run('depth', v:count)<cr>
+  nnoremap <unique> <silent>        <Plug>(XT-Set-Depth)             :<c-u>call xtabline#cmds#run('depth', [0, v:count])<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Tab-Todo)              :<c-u>XTabTodo<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Cd-Current)            :<c-u>call <sid>cd(0)<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Cd-Down)               :<c-u>call <sid>cd(v:count1)<cr>
@@ -84,10 +86,11 @@ function! xtabline#maps#init()
         \'C':   ["XTabCleanUp",                        "Clean Up Tabs"           ],
         \'c':   ["XTabCleanUp!",                       "Clean Up Tabs!"          ],
         \'r':   ["XTabReopen",                         "Reopen Tab"              ],
-        \'f':   ["call xtabline#cmds#run('depth', 0)", "Toggle Tab Filtering"    ],
         \'tt':  ["XTabTodo",                           "Tab Todo"                ],
+        \'tp':  ["XTabTogglePin",                      "Toggle Pin"              ],
         \'trp': ["XTabRelativePaths",                  "Toggle Relative Paths"   ],
         \}
+  let g:xtabline.leader_guide.tf = ["call xtabline#cmds#run('depth', [0, v:count])", "Toggle Filtering"]
 endfunction
 
 fun! s:tab_buffers()

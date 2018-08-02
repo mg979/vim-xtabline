@@ -69,7 +69,7 @@ com! -nargs=1       XTabRenameBuffer    call xtabline#cmds#run("rename_buffer", 
 com! -nargs=1       XTabOpen            call xtabline#cmds#run("new_tab", <q-args>)
 com!                XTabReset           call xtabline#cmds#run("reset_tab")
 com!                XTabRelativePaths   call xtabline#cmds#run("relative_paths")
-com!                XTabPinBuffer       call xtabline#cmds#run("pin_buffer")
+com! -nargs=?       XTabTogglePin       call xtabline#cmds#run("toggle_pin_buffer", <q-args>)
 
 com! -nargs=1 -complete=customlist,<sid>icons      XTabIcon            call xtabline#cmds#run("tab_icon", <q-args>)
 com! -nargs=1 -complete=customlist,<sid>icons      XTabBufferIcon      call xtabline#cmds#run("buffer_icon", <q-args>)

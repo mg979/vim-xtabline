@@ -53,9 +53,11 @@ endfun
 
 fun! s:depth(args)
   """Set tab filtering depth, toggle filtering with bang."""
-  let [bang, cnt] = a:args
-  let cnt = (bang && s:T().depth == -1)? 0 : (bang? -1 : cnt)
-  let s:T().depth = cnt
+  let [bang, cnt] = a:args | let T = s:T()
+  let cnt = (bang && T.depth == -1)? 0 :
+          \ bang? -1 :
+          \ !cnt && !T.depth? -1 : cnt
+  let T.depth = cnt
   call xtabline#filter_buffers()
 
   let n = cnt < 2? 0 : cnt-1
@@ -276,9 +278,22 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:pin_buffer()
-  """Pin this buffer, so that it will be shown in all tabs."""
+fun! s:toggle_pin_buffer(...)
+  """Pin this buffer, so that it will be shown in all tabs. Optionally rename."""
+  if a:0 && match(a:1, "\S") >= 0
+    if empty(s:F.set_buffer_var('name', a:1)) | return | endif
+  elseif !s:F.is_tab_buffer(bufnr('%'))
+    call s:F.msg ([[ "Invalid buffer.", 'WarningMsg']]) | return
+  endif
 
+  let B = bufnr('%')
+  let i = index(s:X.pinned_buffers, B)
+  if i >= 0
+    call remove(s:X.pinned_buffers, i)
+  else
+    call add(s:X.pinned_buffers, B)
+  endif
+  call xtabline#filter_buffers()
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

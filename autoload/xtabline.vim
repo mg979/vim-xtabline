@@ -168,6 +168,7 @@ endfun
 fun! xtabline#init()
   let s:X.Funcs = xtabline#funcs#init()
   let s:F = s:X.Funcs
+  let s:X.pinned_buffers = []
 
   if !exists('g:xtabline_disable_keybindings')
     call xtabline#maps#init()
@@ -179,7 +180,9 @@ endfun
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! xtabline#update_obsession()
-  let string = 'let g:xtabline.Tabs = '.string(s:X.Tabs).' | call xtabline#update_obsession()'
+  let string = 'let g:xtabline.Tabs = '.string(s:X.Tabs).
+              \' | let g:xtabline.pinned_buffers = '.string(s:X.pinned_buffers).
+              \' | call xtabline#update_obsession()'
   if !exists('g:obsession_append')
     let g:obsession_append = [string]
   else

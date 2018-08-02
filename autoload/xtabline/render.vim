@@ -14,12 +14,13 @@ let s:indicators = {
       \ 'modified': '[+]',
       \ 'readonly': '[🔒]',
       \ 'scratch': '[!]',
+      \ 'pinned': '[📌]',
       \}
 
 let s:Sets.bufline_numbers           = get(s:Sets, 'bufline_numbers',    1)
 let s:Sets.bufline_indicators        = get(s:Sets, 'bufline_indicators', s:indicators)
 let s:Sets.bufline_separators        = get(s:Sets, 'bufline_separators', '') "old: nr2char(0x23B8)
-let s:Sets.bufline_format            = get(s:Sets, 'bufline_format',  ' n - f +')
+let s:Sets.bufline_format            = get(s:Sets, 'bufline_format',  ' n - l +')
 let s:Sets.devicon_for_all_filetypes = get(s:Sets, 'devicon_for_all_filetypes', 0)
 let s:Sets.devicon_for_filetypes     = get(s:Sets, 'devicon_for_filetypes', [])
 
@@ -59,7 +60,6 @@ let s:nowrite         = { nr -> !getbufvar(nr, '&modifiable') }
 
 fun! xtabline#render#buffers()
   let show_num = s:Sets.bufline_numbers
-  let mods = s:Sets.bufline_indicators
 
   let centerbuf = s:centerbuf " prevent tabline jumping around when non-user buffer current (e.g. help)
 
@@ -69,8 +69,16 @@ fun! xtabline#render#buffers()
   let tabs_per_tail = {}
   let currentbuf = winbufnr(0)
 
+  "include pinned buffers and put them upfront
+  let bufs = s:oB()
+  for b in s:X.pinned_buffers
+    let i = index(bufs, b)
+    if i >= 0 | call remove(bufs, i) | endif
+    call insert(bufs, b, 0)
+  endfor
+
   " make buftab string
-  for bnr in s:oB()
+  for bnr in bufs
     let n = index(s:oB(), bnr) + 1       "tab buffer index
 
     let tab = { 'nr': bnr,
@@ -195,16 +203,17 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:buf_indicator(buf)
+fun! s:buf_indicator(bnr)
   let mods = s:Sets.bufline_indicators
-  if getbufvar(a:buf, '&mod')
-    return mods.modified
-  elseif s:scratch(a:buf)
-    return mods.scratch
-  elseif !getbufvar(a:buf, '&ma')
-    return mods.readonly
+  let mod = index(s:X.pinned_buffers, a:bnr) >= 0 ? mods.pinned : ''
+  if getbufvar(a:bnr, '&mod')
+    return (mod . mods.modified)
+  elseif s:scratch(a:bnr)
+    return (mod . mods.scratch)
+  elseif !getbufvar(a:bnr, '&ma')
+    return (mod . mods.readonly)
   else
-    return ''
+    return mod
   endif
 endfun
 
