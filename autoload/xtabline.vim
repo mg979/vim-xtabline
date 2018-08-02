@@ -18,6 +18,7 @@ let s:vB = { -> s:T().buffers.valid     }       "valid buffers for tab
 let s:oB = { -> s:T().buffers.order     }       "ordered buffers for tab
 
 let s:most_recent = -1
+let s:new_tab_created = 0
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Init functions
@@ -224,6 +225,24 @@ function! s:Do(action)
 
     let tab = !empty(V.tab_properties)? V.tab_properties : {'cwd': '~'}
     call insert(X.Tabs, xtabline#new_tab(tab), N)
+    let s:new_tab_created = 1
+
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+  elseif a:action == 'bufenter'
+    if s:new_tab_created
+      let T = X.Tabs[N]
+      let s:new_tab_created = 0
+
+      " empty tab sets cwd to ~, non-empty tab looks for a .git dir
+      if empty(bufname("%"))
+        let T.cwd = '~'
+      elseif T.cwd == '~' || expand("%:p") !~ expand(T.cwd.F.sep(), ":p")
+        let T.cwd = s:F.find_suitable_cwd()
+      endif
+      cd `=T.cwd`
+      call xtabline#filter_buffers()
+    endif
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
@@ -270,7 +289,7 @@ augroup plugin-xtabline
   autocmd TabEnter  * call s:Do('enter')
   autocmd TabLeave  * call s:Do('leave')
   autocmd TabClosed * call s:Do('close')
-  autocmd BufEnter  * let g:xtabline.Vars.changing_buffer = 0
+  autocmd BufEnter  * call s:Do('bufenter')
 
   autocmd BufAdd,BufDelete,BufWrite,BufEnter  * call timer_start(200, 'xtabline#filter_buffers')
   autocmd QuitPre  * call xtabline#update_obsession()

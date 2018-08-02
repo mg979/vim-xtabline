@@ -193,6 +193,21 @@ fun! s:Funcs.bdelete(buf) dict
   endif
 endfun
 
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:Funcs.find_suitable_cwd() dict
+  """Look for a VCS dir below current directory."""
+  let l:Found = { d -> isdirectory(d.'.git') } | let s = self.sep()
+
+  let h = "%:p:h"
+  for i in range(3)
+    let dir = expand(h)
+    if l:Found(dir.s) | return dir.s | endif
+    let h .= ":h"
+  endfor
+  return expand("%:p:h")
+endfun
+
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 function! s:Funcs.not_enough_buffers() dict
