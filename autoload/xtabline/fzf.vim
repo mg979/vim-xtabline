@@ -97,6 +97,7 @@ endfun
 fun! xtabline#fzf#tab_load(...)
   """Load a tab bookmark."""
   let json = json_decode(readfile(s:Sets.bookmaks_file)[0])
+  let s:V.halt = 1
 
   for bm in a:000
     let tbook = json[substitute(bm, '\(\w*\)\s*\t.*', '\1', '')]
@@ -111,6 +112,7 @@ fun! xtabline#fzf#tab_load(...)
     "tab properties defined here will be applied by new_tab(), run by autocommand
     let s:V.tab_properties = s:F.tab_template({'cwd': cwd})
     for prop in keys(tbook)
+      if prop ==? 'buffers' || prop ==? 'description' | continue | endif
       let s:V.tab_properties[prop] = tbook[prop]
     endfor
 
@@ -126,8 +128,9 @@ fun! xtabline#fzf#tab_load(...)
     " purge the empty buffer that was created
     execute "bdelete ".newbuf
   endfor
+  let s:V.halt = 0
   call xtabline#filter_buffers()
-  doautocmd BufAdd
+  " doautocmd BufAdd
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

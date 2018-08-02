@@ -81,7 +81,7 @@ com! -nargs=? -bang -complete=customlist,<sid>icons      XTabBufferIcon      cal
 " Variables
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-let g:xtabline = {'Tabs': [], 'Vars': {}, 'Buffers': {}, 'pinned_buffers': []}
+let g:xtabline = {'Tabs': [], 'Vars': {}, 'Buffers': {}, 'pinned_buffers': [], 'closed_tabs': [], 'closed_cwds': []}
 let s:S = get(g:, 'xtabline_settings', {})
 
 let s:S.sessions_path              = get(s:S, 'sessions_path', '$HOME/.vim/session')

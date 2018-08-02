@@ -9,6 +9,7 @@ let s:V.filtering = 1
 let s:V.show_tab_icons = 1
 let s:V.showing_tabs = 0
 let s:V.buftail = 0
+let s:V.halt = 0
 let s:Sets = g:xtabline_settings
 
 let s:T =  { -> s:X.Tabs[tabpagenr()-1] }       "current tab
@@ -105,7 +106,7 @@ fun! xtabline#filter_buffers(...)
   " 'accepted' is a list of buffer numbers, for quick access.
   " 'excludes' is a list of paths, it will be used by Airline to hide buffers."""
 
-  if empty(g:xtabline) || exists('g:SessionLoad') | return
+  if empty(g:xtabline) || exists('g:SessionLoad') || s:V.halt | return
   elseif s:V.showing_tabs | set tabline=%!xtabline#render#tabs()
     return
   endif
@@ -221,9 +222,8 @@ function! s:Do(action)
 
   if a:action == 'new'
 
-    call insert(X.Tabs, xtabline#new_tab({'cwd': '~'}), N)
-    call F.check_tabs()
-    call xtabline#filter_buffers()
+    let tab = !empty(V.tab_properties)? V.tab_properties : {'cwd': '~'}
+    call insert(X.Tabs, xtabline#new_tab(tab), N)
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
@@ -250,15 +250,16 @@ function! s:Do(action)
 
     let V.last_tab = N
     let X.Tabs[N].cwd = getcwd()
-    call xtabline#update_obsession()
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
   elseif a:action == 'close'
 
-    let V.most_recently_closed_tab = copy(X.Tabs[V.last_tab])
+    if index(X.closed_cwds, X.Tabs[V.last_tab].cwd) < 0
+      call add(X.closed_tabs, copy(X.Tabs[V.last_tab]))
+      call add(X.closed_cwds, X.Tabs[V.last_tab].cwd)
+    endif
     call remove(X.Tabs, V.last_tab)
-    call xtabline#update_obsession()
   endif
 endfunction
 

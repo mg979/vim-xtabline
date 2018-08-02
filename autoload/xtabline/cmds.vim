@@ -153,13 +153,26 @@ endfun
 fun! s:reopen_last_tab()
   """Reopen the last closed tab."""
 
-  if !exists('g:xtabline.Vars.most_recently_closed_tab')
+  if empty(s:X.closed_tabs)
     call s:F.msg("No recent tabs.", 1) | return | endif
 
-  tabnew
+  let s:V.tab_properties = remove(s:X.closed_tabs, -1)
+  "check if the cwd must be removed from the blacklist closed_cwds
+  let other_with_same_cwd = 0
+  let cwd = s:V.tab_properties.cwd
+
+  for t in s:X.Tabs
+    if t.cwd == s:V.tab_properties.cwd
+      let other_with_same_cwd = 1 | break | endif | endfor
+
+  if !other_with_same_cwd
+    call remove(s:X.closed_cwds, index(s:X.closed_cwds, cwd))
+  endif
+
+
+  $tabnew
   let empty = bufnr("%")
-  let tab = xtabline#new_tab(s:V.most_recently_closed_tab)
-  cd `=tab.cwd`
+  cd `=cwd`
   call xtabline#filter_buffers()
   execute "b ".s:oB()[0]
   execute "bdelete ".empty

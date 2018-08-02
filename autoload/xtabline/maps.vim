@@ -49,7 +49,7 @@ function! xtabline#maps#init()
 
   nnoremap <unique> <silent>        <Plug>(XT-Toggle-Tabs)           :<c-u>call xtabline#cmds#run('toggle_tabs')<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Toggle-Filtering)      :<c-u>call xtabline#cmds#run('toggle_buffers')<cr>
-  nnoremap <unique> <silent> <expr> <Plug>(XT-Select-Buffer)         v:count? ":\<C-U>silent! exe 'b'.\<sid>tab_buffers()[v:count-1]\<cr>" : ":\<C-U>".S.alt_action."\<cr>"
+  nnoremap <unique> <silent> <expr> <Plug>(XT-Select-Buffer)         v:count? ":\<C-U>silent! exe 'b'.\<sid>tab_buffers()[v:count-1]\<cr>" : ":\<C-U>".g:xtabline_settings.alt_action."\<cr>"
   nnoremap <unique> <silent> <expr> <Plug>(XT-Next-Buffer)           xtabline#next_buffer(v:count1)
   nnoremap <unique> <silent> <expr> <Plug>(XT-Prev-Buffer)           xtabline#prev_buffer(v:count1)
   nnoremap <unique> <silent>        <Plug>(XT-Close-Buffer)          :<c-u>XTabCloseBuffer<cr>
