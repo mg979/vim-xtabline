@@ -118,7 +118,7 @@ fun! xtabline#filter_buffers(...)
   let depth           = T.depth
   let cwd             = getcwd()
   let _pre            = s:Sets.exact_paths? '^' : ''
-  let post_           = s:Sets.exact_paths? s:F.sep() : ''
+  let post_           = s:F.sep()
 
   for buf in range(1, bufnr("$"))
 

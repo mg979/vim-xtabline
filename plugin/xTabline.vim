@@ -108,6 +108,14 @@ let s:S.custom_icons               = extend({
                                     \'book': '📖',
                                     \'lock': '🔒',
                                     \'hammer': '🔨',
+                                    \'tick': '✔',
+                                    \'cross': '✖',
+                                    \'warning': '⚠',
+                                    \'menu': '☰',
+                                    \'apple': '🍎',
+                                    \'linux': '🐧',
+                                    \'windows': '⌘',
+                                    \'git': '',
                                     \}, get(s:S, 'custom_icons', {}))
 
                                     " \'folder_open': '📂',

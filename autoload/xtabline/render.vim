@@ -19,10 +19,10 @@ let s:indicators = {
       \}
 
 let s:Sets.bufline_numbers           = get(s:Sets, 'bufline_numbers',    1)
-let s:Sets.bufline_indicators        = get(s:Sets, 'bufline_indicators', s:indicators)
+let s:Sets.bufline_indicators        = extend(get(s:Sets, 'bufline_indicators', {}),  s:indicators)
 let s:Sets.bufline_sep_or_icon       = get(s:Sets, 'bufline_sep_or_icon', 0)
-let s:Sets.bufline_separators        = get(s:Sets, 'bufline_separators', '') "old: nr2char(0x23B8)
-let s:Sets.bufline_format            = get(s:Sets, 'bufline_format',  ' n I- l +')
+let s:Sets.bufline_separators        = get(s:Sets, 'bufline_separators_cur', ['', '']) "old: nr2char(0x23B8)
+let s:Sets.bufline_format            = get(s:Sets, 'bufline_format',  ' n I< l +')
 let s:Sets.devicon_for_all_filetypes = get(s:Sets, 'devicon_for_all_filetypes', 0)
 let s:Sets.devicon_for_extensions    = get(s:Sets, 'devicon_for_extensions', ['md', 'txt'])
 
@@ -57,6 +57,7 @@ let s:scratch           = { nr -> index(['nofile','acwrite'], getbufvar(nr, '&bu
 let s:nowrite           = { nr -> !getbufvar(nr, '&modifiable') }
 let s:pinned            = { -> s:X.pinned_buffers               }
 let s:buffer_has_format = { buf -> has_key(s:B(), buf.nr) && has_key(s:B()[buf.nr], 'format') }
+let s:has_buf_icon      = { nr -> has_key(s:B(), string(nr)) && !empty(get(s:B()[nr], 'icon', '')) }
 "}}}
 
 " Main function {{{
@@ -90,7 +91,7 @@ fun! xtabline#render#buffers()
               \ 'tried_devicon': 0,
               \ 'tried_icon': 0,
               \ 'has_icon': 0,
-              \ 'separator': s:Sets.bufline_separators,
+              \ 'separators': s:Sets.bufline_separators,
               \ 'path': bufname(bnr),
               \ 'indicator': s:buf_indicator(bnr),
               \ 'hilite' : currentbuf == bnr ? 'Current' : bufwinnr(bnr) > 0 ? 'Active' : 'Hidden'
@@ -200,7 +201,8 @@ fun! s:format_buffer(buf)
     elseif C ==# 'f' | let C = a:buf.path
     elseif C ==# 'i' | let C = s:get_dev_icon(a:buf)
     elseif C ==# 'I' | let C = s:get_buf_icon(a:buf)
-    elseif C ==# '-' | let C = s:needs_separator(a:buf)? a:buf.separator : ''
+    elseif C ==# '<' | let C = s:needs_separator(a:buf)? a:buf.separators[0] : ''
+    elseif C ==# '>' | let C = a:buf.separators[1]
     endif
     call add(out, C)
   endfor
@@ -210,14 +212,20 @@ endfun
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:buf_indicator(bnr)
-  let mods = s:Sets.bufline_indicators
-  let mod = index(s:pinned(), a:bnr) >= 0 ? mods.pinned : ''
-  if getbufvar(a:bnr, '&mod')
+  let mods = s:Sets.bufline_indicators | let nr = a:bnr
+  let mod = index(s:pinned(), nr) >= 0 ? mods.pinned : ''
+  if getbufvar(nr, '&mod')
     return (mod . mods.modified)
-  elseif s:scratch(a:bnr)
+  elseif s:scratch(nr)
     return (mod . mods.scratch)
-  elseif !getbufvar(a:bnr, '&ma')
-    return (mod . mods.readonly)
+  elseif !getbufvar(nr, '&ma')
+    if match(bufname(nr), "fugitive") == 0      "fugitive buffer, set name and icon
+      let bufs = s:B()
+      let bufs[nr] = { 'name': 'fugitive', 'icon': s:Sets.bufline_indicators.git, 'path': '' }
+      return ''
+    else
+      return (mod . mods.readonly)
+    endif
   else
     return mod
   endif
@@ -254,12 +262,10 @@ endfun
 fun! s:get_buf_icon(buf)
   """Return preferably custom icon for buffer, or devicon if present."""
   let a:buf.tried_icon = 1
-  let bufs = s:B()
   let nr = a:buf.nr
-  let has_icon = has_key(bufs, string(nr)) && !empty(get(bufs[nr], 'icon', ''))
-  if has_icon
+  if s:has_buf_icon(nr)
     let a:buf.has_icon = 1
-    return bufs[nr].icon.' '
+    return s:B()[nr].icon.' '
   else
     return a:buf.tried_devicon? '' : s:get_dev_icon(a:buf)
   endif
