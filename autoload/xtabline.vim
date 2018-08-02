@@ -29,6 +29,13 @@ fun! xtabline#init()
     call xtabline#maps#init()
   endif
 
+  if exists('g:loaded_webdevicons')
+    let extensions = g:WebDevIconsUnicodeDecorateFileNodesExtensionSymbols
+    let exact = g:WebDevIconsUnicodeDecorateFileNodesExactSymbols
+    let patterns = g:WebDevIconsUnicodeDecorateFileNodesPatternSymbols
+    let s:X.devicons = {'extensions': extensions, 'exact': exact, 'patterns': patterns}
+  endif
+
   call s:F.check_tabs()
 endfun
 
@@ -38,7 +45,7 @@ fun! xtabline#update_obsession()
   let string = 'let g:xtabline.Tabs = '.string(s:X.Tabs).
         \' | let g:xtabline.Buffers = '.string(s:X.Buffers).
         \' | let g:xtabline.pinned_buffers = '.string(s:X.pinned_buffers).
-        \' | call xtabline#update_obsession()'
+        \' | call xtabline#filter_buffers()'
   if !exists('g:obsession_append')
     let g:obsession_append = [string]
   else
@@ -144,7 +151,7 @@ fun! xtabline#next_buffer(nr)
   """Switch to next visible buffer."""
 
   if ( s:F.not_enough_buffers() || !s:V.filtering ) | return | endif
-  let accepted = s:vB()
+  let accepted = s:oB()
 
   let ix = index(accepted, bufnr("%"))
   let target = ix + a:nr
@@ -172,7 +179,7 @@ fun! xtabline#prev_buffer(nr)
   """Switch to previous visible buffer."""
 
   if ( s:F.not_enough_buffers() || !s:V.filtering ) | return | endif
-  let accepted = s:vB()
+  let accepted = s:oB()
 
   let ix = index(accepted, bufnr("%"))
   let target = ix - a:nr

@@ -156,13 +156,12 @@ fun! s:reopen_last_tab()
   if !exists('g:xtabline.Vars.most_recently_closed_tab')
     call s:F.msg("No recent tabs.", 1) | return | endif
 
-  let s:V.tab_properties = s:V.most_recently_closed_tab
-  let tab = s:F.new_tab()
   tabnew
   let empty = bufnr("%")
+  let tab = xtabline#new_tab(s:V.most_recently_closed_tab)
   cd `=tab.cwd`
-  for buf in tab['buffers'].valid | execute "badd ".buf | endfor
-  execute "edit ".tab['buffers'].valid[0]
+  call xtabline#filter_buffers()
+  execute "b ".s:oB()[0]
   execute "bdelete ".empty
 endfun
 

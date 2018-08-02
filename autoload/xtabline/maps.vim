@@ -36,6 +36,8 @@ function! xtabline#maps#init()
   call s:mapkeys(X.'rt',         '<Plug>(XT-Reopen)')
   call s:mapkeys(X.'sd',         '<Plug>(XT-Set-Depth)')
   call s:mapkeys(X.'tt',         '<Plug>(XT-Tab-Todo)')
+  call s:mapkeys(X.'sti',        '<Plug>(XT-Set-Tab-Icon)')
+  call s:mapkeys(X.'sbi',        '<Plug>(XT-Set-Buffer-Icon)')
   call s:mapkeys(X.'trp',        '<Plug>(XT-Relative-Paths)')
   call s:mapkeys(X.'cdc',        '<Plug>(XT-Cd-Current)')
   call s:mapkeys(X.'cdd',        '<Plug>(XT-Cd-Down)')
@@ -67,6 +69,8 @@ function! xtabline#maps#init()
   nnoremap <unique> <silent>        <Plug>(XT-Working-Directory)     :<c-u>XTabWD!<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Set-Depth)             :<c-u>call xtabline#cmds#run('depth', [0, v:count])<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Tab-Todo)              :<c-u>XTabTodo<cr>
+  nnoremap <unique>                 <Plug>(XT-Set-Tab-Icon)          :<c-u>XTabIcon<Space>
+  nnoremap <unique>                 <Plug>(XT-Set-Buffer-Icon)       :<c-u>XTabBufferIcon<Space>
   nnoremap <unique> <silent>        <Plug>(XT-Cd-Current)            :<c-u>call <sid>cd(0)<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Cd-Down)               :<c-u>call <sid>cd(v:count1)<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Reset)                 :<c-u>XTabReset<cr>

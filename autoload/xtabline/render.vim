@@ -19,10 +19,11 @@ let s:indicators = {
 
 let s:Sets.bufline_numbers           = get(s:Sets, 'bufline_numbers',    1)
 let s:Sets.bufline_indicators        = get(s:Sets, 'bufline_indicators', s:indicators)
+let s:Sets.bufline_sep_or_icon       = get(s:Sets, 'bufline_sep_or_icon', 0)
 let s:Sets.bufline_separators        = get(s:Sets, 'bufline_separators', '') "old: nr2char(0x23B8)
-let s:Sets.bufline_format            = get(s:Sets, 'bufline_format',  ' n i- l +')
+let s:Sets.bufline_format            = get(s:Sets, 'bufline_format',  ' n I- l +')
 let s:Sets.devicon_for_all_filetypes = get(s:Sets, 'devicon_for_all_filetypes', 0)
-let s:Sets.devicon_for_filetypes     = get(s:Sets, 'devicon_for_filetypes', [])
+let s:Sets.devicon_for_extensions    = get(s:Sets, 'devicon_for_extensions', ['md', 'txt'])
 
 let s:Sets.tab_format                = get(s:Sets, "tab_format", " U - 2+ ")
 let s:Sets.renamed_tab_format        = get(s:Sets, "renamed_tab_format", " U - l+ ")
@@ -85,8 +86,9 @@ fun! xtabline#render#buffers()
 
     let tab = { 'nr': bnr,
               \ 'n': n,
-              \ 'got_devicon': 0,
-              \ 'got_icon': 0,
+              \ 'tried_devicon': 0,
+              \ 'tried_icon': 0,
+              \ 'has_icon': 0,
               \ 'separator': s:Sets.bufline_separators,
               \ 'path': bufname(bnr),
               \ 'indicator': s:buf_indicator(bnr),
@@ -193,11 +195,11 @@ fun! s:format_buffer(buf)
     if     C ==# 'l' | let C = s:get_buf_name(a:buf)
     elseif C ==# 'n' | let C = s:unicode_nrs(a:buf.n)
     elseif C ==# 'N' | let C = a:buf.n
-    elseif C ==# '-' | let C = a:buf.separator
     elseif C ==# '+' | let C = a:buf.indicator
     elseif C ==# 'f' | let C = a:buf.path
     elseif C ==# 'i' | let C = s:get_dev_icon(a:buf)
     elseif C ==# 'I' | let C = s:get_buf_icon(a:buf)
+    elseif C ==# '-' | let C = s:needs_separator(a:buf)? a:buf.separator : ''
     endif
     call add(out, C)
   endfor
@@ -235,14 +237,14 @@ endfun
 
 fun! s:get_dev_icon(buf)
   """Return preferably devicon for buffer, or custom icon if present."""
-  let a:buf.got_devicon = 1
-  let bnr = a:buf.nr
+  let a:buf.tried_devicon = 1
   if g:loaded_webdevicons &&
         \ (s:Sets.devicon_for_all_filetypes ||
-        \ index(s:Sets.devicon_for_filetypes, getbufvar(bnr, '&ft', '')) >= 0)
+        \ index(s:Sets.devicon_for_extensions, expand("#".a:buf.nr.":e")) >= 0)
+    let a:buf.has_icon = 1
     return WebDevIconsGetFileTypeSymbol(bufname(a:buf.path)).' '
   else
-    return a:buf.got_icon? '' : s:get_buf_icon(a:buf)
+    return a:buf.tried_icon? '' : s:get_buf_icon(a:buf)
   endif
 endfun
 
@@ -250,16 +252,24 @@ endfun
 
 fun! s:get_buf_icon(buf)
   """Return preferably custom icon for buffer, or devicon if present."""
-  let a:buf.got_icon = 1
+  let a:buf.tried_icon = 1
   let bufs = s:B()
   let nr = a:buf.nr
-  if has_key(bufs, string(nr))
-    let icon = get(bufs[nr], 'icon', '')
-    return !empty(icon)? icon.' ' :
-         \ a:buf.got_devicon? '' : s:get_dev_icon(a:buf)
+  let has_icon = has_key(bufs, string(nr)) && !empty(get(bufs[nr], 'icon', ''))
+  if has_icon
+    let a:buf.has_icon = 1
+    return bufs[nr].icon.' '
   else
-    return a:buf.got_devicon? '' : s:get_dev_icon(a:buf)
+    return a:buf.tried_devicon? '' : s:get_dev_icon(a:buf)
   endif
+endfun
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:needs_separator(buf)
+  """Verify if a separator must be inserted."""
+  let either_or = s:Sets.bufline_sep_or_icon
+  return (either_or && !a:buf.has_icon) || !either_or
 endfun
 
 "}}}}}}
