@@ -12,6 +12,7 @@ let s:V.show_tab_icons = 1                      "tabline shows custom names/icon
 let s:V.showing_tabs   = 0                      "tabline or bufline?
 let s:V.buftail        = s:Sets.relative_paths  "whether the bufline is showing basenames only
 let s:V.halt           = 0                      "used to temporarily halt some functions
+let s:V.auto_set_cwd   = 0                      "used to temporarily allow auto cwd detection
 
 let s:T  = { -> s:X.Tabs[tabpagenr()-1] }       "current tab
 let s:B  = { -> s:X.Buffers             }       "customized buffers
@@ -230,14 +231,14 @@ function! s:Do(action)
 
     let tab = !empty(V.tab_properties)? V.tab_properties : {'cwd': '~'}
     call insert(X.Tabs, xtabline#new_tab(tab), N)
-    if s:Sets.auto_set_cwd && s:ready()
+    if V.auto_set_cwd && s:ready()
       let s:new_tab_created = 1
     endif
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
   elseif a:action == 'bufenter'
-    if s:Sets.auto_set_cwd && s:ready() && s:new_tab_created
+    if V.auto_set_cwd && s:ready() && s:new_tab_created
       let s:new_tab_created = 0 | let T = X.Tabs[N]
 
       " empty tab sets cwd to ~, non-empty tab looks for a .git dir

@@ -24,13 +24,13 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.delay(time, func)
+fun! s:Funcs.delay(time, func) dict
   """Call a function with a timer."""
   let s:delayed_func = a:func
   call timer_start(a:time, self._delay)
 endfun
 
-fun! s:Funcs._delay(timer)
+fun! s:Funcs._delay(timer) dict
   exe "call" s:delayed_func
 endfun
 
@@ -76,7 +76,7 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.update_buffers()
+fun! s:Funcs.update_buffers() dict
   let valid = s:vB()
   let order = s:oB()
 
@@ -153,13 +153,21 @@ endfun
 fun! s:Funcs.check_index() dict
   """Ensure the current tab has the right index in the global dict."""
   let N = tabpagenr() - 1
-  if s:Tabs[N].index != N
-    call insert(s:Tabs, remove(s:Tabs, s:Tabs[N].index), N)
-    let i = 0
-    for t in s:Tabs
-      let t.index = i
-      let i += 1
-    endfor
+  let T = s:X.Tabs
+  if T[N].index != N
+    let t1 = copy(T[N])
+    let t2 = copy(T[t1.index])
+    unlet T[t1.index]
+    unlet T[t2.index]
+    if t1.index > t2.index
+      call insert(T, t2, t2.index)
+      call insert(T, t1, t1.index)
+    else
+      call insert(T, t1, t1.index)
+      call insert(T, t2, t2.index)
+    endif
+    let T[N].index = N
+    call xtabline#filter_buffers()
   endif
 endfun
 
@@ -179,7 +187,7 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.all_valid_buffers()
+fun! s:Funcs.all_valid_buffers() dict
     """Return all valid buffers for all tabs."""
   let valid = []
   for i in range(tabpagenr('$')) | call extend(valid, s:X.Tabs[i].buffers.valid) | endfor
@@ -188,7 +196,7 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.all_open_buffers()
+fun! s:Funcs.all_open_buffers() dict
     """Return all open buffers for all tabs."""
   let open = []
   for i in range(tabpagenr('$')) | call extend(open, tabpagebuflist(i + 1)) | endfor

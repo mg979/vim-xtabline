@@ -12,11 +12,22 @@ let s:vB   =  { -> s:T().buffers.valid     }       "valid buffers for tab
 let s:oB   =  { -> s:T().buffers.order     }       "ordered buffers for tab
 
 let s:scratch =  { nr -> index(['nofile','acwrite','help'], getbufvar(nr, '&buftype')) >= 0 }
+let s:pinned  =  { b  -> index(s:X.pinned_buffers, b) }
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! xtabline#cmds#run(cmd, ...)
-  let args = !a:0? '' : a:0==1? string(a:1) : string(a:000)
+  if a:0 == 1
+    let args = string(a:1)
+  elseif a:0
+    let args = []
+    for arg in a:000
+      call add(args, arg)
+    endfor
+    let args = string(args)
+  else
+    let args = ''
+  endif
   exe "call s:".a:cmd."(".args.")"
 endfun
 
@@ -301,14 +312,12 @@ endfun
 
 fun! s:toggle_pin_buffer(...)
   """Pin this buffer, so that it will be shown in all tabs. Optionally rename."""
+  let B = bufnr('%') | let i = s:pinned(B)
+
   if a:0 && match(a:1, "\S") >= 0
     if empty(s:F.set_buffer_var('name', a:1)) | return | endif
-  elseif !s:F.is_tab_buffer(bufnr('%'))
-    call s:F.msg ([[ "Invalid buffer.", 'WarningMsg']]) | return
-  endif
+  elseif i < 0 && s:invalid_buffer(B)         | return | endif
 
-  let B = bufnr('%')
-  let i = index(s:X.pinned_buffers, B)
   if i >= 0
     call remove(s:X.pinned_buffers, i)
   else
@@ -321,11 +330,53 @@ endfun
 
 fun! s:new_tab(...)
   """Open a new tab with optional name. CWD is $HOME.
-  $tabnew
-  let s:V.tab_properties = {'name': a:0? a:1 : '', 'cwd': expand("~")}
-  call add(s:X.Tabs, s:F.new_tab())
+  "args : 0 or 1 (tab name)
+
+  let s:V.auto_set_cwd = 1
+  let args = a:000[0]
+  let n = args[0]? args[0] : ''
+  if n > tabpagenr("$") | let n = tabpagenr("$") | endif
+
+  if len(args) == 1
+    let s:V.tab_properties = {'cwd': expand("~")}
+  else
+    let s:V.tab_properties = {'name': args[1], 'cwd': expand("~")}
+  endif
+  exe n . "tabnew"
   call xtabline#filter_buffers()
+  let s:V.auto_set_cwd = 0
 endfun
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:edit_tab(...)
+  """Open a new tab with optional path and name.
+  "args: 0, 1 (path) or 2 (path and name)
+
+  let s:V.auto_set_cwd = 1
+  let args = a:000[0]
+  let n = args[0]? args[0] : ''
+  if n > tabpagenr("$") | let n = tabpagenr("$") | endif
+  let args = split(args[1])
+  let file = ''
+
+  if empty(args)
+    let s:V.tab_properties = {'cwd': expand("~")}
+  elseif len(args) == 1
+    let file = args[0]
+  else
+    let file = args[0]
+    let s:V.tab_properties = {'name': args[1]}
+  endif
+  if !empty(file)
+    exe n . "tabedit" file
+  else
+    exe n . "tabnew"
+  endif
+  call xtabline#filter_buffers()
+  let s:V.auto_set_cwd = 0
+endfun
+
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
@@ -335,8 +386,7 @@ fun! s:format_buffer()
     set ch=2
 
     let n = bufnr("%")
-    if !s:F.is_tab_buffer(n)
-      call s:F.msg ([[ "Invalid buffer.", 'WarningMsg']]) | return | endif
+    if s:invalid_buffer(n) | return | endif
 
     let has_format = has_key(s:B(), n) && has_key(s:B()[n], 'format')
     let current = has_format? s:B()[n].format : s:Sets.bufline_format
@@ -361,11 +411,13 @@ fun! s:set_cwd(...)
   if !bang && empty(cwd)
     call s:F.msg ([[ "Canceled.", 'WarningMsg' ]]) | return
   elseif bang
-    let home = expand("~", ":p") | echohl Label
-    let cwd = input("Enter a new working directory: ", home, "file") | echohl None
+    let base = s:F.find_suitable_cwd() | echohl Label
+    let cwd = input("Enter a new working directory: ", base, "file") | echohl None
   endif
 
-  if !isdirectory(cwd)
+  if empty(cwd)
+    call s:F.msg ([[ "Canceled.", 'WarningMsg' ]])
+  elseif !isdirectory(cwd)
     call s:F.msg ([[ "Wrong directory.", 'WarningMsg' ]])
   else
     cd `=cwd`
@@ -379,8 +431,19 @@ endfun
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:reset_tab(...)
-  "Reset the tab to a pristine state.
-  let s:X.Tabs[tabpagenr()-1] = xtabline#new_tab({'cwd': a:0? expand(a:1) : expand("~")})
+  """Reset the tab to a pristine state.
+  let cwd = a:0? fnamemodify(expand(a:1), :p) : s:F.find_suitable_cwd()
+  let s:X.Tabs[tabpagenr()-1] = xtabline#new_tab({'cwd': cwd})
+  cd `=cwd`
+  call xtabline#filter_buffers()
+endfun
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:reset_buffer(...)
+  """Reset the buffer to a pristine state.
+  let B = s:B() | let n = bufnr("%")
+  if has_key(B, n) | unlet B[n] | endif
   call xtabline#filter_buffers()
 endfun
 
@@ -416,4 +479,14 @@ fun! s:plugins_toggle_buffers()
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Helpers
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:invalid_buffer(b)
+    if !s:F.is_tab_buffer(a:b)
+      call s:F.msg ([[ "Invalid buffer.", 'WarningMsg']]) | return 1
+    endif
+endfun
+
+
 

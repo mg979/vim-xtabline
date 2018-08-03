@@ -66,16 +66,18 @@ com! -bang -count   XTabDepth           call xtabline#cmds#run('depth', [<bang>0
 com! -bang          XTabCleanUp         call xtabline#cmds#run('clean_up', <bang>0)
 com! -nargs=1       XTabRenameTab       call xtabline#cmds#run("rename_tab", <q-args>)
 com! -nargs=1       XTabRenameBuffer    call xtabline#cmds#run("rename_buffer", <q-args>)
-com! -nargs=1       XTabOpen            call xtabline#cmds#run("new_tab", <q-args>)
-com!                XTabReset           call xtabline#cmds#run("reset_tab")
+com!                XTabResetTab        call xtabline#cmds#run("reset_tab")
+com!                XTabResetBuffer     call xtabline#cmds#run("reset_buffer")
 com!                XTabRelativePaths   call xtabline#cmds#run("relative_paths")
 com!                XTabFormatBuffer    call xtabline#cmds#run("format_buffer")
 com!                XTabToggleTabNames  call xtabline#cmds#run("toggle_tab_names")
 com! -nargs=?       XTabTogglePin       call xtabline#cmds#run("toggle_pin_buffer", <q-args>)
 
-com! -nargs=? -bang -complete=file                       XTabWD               call xtabline#cmds#run("set_cwd", [<bang>0, <q-args>])
-com! -nargs=? -bang -complete=customlist,<sid>icons      XTabIcon            call xtabline#cmds#run("tab_icon", [<bang>0, <q-args>])
-com! -nargs=? -bang -complete=customlist,<sid>icons      XTabBufferIcon      call xtabline#cmds#run("buffer_icon", [<bang>0, <q-args>])
+com! -nargs=? -count                                    XTabNew             call xtabline#cmds#run("new_tab", <count>, <q-args>)
+com! -nargs=* -count -complete=file                     XTabEdit            call xtabline#cmds#run("edit_tab",<count>, <q-args>)
+com! -nargs=? -bang  -complete=file                     XTabWD              call xtabline#cmds#run("set_cwd", [<bang>0, <q-args>])
+com! -nargs=? -bang  -complete=customlist,<sid>icons    XTabIcon            call xtabline#cmds#run("tab_icon", [<bang>0, <q-args>])
+com! -nargs=? -bang  -complete=customlist,<sid>icons    XTabBufferIcon      call xtabline#cmds#run("buffer_icon", [<bang>0, <q-args>])
 
 fun! s:icons(A,L,P)
   """Icons completions for commands.
@@ -104,7 +106,6 @@ let s:S.sessions_data              = get(s:S, 'sessions_data', expand('$HOME/.vi
 let s:S.default_named_tab_icon     = get(s:S, 'default_named_tab_icon', [])
 let s:S.relative_paths             = 1
 let s:S.superscript_unicode_nrs    = 0
-let s:S.auto_set_cwd               = 0
 
 let s:S.todo                       = get(s:S, 'todo', {})
 let s:S.todo.command               = get(s:S.todo, 'command', 'sp')
