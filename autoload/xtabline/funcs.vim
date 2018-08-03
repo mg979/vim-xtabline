@@ -230,7 +230,7 @@ endfunction
 
 function! s:Funcs.refresh_tabline() dict
   """Invalidate old Airline tabline and force redraw."""
-  if exists('g:loaded_airline')
+  if exists('g:loaded_airline') && g:airline#extensions#tabline#enabled
     let g:airline#extensions#tabline#exclude_buffers = s:T().exclude
     call airline#extensions#tabline#buflist#invalidate()
   else

@@ -72,7 +72,7 @@ fun! s:depth(args)
     call s:F.msg ([[ "Buffer filtering is now disabled.", 'WarningMsg']])
 
   elseif !cnt
-    call s:F.msg ([[ "Buffer filtering is now unrestricted to ", 'Type'],
+    call s:F.msg ([[ "Buffer filtering is now restricted to ", 'Type'],
                   \[ getcwd(), 'None'],
                   \[ " and all subdirectories", 'Type']])
   else
@@ -396,7 +396,7 @@ endfun
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:plugins_toggle_tabs()
-  if exists('g:loaded_airline')
+  if exists('g:loaded_airline') && g:airline#extensions#tabline#enabled
     let g:airline#extensions#tabline#show_tabs = s:V.showing_tabs
     AirlineRefresh
     doautocmd BufAdd

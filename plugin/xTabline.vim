@@ -77,6 +77,11 @@ com! -nargs=? -bang -complete=file                       XTabWD               ca
 com! -nargs=? -bang -complete=customlist,<sid>icons      XTabIcon            call xtabline#cmds#run("tab_icon", [<bang>0, <q-args>])
 com! -nargs=? -bang -complete=customlist,<sid>icons      XTabBufferIcon      call xtabline#cmds#run("buffer_icon", [<bang>0, <q-args>])
 
+fun! s:icons(A,L,P)
+  """Icons completions for commands.
+  return keys(s:S.custom_icons)
+endfun
+
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Variables
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -123,7 +128,4 @@ let s:S.custom_icons               = extend({
 if !filereadable(s:S.bookmaks_file) | call writefile(['{}'], S.bookmaks_file) | endif
 if !filereadable(s:S.sessions_data) | call writefile(['{}'], S.sessions_data) | endif
 
-fun! s:icons(A,L,P)
-  return keys(s:S.custom_icons)
-endfun
-
+call xtabline#hi#init()

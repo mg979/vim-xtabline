@@ -43,13 +43,8 @@ let s:Sets.unnamed_tab_label         = get(s:Sets, "unnamed_tab_label", "[no nam
 " Copyright:   (c) 2015 Aristotle Pagaltzis <pagaltzis@gmx.de>
 " =============================================================================
 
-" Variables and highlighting {{{
+" Variables {{{
 " =============================================================================
-
-hi default link BufTabLineCurrent TabLineSel
-hi default link BufTabLineActive  StatusLine
-hi default link BufTabLineHidden  TabLine
-hi default link BufTabLineFill    TabLineFill
 
 let s:dirsep            = fnamemodify(getcwd(),':p')[-1:]
 let s:centerbuf         = winbufnr(0)
@@ -179,7 +174,7 @@ fun! xtabline#render#buffers()
   endif
 
   let swallowclicks = '%'.(1 + tabpagenr('$')).'X'
-  return swallowclicks . join(map(tabs,'printf("%%#BufTabLine%s#%s",v:val.hilite,strtrans(v:val.label))'),'') . '%#BufTabLineFill#'
+  return swallowclicks . join(map(tabs,'printf("%%#XBufLine%s#%s",v:val.hilite,strtrans(v:val.label))'),'') . '%#XBufLineFill#'
 endfun
 "}}}
 
@@ -221,7 +216,7 @@ fun! s:buf_indicator(bnr)
   elseif !getbufvar(nr, '&ma')
     if match(bufname(nr), "fugitive") == 0      "fugitive buffer, set name and icon
       let bufs = s:B()
-      let bufs[nr] = { 'name': 'fugitive', 'icon': s:Sets.bufline_indicators.git, 'path': '' }
+      let bufs[nr] = { 'name': 'fugitive', 'icon': s:Sets.custom_icons.git, 'path': '' }
       return ''
     else
       return (mod . mods.readonly)
@@ -315,14 +310,14 @@ fun! xtabline#render#tabs()
   let fmt_renamed = s:fmt_chars(s:Sets.renamed_tab_format)
 
   for i in s:tabs()
-    let tabline .= i == tabpagenr() ? '%#TabLineSel#' : '%#TabLine#'
+    let tabline .= i == tabpagenr() ? '%#XTabLineSel#' : '%#XTabLine#'
     let tabline .= '%' . i . 'T'
     let fmt = empty(s:tabname(i)) ? fmt_unnamed : fmt_renamed
     let tabline .= s:format_tab(i, fmt)
   endfor
 
-  let tabline .= '%#TabLineFill#%T'
-  let tabline .= '%=%#TabLine#%999X' . s:Sets.close_tabs_label
+  let tabline .= '%#XTabLineFill#%T'
+  let tabline .= '%=%#XTabLine#%999X' . s:Sets.close_tabs_label
   return tabline
 endfun
 "}}}
@@ -405,13 +400,13 @@ fun! s:modflag(tabnr)
   for buf in tabpagebuflist(a:tabnr)
     if getbufvar(buf, "&mod")
       if a:tabnr == tabpagenr()
-        return "%#TabModifiedSelected#"
+        return "%#XTabLineSelMod"
               \. s:Sets.modified_tab_flag
-              \. "%#TabLineSel#"
+              \. "%#XTabLineSel#"
       else
-        return "%#TabModified#"
+        return "%#XTabLineMod"
               \. s:Sets.modified_tab_flag
-              \. "%#TabLine#"
+              \. "%#XTabLine#"
       endif
     endif
   endfor
@@ -467,16 +462,8 @@ fun! s:has_tab_icon(T)
 endfun
 "}}}
 
-" Highlight Groups{{{
-" =============================================================================
-
-" Link new highlight groups to reasonable/expected defaults
-highlight link TabModified TabLine
-highlight link TabModifiedSelected TabLineSel
-
 let &cpo = s:save_cpo
 unlet s:save_cpo
-"}}}}}}
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 

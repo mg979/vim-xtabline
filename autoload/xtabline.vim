@@ -2,18 +2,19 @@
 " Script variables
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-let s:X = g:xtabline
-let s:V = s:X.Vars
-let s:V.tab_properties = {}
-let s:V.filtering = 1
-let s:V.show_tab_icons = 1
-let s:V.showing_tabs = 0
-let s:V.buftail = 0
-let s:V.halt = 0
+let s:X    = g:xtabline
+let s:V    = s:X.Vars
 let s:Sets = g:xtabline_settings
 
-let s:T =  { -> s:X.Tabs[tabpagenr()-1] }       "current tab
-let s:B =  { -> s:X.Buffers             }       "customized buffers
+let s:V.tab_properties = {}
+let s:V.filtering      = 1
+let s:V.show_tab_icons = 1
+let s:V.showing_tabs   = 0
+let s:V.buftail        = 0
+let s:V.halt           = 0
+
+let s:T  = { -> s:X.Tabs[tabpagenr()-1] }       "current tab
+let s:B  = { -> s:X.Buffers             }       "customized buffers
 let s:vB = { -> s:T().buffers.valid     }       "valid buffers for tab
 let s:oB = { -> s:T().buffers.order     }       "ordered buffers for tab
 
