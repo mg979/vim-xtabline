@@ -169,10 +169,11 @@ fun! s:reopen_last_tab()
     call remove(s:X.closed_cwds, index(s:X.closed_cwds, cwd))
   endif
 
-
+  let s:V.halt = 1
   $tabnew
   let empty = bufnr("%")
   cd `=cwd`
+  let s:V.halt = 0
   call xtabline#filter_buffers()
   execute "b ".s:oB()[0]
   execute "bdelete ".empty
@@ -184,7 +185,7 @@ fun! s:close_buffer()
   """Close and delete a buffer, without closing the tab."""
   let current = bufnr("%") | let alt = bufnr("#") | let tbufs = len(s:vB())
 
-  if buflisted(alt) && s:F.is_tab_buffer(alt)
+  if s:F.is_tab_buffer(alt)
     execute "buffer #" | call s:F.bdelete(current)
 
   elseif ( tbufs > 1 ) || ( tbufs && !s:F.is_tab_buffer(current) )

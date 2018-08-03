@@ -6,17 +6,20 @@ let s:X    = g:xtabline
 let s:V    = s:X.Vars
 let s:Sets = g:xtabline_settings
 
-let s:V.tab_properties = {}
-let s:V.filtering      = 1
-let s:V.show_tab_icons = 1
-let s:V.showing_tabs   = 0
-let s:V.buftail        = 0
-let s:V.halt           = 0
+let s:V.tab_properties = {}                     "if not empty, newly created tab will inherit them
+let s:V.filtering      = 1                      "whether bufline filtering is active
+let s:V.show_tab_icons = 1                      "tabline shows custom names/icons
+let s:V.showing_tabs   = 0                      "tabline or bufline?
+let s:V.buftail        = s:Sets.relative_paths  "whether the bufline is showing basenames only
+let s:V.halt           = 0                      "used to temporarily halt some functions
 
 let s:T  = { -> s:X.Tabs[tabpagenr()-1] }       "current tab
 let s:B  = { -> s:X.Buffers             }       "customized buffers
 let s:vB = { -> s:T().buffers.valid     }       "valid buffers for tab
 let s:oB = { -> s:T().buffers.order     }       "ordered buffers for tab
+
+let s:ready    = { -> !(exists('g:SessionLoad') || s:V.halt) }
+let s:fullpath = { p -> fnamemodify(expand(p), ":p")         }
 
 let s:most_recent = -1
 let s:new_tab_created = 0
@@ -108,7 +111,7 @@ fun! xtabline#filter_buffers(...)
   " 'accepted' is a list of buffer numbers, for quick access.
   " 'excludes' is a list of paths, it will be used by Airline to hide buffers."""
 
-  if empty(g:xtabline) || exists('g:SessionLoad') || s:V.halt | return
+  if !s:ready()           | return
   elseif s:V.showing_tabs | set tabline=%!xtabline#render#tabs()
     return
   endif
@@ -122,11 +125,12 @@ fun! xtabline#filter_buffers(...)
   let cwd             = getcwd()
   let _pre            = s:Sets.exact_paths? '^' : ''
   let post_           = s:F.sep()
+  let nofilter        = T.depth < 0 || !s:V.filtering
 
   for buf in range(1, bufnr("$"))
 
-    if s:F.invalid_buffer(buf)             | continue
-    elseif T.depth < 0 || !s:V.filtering   | call add(accepted, buf) | continue | endif
+    if s:F.invalid_buffer(buf)  | continue
+    elseif nofilter             | call add(accepted, buf) | continue | endif
 
     " get the path
     let path = expand("#".buf.":p")
@@ -226,23 +230,25 @@ function! s:Do(action)
 
     let tab = !empty(V.tab_properties)? V.tab_properties : {'cwd': '~'}
     call insert(X.Tabs, xtabline#new_tab(tab), N)
-    let s:new_tab_created = 1
+    if s:Sets.auto_set_cwd && s:ready()
+      let s:new_tab_created = 1
+    endif
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
   elseif a:action == 'bufenter'
-    if s:new_tab_created
-      let T = X.Tabs[N]
-      let s:new_tab_created = 0
+    if s:Sets.auto_set_cwd && s:ready() && s:new_tab_created
+      let s:new_tab_created = 0 | let T = X.Tabs[N]
 
       " empty tab sets cwd to ~, non-empty tab looks for a .git dir
       if empty(bufname("%"))
-        let T.cwd = '~'
-      elseif T.cwd == '~' || expand("%:p") !~ expand(T.cwd.F.sep(), ":p")
+        let T.cwd = s:fullpath('~')
+      elseif T.cwd == '~' || s:fullpath("%") !~ s:fullpath(T.cwd)
         let T.cwd = s:F.find_suitable_cwd()
       endif
       cd `=T.cwd`
       call xtabline#filter_buffers()
+      call s:F.delay(200, 'g:xtabline.Funcs.msg([[ "CWD set to ", "Label" ], [ "'.T.cwd.'", "Directory" ]])')
     endif
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""

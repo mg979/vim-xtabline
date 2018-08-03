@@ -95,37 +95,16 @@ fun! xtabline#render#buffers()
     if currentbuf == bnr | let [centerbuf, s:centerbuf] = [bnr, bnr] | endif
 
     if strlen(tab.path) && !s:V.buftail
-
       let tab.path  = fnamemodify(tab.path, ':p:~:.')
-      let tab.sep   = strridx(tab.path, s:dirsep, strlen(tab.path) - 2) " keep trailing dirsep
-      let tab.label = tab.path[tab.sep + 1:]
-
-      let tabs_per_tail[tab.label] = get(tabs_per_tail, tab.label, 0) + 1
-      let path_tabs += [tab]
 
     elseif strlen(tab.path)
       let tab.path  = fnamemodify(tab.path, ':t')
-      let tab.label = tab.path
 
     elseif !s:scratch(bnr)       " unnamed file
-      let tab.label = '[ Unnamed ]'
+      let tab.name = '[ Unnamed ]'
     endif
     let tabs += [tab]
   endfor
-
-  " disambiguate same-basename files by adding trailing path segments
-  if !s:V.buftail
-    while len(filter(tabs_per_tail, 'v:val > 1'))
-      let [ambiguous, tabs_per_tail] = [tabs_per_tail, {}]
-      for tab in path_tabs
-        if -1 < tab.sep && has_key(ambiguous, tab.label)
-          let tab.sep = strridx(tab.path, s:dirsep, tab.sep - 1)
-          let tab.label = tab.path[tab.sep + 1:]
-        endif
-        let tabs_per_tail[tab.label] = get(tabs_per_tail, tab.label, 0) + 1
-      endfor
-    endwhile
-  endif
 
   " now keep the current buffer center-screen as much as possible:
 
@@ -400,11 +379,11 @@ fun! s:modflag(tabnr)
   for buf in tabpagebuflist(a:tabnr)
     if getbufvar(buf, "&mod")
       if a:tabnr == tabpagenr()
-        return "%#XTabLineSelMod"
+        return "%#XTabLineSelMod#"
               \. s:Sets.modified_tab_flag
               \. "%#XTabLineSel#"
       else
-        return "%#XTabLineMod"
+        return "%#XTabLineMod#"
               \. s:Sets.modified_tab_flag
               \. "%#XTabLine#"
       endif
@@ -512,7 +491,11 @@ fun! s:unicode_nrs(nr)
   """Adapted from Vim-CtrlSpace (https://github.com/szw/vim-ctrlspace)
   let u_nr = ""
 
-  let small_numbers = ["⁰", "¹", "²", "³", "⁴", "⁵", "⁶", "⁷", "⁸", "⁹"]
+  if s:Sets.superscript_unicode_nrs
+    let small_numbers = ["⁰", "¹", "²", "³", "⁴", "⁵", "⁶", "⁷", "⁸", "⁹"]
+  else
+    let small_numbers = ["₀", "₁", "₂", "₃", "₄", "₅", "₆", "₇", "₈", "₉"]
+  endif
   let number_str    = string(a:nr)
 
   for i in range(0, len(number_str) - 1)

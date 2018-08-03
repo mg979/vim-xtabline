@@ -87,7 +87,10 @@ endfun
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 let g:xtabline = {'Tabs': [], 'Vars': {}, 'Buffers': {}, 'pinned_buffers': [], 'closed_tabs': [], 'closed_cwds': []}
-let s:S = get(g:, 'xtabline_settings', {})
+
+let g:xtabline_settings = get(g:, 'xtabline_settings', {})
+
+let s:S = g:xtabline_settings
 
 let s:S.sessions_path              = get(s:S, 'sessions_path', '$HOME/.vim/session')
 let s:S.map_prefix                 = get(s:S, 'map_prefix', '<leader>x')
@@ -99,6 +102,9 @@ let s:S.alt_action                 = get(s:S, 'alt_action', "buffer #")
 let s:S.bookmaks_file              = get(s:S, 'bookmaks_file ', expand('$HOME/.vim/.XTablineBookmarks'))
 let s:S.sessions_data              = get(s:S, 'sessions_data', expand('$HOME/.vim/.XTablineSessions'))
 let s:S.default_named_tab_icon     = get(s:S, 'default_named_tab_icon', [])
+let s:S.relative_paths             = 1
+let s:S.superscript_unicode_nrs    = 0
+let s:S.auto_set_cwd               = 0
 
 let s:S.todo                       = get(s:S, 'todo', {})
 let s:S.todo.command               = get(s:S.todo, 'command', 'sp')

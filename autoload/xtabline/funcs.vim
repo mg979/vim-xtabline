@@ -22,6 +22,18 @@ fun! s:Funcs.check_tabs() dict
   call self.check_index()
 endfun
 
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:Funcs.delay(time, func)
+  """Call a function with a timer."""
+  let s:delayed_func = a:func
+  call timer_start(a:time, self._delay)
+endfun
+
+fun! s:Funcs._delay(timer)
+  exe "call" s:delayed_func
+endfun
+
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:Funcs.msg(txt, ...) dict
@@ -130,7 +142,7 @@ fun! s:Funcs.within_depth(path, depth) dict
   if !a:depth | return 1 | endif
 
   let basedir = fnamemodify(a:path, ":p:h")
-  let diff = substitute(fnamemodify(a:path, ":p:h"), getcwd(), '', '')
+  let diff = substitute(basedir, getcwd(), '', '')
 
   "the number of dir separators in (basedir - cwd) must be <= depth
   return count(diff, self.sep()) < a:depth
@@ -197,15 +209,16 @@ endfun
 
 fun! s:Funcs.find_suitable_cwd() dict
   """Look for a VCS dir below current directory."""
-  let l:Found = { d -> isdirectory(d.'.git') } | let s = self.sep()
+  let s = self.sep() | let l:Found = { d -> isdirectory(d.s.'.git') }
 
-  let h = "%:p:h"
-  for i in range(3)
-    let dir = expand(h)
-    if l:Found(dir.s) | return dir.s | endif
+  let f = expand("%")
+  let h = ":p:h"
+  for i in range(5)
+    let dir = fnamemodify(f, h)
+    if l:Found(dir) | return dir | endif
     let h .= ":h"
   endfor
-  return expand("%:p:h")
+  return fnamemodify(f, ":p:h")
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
