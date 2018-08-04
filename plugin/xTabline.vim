@@ -1,9 +1,11 @@
-"""""""""""""""""""""""""""" =============================================================================
-" File: xtabline.vim
-" Mantainer: Gianmaria Bajo <mg1979.git@gmail.com>
-" Url: https://github.com/mg979/vim-xtabline
-" License: MIT
-" """""""""""""""""""""""""""""""""""""""""""""""""""""
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" File:         xtabline.vim
+" Description:  Vim plugin for the customization of the tabline
+" Mantainer:    Gianmaria Bajo <mg1979.git@gmail.com>
+" Url:          https://github.com/mg979/vim-xtabline
+" Copyright:    (c) 2018 Gianmaria Bajo <mg1979.git@gmail.com>
+" Licence:      The MIT License (MIT)
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 if exists("g:loaded_xtabline")
   finish
@@ -90,7 +92,8 @@ endfun
 " Variables
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-let g:xtabline = {'Tabs': [], 'Vars': {}, 'Buffers': {}, 'pinned_buffers': [], 'closed_tabs': [], 'closed_cwds': []}
+let g:xtabline = {'Tabs': [], 'Vars': {}, 'Buffers': {},
+                 \'pinned_buffers': [], 'closed_tabs': [], 'closed_cwds': []}
 
 let g:xtabline_settings = get(g:, 'xtabline_settings', {})
 

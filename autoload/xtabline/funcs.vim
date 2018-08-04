@@ -97,14 +97,24 @@ fun! s:Funcs.update_buffers() dict
       call add(order, buf)
     endif
   endfor
+endfun
 
-  " remove customized buffer entries, if buffers are not valid anymore
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:Funcs.clean_up_buffer_dict() dict
+  """Remove customized buffer entries, if buffers are not valid anymore.
   let bufs = s:B()
   for b in keys(bufs)
     if bufs[b].path !=# expand("#".b.":p")
       unlet bufs[b]
     endif
   endfor
+  for b in s:V.special_buffers
+    if has_key(bufs, b)
+      unlet bufs[b]
+    endif
+  endfor
+  let s:V.special_buffers = []
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -183,7 +193,10 @@ endfun
 
 fun! s:Funcs.bdelete(buf) dict
   """Delete buffer if unmodified."""
-  if !getbufvar(a:buf, '&modified')
+  if index(s:X.pinned_buffers, a:buf) >= 0
+    call self.msg("Pinned buffer has not been deleted.", 1)
+
+  elseif !getbufvar(a:buf, '&modified')
     exe "silent! bdelete ".a:buf
     call xtabline#filter_buffers()
   endif

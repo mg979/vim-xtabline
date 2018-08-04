@@ -7,6 +7,12 @@ let s:B =  { -> s:X.Buffers             }       "customized buffers
 let s:vB = { -> s:T().buffers.valid     }       "valid buffers for tab
 let s:oB = { -> s:T().buffers.order     }       "ordered buffers for tab
 
+let s:Is = { n,s -> match(bufname(n), s) == 0 }
+let s:Ft = { n,s -> getbufvar(n, "&ft")  == s }
+let s:Bd = { n,i -> { 'name': n, 'icon': i, 'path': '', 'nomod': 1 } }
+
+let s:nomod = { nr -> has_key(s:B(), nr) && has_key(s:B()[nr], 'nomod') }
+
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Bufline/Tabline settings
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -75,6 +81,17 @@ fun! xtabline#render#buffers()
     let i = index(bufs, b)
     if i >= 0 | call remove(bufs, i) | endif
     call insert(bufs, b, 0)
+  endfor
+
+  "include special buffers
+  "Note: maybe not necessary to find index
+  for b in tabpagebuflist(tabpagenr())
+    if index(bufs, b) < 0 && s:is_special_buffer(b)
+      let i = index(bufs, b)
+      if i >= 0 | call remove(bufs, i) | endif
+      call insert(bufs, b, 0)
+      call add(s:V.special_buffers, b)
+    endif
   endfor
 
   " make buftab string
@@ -190,16 +207,12 @@ fun! s:buf_indicator(bnr)
   let mod = index(s:pinned(), nr) >= 0 ? mods.pinned : ''
   if getbufvar(nr, '&mod')
     return (mod . mods.modified)
+  elseif s:nomod(nr)
+    return ''
   elseif s:scratch(nr)
     return (mod . mods.scratch)
   elseif !getbufvar(nr, '&ma')
-    if match(bufname(nr), "fugitive") == 0      "fugitive buffer, set name and icon
-      let bufs = s:B()
-      let bufs[nr] = { 'name': 'fugitive', 'icon': s:Sets.custom_icons.git, 'path': '' }
-      return ''
-    else
-      return (mod . mods.readonly)
-    endif
+    return (mod . mods.readonly)
   else
     return mod
   endif
@@ -504,4 +517,23 @@ fun! s:unicode_nrs(nr)
 
   return u_nr
 endfun
+
+fun! s:is_special_buffer(nr)
+  """Customize special buffers.
+  let bufs = s:B()
+
+  if s:Is(a:nr, "fugitive")      "fugitive buffer, set name and icon
+    let bufs[a:nr] = s:Bd('fugitive', s:Sets.custom_icons.git)
+    return 1
+
+  elseif s:Ft(a:nr, "GV")
+    let bufs[a:nr] = s:Bd('GV', s:Sets.custom_icons.git)
+    return 1
+
+  elseif s:Ft(a:nr, "magit")
+    let bufs[a:nr] = s:Bd('Magit', s:Sets.custom_icons.git)
+    return 1
+  endif
+endfun
+
 "}}}

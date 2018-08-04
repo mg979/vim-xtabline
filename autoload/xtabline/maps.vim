@@ -66,8 +66,8 @@ function! xtabline#maps#init()
   nnoremap <unique> <silent>        <Plug>(XT-Move-Tab-)             :XTabMove -<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Move-Tab0)             :<c-u>XTabMove 0<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Move-Tab$)             :<c-u>XTabMove $<cr>
-  nnoremap <unique> <silent>        <Plug>(XT-Tab-New)               :<c-u>XTabNew<space>
-  nnoremap <unique> <silent>        <Plug>(XT-Tab-Edit)              :<c-u>XTabEdit<space>
+  nnoremap <unique>                 <Plug>(XT-Tab-New)               :<c-u>XTabNew<space>
+  nnoremap <unique>                 <Plug>(XT-Tab-Edit)              :<c-u>XTabEdit<space>
 
   nnoremap <unique> <silent>        <Plug>(XT-Toggle-Tabs)           :<c-u>call xtabline#cmds#run('toggle_tabs')<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Toggle-Filtering)      :<c-u>call xtabline#cmds#run('toggle_buffers')<cr>

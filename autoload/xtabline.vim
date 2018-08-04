@@ -13,6 +13,7 @@ let s:V.showing_tabs   = 0                      "tabline or bufline?
 let s:V.buftail        = s:Sets.relative_paths  "whether the bufline is showing basenames only
 let s:V.halt           = 0                      "used to temporarily halt some functions
 let s:V.auto_set_cwd   = 0                      "used to temporarily allow auto cwd detection
+let s:V.special_buffers = []
 
 let s:T  = { -> s:X.Tabs[tabpagenr()-1] }       "current tab
 let s:B  = { -> s:X.Buffers             }       "customized buffers
@@ -21,6 +22,7 @@ let s:oB = { -> s:T().buffers.order     }       "ordered buffers for tab
 
 let s:ready    = { -> !(exists('g:SessionLoad') || s:V.halt) }
 let s:fullpath = { p -> fnamemodify(expand(p), ":p")         }
+let s:is_ma    = { b -> index(tabpagebuflist(tabpagenr()), b) >= 0 && getbufvar(b, "&ma") }
 
 let s:most_recent = -1
 let s:new_tab_created = 0
@@ -131,6 +133,7 @@ fun! xtabline#filter_buffers(...)
   for buf in range(1, bufnr("$"))
 
     if s:F.invalid_buffer(buf)  | continue
+    elseif s:is_ma(buf)         | call add(accepted, buf) | continue
     elseif nofilter             | call add(accepted, buf) | continue | endif
 
     " get the path
@@ -247,6 +250,7 @@ function! s:Do(action)
   elseif a:action == 'enter'
 
     call F.check_tabs()
+    call F.clean_up_buffer_dict()
     let T = X.Tabs[N]
 
     cd `=T.cwd`
@@ -285,7 +289,7 @@ endfunction
 
 fun! s:set_new_tab_cwd(N)
   """Find suitable cwd for the new tab."""
-  let s:new_tab_created = 0 | let T = X.Tabs[a:N]
+  let s:new_tab_created = 0 | let T = s:X.Tabs[a:N]
 
   " empty tab sets cwd to ~, non-empty tab looks for a .git dir
   if empty(bufname("%"))
