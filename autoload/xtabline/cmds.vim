@@ -377,6 +377,42 @@ fun! s:edit_tab(...)
   let s:V.auto_set_cwd = 0
 endfun
 
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:move_tab(...)
+  """Move a tab to a new position."""
+  let max = tabpagenr("$") - 1 | let arg = a:1
+
+  let forward = arg[0] == '+' || empty(arg)
+  let backward = arg[0] == '-'
+  let bottom = arg[0] == '$'
+  let first = arg[0] == '0'
+
+  if ! (forward || backward || bottom || first)
+    call s:F.msg('Wrong arguments.', 1) | return
+  endif
+
+  "find destination index
+  let current = tabpagenr() - 1
+  let dest    = forward?  ( (current + 1) < max ? current + 1 : max ) :
+              \ backward? ( (current - 1) > 0   ? current - 1 : 0 ) :
+              \ bottom? max : 0
+
+  "rearrange tabs dicts
+  let this_tab = copy(s:T())
+  call remove(s:X.Tabs, current)
+  call insert(s:X.Tabs, this_tab, dest)
+
+  "define command range
+  let dest    = dest == max ? '$' :
+              \ dest == 0   ? '0' :
+              \ forward? '+' :
+              \ backward? '-' :
+              \ bottom? '$' : '0'
+
+  exe dest . "tabmove"
+  call xtabline#filter_buffers()
+endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 

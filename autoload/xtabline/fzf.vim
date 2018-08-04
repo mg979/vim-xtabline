@@ -306,6 +306,7 @@ fun! xtabline#fzf#session_delete(file)
   if file == v:this_session | silent Obsession!
   else                      | silent exe "!rm ".file | endif
 
+  redraw!
   call s:F.msg ([[ "Session ", 'WarningMsg' ],
         \[ file, 'Type' ],
         \[ " has been deleted.", 'WarningMsg' ]])
@@ -313,17 +314,17 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! xtabline#fzf#session_save(new)
+fun! xtabline#fzf#session_save(...)
   let data = json_decode(readfile(s:Sets.sessions_data)[0])
 
-  let defname = a:new || empty(v:this_session) ? '' : fnamemodify(v:this_session, ":t")
+  let defname = a:0 || empty(v:this_session) ? '' : fnamemodify(v:this_session, ":t")
   let defdesc = get(data, defname, '')
-  let name = input('Enter a name for this session:   ', defname)
+  let name = empty(a:1)? input('Enter a name for this session:   ', defname) : a:1
   if !empty(name)
     let data[name] = input('Enter an optional description:   ', defdesc)
     call s:F.msg("\nConfirm (y/n)\t", 0)
     if nr2char(getchar()) ==? 'y'
-      if a:new
+      if a:0
         "update and pause Obsession, then clean buffers
         if ObsessionStatus() == "[$]" | exe "silent Obsession ".fnameescape(g:this_obsession) | silent Obsession | endif
         execute "silent! %bdelete"
