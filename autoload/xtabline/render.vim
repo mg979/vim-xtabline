@@ -68,9 +68,9 @@ fun! xtabline#render#buffers()
   let path_tabs = []
   let tabs_per_tail = {}
   let currentbuf = winbufnr(0)
+  let bufs = s:oB()
 
   "include pinned buffers and put them upfront
-  let bufs = s:oB()
   for b in s:pinned()
     let i = index(bufs, b)
     if i >= 0 | call remove(bufs, i) | endif
@@ -79,7 +79,7 @@ fun! xtabline#render#buffers()
 
   " make buftab string
   for bnr in bufs
-    let n = index(s:oB(), bnr) + 1       "tab buffer index
+    let n = index(bufs, bnr) + 1       "tab buffer index
 
     let tab = { 'nr': bnr,
               \ 'n': n,

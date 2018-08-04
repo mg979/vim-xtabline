@@ -238,18 +238,8 @@ function! s:Do(action)
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
   elseif a:action == 'bufenter'
-    if V.auto_set_cwd && s:ready() && s:new_tab_created
-      let s:new_tab_created = 0 | let T = X.Tabs[N]
-
-      " empty tab sets cwd to ~, non-empty tab looks for a .git dir
-      if empty(bufname("%"))
-        let T.cwd = s:fullpath('~')
-      elseif T.cwd == '~' || s:fullpath("%") !~ s:fullpath(T.cwd)
-        let T.cwd = s:F.find_suitable_cwd()
-      endif
-      cd `=T.cwd`
-      call xtabline#filter_buffers()
-      call s:F.delay(200, 'g:xtabline.Funcs.msg([[ "CWD set to ", "Label" ], [ "'.T.cwd.'", "Directory" ]])')
+    if s:new_tab_created && V.auto_set_cwd && s:ready()
+      call s:set_new_tab_cwd(N)
     endif
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -269,7 +259,6 @@ function! s:Do(action)
         exe "source ".T.vimrc.file
       endif
     endif
-    call xtabline#filter_buffers()
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
@@ -290,6 +279,27 @@ function! s:Do(action)
   endif
 endfunction
 
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Helpers
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:set_new_tab_cwd(N)
+  """Find suitable cwd for the new tab."""
+  let s:new_tab_created = 0 | let T = X.Tabs[a:N]
+
+  " empty tab sets cwd to ~, non-empty tab looks for a .git dir
+  if empty(bufname("%"))
+    let T.cwd = s:fullpath('~')
+  elseif T.cwd == '~' || s:fullpath("%") !~ s:fullpath(T.cwd)
+    let T.cwd = s:F.find_suitable_cwd()
+  endif
+  cd `=T.cwd`
+  call xtabline#filter_buffers()
+  call s:F.delay(200, 'g:xtabline.Funcs.msg([[ "CWD set to ", "Label" ], [ "'.T.cwd.'", "Directory" ]])')
+endfun
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
 augroup plugin-xtabline
   autocmd!
 
@@ -299,7 +309,8 @@ augroup plugin-xtabline
   autocmd TabClosed * call s:Do('close')
   autocmd BufEnter  * call s:Do('bufenter')
 
-  autocmd BufAdd,BufDelete,BufWrite,BufEnter  * call timer_start(200, 'xtabline#filter_buffers')
+  "NOTE: BufEnter needed to load devicons on session load
+  autocmd BufAdd,BufDelete,BufWrite,BufEnter  * call timer_start(100, 'xtabline#filter_buffers')
   autocmd QuitPre  * call xtabline#update_obsession()
   autocmd SessionLoadPost  * let cwd = g:xtabline.Tabs[tabpagenr()-1].cwd | cd `=cwd` | doautocmd BufAdd
 augroup END
