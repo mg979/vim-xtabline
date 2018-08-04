@@ -19,7 +19,6 @@ fun! s:Funcs.check_tabs() dict
   """Create or remove tab dicts if necessary. Rearrange tabs list if order is wrong."""
   while len(s:Tabs) < tabpagenr("$") | call add(s:Tabs, xtabline#new_tab()) | endwhile
   while len(s:Tabs) > tabpagenr('$') | call remove(s:Tabs, -1)              | endwhile
-  call self.check_index()
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -146,29 +145,6 @@ fun! s:Funcs.within_depth(path, depth) dict
 
   "the number of dir separators in (basedir - cwd) must be <= depth
   return count(diff, self.sep()) < a:depth
-endfun
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! s:Funcs.check_index() dict
-  """Ensure the current tab has the right index in the global dict."""
-  let N = tabpagenr() - 1
-  let T = s:X.Tabs
-  if T[N].index != N
-    let t1 = copy(T[N])
-    let t2 = copy(T[t1.index])
-    unlet T[t1.index]
-    unlet T[t2.index]
-    if t1.index > t2.index
-      call insert(T, t2, t2.index)
-      call insert(T, t1, t1.index)
-    else
-      call insert(T, t1, t1.index)
-      call insert(T, t2, t2.index)
-    endif
-    let T[N].index = N
-    call xtabline#filter_buffers()
-  endif
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

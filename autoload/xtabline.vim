@@ -100,8 +100,8 @@ fun! xtabline#new_tab(...)
 
   return {'name':    name,       'cwd':     cwd,
         \ 'buffers': buffers,    'exclude': exclude,
-        \ 'vimrc':   vimrc,      'index':   tabpagenr()-1,
-        \ 'locked':  locked,     'depth':   depth}
+        \ 'locked':  locked,     'depth':   depth,
+        \ 'vimrc':   vimrc}
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
