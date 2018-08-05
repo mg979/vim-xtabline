@@ -111,6 +111,7 @@ let s:S.sessions_data              = get(s:S, 'sessions_data', expand('$HOME/.vi
 let s:S.default_named_tab_icon     = get(s:S, 'default_named_tab_icon', [])
 let s:S.relative_paths             = 1
 let s:S.superscript_unicode_nrs    = 0
+let s:S.show_current_tab           = 1
 
 let s:S.todo                       = get(s:S, 'todo', {})
 let s:S.todo.command               = get(s:S.todo, 'command', 'sp')

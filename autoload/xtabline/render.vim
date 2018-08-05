@@ -9,7 +9,7 @@ let s:oB = { -> s:T().buffers.order     }       "ordered buffers for tab
 
 let s:Is = { n,s -> match(bufname(n), s) == 0 }
 let s:Ft = { n,s -> getbufvar(n, "&ft")  == s }
-let s:Bd = { n,i -> { 'name': n, 'icon': i, 'path': '', 'nomod': 1 } }
+let s:Bd = { n,i,d -> extend( { 'name': n, 'icon': i, 'path': '', 'nomod': 1 }, d ) }
 
 let s:nomod = { nr -> has_key(s:B(), nr) && has_key(s:B()[nr], 'nomod') }
 
@@ -27,13 +27,14 @@ let s:indicators = {
 let s:Sets.bufline_numbers           = get(s:Sets, 'bufline_numbers',    1)
 let s:Sets.bufline_indicators        = extend(get(s:Sets, 'bufline_indicators', {}),  s:indicators)
 let s:Sets.bufline_sep_or_icon       = get(s:Sets, 'bufline_sep_or_icon', 0)
-let s:Sets.bufline_separators        = get(s:Sets, 'bufline_separators_cur', ['', '']) "old: nr2char(0x23B8)
+let s:Sets.bufline_separators        = get(s:Sets, 'bufline_separators', ['', '']) "old: nr2char(0x23B8)
 let s:Sets.bufline_format            = get(s:Sets, 'bufline_format',  ' n I< l +')
 let s:Sets.devicon_for_all_filetypes = get(s:Sets, 'devicon_for_all_filetypes', 0)
 let s:Sets.devicon_for_extensions    = get(s:Sets, 'devicon_for_extensions', ['md', 'txt'])
 
-let s:Sets.tab_format                = get(s:Sets, "tab_format", " U - 2+ ")
-let s:Sets.renamed_tab_format        = get(s:Sets, "renamed_tab_format", " U - l+ ")
+let s:Sets.tab_format                = get(s:Sets, "tab_format", "N - 2+ ")
+let s:Sets.renamed_tab_format        = get(s:Sets, "renamed_tab_format", "N - l+ ")
+let s:Sets.bufline_tab_format        = get(s:Sets, "bufline_tab_format", "N - l+ ")
 let s:Sets.modified_tab_flag         = get(s:Sets, "modified_tab_flag", "*")
 let s:Sets.close_tabs_label          = get(s:Sets, "close_tabs_label", "")
 let s:Sets.unnamed_tab_label         = get(s:Sets, "unnamed_tab_label", "[no name]")
@@ -103,7 +104,7 @@ fun! xtabline#render#buffers()
               \ 'tried_devicon': 0,
               \ 'tried_icon': 0,
               \ 'has_icon': 0,
-              \ 'separators': s:Sets.bufline_separators,
+              \ 'separators': s:buf_separators(bnr),
               \ 'path': bufname(bnr),
               \ 'indicator': s:buf_indicator(bnr),
               \ 'hilite' : currentbuf == bnr ? 'Current' : bufwinnr(bnr) > 0 ? 'Active' : 'Hidden'
@@ -148,7 +149,14 @@ fun! xtabline#render#buffers()
     let [lft.width, rgt.width] = [0, lft.width]
   endif
 
-  " 3. toss away tabs and pieces until all fits:
+  " 3. add the current tab name/cwd to the right side
+  let [active_tab, active_tab_label] = s:get_tab_for_bufline()
+  if !empty(active_tab_label)
+    let rgt.width += strwidth(strtrans(active_tab_label)) + 7
+  endif
+
+  " 4. toss away tabs and pieces until all fits:
+
   if ( lft.width + rgt.width ) > &columns
     let oversized
           \ = lft.width < lft.half ? [ [ rgt, &columns - lft.width ] ]
@@ -169,8 +177,12 @@ fun! xtabline#render#buffers()
     endfor
   endif
 
+
   let swallowclicks = '%'.(1 + tabpagenr('$')).'X'
-  return swallowclicks . join(map(tabs,'printf("%%#XBufLine%s#%s",v:val.hilite,strtrans(v:val.label))'),'') . '%#XBufLineFill#'
+  let left = swallowclicks . join(map(tabs,'printf("%%#XBufLine%s#%s",v:val.hilite,strtrans(v:val.label))'),'')
+  let right = active_tab . '%#XBufLineFill#'
+  let l_r =  lft.width + rgt.width
+  return left . s:extra_padding(l_r) . right
 endfun
 "}}}
 
@@ -216,6 +228,15 @@ fun! s:buf_indicator(bnr)
   else
     return mod
   endif
+endfun
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:buf_separators(nr)
+  """Use custom separators if defined in buffer entry."""
+  let bufs = s:B()
+  return has_key(bufs, a:nr) && has_key(bufs[a:nr], 'separators') ?
+        \       bufs[a:nr].separators : s:Sets.bufline_separators
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -318,6 +339,7 @@ endfun
 " =============================================================================
 
 fun! s:fmt_chars(fmt)
+  """Return a split string with the formatting option in use.
   let chars = []
   for i in range(strchars(a:fmt))
     call add(chars, strgetchar(a:fmt, i))
@@ -358,48 +380,36 @@ fun! s:short_cwd(tabnr, h)
     return fnamemodify(expand(s:X.Tabs[a:tabnr-1].cwd), ":t")
   else
     let H = fnamemodify(expand(s:X.Tabs[a:tabnr-1].cwd), ":~")
-    while count(H, "/") > a:h
+    while len(split(H, '/')) > a:h+1
       let H = substitute(H, "/[^/]*", "\.", "")
     endwhile
     return H
+  endif
 endfun
 
-fun! s:tabnum(tabnr, ubiquitous)
-  if a:ubiquitous
-    return a:tabnr
-  endif
-  return a:tabnr == tabpagenr() ? a:tabnr : ''
+fun! s:tabnum(tabnr, all)
+  return a:tabnr == tabpagenr() ?
+        \        "%#XTabLineNumSel# " . a:tabnr . " %#XTabLineSel#" :
+        \a:all ? "%#XTabLineNum# "    . a:tabnr . " %#XTabLine#" : ''
 endfun
 
-fun! s:wincount(tabnr, ubiquitous)
-  let windows = tabpagewinnr(a:tabnr, '$')
-  if a:ubiquitous
-    return windows
-  endif
-  return a:tabnr == tabpagenr() ? windows : ''
+fun! s:wincount(tabnr, all)
+  return a:all || a:tabnr == tabpagenr() ?
+        \tabpagewinnr(a:tabnr, '$') : ''
 endfun
 
-fun! s:wincountUnicode(tabnr, ubiquitous)
-  let buffers_number = tabpagewinnr(a:tabnr, '$')
-  if a:ubiquitous
-    return s:unicode_nrs(buffers_number)
-  else
-    return a:tabnr == tabpagenr() ? s:unicode_nrs(buffers_number) : ''
-  endif
+fun! s:wincountUnicode(tabnr, all)
+  let buffers_number = s:unicode_nrs(tabpagewinnr(a:tabnr, '$'))
+  return a:all || a:tabnr == tabpagenr() ? buffers_number : ''
 endfun
 
 fun! s:modflag(tabnr)
+  let flag = s:Sets.modified_tab_flag
   for buf in tabpagebuflist(a:tabnr)
     if getbufvar(buf, "&mod")
-      if a:tabnr == tabpagenr()
-        return "%#XTabLineSelMod#"
-              \. s:Sets.modified_tab_flag
-              \. "%#XTabLineSel#"
-      else
-        return "%#XTabLineMod#"
-              \. s:Sets.modified_tab_flag
-              \. "%#XTabLine#"
-      endif
+      return a:tabnr == tabpagenr() ?
+              \ "%#XTabLineSelMod#" . flag . "%#XTabLineSel#" :
+              \ "%#XTabLineMod#"    . flag . "%#XTabLine#"
     endif
   endfor
   return ""
@@ -523,17 +533,45 @@ fun! s:is_special_buffer(nr)
   let bufs = s:B()
 
   if s:Is(a:nr, "fugitive")      "fugitive buffer, set name and icon
-    let bufs[a:nr] = s:Bd('fugitive', s:Sets.custom_icons.git)
+    let bufs[a:nr] = s:Bd('fugitive', s:Sets.custom_icons.git, {})
     return 1
 
   elseif s:Ft(a:nr, "GV")
-    let bufs[a:nr] = s:Bd('GV', s:Sets.custom_icons.git)
+    let bufs[a:nr] = s:Bd('GV', s:Sets.custom_icons.git, {})
     return 1
 
   elseif s:Ft(a:nr, "magit")
-    let bufs[a:nr] = s:Bd('Magit', s:Sets.custom_icons.git)
+    let bufs[a:nr] = s:Bd('Magit', s:Sets.custom_icons.git, {})
+    return 1
+
+  elseif s:Ft(a:nr, "ctrlsf")
+    let bufs[a:nr] = s:Bd('CtrlSF', '❯', {'format': '<<< l >>>', 'separators': ['❯', '❰']})
     return 1
   endif
+endfun
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:get_tab_for_bufline()
+  """Build string with tab label and icon for the bufline."""
+  if ! s:Sets.show_current_tab | return ['', ''] | endif
+  let fmt_chars = s:fmt_chars(s:Sets.bufline_tab_format)                "formatting options
+  let fmt_tab = s:format_tab(tabpagenr(), fmt_chars)                    "formatted string
+  let active_tab_label = substitute(fmt_tab, '%#X\w*#', '', 'g')        "text only, to find width
+  let active_tab = '%#XBufLineFill#    %#XBufLineCurrent#'.fmt_tab      "add a bit of space to the left
+  return [active_tab, active_tab_label]
+endfun
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:extra_padding(l_r)
+  if !s:Sets.show_current_tab | return '' | endif
+  let spaces = a:l_r > &columns ? 0 : &columns - a:l_r
+  let s = '   '
+  for i in range(spaces)
+    let s .= ' '
+  endfor
+  return '%#XBufLineFill#'.s
 endfun
 
 "}}}

@@ -14,6 +14,8 @@ fun! xtabline#hi#init()
   let s:Hi.XTabLineMod     = get(s:Hi, "XTabLineMod",     ["TabLine",     1])
   let s:Hi.XTabLine        = get(s:Hi, "XTabLine",        ["TabLine",     1])
   let s:Hi.XTabLineFill    = get(s:Hi, "XTabLineFill",    ["TabLineFill", 1])
+  let s:Hi.XTabLineNumSel  = get(s:Hi, "XTabLineNumSel",  ["DiffAdd",  1])
+  let s:Hi.XTabLineNum     = get(s:Hi, "XTabLineNum",     ["Special",     1])
 
   call xtabline#hi#refresh(1)
 endfun
