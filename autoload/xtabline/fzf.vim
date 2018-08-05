@@ -100,30 +100,33 @@ fun! xtabline#fzf#tab_load(...)
   let s:V.halt = 1
 
   for bm in a:000
-    let tbook = json[substitute(bm, '\(\w*\)\s*\t.*', '\1', '')]
-    let cwd = expand(tbook['cwd'], ":p")
+    let saved = json[substitute(bm, '\(\w*\)\s*\t.*', '\1', '')]
+    let cwd = expand(saved['cwd'], ":p")
 
     if isdirectory(cwd)                                 "valid bookmark
-      if empty(tbook.buffers) | continue | endif        "no buffers
+      if empty(saved.buffers) | continue | endif        "no buffers
     else                                                "invalid bookmark
-      call s:F.msg(tbook['name'].": invalid bookmark.", 1) | continue
+      call s:F.msg(saved['name'].": invalid bookmark.", 1) | continue
     endif
 
     "tab properties defined here will be applied by new_tab(), run by autocommand
     let s:V.tab_properties = s:F.tab_template({'cwd': cwd})
-    for prop in keys(tbook)
-      if prop ==? 'buffers' || prop ==? 'description' | continue | endif
-      let s:V.tab_properties[prop] = tbook[prop]
+    let T = s:V.tab_properties
+    for prop in keys(saved)
+      if prop ==? 'buffers' || prop ==? 'description'   | continue | endif
+      if prop ==? 'valid_buffers'
+        let T.buffers = { 'valid' : saved[prop] }       | continue | endif
+      let T[prop] = saved[prop]
     endfor
 
     $tabnew | let newbuf = bufnr("%")
     cd `=cwd`
 
     "add buffers
-    for buf in tbook['buffers'] | execute "badd ".buf | endfor
+    for buf in saved['buffers'] | execute "badd ".buf | endfor
 
     "load the first buffer
-    execute "edit ".tbook['buffers'][0]
+    execute "edit ".saved['buffers'][0]
 
     " purge the empty buffer that was created
     execute "bdelete ".newbuf
@@ -174,6 +177,14 @@ fun! xtabline#fzf#tab_save()
 
   " get cwd
   let json[name].cwd = T.cwd
+  let json[name].name = T.name
+  let json[name].locked = T.locked
+  let json[name].vimrc = T.vimrc
+  let json[name].depth = T.depth
+
+  if T.locked
+    let json[name].valid_buffers = T.buffers.valid
+  endif
 
   " get buffers
   let bufs = []

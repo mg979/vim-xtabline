@@ -78,7 +78,7 @@ com! -nargs=?           XTabTogglePin       call xtabline#cmds#run("toggle_pin_b
 com! -nargs=? -count    XTabNew             call xtabline#cmds#run("new_tab", <count>, <q-args>)
 com! -nargs=?           XTabMove            call xtabline#cmds#run("move_tab", <q-args>)
 
-com! -nargs=* -count -complete=file                  XTabEdit            call xtabline#cmds#run("edit_tab",<count>, <q-args>)
+com! -nargs=? -count -complete=file -bang            XTabEdit            call xtabline#cmds#run("edit_tab", <count>, <bang>0, <q-args>)
 com! -nargs=? -bang  -complete=file                  XTabWD              call xtabline#cmds#run("set_cwd", [<bang>0, <q-args>])
 com! -nargs=? -bang  -complete=customlist,<sid>icons XTabIcon            call xtabline#cmds#run("tab_icon", [<bang>0, <q-args>])
 com! -nargs=? -bang  -complete=customlist,<sid>icons XTabBufferIcon      call xtabline#cmds#run("buffer_icon", [<bang>0, <q-args>])
@@ -103,6 +103,7 @@ let s:S.sessions_path              = get(s:S, 'sessions_path', '$HOME/.vim/sessi
 let s:S.map_prefix                 = get(s:S, 'map_prefix', '<leader>x')
 let s:S.exact_paths                = get(s:S, 'exact_paths', 0)
 let s:S.close_buffer_can_close_tab = get(s:S, 'close_buffer_can_close_tab', 0)
+let s:S.close_buffer_can_quit_vim  = get(s:S, 'close_buffer_can_quit_vim', 0)
 let s:S.unload_session_ask_confirm = get(s:S, 'unload_session_ask_confirm', 1)
 
 let s:S.alt_action                 = get(s:S, 'alt_action', "buffer #")

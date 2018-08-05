@@ -101,15 +101,24 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.clean_up_buffer_dict() dict
+fun! s:Funcs.clean_up_buffer_dict(...) dict
   """Remove customized buffer entries, if buffers are not valid anymore.
-  let bufs = s:B()
+  let bufs = s:B() | let sbufs = s:V.special_buffers
+
+  "called on BufDelete for a single buffer
+  if a:0 && !bufexists(a:1) && has_key(bufs, a:1)
+    unlet bufs[a:1]
+    let i = index(sbufs, a:1)
+    if i > 0 | call remove(sbufs, i) | endif
+    return
+  endif
+
   for b in keys(bufs)
     if bufs[b].path !=# expand("#".b.":p")
       unlet bufs[b]
     endif
   endfor
-  for b in s:V.special_buffers
+  for b in sbufs
     if has_key(bufs, b)
       unlet bufs[b]
     endif
@@ -243,6 +252,8 @@ function! s:Funcs.refresh_tabline() dict
   if exists('g:loaded_airline') && g:airline#extensions#tabline#enabled
     let g:airline#extensions#tabline#exclude_buffers = s:T().exclude
     call airline#extensions#tabline#buflist#invalidate()
+  elseif s:V.showing_tabs
+    set tabline=%!xtabline#render#tabs()
   else
     set tabline=%!xtabline#render#buffers()
   endif

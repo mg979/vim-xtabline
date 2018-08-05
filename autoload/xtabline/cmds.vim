@@ -200,7 +200,7 @@ fun! s:close_buffer()
     execute "buffer #" | call s:F.bdelete(current)
 
   elseif ( tbufs > 1 ) || ( tbufs && !s:F.is_tab_buffer(current) )
-    execute "normal \<Plug>XTablinePrevBuffer" | call s:F.bdelete(current)
+    execute "normal \<Plug>(XT-Prev-Buffer)" | call s:F.bdelete(current)
 
   elseif !s:Sets.close_buffer_can_close_tab
     echo "Last buffer for this tab."
@@ -212,7 +212,7 @@ fun! s:close_buffer()
 
   elseif tabpagenr() > 1 || tabpagenr("$") != tabpagenr()
     tabnext | silent call s:F.bdelete(current)
-  else
+  elseif s:Sets.close_buffer_can_quit_vim
     quit | endif
 endfun
 
@@ -350,31 +350,25 @@ endfun
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:edit_tab(...)
-  """Open a new tab with optional path and name.
-  "args: 0, 1 (path) or 2 (path and name)
+  """Open a new tab with optional path. Bang triggers rename.
 
   let s:V.auto_set_cwd = 1
   let args = a:000[0]
   let n = args[0]? args[0] : ''
+  let bang = args[1]
   if n > tabpagenr("$") | let n = tabpagenr("$") | endif
-  let args = split(args[1])
-  let file = ''
 
   if empty(args)
     let s:V.tab_properties = {'cwd': expand("~")}
-  elseif len(args) == 1
-    let file = args[0]
-  else
-    let file = args[0]
-    let s:V.tab_properties = {'name': args[1]}
-  endif
-  if !empty(file)
-    exe n . "tabedit" file
-  else
     exe n . "tabnew"
+  else
+    exe n . "tabedit" args[2]
   endif
   call xtabline#filter_buffers()
   let s:V.auto_set_cwd = 0
+  if bang
+    call feedkeys("\<Plug>(XT-Rename-Tab)")
+  endif
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

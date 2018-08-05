@@ -34,7 +34,8 @@ let s:Sets.devicon_for_extensions    = get(s:Sets, 'devicon_for_extensions', ['m
 
 let s:Sets.tab_format                = get(s:Sets, "tab_format", "N - 2+ ")
 let s:Sets.renamed_tab_format        = get(s:Sets, "renamed_tab_format", "N - l+ ")
-let s:Sets.bufline_tab_format        = get(s:Sets, "bufline_tab_format", "N - l+ ")
+let s:Sets.bufline_named_tab_format  = get(s:Sets, "bufline_named_tab_format", "N - l+ ")
+let s:Sets.bufline_tab_format        = get(s:Sets, "bufline_tab_format", "N - 2+ ")
 let s:Sets.modified_tab_flag         = get(s:Sets, "modified_tab_flag", "*")
 let s:Sets.close_tabs_label          = get(s:Sets, "close_tabs_label", "")
 let s:Sets.unnamed_tab_label         = get(s:Sets, "unnamed_tab_label", "[no name]")
@@ -243,11 +244,10 @@ endfun
 
 fun! s:get_buf_name(buf)
   """Return custom buffer name, if it has been set, otherwise the filename."""
-  let bufs = s:B()
-  let nr = a:buf.nr
-  if !has_key(bufs, nr)         | return a:buf.path | endif
-  if !has_key(bufs[nr], 'name') | return a:buf.path | endif
-  return bufs[nr].name
+  let bufs = s:B() | let nr = a:buf.nr
+  let has_name = has_key(bufs, nr) && has_key(bufs[nr], 'name') && !empty(bufs[nr].name)
+
+  return has_name ? bufs[nr].name : a:buf.path
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -555,8 +555,11 @@ endfun
 fun! s:get_tab_for_bufline()
   """Build string with tab label and icon for the bufline."""
   if ! s:Sets.show_current_tab | return ['', ''] | endif
-  let fmt_chars = s:fmt_chars(s:Sets.bufline_tab_format)                "formatting options
-  let fmt_tab = s:format_tab(tabpagenr(), fmt_chars)                    "formatted string
+  let N = tabpagenr()
+  let fmt = empty(s:tabname(N)) ? s:Sets.bufline_tab_format : s:Sets.bufline_named_tab_format
+
+  let fmt_chars = s:fmt_chars(fmt)                                      "formatting options
+  let fmt_tab = s:format_tab(N, fmt_chars)                              "formatted string
   let active_tab_label = substitute(fmt_tab, '%#X\w*#', '', 'g')        "text only, to find width
   let active_tab = '%#XBufLineFill#    %#XBufLineCurrent#'.fmt_tab      "add a bit of space to the left
   return [active_tab, active_tab_label]

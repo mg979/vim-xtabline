@@ -38,8 +38,8 @@ function! xtabline#maps#init()
   call s:mapkeys(X.'sd',  'Set-Depth')
   call s:mapkeys(X.'cti', 'Change-Tab-Icon')
   call s:mapkeys(X.'cbi', 'Change-Buffer-Icon')
-  call s:mapkeys(X.'ctn', 'Change-Tab-Name')
-  call s:mapkeys(X.'cbn', 'Change-Buffer-Name')
+  call s:mapkeys(X.'rnt', 'Rename-Tab')
+  call s:mapkeys(X.'rnb', 'Rename-Buffer')
   call s:mapkeys(X.'cbf', 'Change-Buffer-Format')
   call s:mapkeys(X.'tt',  'Tab-Todo')
   call s:mapkeys(X.'trp', 'Relative-Paths')
@@ -96,8 +96,8 @@ function! xtabline#maps#init()
   nnoremap <unique> <silent>        <Plug>(XT-Toggle-Custom-Tabs)    :<c-u>XTabToggleTabNames<cr>
   nnoremap <unique>                 <Plug>(XT-Change-Tab-Icon)       :<c-u>XTabIcon<Space>
   nnoremap <unique>                 <Plug>(XT-Change-Buffer-Icon)    :<c-u>XTabBufferIcon<Space>
-  nnoremap <unique>                 <Plug>(XT-Change-Tab-Name)       :<c-u>XTabRenameTab<Space>
-  nnoremap <unique>                 <Plug>(XT-Change-Buffer-Name)    :<c-u>XTabRenameBuffer<Space>
+  nnoremap <unique>                 <Plug>(XT-Rename-Tab)            :<c-u>XTabRenameTab<Space>
+  nnoremap <unique>                 <Plug>(XT-Rename-Buffer)         :<c-u>XTabRenameBuffer<Space>
   nnoremap <unique>                 <Plug>(XT-Change-Buffer-Format)  :<c-u>XTabFormatBuffer<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Cd-Current)            :<c-u>call <sid>cd(0)<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Cd-Down)               :<c-u>call <sid>cd(v:count1)<cr>
@@ -174,8 +174,8 @@ let g:xtabline.leader_guide.o = {
       \'wd': ["XTabWD!",                           "Change Working Directory".s:_ ],
       \'ti': [s:fk("Change-Tab-Icon"),             "Change Tab Icon".s:_          ],
       \'bi': [s:fk("Change-Buffer-Icon"),          "Change Buffer Icon".s:_       ],
-      \'tn': [s:fk("Change-Tab-Name"),             "Change Tab Name".s:_          ],
-      \'bn': [s:fk("Change-Buffer-Name"),          "Change Buffer Name".s:_       ],
+      \'rt': [s:fk("Rename-Tab"),                  "Rename Tab".s:_          ],
+      \'rb': [s:fk("Rename-Buffer"),               "Rename Buffer".s:_       ],
       \}
 let g:xtabline.leader_guide.o.f = ["call xtabline#cmds#run('depth', [0, v:count])", "Toggle Filtering".s:_]
 

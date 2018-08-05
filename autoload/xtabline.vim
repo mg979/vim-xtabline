@@ -110,16 +110,15 @@ endfun
 
 fun! xtabline#filter_buffers(...)
   """Filter buffers so that only the ones within the tab's cwd will show up.
+  let T = s:T() | let can_show_tabs = s:V.showing_tabs && has_key(T, 'init')
 
   " 'accepted' is a list of buffer numbers, for quick access.
   " 'excludes' is a list of paths, it will be used by Airline to hide buffers."""
 
-  if !s:ready()           | return
-  elseif s:V.showing_tabs | set tabline=%!xtabline#render#tabs()
+  if !s:ready()        | return
+  elseif can_show_tabs | set tabline=%!xtabline#render#tabs()
     return
   endif
-
-  let T = s:T()
 
   let locked          = T.locked
   let accepted        = locked? T.buffers.valid   : []
@@ -152,7 +151,8 @@ fun! xtabline#filter_buffers(...)
   endfor
 
   let T.buffers.valid = accepted
-  let T.exclude  = excluded
+  let T.exclude       = excluded
+  let T.init          = 1
   call s:F.update_buffers()
   call s:F.refresh_tabline()
   call xtabline#update_obsession()
@@ -222,7 +222,7 @@ endfun
 " License: MIT License
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-function! s:Do(action)
+function! s:Do(action, ...)
   if empty(g:xtabline.Tabs) | return | endif
 
   let X = g:xtabline | let F = X.Funcs | let V = X.Vars
@@ -244,6 +244,11 @@ function! s:Do(action)
     if s:new_tab_created && V.auto_set_cwd && s:ready()
       call s:set_new_tab_cwd(N)
     endif
+
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+  elseif a:action == 'bufdelete'
+    call F.delay(100, 'g:xtabline.Funcs.clean_up_buffer_dict('.a:1.')')
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
@@ -312,10 +317,11 @@ augroup plugin-xtabline
   autocmd TabLeave  * call s:Do('leave')
   autocmd TabClosed * call s:Do('close')
   autocmd BufEnter  * call s:Do('bufenter')
+  autocmd BufDelete * call s:Do('bufdelete', expand("<abuf>"))
 
-  "NOTE: BufEnter needed to load devicons on session load
-  autocmd BufAdd,BufDelete,BufWrite,BufEnter  * call timer_start(100, 'xtabline#filter_buffers')
-  autocmd QuitPre  * call xtabline#update_obsession()
-  autocmd SessionLoadPost  * let cwd = g:xtabline.Tabs[tabpagenr()-1].cwd | cd `=cwd` | doautocmd BufAdd
+  "NOTE: BufEnter needed. Timer improves reliability. Keep it like this.
+  autocmd BufAdd,BufWrite,BufEnter  * call g:xtabline.Funcs.delay(100, 'xtabline#filter_buffers()')
+  autocmd QuitPre                   * call xtabline#update_obsession()
+  autocmd SessionLoadPost           * let cwd = g:xtabline.Tabs[tabpagenr()-1].cwd | cd `=cwd` | doautocmd BufAdd
 augroup END
 
