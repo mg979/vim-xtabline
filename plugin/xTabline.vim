@@ -19,7 +19,7 @@ let g:loaded_xtabline = 1
 
 autocmd VimEnter  * call xtabline#init()
 
-com! -nargs=? -complete=buffer XTabOpenBuffers call fzf#vim#buffers(<q-args>, {
+com! -nargs=? -complete=buffer XTabListBuffers call fzf#vim#buffers(<q-args>, {
       \ 'source': xtabline#fzf#tab_buffers(),
       \ 'options': '--multi --prompt "Open Tab Buffer >>>  "'})
 
@@ -59,7 +59,7 @@ com! -nargs=? XTabNERDBookmarks call fzf#vim#files(<q-args>, {
 
 com!                    XTabSaveTab         call xtabline#fzf#tab_save()
 com!                    XTabSaveSession     call xtabline#fzf#session_save()
-com! -nargs=?           XTabCreateSession   call xtabline#fzf#session_save(<q-args>)
+com! -nargs=?           XTabNewSession      call xtabline#fzf#session_save(<q-args>)
 com!                    XTabTodo            call xtabline#cmds#run('tab_todo')
 com!                    XTabPurge           call xtabline#cmds#run('purge_buffers')
 com!                    XTabReopen          call xtabline#cmds#run('reopen_last_tab')
@@ -72,8 +72,8 @@ com!                    XTabResetTab        call xtabline#cmds#run("reset_tab")
 com!                    XTabResetBuffer     call xtabline#cmds#run("reset_buffer")
 com!                    XTabRelativePaths   call xtabline#cmds#run("relative_paths")
 com!                    XTabFormatBuffer    call xtabline#cmds#run("format_buffer")
-com!                    XTabToggleTabNames  call xtabline#cmds#run("toggle_tab_names")
-com! -nargs=?           XTabTogglePin       call xtabline#cmds#run("toggle_pin_buffer", <q-args>)
+com!                    XTabCustomTabs      call xtabline#cmds#run("toggle_tab_names")
+com! -nargs=?           XTabPinBuffer       call xtabline#cmds#run("toggle_pin_buffer", <q-args>)
 
 com! -nargs=? -count    XTabNew             call xtabline#cmds#run("new_tab", <count>, <q-args>)
 com! -nargs=?           XTabMove            call xtabline#cmds#run("move_tab", <q-args>)

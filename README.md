@@ -1,104 +1,72 @@
-### Xtabline
+## xtabline
 
 ![pic](https://i.imgur.com/SN6FNnA.gif)
 
-    Introduction
-    Features
-    Requirements
-    Installation
-    Interaction with vim-airline
-    Tab Buffers navigation
-    Toggling
-    Persistance
-    Bookmarks
-    TabTodo
-    fzf commands
-    Customization
-    Warnings
-    Credits
-    License
+<!-- vim-markdown-toc GFM -->
 
----
+* [Features list](#features-list)
+* [Requirements](#requirements)
+* [Installation](#installation)
+* [Settings and mappings](#settings-and-mappings)
+* [Tab buffers navigation](#tab-buffers-navigation)
+* [Closing buffers](#closing-buffers)
+* [Tabs, buffers and sessions](#tabs-buffers-and-sessions)
+    * [Opening tabs](#opening-tabs)
+    * [Rearranging tabs](#rearranging-tabs)
+    * [Saving and loading tabs](#saving-and-loading-tabs)
+    * [Managing buffers](#managing-buffers)
+    * [Tuning buffer filtering](#tuning-buffer-filtering)
+    * [Customizing tabs and buffers](#customizing-tabs-and-buffers)
+    * [Sessions management](#sessions-management)
+* [Other commands, plugs and mappings](#other-commands-plugs-and-mappings)
+* [Buffers clean-up](#buffers-clean-up)
+* [Tab-Todo](#tab-todo)
+* [Cwd selection](#cwd-selection)
+* [Restrict Cwd](#restrict-cwd)
+* [Customization](#customization)
+* [Interaction With Airline](#interaction-with-airline)
+* [Credits](#credits)
+* [License](#license)
 
-#### Note if upgrading: 
+<!-- vim-markdown-toc -->
 
-File format for bookmarks and sessions has changed to json. Old files won't work but you can convert them by calling these two functions:
+----------------------------------------------------------------------------
+ 
+### Features list
 
-    call xtabline#fzf#update_sessions_file()
-    call xtabline#fzf#update_bookmarks_file()
+This plugin tries to give you full control on the tabline. I wanted ways to:
 
-Only call them once on the same file!
+* switch between tabs and buffer mode
+* have buffers filtered on te base of the current CWD, or other criterias
+* rename tabs/buffers, and give them icons/separators
+* load/save customized tabs from/to disk
+* reopen closed tabs
+* have any customization persist across sessions
+* have it look good, with easy formatting options
 
----
+Additionally, it provides:
 
-#### Introduction
-
-*This README won't be updated as often as the main help file. If you install
-the plugin, refer to that one instead.*
-
-XTabline is an extension for *vim-airline*
-
-Its main purpose is to provide a way to filter buffers in the tabline,
-depending on the current working directory. Since switching tabs without
-switching the CWD would cause wrong buffers to be displayed in the tabline,
-XTabline also remembers the CWD for each tab, so that when you switch them,
-the CWD is automatically set to the last path that specific tab was set to.
-
-    Eg. you have 2 tabs, you set a CWD with `:cd` in the second tab; switching
-    to #1 would set back the old CWD. Switching back to #2 would set the path
-    you defined for that tab.
-
-Since each tab has its own CWD, XTabline filters the buffers to be shown on
-it, to display only the buffers whose path is within the CWD for that tab.
-
-
----
-
-#### Features List
-
-With *Tab Buffer* is meant a buffer that is associated with a tab, because its
-path is within that tab's CWD.
-
-* Per project/tab buffers filtering in the tabline
-
-* Per project/tab CWD persistance
-
-* Toggle display of tabs/buffers
-
-* Toggle buffer filtering on/off
-
-* Tab buffers quick navigation (next, previous, with *[count]*)
-
-* Tab bookmarks: load/save/delete a tab with all its buffers and its CWD
-
-* Session management: load/save/delete sessions, with timestamping and descriptions
-
-* Reopen last closed tab (with buffers and CWD)
-
-* Commands to clean up buffers
-
+* buffers quick navigation (next, previous, with *[count]*)
+* session management: load/save/delete sessions, with timestamping and descriptions
+* commands to clean up buffers across all tabs
 * Tab-todo: customizable command to open a todo file for that tab
 
-* *fzf-vim* integration:
-    - open/delete multiple *Tab Buffers* at once.
-    - access *Tab Bookmarks* or *NERDTreeBookmarks*.
-    - session management
+Integrated with:
 
-* *vim-obsession* support for CWDs persistance across sessions
+* *fzf-vim* (load saved tabs, sessio management)
+* *vim-obsession* for automatic CWDs persistance across sessions
+* additional support for *vim-airine* and *vim-devicons*
 
+----------------------------------------------------------------------------
+ 
+### Requirements
 
----
-
-#### Requirements
-
-[vim-airline](https://github.com/vim-airline/vim-airline) is required.  
 [vim-obsession](https://github.com/tpope/vim-obsession) is required for persistance.  
-[fzf-vim](https://github.com/junegunn/fzf.vim) is required for bookmarks commands.  
+[fzf-vim](https://github.com/junegunn/fzf.vim) is required for lots of commands.  
 
-
----
-
-#### Installation
+----------------------------------------------------------------------------
+ 
+### Installation
 
 Use [vim-plug](https://github.com/junegunn/vim-plug) or any other Vim plugin manager.
 
@@ -106,186 +74,179 @@ With vim-plug:
 
     Plug 'mg979/vim-xtabline'
 
+----------------------------------------------------------------------------
+ 
+### Settings and mappings
 
----
+To change any setting, you have to initialize the settings dictionary:
 
-#### Interaction With Airline
+    let g:xtabline_settings = {}
 
-XTabline exploits the built-in Airline 'excludes' list to achieve buffer
-filtering. In any case, you should have these enabled:
+Most of xtabline mappings can be associated to a prefix. Default is:
 
-    let g:airline#extensions#tabline#enabled = 1
-    let g:airline#extensions#tabline#show_buffers = 1
+    let g:xtabline_settings.map_prefix = '<leader>x'
 
+This means that most commands will be mapped to `<leader>x` + a modifier. You can change the prefix and all mappings will be changed accordingly.  
+Most mappings presented are meant prefixed by `prefix`, unless <kbd>enclosed<\kbd>. Other settings will be described later.
 
----
+----------------------------------------------------------------------------
+ 
+### Tab buffers navigation
 
-#### Mapping prefix
+By default, in the bufferline will be shown buffers that belong to the tab's CWD, or any open buffer inside the window.
+Using xtabline buffer navigation commands you can switch among them, while using the normal *:bnext* command, you still cycle among the default (global) buffer list.
 
-Most of XTabline mappings can be associated to a prefix. Default is:
+|Mapping               | Plug                                |
+|----------------------|-------------------------------------|
+|[count]<kbd>BS</kbd>  | `<Plug>(XT-Select-Buffer)`          |
+|<kbd>]b</kbd>         | `<Plug>(XT-Next-Buffer)`            |
+|<kbd>[b</kbd>         | `<Plug>(XT-Prev-Buffer)`            |
+|q                     | `<Plug>(XT-Close-Buffer)`           |
 
-    let g:xtabline_map_prefix = '<leader>X'
+*Next-Buffer* and *Prev-Buffer* accept a [count], to move to ±[N] buffer, as they are shown in the tabline. If moving beyond the limit, it will start from the start (or the end).
 
-This means that most commands will be mapped to \<leader>X + a modifier.
-You can change the prefix and all mappings will be changed accordingly.
+*Select-Buffer* works this way:
 
-
----
-
-#### Tab Buffers Navigation
-
-If you use the normal *:bnext* command, you still cycle among the default
-(global) buffer list. If that buffer doesn't 'belong' to that tab, because its
-path is outside the current CWD, the buffer will be loaded, but it won't be
-shown in the tabline. Only the buffers that are relevant to that tab will be
-shown there.
-
-There are new commands that allow you to cycle *Tab Buffers*; these commands
-also work when in *tabs mode* (see 'xtabline-toggle' ).
-
-|Mapping                          | Default|
-|---------------------------------|------------------------------------------|
-|\<Plug>XTablineSelectBuffer       | [count]\<leader>l|
-|\<Plug>XTablineNextBuffer         | \<S-PageDown>|
-|\<Plug>XTablinePrevBuffer         | \<S-PageUp>|
-|\<Plug>XTablineCloseBuffer        | \<prefix\>z|
-
-*XTablineNextBuffer* and *XTablinePrevBuffer* accept a [count], to move to ±[N]
-buffer, as they are shown in the tabline. If moving beyond the limit, it
-will start from the start (or the end).
-
-*XTablineSelectBuffer* works this way:
-
-* it needs a *[count]* to work, eg. 2\<leader>l would bring you to buffer #2
+* it needs a *[count]* to work, eg. 2\<BS> would bring you to buffer #2
 * when not using a *[count]*, it will execute a command of your choice
 
-Define this command by setting the *g:xtabline_alt_action* variable.
+Define this command by setting the *g:xtabline_settings.alt_action* variable.
 Default is `buffer #`
 
 Examples:
 
-    let g:xtabline_alt_action = "buffer #"    (switch to alternative buffer)
-    let g:xtabline_alt_action = "Buffers"     (call fzf-vim :Buffers command)
+    let g:xtabline_settings.alt_action = "buffer #"    (switch to alternative buffer)
+    let g:xtabline_settings.alt_action = "Buffers"     (call fzf-vim :Buffers command)
 
-*XTablineCloseBuffer* will close and delete the current buffer, but it will
-not try to close the tab page, unless _g:xtabline_close_buffer_can_close_tab_
-is set to 1.
-
----
-
-For quicker access, you could define bindings like these:
-```vim
-  nnoremap <nowait> <silent> <expr> <Right> v:count? xtabline#next_buffer(v:count) : "\<Right>"
-  nnoremap <nowait> <silent> <expr> <Left>  v:count? xtabline#prev_buffer(v:count) : "\<Left>"
-
-  nmap <nowait> <silent> <expr> <BS> g:xtabline.Vars.changing_buffer ? "\<C-c>" :
-                \ v:count? ":<C-u>call xtabline#select_buffer(v:count)\<cr>" : ":Buffers\<cr>"
-```
-
-
-
----
-
-#### Toggling Options
-
-You can toggle both between tabs and buffers, and buffers filtering on and off
-(going back to default behaviour). Default mappings are:
-
-|Mapping                          | Default     |
-|---------------------------------|------------------------------------------|
-|\<Plug>XTablineToggleTabs         | \<F5>|
-|\<Plug>XTablineToggleBuffers      | \<leader>\<F5>|
-
-
-
----
-
-#### Persistance
-
-If you use *vim-obsession* your tabs CWDs will be remembered inside a session
-that is currently tracked. It's an automatic process and you don't need to do
-or set anything.
-
+----------------------------------------------------------------------------
  
----
+### Closing buffers
 
-#### Session Management
+*XTabCloseBuffer* will close and delete the current buffer, while keeping the window open, and loading either:
 
-Both _vim-obsession_ and _fzf-vim_ are required.
+* the alternate buffer
+* a valid buffer for the tab
 
-|Command               |Mapping                          | Default     |
-|----------------------|---------------------------------|-------------|
-|XTabSessionLoad       |\<Plug>XTablineSessionLoad       | \<prefix\>L  |
-|XTabSessionSave       |\<Plug>XTablineSessionSave       | \<prefix\>S  |
-|XTabSessionDelete     |\<Plug>XTablineSessionDelete     | \<prefix\>Q  |
+It will not try to close the tab page/quit vim, unless:
 
-These commands operate on sessions found in the specified directory. Default:
+    let g:xtabline_settings.close_buffer_can_close_tab = 1
+    let g:xtabline_settings.close_buffer_can_quit_vim  = 1
 
-    let g:xtabline_sessions_path = '$HOME/.vim/session'
+----------------------------------------------------------------------------
+ 
+### Tabs, buffers and sessions
 
-When saving sessions, you can add a description, that defaults to the current
-one. Descriptions are saved in `$HOME/.vim/.XTablineSessions`.
+You can toggle between buffers and tabs with <kbd>F5<\kbd>.
 
-When loading sessions, the last modification date will be shown, along with
-the description and the symbol `[%]` that marks the active session (if any).
+#### Opening tabs
 
+|Command      | Mapping | Plug                         | Description                                       |
+|-------------|---------|------------------------------|---------------------------------------------------|
+|XTabNew      | tn      | `<Plug>(XT-Tab-New)`         | accepts a parameter, that is the name of the new tab|
+|XTabEdit     | te      | `<Plug>(XT-Tab-Edit)`        | accepts a path, and if called with bang, you'll be able to rename the tab soon after|
+|XTabReopen   | tr      | `<Plug>(XT-Reopen)`          | lets you reopen a previosly closed tab, and is repeatable  |
 
+#### Rearranging tabs
 
----
+`XTabMove` should be used to rearrange tabs, and not the regular `tabmove` command. It can be called with arguments:
 
-#### Options summary
+|Command       | Mapping | Plug                              | Description           |
+|--------------|---------|-----------------------------------|-----------------------|
+|`XTabMove +`  | <kbd>+t</kbd>      | `<Plug>(XT-Move-Tab+)` | move forward by 1     | 
+|`XTabMove -`  | <kbd>-t</kbd>      | `<Plug>(XT-Move-Tab-)` | move backwards by 1   | 
+|`XTabMove 0`  | <kbd>+T</kbd>      | `<Plug>(XT-Move-Tab0)` | make it the first tab | 
+|`XTabMove $`  | <kbd>-T</kbd>      | `<Plug>(XT-Move-Tab$)` | move at end           | 
 
-You can add any of these to your *.vimrc*
+#### Saving and loading tabs
 
-|Option                           | Effect (defalult) |
-|---------------------------------|----------------|
-|g:xtabline_disable_keybindings      | (0)        |
-|g:xtabline_cd_commands              | enable CWD selection commands (0)   |
-|g:xtabline_autodelete_empty_buffers | remove empty unsaved buffers (0)    |
-|g:xtabline_exact_paths              | require exact match for cwd (excluding possibliy related files) (0)   |
-|g:xtabline_alt_action               | SelectBuffer alternative command    |
-|g:xtabline_todo                     | todo command customization          |
-|g:xtabline_sessions_path            | sessions directory                  |
+_fzf-vim_ is required. With most of the *fzf-vim* commands you can select multiple items by pressing `<Tab>`.
 
----
+|Command               | Mapping | Plug                   |
+|----------------------|---------|------------------------|
+|XTabLoadTab           | lt      |`<Plug>(XT-Load-Tab)`   |
+|XTabSaveTab           | st      |`<Plug>(XT-Save-Tab)`   |
+|XTabDeleteTab         | dt      |`<Plug>(XT-Delete-Tab)` |
 
-#### Commands
+Saved tabs are stored in `$HOME/.vim/.XTablineTabs`.
 
-Many of these commands require *fzf-vim*.
-With most of them you can select multiple items by pressing `<Tab>`.
-Default mappings are meant prefixed by `<leader>`. Personally I use lowercase
-mappings for quicker access, but default mappings have uppercase X to lower
-chance of conflicts.
+#### Managing buffers
 
-|Command                | fzf | Map | Effect                                    |
-|-----------------------|-----|-----|-------------------------------------------|
-|XTabReopen             |  N  |  r  | Reopen last closed tab|
-|XTabPurge              |  N  |  p  | Purge orphaned buffers/previews|
-|XTabCleanUp            |  N  |  c  | Clean up the global buffers list|
-|XTabWipe               |  N  |  C  | Only leaves buffers with open windows in each tab|
-|XTabDepth              |  N  |  R  | Restrict filtering to root directory only|
-|XTabTodo               |  N  |  t  | Open the tab todo file|
-|XTabBuffersOpen        |  Y  |  x  | Open a list of `Tab Buffers` to choose from|
-|XTabBuffersDelete      |  Y  |  d  | Same list, but use `bdelete` command on them|
-|XTabAllBuffersDelete   |  Y  |  D  | `bdelete`, but choose from the global buffers list|
-|XTabBookmarksLoad      |  Y  |  l  | Open the `Tab Bookmarks` list|
-|XTabBookmarksSave      |  Y  |  s  | Save the current tab as a bookmark|
-|XTabBookmarksDelete    |  Y  |  q  | Delete the selected tab bookmark|
-|XTabSessionLoad        |  Y  |  L  | Open the `Sessions` list|
-|XTabSessionSave        |  Y  |  S  | Save the current session|
-|XTabSessionDelete      |  Y  |  Q  | Delete the selected session|
-|XTabNERDBookmarks      |  Y  |     | Open the list of `NERDTreeBookmarks`|
+_fzf-vim_ is required.
 
----
+|Command                 | Mapping | Plug                                | Description                                       |
+|------------------------|---------|-------------------------------------|---------------------------------------------------|
+|XTabListBuffers         | b       | `<Plug>(XT-List-Buffers)`           | list a list of `Tab Buffers` to choose from       |
+|XTabDeleteBuffers       | db      | `<Plug>(XT-Delete-Buffers)`         | same list, but use `bdelete` command on them      |
+|XTabDeleteGlobalBuffers | dgb     | `<Plug>(XT-Delete-Global-Buffers)`  | `bdelete`, but choose from the global buffers list|
 
-#### Buffers clean-up
+#### Tuning buffer filtering
+
+|Command         | Mapping | Plug                             | Description                                       |
+|----------------|---------|----------------------------------|---------------------------------------------------|
+|XTabWD!         |  wd     | `<Plug>(XT-Working-Directory)`   | will let you set the `cwd` and updates the tabline. With a bang, you'll be prompted for a cwd. |
+|XTabPinBuffer   |  pb     | `<Plug>(XT-Pin-Buffer)`          | a pinned buffer will be visible in all tabs       |
+|XTabDepth       |  sd     | `<Plug>(XT-Set-Depth)`           | will let you set the filtering depth (number of directories below current one, for which buffers are shown) |
+
+By default, in the bufferline will be shown buffers that belong to the tab's CWD, or any open buffer inside the window.
+
+With `XTabDepth` you can define how many directories below the current one will be valid for buffer filtering. If a [count] is given, filtering depth will be set to that number.
+#### Customizing tabs and buffers
+
+|Command                | Mapping     | Plug                             | Notes                                             |
+|-----------------------|-------------|----------------------------------|---------------------------------------------------|
+|XTabRenameTab          |  nt         |`<Plug>(XT-Rename-Tab)`           |                                                   |
+|XTabRenameBuffer       |  nb         |`<Plug>(XT-Rename-Buffer)`        |                                                   |
+|XTabIcon               |  ti         |`<Plug>(XT-Tab-Icon)`      |                                                   |
+|XTabBufferIcon         |  bi         |`<Plug>(XT-Buffer-Icon)`   |                                                   |
+|XTabFormatBuffer       |  bf         |`<Plug>(XT-Buffer-Format)` |                                                   |
+|XTabRelativePaths      |  rp         |`<Plug>(XT-Relative-Paths)`       | Toggles between basename and relative path in the bufferline |
+|XTabResetTab           |  rt         |`<Plug>(XT-Reset-Tab)`            | Reset tab customizations, also try to find a suitable cwd for that tab |
+|XTabResetBuffer        |  rb         |`<Plug>(XT-Reset-Buffer)`         | Reset buffer customization |
+
+When assigning an icon, you can autocomplete the icon name, or insert a single character. To expand the list of available icons for autocompletion, see [Customization](#customization).
+
+`XTabResetTab` will also try to find a suitable cwd for that tab.
+
+#### Sessions management
+
+Both _vim-obsession_ and _fzf-vim_ are required for session management.
+
+|Command               | Mapping | Plug                            |
+|----------------------|---------|---------------------------------|
+|XTabLoadSession       | ls      |`<Plug>(XT-Load-Session)`        |
+|XTabSaveSession       | ss      |`<Plug>(XT-Save-Session)`        |
+|XTabDeleteSession     | ds      |`<Plug>(XT-Delete-Session)`      |
+|XTabNewSession        | ns      |`<Plug>(XT-New-Session)`         |
+
+Descriptions are saved in `$HOME/.vim/.XTablineSessions`.
+
+Session commands operate on sessions found in the specified directory. Default:
+
+    let g:xtabline_settings.sessions_path = '$HOME/.vim/session'
+
+----------------------------------------------------------------------------
+ 
+### Other commands, plugs and mappings
+
+|Command                | Mapping     | Plug                          | Description                                             |
+|-----------------------|-------------|-------------------------------|---------------------------------------------------------|
+|                       |<kbd>F5<\kbd>|`<Plug>(XT-Toggle-Tabs)`          | toggle between tabs and buffers                      |
+|XTabPurge              |  pt         |`<Plug>(XT-Purge)`                | purge orphaned buffers/previews                      |
+|XTabCleanUp!           |  wa         |`<Plug>(XT-Wipe-All)`             | only leaves buffers with open windows in each tab    |
+|XTabCleanUp            |  cu         |`<Plug>(XT-Clean-Up)`             | clean up the global buffers list                     |
+|XTabTodo               |  tt         |`<Plug>(XT-Tab-Todo)`             | open tab todo file                                   |
+|XTabCustomTabs         |  ct         |`<Plug>(XT-Custom-Tabs)`          | Toggle visibility of tab customizations (name, icon) |
+|                       |  tf         |`<Plug>(XT-Toggle-Filtering)`     | toggle buffer filtering                              |
+|                       |  cdc        |`<Plug>(XT-Cd-Current)`           |                                                      |
+|                       |  cdd        |`<Plug>(XT-Cd-Down)`              | accepts [count]                                      |
+|XTabNERDBookmarks      |             |                                  | open the list of `NERDTreeBookmarks`                 |
+
+### Buffers clean-up
 
 `XTabPurge`
 
-This command is handy to close all buffers that aren't bound to a physical
-file (such `vim-fugitive` logs, `vim-gitgutter` previews, quickfix windows etc).
-If the only window in the tab is going to be closed, the buffer switches
-to the first tab buffer, so that you won't lose the tab.
+This command is handy to close all buffers that aren't bound to a physical file (such `vim-fugitive` logs, `vim-gitgutter` previews, quickfix windows etc).
+If the only window in the tab is going to be closed, the buffer switches to the first tab buffer, so that you won't lose the tab.
 
 Default mapping: `<prefix>p`
 
@@ -293,9 +254,8 @@ Default mapping: `<prefix>p`
 
 `XTabCleanUp`
 
-This command deletes all buffers from the global buffers list, that don't
-match any of the current tabs cwds. Useful to get rid of terminal buffers in
-neovim, for example.
+This command deletes all buffers from the global buffers list, that are not valid for any of the current tabs. Useful to get rid of terminal buffers in
+neovim, for example, or to keep slim your buffer list.
 
 Default mapping: `<prefix>c`
 
@@ -303,29 +263,27 @@ Default mapping: `<prefix>c`
 
 `XTabWipe`
 
-This command is similar to the previous one, except that it also deletes tab
-buffers, leaving only the currently open windows/buffers for each tab.
+This command is similar to the previous one, except that it also deletes tab buffers, leaving only the currently open windows/buffers for each tab.
 
 
 Default mapping: `<prefix>C`
 
+----------------------------------------------------------------------------
+ 
+### Tab-Todo
 
----
-
-#### Tab-Todo
-
-This command opens a todo file at the tab's CWD. Default mapping is `\<prefix\>t`
+This command opens a todo file at the tab's CWD. Default mapping is `prefix`t
 
 If you change the following options, make sure that both of them appear in
 your *.vimrc* file.
 
 You can define the filename (include the directory separator):
 
-    let g:xtabline_todo_file = "/.TODO"
+    let g:xtabline_settings.todo_file = "/.TODO"
 
 And you can define other options:
 ```vim
-    let g:xtabline_todo = {'path': getcwd().g:xtabline_todo_file,
+    let g:xtabline_settings.todo = {'path': getcwd().g:xtabline_todo_file,
                          \ 'command': 'sp', 'prefix': 'below',
                          \ 'size': 20, 'syntax': 'markdown'}
 ```
@@ -335,9 +293,9 @@ __*prefix*__  : will affect where the window appears (check `opening-window` for
 __*size*__    : the height/width of the window
 __*syntax*__  : the syntax that will be loaded
 
----
-
-#### Cwd selection
+----------------------------------------------------------------------------
+ 
+### Cwd selection
 
 Disabled by default, you can enable them by setting:
 
@@ -348,16 +306,16 @@ tabline at the same time.
 
 |Mapping                          | Default        |
 |---------------------------------|----------------|
-|\<Plug>XTablineCdCurrent         | \<leader>cdc   |
-|\<Plug>XTablineCdDown1           | \<leader>cdd   |
-|\<Plug>XTablineCdDown2           | \<leader>cd2   |
-|\<Plug>XTablineCdDown3           | \<leader>cd3   |
-|\<Plug>XTablineCdHome            | \<leader>cdh   |
-|\<Plug>XTablineRestrictCwd       | \<leader>cdr   |
+|\<Plug>(XT-Cd-current)         | \<leader>cdc   |
+|\<Plug>(XT-Cd-down1)           | \<leader>cdd   |
+|\<Plug>(XT-Cd-down2)           | \<leader>cd2   |
+|\<Plug>(XT-Cd-down3)           | \<leader>cd3   |
+|\<Plug>(XT-Cd-home)            | \<leader>cdh   |
+|\<Plug>(XT-Restrict-cwd)       | \<leader>cdr   |
 
----
-
-#### Restrict Cwd
+----------------------------------------------------------------------------
+ 
+### Restrict Cwd
 
 Run this command to temporarily restrict filter buffering to the files at the
 root of the current cwd, ignoring not only the files that are outside of it,
@@ -366,13 +324,27 @@ and is not persistent across sessions.
 
 Default mapping: `<prefix>R`
 
----
+----------------------------------------------------------------------------
+ 
+### Customization
 
-#### Customization
+You can add any of these to your *.vimrc*, in the `g:xtabline_settings` dictionary. Eg.:
+
+    let g:xtabline_settings.disable_keybindings = 1
+
+|Option                   | Effect                              | Default |
+|-------------------------|-------------------------------------|---------|
+|disable_keybindings      |                                     |  0      |
+|alt_action               | SelectBuffer alternative command    | `buffer #` |
+|todo                     | todo command customization          |         |
+|sessions_path            | sessions directory                  | `$HOME/.vim/session`        |
+
+----------------------------------------------------------------------------
+ 
 
 To prevent previews (eg. vim-fugitive logs) from being displayed, add:
 
-    let g:xtabline_exact_paths = 1
+    let g:xtabline_settings.exact_paths = 1
 
 (You'll still be able to purge them with XTabPurge)
 
@@ -386,42 +358,54 @@ These are the mappings I use:
     " xtabline
     """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-    nmap <F5>             <Plug>XTablineToggleTabs
-    nmap <leader><F5>     <Plug>XTablineToggleBuffers
-    nmap <BS>             <Plug>XTablineSelectBuffer
+    nmap <F5>             <Plug>(XT-Toggle-tabs)
+    nmap <leader><F5>     <Plug>(XT-Toggle-Buffers)
+    nmap <BS>             <Plug>(XT-Select-Buffer)
 
     nnoremap <nowait> <silent> <expr> <Right> v:count? xtabline#next_buffer(v:count) : "\<Right>"
     nnoremap <nowait> <silent> <expr> <Left>  v:count? xtabline#prev_buffer(v:count) : "\<Left>"
 
-    nmap <Space>b         <Plug>XTablineBuffersOpen
-    nmap {your-prefix}d   <Plug>XTablineBuffersDelete
-    nmap {your-prefix}D   <Plug>XTablineAllBuffersDelete
-    nmap {your-prefix}r   <Plug>XTablineReopen
-    nmap {your-prefix}p   <Plug>XTablinePurge
-    nmap {your-prefix}c   <Plug>XTablineCleanUp
-    nmap {your-prefix}C   <Plug>XTablineWipe
-    nmap {your-prefix}l   <Plug>XTablineBookmarksLoad
-    nmap {your-prefix}s   <Plug>XTablineBookmarksSave
-    nmap {your-prefix}L   <Plug>XTablineSessionLoad
-    nmap {your-prefix}S   <Plug>XTablineSessionSave
-    nmap {your-prefix}t   <Plug>XTablineTabTodo
-    nmap {your-prefix}R   <Plug>XTablineRestrictCwd
+    nmap <Space>b         <Plug>(XT-Buffers-open)
+    nmap {your-prefix}d   <Plug>(XT-Buffers-delete)
+    nmap {your-prefix}D   <Plug>(XT-All-Buffers-delete)
+    nmap {your-prefix}r   <Plug>(XT-Reopen)
+    nmap {your-prefix}p   <Plug>(XT-Purge)
+    nmap {your-prefix}c   <Plug>(XT-Clean-up)
+    nmap {your-prefix}C   <Plug>(XT-Wipe)
+    nmap {your-prefix}l   <Plug>(XT-Bookmarks-load)
+    nmap {your-prefix}s   <Plug>(XT-Bookmarks-save)
+    nmap {your-prefix}L   <Plug>(XT-Session-load)
+    nmap {your-prefix}S   <Plug>(XT-Session-save)
+    nmap {your-prefix}t   <Plug>(XT-Tab-todo)
+    nmap {your-prefix}R   <Plug>(XT-Restrict-cwd)
 
-    let g:xtabline_map_prefix    = '<leader>x'
-    let g:xtabline_alt_action    = "Buffers"
+    let g:xtabline_settings.map_prefix    = '<leader>x'
+    let g:xtabline_settings.alt_action    = "Buffers"
 
-    let g:xtabline_bookmaks_file = expand('$HOME/.vim/.XTablineBookmarks')
-    let g:xtabline_sessions_path = '$HOME/.vim/session'
+    let g:xtabline_settings.bookmaks_file = expand('$HOME/.vim/.XTabBookmarks')
+    let g:xtabline_settings.sessions_path = '$HOME/.vim/session'
 
-    let g:xtabline_todo_file     = "/.TODO"
-    let g:xtabline_todo          = {'path': getcwd().g:xtabline_todo_file, 'command': 'sp', 'prefix': 'below', 'size': 20, 'syntax': 'tasks'}
+    let g:xtabline_settings.todo_file     = "/.TODO"
+    let g:xtabline_settings.todo          = {'path': getcwd().g:xtabline_settings.todo_file, 'command': 'sp', 'prefix': 'below', 'size': 20, 'syntax': 'tasks'}
 
 ```
 
+----------------------------------------------------------------------------
+ 
+### Interaction With Airline
 
----
+xtabline will override Airline's tabline by default, because it's faster. To restore it, set:
 
-#### Credits
+let g:xtabline_settings.override_airline = 0
+let g:airline#extensions#tabline#show_buffers = 1
+
+You will still have buffer filtering, but lose other features (custom names and icons, formatting, etc).  
+But you will be able to use Airline'themes. xtabline has its own ones and is not compatible with them.
+
+----------------------------------------------------------------------------
+ 
+
+### Credits
 
 Braam Moolenaar for Vim  
 [vim-airline](https://github.com/vim-airline/vim-airline) authors  
@@ -429,10 +413,9 @@ Junegunn Choi for [fzf-vim](https://github.com/junegunn/fzf.vim)
 Tim Pope for [vim-obsession](https://github.com/tpope/vim-obsession)  
 Kana Natsuno for [tabpagecd](https://github.com/kana/vim-tabpagecd)  
 
-
----
-
-#### License
+----------------------------------------------------------------------------
+ 
+### License
 
 MIT
 
