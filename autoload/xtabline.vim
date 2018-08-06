@@ -19,6 +19,7 @@ let s:T  = { -> s:X.Tabs[tabpagenr()-1] }       "current tab
 let s:B  = { -> s:X.Buffers             }       "customized buffers
 let s:vB = { -> s:T().buffers.valid     }       "valid buffers for tab
 let s:oB = { -> s:T().buffers.order     }       "ordered buffers for tab
+let s:pB = { -> s:X.pinned_buffers      }       "pinned buffers list
 
 let s:ready    = { -> !(exists('g:SessionLoad') || s:V.halt) }
 let s:fullpath = { p -> fnamemodify(expand(p), ":p")         }
@@ -160,11 +161,11 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! xtabline#next_buffer(nr)
-  """Switch to next visible buffer."""
+fun! xtabline#next_buffer(nr, pinned)
+  """Switch to next visible/pinned buffer."""
 
-  if ( s:F.not_enough_buffers() || !s:V.filtering ) | return | endif
-  let accepted = s:oB()
+  if s:F.not_enough_buffers(a:pinned) | return | endif
+  let accepted = a:pinned? s:pB() : s:oB()
 
   let ix = index(accepted, bufnr("%"))
   let target = ix + a:nr
@@ -188,11 +189,11 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! xtabline#prev_buffer(nr)
-  """Switch to previous visible buffer."""
+fun! xtabline#prev_buffer(nr, pinned)
+  """Switch to previous visible/pinned buffer."""
 
-  if ( s:F.not_enough_buffers() || !s:V.filtering ) | return | endif
-  let accepted = s:oB()
+  if s:F.not_enough_buffers(a:pinned) | return | endif
+  let accepted = a:pinned? s:pB() : s:oB()
 
   let ix = index(accepted, bufnr("%"))
   let target = ix - a:nr

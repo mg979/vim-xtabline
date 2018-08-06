@@ -229,17 +229,18 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-function! s:Funcs.not_enough_buffers() dict
+function! s:Funcs.not_enough_buffers(pinned) dict
   """Just return if there aren't enough buffers."""
-  let bufs = s:vB()
+  let bufs = a:pinned ? s:V.pinned_buffers : s:oB()
+  let pin  = a:pinned ? ' pinned ' : ' '
 
   if len(bufs) < 2
-    if index(bufs, bufnr("%")) == -1
+    if empty(bufs)
+      call self.msg ([[ "No available".pin."buffers for this tab.", 'WarningMsg' ]])
+    elseif index(bufs, bufnr("%")) == -1
       return
-    elseif !len(bufs)
-      call self.msg ([[ "No available buffers for this tab.", 'WarningMsg' ]])
     else
-      call self.msg ([[ "No other available buffers for this tab.", 'WarningMsg' ]])
+      call self.msg ([[ "No other available".pin."buffers for this tab.", 'WarningMsg' ]])
     endif
     return 1
   endif
