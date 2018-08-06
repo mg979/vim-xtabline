@@ -248,14 +248,13 @@ function! s:Do(action, ...)
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
   elseif a:action == 'bufdelete'
-    call F.delay(100, 'g:xtabline.Funcs.clean_up_buffer_dict('.a:1.')')
+    " call F.delay(100, 'g:xtabline.Funcs.clean_up_buffer_dict('.a:1.')')
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
   elseif a:action == 'enter'
 
     call F.check_tabs()
-    call F.clean_up_buffer_dict()
     let T = X.Tabs[N]
 
     cd `=T.cwd`
@@ -273,6 +272,7 @@ function! s:Do(action, ...)
 
   elseif a:action == 'leave'
 
+    call F.clean_up_buffer_dict()
     let V.last_tab = N
     let X.Tabs[N].cwd = getcwd()
 

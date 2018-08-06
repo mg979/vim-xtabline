@@ -69,26 +69,39 @@ endfun
 fun! s:depth(args)
   """Set tab filtering depth, toggle filtering with bang."""
   let [bang, cnt] = a:args | let T = s:T()
-  let cnt = (bang && T.depth == -1)? 0 :
-          \ bang? -1 :
-          \ !cnt && !T.depth? -1 : cnt
-  let T.depth = cnt
+
+  let current_dir_only  = bang && T.depth  || !T.depth && !cnt
+  let full_cwd          = bang && !T.depth || T.depth  && !cnt
+
+  let T.depth = current_dir_only ? 1 :
+        \       full_cwd         ? 0 : cnt
+
   call xtabline#filter_buffers()
 
-  let n = cnt < 2? 0 : cnt-1
-  let tree = !executable('tree')? ['', 'None'] : !n? ['', 'None'] :
-              \ ["\n\n".system('tree -d -L '.n.' '.getcwd()), 'Type']
+  let tree = !executable('tree')? [] : systemlist('tree -d -L '.cnt.' '.getcwd())
 
-  if cnt < 0
-    call s:F.msg ([[ "Buffer filtering is now disabled.", 'WarningMsg']])
+  if !empty(tree) && len(tree) > s:Sets.depth_tree_size
+    let tree = tree[:s:Sets.depth_tree_size] + ['...'] + [tree[-1]]
+  endif
 
-  elseif !cnt
+  if !empty(tree)
+    let tree = ["\n\n".join(tree, "\n"), 'Type']
+  else
+    let tree = ['', 'None']
+  endif
+
+  if current_dir_only
+    call s:F.msg ([[ "Buffer filtering is now restricted to ", 'WarningMsg'],
+                  \[ getcwd(), 'None'],
+                  \[ " alone", 'WarningMsg']])
+
+  elseif full_cwd
     call s:F.msg ([[ "Buffer filtering is now restricted to ", 'Type'],
                   \[ getcwd(), 'None'],
                   \[ " and all subdirectories", 'Type']])
   else
     call s:F.msg ([[ "Buffer filtering is now restricted to ", 'WarningMsg'],
-                  \[ cnt-1, 'None'],
+                  \[ cnt, 'None'],
                   \[ " directories below ", 'WarningMsg'],
                   \[ getcwd(), 'None' ], tree])
   endif

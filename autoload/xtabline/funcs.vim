@@ -162,7 +162,7 @@ fun! s:Funcs.within_depth(path, depth) dict
   let basedir = fnamemodify(a:path, ":p:h")
   let diff = substitute(basedir, getcwd(), '', '')
 
-  "the number of dir separators in (basedir - cwd) must be <= depth
+  "the number of dir separators in (basedir - cwd) must be < depth
   return count(diff, self.sep()) < a:depth
 endfun
 

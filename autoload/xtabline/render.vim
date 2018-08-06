@@ -153,7 +153,7 @@ fun! xtabline#render#buffers()
   " 3. add the current tab name/cwd to the right side
   let [active_tab, active_tab_label] = s:get_tab_for_bufline()
   if !empty(active_tab_label)
-    let rgt.width += strwidth(strtrans(active_tab_label)) + 7
+    let rgt.width += strwidth(strtrans(active_tab_label)) + 3
   endif
 
   " 4. toss away tabs and pieces until all fits:
@@ -561,7 +561,7 @@ fun! s:get_tab_for_bufline()
   let fmt_chars = s:fmt_chars(fmt)                                      "formatting options
   let fmt_tab = s:format_tab(N, fmt_chars)                              "formatted string
   let active_tab_label = substitute(fmt_tab, '%#X\w*#', '', 'g')        "text only, to find width
-  let active_tab = '%#XBufLineFill#    %#XBufLineCurrent#'.fmt_tab      "add a bit of space to the left
+  let active_tab = '%#XBufLineFill#%#XBufLineCurrent#'.fmt_tab          "use LineFill until label
   return [active_tab, active_tab_label]
 endfun
 

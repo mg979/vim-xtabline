@@ -105,6 +105,7 @@ let s:S.exact_paths                = get(s:S, 'exact_paths', 0)
 let s:S.close_buffer_can_close_tab = get(s:S, 'close_buffer_can_close_tab', 0)
 let s:S.close_buffer_can_quit_vim  = get(s:S, 'close_buffer_can_quit_vim', 0)
 let s:S.unload_session_ask_confirm = get(s:S, 'unload_session_ask_confirm', 1)
+let s:S.depth_tree_size            = get(s:S, 'depth_tree_size', 20)
 
 let s:S.alt_action                 = get(s:S, 'alt_action', "buffer #")
 let s:S.bookmaks_file              = get(s:S, 'bookmaks_file ', expand('$HOME/.vim/.XTablineBookmarks'))
