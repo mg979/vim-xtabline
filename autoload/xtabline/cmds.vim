@@ -125,7 +125,8 @@ fun! s:purge_buffers()
   " 2. path doesn't belong to cwd, but it has been accepted for partial match
 
   for buf in (accepted + bufs)
-    let bufpath = fnamemodify(bufname(buf), ":p")
+    let bname = bufname(buf)
+    let bufpath = fnamemodify(bname, ":p")
 
     if !filereadable(bufpath)
       if !getbufvar(buf, "&modified")
@@ -133,6 +134,9 @@ fun! s:purge_buffers()
         if ix >= 0    | call add(purged, remove(accepted, ix))
         else          | call add(purged, buf) | endif
       endif
+
+    elseif bname ==# '.git/index'               "purge git status
+      let bcnt += 1   | call add(purged, buf)
 
     elseif bufpath !~ "^".s:T().cwd
       let bcnt += 1   | let ix = index(accepted, buf)

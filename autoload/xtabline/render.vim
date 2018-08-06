@@ -528,20 +528,20 @@ fun! s:unicode_nrs(nr)
   return u_nr
 endfun
 
+let s:Git = {'GV': 'GV', 'gitcommit': 'Commit', 'magit': 'Magit', 'git': 'Git'}
+
 fun! s:is_special_buffer(nr)
   """Customize special buffers.
   let bufs = s:B()
+  let git  = index(['GV', 'gitcommit', 'magit', 'git'], getbufvar(a:nr, "&ft"))
+  let gitn = ['GV', 'Commit', 'Magit', 'Git']
 
-  if s:Is(a:nr, "fugitive")      "fugitive buffer, set name and icon
+  if git >= 0
+    let bufs[a:nr] = s:Bd(gitn[git], s:Sets.custom_icons.git, {})
+    return 1
+
+  elseif s:Is(a:nr, "fugitive")      "fugitive buffer, set name and icon
     let bufs[a:nr] = s:Bd('fugitive', s:Sets.custom_icons.git, {})
-    return 1
-
-  elseif s:Ft(a:nr, "GV")
-    let bufs[a:nr] = s:Bd('GV', s:Sets.custom_icons.git, {})
-    return 1
-
-  elseif s:Ft(a:nr, "magit")
-    let bufs[a:nr] = s:Bd('Magit', s:Sets.custom_icons.git, {})
     return 1
 
   elseif s:Ft(a:nr, "ctrlsf")
