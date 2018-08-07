@@ -14,8 +14,14 @@ fun! xtabline#hi#init()
   let s:Hi.XTabLineMod     = get(s:Hi, "XTabLineMod",     ["TabLine",     1])
   let s:Hi.XTabLine        = get(s:Hi, "XTabLine",        ["TabLine",     1])
   let s:Hi.XTabLineFill    = get(s:Hi, "XTabLineFill",    ["TabLineFill", 1])
-  let s:Hi.XTabLineNumSel  = get(s:Hi, "XTabLineNumSel",  ["DiffAdd",  1])
+  let s:Hi.XTabLineNumSel  = get(s:Hi, "XTabLineNumSel",  ["DiffAdd",     1])
   let s:Hi.XTabLineNum     = get(s:Hi, "XTabLineNum",     ["Special",     1])
+
+  if get(s:Hi, 'enable_extra_highlight', 1)
+    let s:Hi.XBufLineSpecial = get(s:Hi, 'XBufLineSpecial', ["DiffAdd",    1])
+    let s:Hi.XBufLineMod     = get(s:Hi, 'XBufLineMod',     ["WarningMsg",  1])
+    let s:Hi.XBufLinePinned  = get(s:Hi, 'XBufLinePinned',  ["PmenuSel",    1])
+  endif
 
   call xtabline#hi#refresh(1)
 endfun
