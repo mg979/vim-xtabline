@@ -366,6 +366,23 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
+fun! s:check_dir(dir)
+  """Create directory if not existant."""
+  let f = s:F.fullpath(a:dir)
+  if filereadable(f) || isdirectory(f) | return f | endif
+  let f = fnamemodify(f, ":h")
+  if filereadable(f) || isdirectory(f) | return f | endif
+  call s:F.msg ([[ "Create new directory ", 'Label' ], [ f, 'None' ], [ " ?", 'Label' ]])
+  if nr2char(getchar()) ==# 'y'
+    call mkdir(f, 'p')
+    return f
+  else
+    return
+  endif
+endfun
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
 fun! s:edit_tab(...)
   """Open a new tab with optional path. Bang triggers rename.
 
@@ -379,6 +396,10 @@ fun! s:edit_tab(...)
     let s:V.tab_properties = {'cwd': expand("~")}
     exe n . "tabnew"
   else
+    let dir = s:check_dir(args[2])
+    if !empty(dir)
+      let s:V.tab_properties = {'cwd': dir}
+    endif
     exe n . "tabedit" args[2]
   endif
   call xtabline#filter_buffers()

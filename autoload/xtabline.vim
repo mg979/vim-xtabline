@@ -23,7 +23,6 @@ let s:pB = { -> s:X.pinned_buffers      }       "pinned buffers list
 
 let s:ready    = { -> !(exists('g:SessionLoad') || s:V.halt) }
 let s:invalid  = { b -> !buflisted(b) || getbufvar(b, "&buftype") == 'quickfix' }
-let s:fullpath = { p -> fnamemodify(expand(p), ":p")         }
 let s:is_ma    = { b -> index(s:F.wins(), b) >= 0 && getbufvar(b, "&ma") }
 let s:is_special = { b -> index(s:F.wins(), b) >= 0 && has_key(s:B(), b) && has_key(s:B()[b], 'special') }
 
@@ -301,8 +300,8 @@ fun! s:set_new_tab_cwd(N)
 
   " empty tab sets cwd to ~, non-empty tab looks for a .git dir
   if empty(bufname("%"))
-    let T.cwd = s:fullpath('~')
-  elseif T.cwd == '~' || s:fullpath("%") !~ s:fullpath(T.cwd)
+    let T.cwd = s:F.fullpath('~')
+  elseif T.cwd == '~' || s:F.fullpath("%") !~ s:F.fullpath(T.cwd)
     let T.cwd = s:F.find_suitable_cwd()
   endif
   cd `=T.cwd`

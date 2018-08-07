@@ -12,7 +12,8 @@ fun! xtabline#funcs#init()
 endfun
 
 let s:Funcs = {}
-let s:Funcs.wins = { -> tabpagebuflist(tabpagenr()) }
+let s:Funcs.wins        = { -> tabpagebuflist(tabpagenr()) }
+let s:Funcs.fullpath    = { p -> fnamemodify(expand(p), ":p") }
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
