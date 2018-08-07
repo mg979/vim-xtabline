@@ -14,7 +14,6 @@ let s:V.showing_tabs   = 0                      "tabline or bufline?
 let s:V.buftail        = s:Sets.relative_paths  "whether the bufline is showing basenames only
 let s:V.halt           = 0                      "used to temporarily halt some functions
 let s:V.auto_set_cwd   = 0                      "used to temporarily allow auto cwd detection
-let s:V.special_buffers = []
 
 let s:T  = { -> s:X.Tabs[tabpagenr()-1] }       "current tab
 let s:B  = { -> s:X.Buffers             }       "customized buffers
@@ -23,8 +22,10 @@ let s:oB = { -> s:T().buffers.order     }       "ordered buffers for tab
 let s:pB = { -> s:X.pinned_buffers      }       "pinned buffers list
 
 let s:ready    = { -> !(exists('g:SessionLoad') || s:V.halt) }
+let s:invalid  = { b -> !buflisted(b) || getbufvar(b, "&buftype") == 'quickfix' }
 let s:fullpath = { p -> fnamemodify(expand(p), ":p")         }
-let s:is_ma    = { b -> index(tabpagebuflist(tabpagenr()), b) >= 0 && getbufvar(b, "&ma") }
+let s:is_ma    = { b -> index(s:F.wins(), b) >= 0 && getbufvar(b, "&ma") }
+let s:is_special = { b -> index(s:F.wins(), b) >= 0 && has_key(s:B(), b) && has_key(s:B()[b], 'special') }
 
 let s:most_recent = -1
 let s:new_tab_created = 0
@@ -133,9 +134,10 @@ fun! xtabline#filter_buffers(...)
 
   for buf in range(1, bufnr("$"))
 
-    if s:F.invalid_buffer(buf)  | continue
-    elseif s:is_ma(buf)         | call add(accepted, buf) | continue
-    elseif nofilter             | call add(accepted, buf) | continue | endif
+    if s:is_special(buf)   | call add(accepted, buf) | continue
+    elseif s:invalid(buf)  | continue
+    elseif s:is_ma(buf)    | call add(accepted, buf) | continue
+    elseif nofilter        | call add(accepted, buf) | continue | endif
 
     " get the path
     let path = expand("#".buf.":p")
@@ -274,7 +276,6 @@ function! s:Do(action, ...)
 
   elseif a:action == 'leave'
 
-    call F.clean_up_buffer_dict()
     let V.last_tab = N
     let X.Tabs[N].cwd = getcwd()
 
@@ -323,7 +324,7 @@ augroup plugin-xtabline
 
   "NOTE: BufEnter needed. Timer improves reliability. Keep it like this.
   autocmd BufAdd,BufWrite,BufEnter  * call g:xtabline.Funcs.delay(100, 'xtabline#filter_buffers()')
-  autocmd QuitPre                   * call xtabline#update_obsession()
+  autocmd QuitPre                   * call g:xtabline.Funcs.clean_up_buffer_dict() | call xtabline#update_obsession()
   autocmd SessionLoadPost           * let cwd = g:xtabline.Tabs[tabpagenr()-1].cwd | cd `=cwd` | doautocmd BufAdd
 augroup END
 

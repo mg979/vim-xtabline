@@ -50,13 +50,6 @@ fun! s:Funcs.msg(txt, ...) dict
   endfor
 endfun
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! s:Funcs.invalid_buffer(buf) dict
-  return !buflisted(a:buf) ||
-        \ getbufvar(a:buf, "&buftype") == 'quickfix'
-endfun
-
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:Funcs.set_buffer_var(var, ...) dict
@@ -104,7 +97,10 @@ endfun
 
 fun! s:Funcs.clean_up_buffer_dict(...) dict
   """Remove customized buffer entries, if buffers are not valid anymore.
-  let bufs = s:B() | let sbufs = s:V.special_buffers
+  let bufs = s:B()
+  let l:Invalid = { b -> !bufexists(b)                  ||
+                      \  has_key(bufs[b], 'special')    ||
+                      \  bufs[b].path !=# expand("#".b.":p") }
 
   "called on BufDelete for a single buffer
   if a:0 && !bufexists(a:1) && has_key(bufs, a:1)
@@ -115,16 +111,10 @@ fun! s:Funcs.clean_up_buffer_dict(...) dict
   endif
 
   for b in keys(bufs)
-    if bufs[b].path !=# expand("#".b.":p")
+    if l:Invalid(b)
       unlet bufs[b]
     endif
   endfor
-  for b in sbufs
-    if has_key(bufs, b)
-      unlet bufs[b]
-    endif
-  endfor
-  let s:V.special_buffers = []
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

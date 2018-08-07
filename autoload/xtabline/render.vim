@@ -10,9 +10,10 @@ let s:oB = { -> s:T().buffers.order     }       "ordered buffers for tab
 
 let s:Is = { n,s -> match(bufname(n), s) == 0 }
 let s:Ft = { n,s -> getbufvar(n, "&ft")  == s }
-let s:Bd = { n,i,d -> extend( { 'name': n, 'icon': i, 'path': '', 'nomod': 1 }, d ) }
+let s:Bd = { n,i,d -> extend( { 'name': n, 'icon': i, 'path': '', 'special': 1 }, d ) }
 
-let s:nomod = { nr -> has_key(s:B(), nr) && has_key(s:B()[nr], 'nomod') }
+let s:special = { nr -> has_key(s:B(), nr) && has_key(s:B()[nr], 'special') }
+let s:refilter = 0
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Bufline/Tabline settings
@@ -92,9 +93,11 @@ fun! xtabline#render#buffers()
       let i = index(bufs, b)
       if i >= 0 | call remove(bufs, i) | endif
       call insert(bufs, b, 0)
-      call add(s:V.special_buffers, b)
     endif
   endfor
+
+  " some buffer types may need a refresh to set further properties
+  if s:refilter | let s:refilter = 0 | call xtabline#filter_buffers() | return '' | endif
 
   " make buftab string
   for bnr in bufs
@@ -219,7 +222,7 @@ fun! s:buf_indicator(bnr)
   let mod = index(s:pinned(), nr) >= 0 ? mods.pinned : ''
   if getbufvar(nr, '&mod')
     return (mod . mods.modified)
-  elseif s:nomod(nr)
+  elseif s:special(nr)
     return ''
   elseif s:scratch(nr)
     return (mod . mods.scratch)
@@ -523,6 +526,7 @@ fun! s:is_special_buffer(nr)
 
   if git >= 0
     let bufs[a:nr] = s:Bd(gitn[git], s:Sets.custom_icons.git, {})
+    if git == 0 | call s:lock_tab([a:nr], {'name': 'GV', 'icon': s:Sets.custom_icons.git}) | endif
     return 1
 
   elseif s:Is(a:nr, "fugitive")      "fugitive buffer, set name and icon
@@ -535,7 +539,16 @@ fun! s:is_special_buffer(nr)
   endif
 endfun
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+fun! s:lock_tab(bufs, props)
+  """Lock tab and force refiltering."""
+  let T = tabpagenr() - 1
+  let s:refilter = 1
+  let s:X.Tabs[T].locked = 1
+  let s:X.Tabs[T].buffers.valid = a:bufs
+  for prop in keys(a:props)
+    let s:X.Tabs[T][prop] = a:props[prop]
+  endfor
+endfun
 
 fun! s:get_tab_for_bufline()
   """Build string with tab label and icon for the bufline."""
