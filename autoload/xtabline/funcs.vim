@@ -12,6 +12,7 @@ fun! xtabline#funcs#init()
 endfun
 
 let s:Funcs = {}
+let s:Funcs.wins = { -> tabpagebuflist(tabpagenr()) }
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 

@@ -1,5 +1,6 @@
 let s:X    = g:xtabline
 let s:V    = g:xtabline.Vars
+let s:F    = g:xtabline.Funcs
 let s:Sets = g:xtabline_settings
 
 let s:T =  { -> s:X.Tabs[tabpagenr()-1] }       "current tab
@@ -42,7 +43,7 @@ let s:Sets.unnamed_tab_label         = get(s:Sets, "unnamed_tab_label", "[no nam
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-" BufTabLine {{{
+" BufTabLine {{{1
 " =============================================================================
 " Description: Vim global plugin for rendering the buffer list in the tabline
 " Mantainer:   Aristotle Pagaltzis <pagaltzis@gmx.de>
@@ -51,7 +52,7 @@ let s:Sets.unnamed_tab_label         = get(s:Sets, "unnamed_tab_label", "[no nam
 " Copyright:   (c) 2015 Aristotle Pagaltzis <pagaltzis@gmx.de>
 " =============================================================================
 
-" Variables {{{
+" Variables
 " =============================================================================
 
 let s:dirsep            = fnamemodify(getcwd(),':p')[-1:]
@@ -61,9 +62,8 @@ let s:nowrite           = { nr -> !getbufvar(nr, '&modifiable') }
 let s:pinned            = { -> s:X.pinned_buffers               }
 let s:buffer_has_format = { buf -> has_key(s:B(), buf.nr) && has_key(s:B()[buf.nr], 'format') }
 let s:has_buf_icon      = { nr -> has_key(s:B(), string(nr)) && !empty(get(s:B()[nr], 'icon', '')) }
-"}}}
 
-" Main function {{{
+" BufTabLine main function {{{1
 " =============================================================================
 
 fun! xtabline#render#buffers()
@@ -87,7 +87,7 @@ fun! xtabline#render#buffers()
 
   "include special buffers
   "Note: maybe not necessary to find index
-  for b in tabpagebuflist(tabpagenr())
+  for b in s:F.wins()
     if index(bufs, b) < 0 && s:is_special_buffer(b)
       let i = index(bufs, b)
       if i >= 0 | call remove(bufs, i) | endif
@@ -185,9 +185,8 @@ fun! xtabline#render#buffers()
   let l_r =  lft.width + rgt.width
   return left . s:extra_padding(l_r) . right
 endfun
-"}}}
 
-" Formatting function{{{
+" Buffer label formatting {{{1
 " =============================================================================
 
 fun! s:format_buffer(buf)
@@ -287,13 +286,12 @@ fun! s:needs_separator(buf)
   return (either_or && !a:buf.has_icon) || !either_or
 endfun
 
-"}}}}}}
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 
 
-"Taboo {{{
+"Taboo  {{{1
 "" =============================================================================
 " File: taboo.vim
 " Description: A little plugin for managing the vim tabline
@@ -302,18 +300,7 @@ endfun
 " License: MIT
 " =============================================================================
 
-" Init{{{
-" =============================================================================
-if v:version < 702
-  finish
-endif
-let g:loaded_taboo = 1
-
-let s:save_cpo = &cpo
-set cpo&vim
-"}}}
-
-" Main command{{{
+" Main command
 " =============================================================================
 
 " To construct the tabline string for terminal vim.
@@ -333,9 +320,8 @@ fun! xtabline#render#tabs()
   let tabline .= '%=%#XTabLine#%999X' . s:Sets.close_tabs_label
   return tabline
 endfun
-"}}}
 
-" Functions for formatting the tab title{{{
+" Tab label formatting {{{1
 " =============================================================================
 
 fun! s:fmt_chars(fmt)
@@ -346,6 +332,8 @@ fun! s:fmt_chars(fmt)
   endfor
   return chars
 endfun
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:format_tab(tabnr, fmt)
   let out = []
@@ -375,6 +363,8 @@ fun! s:format_tab(tabnr, fmt)
   return join(out, '')
 endfun
 
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
 fun! s:short_cwd(tabnr, h)
   if !a:h
     return fnamemodify(expand(s:X.Tabs[a:tabnr-1].cwd), ":t")
@@ -387,21 +377,29 @@ fun! s:short_cwd(tabnr, h)
   endif
 endfun
 
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
 fun! s:tabnum(tabnr, all)
   return a:tabnr == tabpagenr() ?
         \        "%#XTabLineNumSel# " . a:tabnr . " %#XTabLineSel#" :
         \a:all ? "%#XTabLineNum# "    . a:tabnr . " %#XTabLine#" : ''
 endfun
 
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
 fun! s:wincount(tabnr, all)
   return a:all || a:tabnr == tabpagenr() ?
         \tabpagewinnr(a:tabnr, '$') : ''
 endfun
 
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
 fun! s:wincountUnicode(tabnr, all)
   let buffers_number = s:unicode_nrs(tabpagewinnr(a:tabnr, '$'))
   return a:all || a:tabnr == tabpagenr() ? buffers_number : ''
 endfun
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:modflag(tabnr)
   let flag = s:Sets.modified_tab_flag
@@ -415,6 +413,8 @@ fun! s:modflag(tabnr)
   return ""
 endfun
 
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
 fun! s:bufname(tabnr)
   let buffers = tabpagebuflist(a:tabnr)
   let buf = s:first_normal_buffer(buffers)
@@ -425,6 +425,8 @@ fun! s:bufname(tabnr)
   return s:Sets.unnamed_tab_label
 endfun
 
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
 fun! s:bufpath(tabnr)
   let buffers = tabpagebuflist(a:tabnr)
   let buf = s:first_normal_buffer(buffers)
@@ -434,6 +436,8 @@ fun! s:bufpath(tabnr)
   endif
   return s:Sets.unnamed_tab_label
 endfun
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:get_tab_icon(tabnr)
   if !s:V.show_tab_icons
@@ -447,6 +451,8 @@ fun! s:get_tab_icon(tabnr)
        \   s:Sets.default_named_tab_icon :
        \   get(s:Sets, 'tab_icon', ["📂", "📁"])
 endfun
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:has_tab_icon(T)
   if !has_key(a:T, 'icon') | return | endif
@@ -462,28 +468,17 @@ fun! s:has_tab_icon(T)
     return [I[0], I[0]]
   endif
 endfun
-"}}}
-
-let &cpo = s:save_cpo
-unlet s:save_cpo
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 
 
 
-
-
-" Helpers{{{
+" Helpers {{{1
 " =============================================================================
 
-fun! s:tabs()
-  return range(1, tabpagenr('$'))
-endfun
-
-fun! s:tabcwd(tabnr)
-  return s:X.Tabs[a:tabnr-1].cwd
-endfun
+let s:tabs = { -> range(1, tabpagenr('$')) }
+let s:tabcwd = { n -> s:X.Tabs[n-1].cwd }
+let s:windows = { n -> range(1, tabpagewinnr(n, '$')) }
+let s:basename = { f -> fnamemodify(f, ':p:t') }
 
 fun! s:tabname(tabnr)
   if s:V.show_tab_icons
@@ -491,14 +486,6 @@ fun! s:tabname(tabnr)
   else
     return s:short_cwd(a:tabnr, 2)
   endif
-endfun
-
-fun! s:windows(tabnr)
-  return range(1, tabpagewinnr(a:tabnr, '$'))
-endfun
-
-fun! s:basename(name)
-  return fnamemodify(a:name, ':p:t')
 endfun
 
 fun! s:first_normal_buffer(buffers)
@@ -528,8 +515,6 @@ fun! s:unicode_nrs(nr)
   return u_nr
 endfun
 
-let s:Git = {'GV': 'GV', 'gitcommit': 'Commit', 'magit': 'Magit', 'git': 'Git'}
-
 fun! s:is_special_buffer(nr)
   """Customize special buffers.
   let bufs = s:B()
@@ -545,7 +530,7 @@ fun! s:is_special_buffer(nr)
     return 1
 
   elseif s:Ft(a:nr, "ctrlsf")
-    let bufs[a:nr] = s:Bd('CtrlSF', '❯', {'format': '<<< l >>>', 'separators': ['❯', '❰']})
+    let bufs[a:nr] = s:Bd('❯❯❯ CtrlSF ❰❰❰', '', {'format': 'l'})
     return 1
   endif
 endfun
@@ -565,8 +550,6 @@ fun! s:get_tab_for_bufline()
   return [active_tab, active_tab_label]
 endfun
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
 fun! s:extra_padding(l_r)
   if !s:Sets.show_current_tab | return '' | endif
   let spaces = a:l_r > &columns ? 0 : &columns - a:l_r
@@ -577,4 +560,3 @@ fun! s:extra_padding(l_r)
   return '%#XBufLineFill#'.s
 endfun
 
-"}}}

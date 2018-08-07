@@ -4,6 +4,7 @@
 
 let s:X    = g:xtabline
 let s:V    = s:X.Vars
+let s:F    = s:X.Funcs
 let s:Sets = g:xtabline_settings
 
 let s:V.tab_properties = {}                     "if not empty, newly created tab will inherit them

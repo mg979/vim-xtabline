@@ -92,7 +92,7 @@ endfun
 " Variables
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-let g:xtabline = {'Tabs': [], 'Vars': {}, 'Buffers': {},
+let g:xtabline = {'Tabs': [], 'Vars': {}, 'Buffers': {}, 'Funcs': {},
                  \'pinned_buffers': [], 'closed_tabs': [], 'closed_cwds': []}
 
 let g:xtabline_settings = get(g:, 'xtabline_settings', {})
