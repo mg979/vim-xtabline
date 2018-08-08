@@ -95,7 +95,8 @@ endfun
 let g:xtabline = {'Tabs': [], 'Vars': {}, 'Buffers': {}, 'Funcs': {},
                  \'pinned_buffers': [], 'closed_tabs': [], 'closed_cwds': []}
 
-let g:xtabline_settings = get(g:, 'xtabline_settings', {})
+let g:xtabline_settings  = get(g:, 'xtabline_settings', {})
+let g:xtabline_themes = get(g:, 'xtabline_themes', {'themes': {}})
 
 let s:S = g:xtabline_settings
 

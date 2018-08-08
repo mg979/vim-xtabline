@@ -1,45 +1,80 @@
 " Highlight
 " =============================================================================
+let s:Th = g:xtabline_themes
 
 fun! xtabline#hi#init()
-  let g:xtabline_highlight = get(g:, 'xtabline_highlight', {})
-  let s:Hi = g:xtabline_highlight
-
-  let s:Hi.XBufLineCurrent = get(s:Hi, "XBufLineCurrent", ["TabLineSel",  1])
-  let s:Hi.XBufLineActive  = get(s:Hi, "XBufLineActive",  ["StatusLine",  1])
-  let s:Hi.XBufLineHidden  = get(s:Hi, "XBufLineHidden",  ["TabLine",     1])
-  let s:Hi.XBufLineFill    = get(s:Hi, "XBufLineFill",    ["TabLineFill", 1])
-  let s:Hi.XTabLineSelMod  = get(s:Hi, "XTabLineSelMod",  ["TabLineSel",  1])
-  let s:Hi.XTabLineSel     = get(s:Hi, "XTabLineSel",     ["TabLineSel",  1])
-  let s:Hi.XTabLineMod     = get(s:Hi, "XTabLineMod",     ["TabLine",     1])
-  let s:Hi.XTabLine        = get(s:Hi, "XTabLine",        ["TabLine",     1])
-  let s:Hi.XTabLineFill    = get(s:Hi, "XTabLineFill",    ["TabLineFill", 1])
-  let s:Hi.XTabLineNumSel  = get(s:Hi, "XTabLineNumSel",  ["DiffAdd",     1])
-  let s:Hi.XTabLineNum     = get(s:Hi, "XTabLineNum",     ["Special",     1])
-
-  if get(s:Hi, 'enable_extra_highlight', 1)
-    let s:Hi.XBufLineSpecial = get(s:Hi, 'XBufLineSpecial', ["DiffAdd",    1])
-    let s:Hi.XBufLineMod     = get(s:Hi, 'XBufLineMod',     ["WarningMsg",  1])
-    let s:Hi.XBufLinePinned  = get(s:Hi, 'XBufLinePinned',  ["PmenuSel",    1])
-  endif
-
-  call xtabline#hi#refresh(1)
+  let theme = get(s:Th, 'active_theme', 'default')
+  call xtabline#hi#load_theme(theme, 1)
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! xtabline#hi#refresh(...)
-  """Refresh highlight.
+fun! xtabline#hi#load_theme(theme, ...)
+  """Apply a theme."""
 
+  call s:clear_groups()
   let d = a:0? "default" : ""
+  let theme = s:Th.themes[a:theme]
 
-  for group in keys(s:Hi)
-    if s:Hi[group][1]
-      exe "silent! hi clear".group
-      exe "hi ".d." link ".group." ".s:Hi[group][0]
+  for group in keys(theme.basic)
+    if theme.basic[group][1]
+      exe "hi ".d." link ".group." ".theme.basic[group][0]
     else
-      exe "hi ".d." ".group." ".s:Hi[group][0]
+      exe "hi ".d." ".group." ".theme.basic[group][0]
     endif
   endfor
+
+  if get(theme, 'enable_extra_highlight', 0)
+    for group in keys(theme.extra)
+      if theme.extra[group][1]
+        exe "hi ".d." link ".group." ".theme.extra[group][0]
+      else
+        exe "hi ".d." ".group." ".theme.extra[group][0]
+      endif
+    endfor
+  endif
+
+  let s:Th.active_theme = a:theme
 endfun
 
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+let s:Th.themes.default = {
+      \'enable_extra_highlight': 1,
+      \'basic': {
+          \"XBufLineCurrent" : ["TabLineSel",  1],
+          \"XBufLineActive"  : ["StatusLine",  1],
+          \"XBufLineHidden"  : ["TabLine",     1],
+          \"XBufLineFill"    : ["TabLineFill", 1],
+          \"XTabLineSelMod"  : ["TabLineSel",  1],
+          \"XTabLineSel"     : ["TabLineSel",  1],
+          \"XTabLineMod"     : ["TabLine",     1],
+          \"XTabLine"        : ["TabLine",     1],
+          \"XTabLineFill"    : ["TabLineFill", 1],
+          \"XTabLineNumSel"  : ["DiffAdd",     1],
+          \"XTabLineNum"     : ["Special",     1]},
+      \'extra': {
+          \"XBufLineSpecial" : ["DiffAdd",     1],
+          \"XBufLineMod"     : ["WarningMsg",  1],
+          \"XBufLinePinned"  : ["PmenuSel",    1]}
+      \}
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:clear_groups()
+  """Clear highlight before applying a theme."""
+  silent! hi clear XBufLineCurrent
+  silent! hi clear XBufLineActive
+  silent! hi clear XBufLineHidden
+  silent! hi clear XBufLineFill
+  silent! hi clear XTabLineSelMod
+  silent! hi clear XTabLineSel
+  silent! hi clear XTabLineMod
+  silent! hi clear XTabLine
+  silent! hi clear XTabLineFill
+  silent! hi clear XTabLineNumSel
+  silent! hi clear XTabLineNum
+  silent! hi clear XBufLineSpecial
+  silent! hi clear XBufLineMod
+  silent! hi clear XBufLinePinned
+endfun
