@@ -5,7 +5,7 @@ let s:Hi   = g:xtabline_highlight
 let s:Sets = g:xtabline_settings
 
 fun! xtabline#hi#init()
-  let s:Hi.themes       = extend(s:Hi.themes, xtabline#themes#init())
+  call xtabline#themes#init()
   let s:Hi.active_theme = get(s:Hi, 'active_theme', 'default')
   call xtabline#hi#apply_theme(s:Hi.active_theme, 1)
 endfun
@@ -71,6 +71,26 @@ fun! s:clear_groups()
   for h in xtab | exe "silent! hi clear XTabLine".h | endfor
 endfun
 
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! xtabline#hi#generate(theme)
+  """Create an entry in g:xtabline_highlight.themes for the give theme."""
+  let t = a:theme | let T = {'basic': {}, 'extra':{}}
+  if !has_key(t, 'name') | return | endif
+
+  for h in keys(t.basic)
+    let T.basic[h] = [printf(
+                      \"ctermfg=%s ctermbg=%s guifg=%s guibg=%s",
+                      \t.basic[h][0], t.basic[h][1], t.basic[h][2], t.basic[h][3]), 0]
+  endfor
+  for h in keys(t.extra)
+    let T.extra[h] = [printf(
+                      \"ctermfg=%s ctermbg=%s guifg=%s guibg=%s",
+                      \t.extra[h][0], t.extra[h][1], t.extra[h][2], t.extra[h][3]), 0]
+  endfor
+  let T.enable_extra_highlight = get(t, 'enable_extra_highlight', 0)
+  let s:Hi.themes[t.name] = T
+endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Default theme
