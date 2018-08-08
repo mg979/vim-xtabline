@@ -5,7 +5,6 @@ let s:Hi   = g:xtabline_highlight
 let s:Sets = g:xtabline_settings
 
 fun! xtabline#hi#init()
-  call xtabline#themes#init()
   let s:Hi.active_theme = get(s:Hi, 'active_theme', 'default')
   call xtabline#hi#apply_theme(s:Hi.active_theme, 1)
 endfun
@@ -19,6 +18,7 @@ fun! xtabline#hi#apply_theme(theme, ...)
     echohl WarningMsg | echo "Wrong theme." | echohl None | return | endif
 
   call s:clear_groups()
+  call xtabline#themes#init()
   let d = a:0? "default" : ""
   let theme = s:Hi.themes[a:theme]
 
@@ -73,6 +73,11 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
+fun! s:style(k)
+  let s = !a:k ? "NONE" : a:k==1 ? "BOLD" : a:k==2 ? "ITALIC" : "UNDERLINE"
+  return ("term=".s." cterm=".s." gui=".s)
+endfun
+
 fun! xtabline#hi#generate(theme)
   """Create an entry in g:xtabline_highlight.themes for the give theme."""
   let t = a:theme | let T = {'basic': {}, 'extra':{}}
@@ -80,12 +85,12 @@ fun! xtabline#hi#generate(theme)
 
   for h in keys(t.basic)
     let T.basic[h] = [printf(
-                      \"ctermfg=%s ctermbg=%s guifg=%s guibg=%s",
+                      \"ctermfg=%s ctermbg=%s guifg=%s guibg=%s ".s:style(t.basic[h][4]),
                       \t.basic[h][0], t.basic[h][1], t.basic[h][2], t.basic[h][3]), 0]
   endfor
   for h in keys(t.extra)
     let T.extra[h] = [printf(
-                      \"ctermfg=%s ctermbg=%s guifg=%s guibg=%s",
+                      \"ctermfg=%s ctermbg=%s guifg=%s guibg=%s ".s:style(t.extra[h][4]),
                       \t.extra[h][0], t.extra[h][1], t.extra[h][2], t.extra[h][3]), 0]
   endfor
   let T.enable_extra_highlight = get(t, 'enable_extra_highlight', 0)
@@ -97,10 +102,10 @@ endfun
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 let s:Hi.themes.default = {
-      \'enable_extra_highlight': 0,
+      \'enable_extra_highlight': 1,
       \'basic': {
           \"XBufLineCurrent" : ["TabLineSel",  1],
-          \"XBufLineActive"  : ["StatusLine",  1],
+          \"XBufLineActive"  : ["Special",     1],
           \"XBufLineHidden"  : ["TabLine",     1],
           \"XBufLineFill"    : ["TabLineFill", 1],
           \"XTabLineSelMod"  : ["TabLineSel",  1],

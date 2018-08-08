@@ -22,57 +22,84 @@ let s:red      = '#ff79c6' "212
 let s:yellow   = '#f1fa8c' "228
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" 'highlight_group': [ ctermfg, ctermbg, guifg, guibg ]
+" 'highlight_group': [ ctermfg, ctermbg, guifg, guibg, style ]
+" style: 0=NONE, 1=bold, 2=italic, 3=underline
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 let s:Themes = {}
 
-let s:Themes.dracula = {
+let s:fill_dark = [ 248, 233, s:lgry3,   "#171717", 0 ]
+let s:fill_lite = [ 231, 239, s:white,   "#616161", 0 ]
+let s:bg     = { c1, c2 -> &background=='light' ? c1 : c2 }
+
+let s:Themes.seoul = { -> {
+      \'name': 'seoul',
+      \'enable_extra_highlight': 1,
+      \'basic': {
+          \"XBufLineCurrent" : [ 187,  23, "#DFDEBD", "#007173", 1 ],
+          \"XBufLineActive"  : [ 68,  233, s:yelw2,   "#171717", 0 ],
+          \"XBufLineHidden"  : s:fill_lite,
+          \"XBufLineFill"    : s:bg(s:fill_lite, s:fill_dark),
+          \"XTabLineSelMod"  : [ 74,  237, s:lblu2,   s:grey3,   0 ],
+          \"XTabLineSel"     : [ 187, 237, "#DFDEBD", s:grey3,   1 ],
+          \"XTabLineMod"     : [ 248, 233, s:lgry3,   "#171717", 0 ],
+          \"XTabLine"        : s:fill_lite,
+          \"XTabLineFill"    : s:bg(s:fill_lite, s:fill_dark),
+          \"XTabLineNumSel"  : [ 237, 150, s:grey3,   s:gren1,   0 ],
+          \"XTabLineNum"     : [ 180, 233, s:yelw2,   "#171717", 0 ]},
+      \'extra': {
+          \"XBufLineSpecial" : [ 237, 150, s:grey3,   s:yelw2,   1 ],
+          \"XBufLineMod"     : [ 203, 237, s:redli,   s:grey3,   0 ],
+          \"XBufLinePinned"  : [ 252, 89,  "#D9D9D9", "#9B1D72", 1 ]}
+      \} }
+
+
+let s:Themes.dracula = { -> {
       \'name': 'dracula',
       \'enable_extra_highlight': 1,
       \'basic': {
-          \"XBufLineCurrent" : [ 231,  61, s:white, s:darkblue ],
-          \"XBufLineActive"  : [ 117,  235, s:cyan, s:black ],
-          \"XBufLineHidden"  : [ 248, 236, s:lgry3, s:gray ],
-          \"XBufLineFill"    : [ 248, 235, s:lgry3, s:black ],
-          \"XTabLineSelMod"  : [ 231,  61, s:white, s:darkblue ],
-          \"XTabLineSel"     : [ 231,  61, s:white, s:darkblue ],
-          \"XTabLineMod"     : [ 248, 236, s:lgry3, s:gray ],
-          \"XTabLine"        : [ 248, 236, s:lgry3, s:gray ],
-          \"XTabLineFill"    : [ 248, 235, s:lgry3, s:black ],
-          \"XTabLineNumSel"  : [ 236, 84, s:gray, s:green ],
-          \"XTabLineNum"     : [ 228, 235, s:yellow, s:black ]},
+          \"XBufLineCurrent" : [ 231, 61,  s:white,  s:darkblue, 0 ],
+          \"XBufLineActive"  : [ 117, 235, s:cyan,   s:black,    0 ],
+          \"XBufLineHidden"  : [ 248, 236, s:lgry3,  s:gray,     0 ],
+          \"XBufLineFill"    : s:bg(s:fill_lite, [ 248, 235, s:lgry3, s:black, 0 ]),
+          \"XTabLineSelMod"  : [ 231, 61,  s:white,  s:darkblue, 0 ],
+          \"XTabLineSel"     : [ 231, 61,  s:white,  s:darkblue, 0 ],
+          \"XTabLineMod"     : [ 248, 236, s:lgry3,  s:gray,     0 ],
+          \"XTabLine"        : [ 248, 236, s:lgry3,  s:gray,     0 ],
+          \"XTabLineFill"    : s:bg(s:fill_lite, [ 248, 235, s:lgry3, s:black, 0 ]),
+          \"XTabLineNumSel"  : [ 236, 84,  s:gray,   s:green,    0 ],
+          \"XTabLineNum"     : [ 228, 235, s:yellow, s:black,    0 ]},
       \'extra': {
-          \"XBufLineSpecial" : [ 236, 84, s:gray, s:green ],
-          \"XBufLineMod"     : [ 212, 61, s:red, s:darkblue ],
-          \"XBufLinePinned"  : [ 141, 17,  s:purple, s:dblu1 ]}
-      \}
+          \"XBufLineSpecial" : [ 236, 84,  s:gray,   s:green,    0 ],
+          \"XBufLineMod"     : [ 212, 61,  s:red,    s:darkblue, 0 ],
+          \"XBufLinePinned"  : [ 141, 17,  s:purple, s:dblu1,    1 ]}
+      \} }
 
 
-let s:Themes.codedark = {
+let s:Themes.codedark = { -> {
       \'name': 'codedark',
       \'enable_extra_highlight': 1,
       \'basic': {
-          \"XBufLineCurrent" : [ 74,  237, s:lblu2, s:grey3 ],
-          \"XBufLineActive"  : [ 68,  234, s:blue1, s:blak3 ],
-          \"XBufLineHidden"  : [ 248, 234, s:lgry3, s:blak3 ],
-          \"XBufLineFill"    : [ 248, 234, s:lgry3, s:blak3 ],
-          \"XTabLineSelMod"  : [ 74,  237, s:lblu2, s:grey3 ],
-          \"XTabLineSel"     : [ 74,  237, s:lblu2, s:grey3 ],
-          \"XTabLineMod"     : [ 248, 234, s:lgry3, s:blak3 ],
-          \"XTabLine"        : [ 248, 234, s:lgry3, s:blak3 ],
-          \"XTabLineFill"    : [ 248, 234, s:lgry3, s:blak3 ],
-          \"XTabLineNumSel"  : [ 237, 150, s:grey3, s:gren1 ],
-          \"XTabLineNum"     : [ 180, 234, s:yelw2, s:blak3 ]},
+          \"XBufLineCurrent" : [ 74,  237, s:lblu2, s:grey3, 0 ],
+          \"XBufLineActive"  : [ 68,  234, s:blue1, s:blak3, 0 ],
+          \"XBufLineHidden"  : s:bg(s:fill_lite, [ 248, 234, s:lgry3, s:blak3, 0 ]),
+          \"XBufLineFill"    : s:bg(s:fill_lite, [ 248, 234, s:lgry3, s:blak3, 0 ]),
+          \"XTabLineSelMod"  : [ 74,  237, s:lblu2, s:grey3, 0 ],
+          \"XTabLineSel"     : [ 74,  237, s:lblu2, s:grey3, 0 ],
+          \"XTabLineMod"     : [ 248, 234, s:lgry3, s:blak3, 0 ],
+          \"XTabLine"        : [ 248, 234, s:lgry3, s:blak3, 0 ],
+          \"XTabLineFill"    : s:bg(s:fill_lite, [ 248, 234, s:lgry3, s:blak3, 0 ]),
+          \"XTabLineNumSel"  : [ 237, 150, s:grey3, s:gren1, 0 ],
+          \"XTabLineNum"     : [ 180, 234, s:yelw2, s:blak3, 0 ]},
       \'extra': {
-          \"XBufLineSpecial" : [ 237, 150, s:grey3, s:gren1 ],
-          \"XBufLineMod"     : [ 203, 237, s:redli, s:grey3 ],
-          \"XBufLinePinned"  : [ 251, 17,  s:lgry1, s:dblu1 ]}
-      \}
+          \"XBufLineSpecial" : [ 237, 150, s:grey3, s:gren1, 0 ],
+          \"XBufLineMod"     : [ 203, 237, s:redli, s:grey3, 0 ],
+          \"XBufLinePinned"  : [ 251, 17,  s:lgry1, s:dblu1, 0 ]}
+      \} }
 
 
 fun! xtabline#themes#init()
   for theme in keys(s:Themes)
-    call xtabline#hi#generate(s:Themes[theme])
+    call xtabline#hi#generate(s:Themes[theme]())
   endfor
 endfun
