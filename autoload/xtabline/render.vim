@@ -42,7 +42,7 @@ let s:Sets.modified_tab_flag         = get(s:Sets, "modified_tab_flag", "*")
 let s:Sets.close_tabs_label          = get(s:Sets, "close_tabs_label", "")
 let s:Sets.unnamed_tab_label         = get(s:Sets, "unnamed_tab_label", "[no name]")
 
-let s:Th = { -> g:xtabline_themes.themes[g:xtabline_themes.active_theme] }
+let s:Hi = { -> g:xtabline_highlight.themes[g:xtabline_highlight.active_theme] }
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
@@ -65,8 +65,8 @@ let s:nowrite           = { nr -> !getbufvar(nr, '&modifiable') }
 let s:pinned            = { -> s:X.pinned_buffers               }
 let s:buffer_has_format = { buf -> has_key(s:B(), buf.nr) && has_key(s:B()[buf.nr], 'format') }
 let s:has_buf_icon      = { nr -> has_key(s:B(), string(nr)) && !empty(get(s:B()[nr], 'icon', '')) }
-let s:pinHi             = { b -> has_key(s:Th().extra, 'XBufLinePinned') && index(s:pinned(), b) >= 0 }
-let s:specialHi         = { b -> has_key(s:Th().extra, 'XBufLineSpecial') && has_key(s:B(), b) && has_key(s:B()[b], 'special') }
+let s:pinHi             = { b -> has_key(s:Hi().extra, 'XBufLinePinned') && index(s:pinned(), b) >= 0 }
+let s:specialHi         = { b -> has_key(s:Hi().extra, 'XBufLineSpecial') && has_key(s:B(), b) && has_key(s:B()[b], 'special') }
 
 " BufTabLine main function {{{1
 " =============================================================================
@@ -227,7 +227,7 @@ endfun
 fun! s:buf_indicator(bnr)
   let mods = s:Sets.bufline_indicators | let nr = a:bnr
   let mod = index(s:pinned(), nr) >= 0 ? mods.pinned : ''
-  let modHi = has_key(s:Th().extra, 'XBufLineMod') ? "%#XBufLineMod#" : ''
+  let modHi = has_key(s:Hi().extra, 'XBufLineMod') ? "%#XBufLineMod#" : ''
   if getbufvar(nr, '&mod')
     return (mod . modHi . mods.modified)
   elseif s:special(nr)

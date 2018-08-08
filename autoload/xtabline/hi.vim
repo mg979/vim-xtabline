@@ -1,20 +1,26 @@
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Highlight
-" =============================================================================
-let s:Th = g:xtabline_themes
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+let s:Hi   = g:xtabline_highlight
+let s:Sets = g:xtabline_settings
 
 fun! xtabline#hi#init()
-  let theme = get(s:Th, 'active_theme', 'default')
-  call xtabline#hi#load_theme(theme, 1)
+  let s:Hi.themes       = extend(s:Hi.themes, xtabline#themes#init())
+  let s:Hi.active_theme = get(s:Hi, 'active_theme', 'default')
+  call xtabline#hi#apply_theme(s:Hi.active_theme, 1)
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! xtabline#hi#load_theme(theme, ...)
+fun! xtabline#hi#apply_theme(theme, ...)
   """Apply a theme."""
+
+  if !empty(a:theme) && !has_key(s:Hi.themes, a:theme)
+    echohl WarningMsg | echo "Wrong theme." | echohl None | return | endif
 
   call s:clear_groups()
   let d = a:0? "default" : ""
-  let theme = s:Th.themes[a:theme]
+  let theme = s:Hi.themes[a:theme]
 
   for group in keys(theme.basic)
     if theme.basic[group][1]
@@ -24,7 +30,8 @@ fun! xtabline#hi#load_theme(theme, ...)
     endif
   endfor
 
-  if get(theme, 'enable_extra_highlight', 0)
+  if s:Sets.enable_extra_highlight &&
+        \get(theme, 'enable_extra_highlight', 0) && has_key(theme, 'extra')
     for group in keys(theme.extra)
       if theme.extra[group][1]
         exe "hi ".d." link ".group." ".theme.extra[group][0]
@@ -34,13 +41,43 @@ fun! xtabline#hi#load_theme(theme, ...)
     endfor
   endif
 
-  let s:Th.active_theme = a:theme
+  if !exists('s:last_theme') || s:Hi.active_theme != s:last_theme
+    let s:last_theme = s:Hi.active_theme
+  endif
+  let s:Hi.active_theme = a:theme
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-let s:Th.themes.default = {
-      \'enable_extra_highlight': 1,
+fun! xtabline#hi#load_theme(bang, theme)
+  """Load a theme."""
+  if a:bang
+    call xtabline#hi#apply_theme(s:last_theme)
+    echohl Special | echo "Theme switched to" s:last_theme | echohl None
+  elseif !empty(a:theme)
+    call xtabline#hi#apply_theme(a:theme)
+    echohl Special | echo "Theme switched to" a:theme | echohl None
+  else
+    echohl WarningMsg | echo "No theme specified." | echohl None
+  endif
+endfun
+
+fun! s:clear_groups()
+  """Clear highlight before applying a theme."""
+  let xbuf = ['Current', 'Active', 'Hidden', 'Fill', 'Special', 'Mod', 'Pinned']
+  let xtab = ['SelMod', 'Sel', 'Mod', 'Fill', 'NumSel', 'Num', '']
+
+  for h in xbuf | exe "silent! hi clear XBufLine".h | endfor
+  for h in xtab | exe "silent! hi clear XTabLine".h | endfor
+endfun
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Default theme
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+let s:Hi.themes.default = {
+      \'enable_extra_highlight': 0,
       \'basic': {
           \"XBufLineCurrent" : ["TabLineSel",  1],
           \"XBufLineActive"  : ["StatusLine",  1],
@@ -59,22 +96,3 @@ let s:Th.themes.default = {
           \"XBufLinePinned"  : ["PmenuSel",    1]}
       \}
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! s:clear_groups()
-  """Clear highlight before applying a theme."""
-  silent! hi clear XBufLineCurrent
-  silent! hi clear XBufLineActive
-  silent! hi clear XBufLineHidden
-  silent! hi clear XBufLineFill
-  silent! hi clear XTabLineSelMod
-  silent! hi clear XTabLineSel
-  silent! hi clear XTabLineMod
-  silent! hi clear XTabLine
-  silent! hi clear XTabLineFill
-  silent! hi clear XTabLineNumSel
-  silent! hi clear XTabLineNum
-  silent! hi clear XBufLineSpecial
-  silent! hi clear XBufLineMod
-  silent! hi clear XBufLinePinned
-endfun

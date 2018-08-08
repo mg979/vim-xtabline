@@ -82,10 +82,16 @@ com! -nargs=? -count -complete=file -bang            XTabEdit            call xt
 com! -nargs=? -bang  -complete=file                  XTabWD              call xtabline#cmds#run("set_cwd", [<bang>0, <q-args>])
 com! -nargs=? -bang  -complete=customlist,<sid>icons XTabIcon            call xtabline#cmds#run("tab_icon", [<bang>0, <q-args>])
 com! -nargs=? -bang  -complete=customlist,<sid>icons XTabBufferIcon      call xtabline#cmds#run("buffer_icon", [<bang>0, <q-args>])
+com! -nargs=? -bang  -complete=customlist,<sid>theme XTabTheme           call xtabline#hi#load_theme(<bang>0, <q-args>)
 
 fun! s:icons(A,L,P)
   """Icons completions for commands.
   return keys(s:S.custom_icons)
+endfun
+
+fun! s:theme(A,L,P)
+  """Theme names completion.
+  return keys(g:xtabline_highlight.themes)
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -96,7 +102,7 @@ let g:xtabline = {'Tabs': [], 'Vars': {}, 'Buffers': {}, 'Funcs': {},
                  \'pinned_buffers': [], 'closed_tabs': [], 'closed_cwds': []}
 
 let g:xtabline_settings  = get(g:, 'xtabline_settings', {})
-let g:xtabline_themes = get(g:, 'xtabline_themes', {'themes': {}})
+let g:xtabline_highlight = get(g:, 'xtabline_highlight', {'themes': {}})
 
 let s:S = g:xtabline_settings
 
@@ -112,9 +118,10 @@ let s:S.alt_action                 = get(s:S, 'alt_action', "buffer #")
 let s:S.bookmaks_file              = get(s:S, 'bookmaks_file ', expand('$HOME/.vim/.XTablineBookmarks'))
 let s:S.sessions_data              = get(s:S, 'sessions_data', expand('$HOME/.vim/.XTablineSessions'))
 let s:S.default_named_tab_icon     = get(s:S, 'default_named_tab_icon', [])
-let s:S.relative_paths             = 1
-let s:S.superscript_unicode_nrs    = 0
-let s:S.show_current_tab           = 1
+let s:S.relative_paths             = get(s:S, 'relative_paths', 1)
+let s:S.superscript_unicode_nrs    = get(s:S, 'superscript_unicode_nrs', 0)
+let s:S.show_current_tab           = get(s:S, 'show_current_tab', 1)
+let s:S.enable_extra_highlight     = get(s:S, 'enable_extra_highlight', 1)
 
 let s:S.todo                       = get(s:S, 'todo', {})
 let s:S.todo.command               = get(s:S.todo, 'command', 'sp')
