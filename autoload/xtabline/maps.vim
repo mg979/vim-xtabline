@@ -40,8 +40,8 @@ function! xtabline#maps#init()
   call s:mapkeys(X.'sd',  'Set-Depth')
   call s:mapkeys(X.'cti', 'Tab-Icon')
   call s:mapkeys(X.'cbi', 'Buffer-Icon')
-  call s:mapkeys(X.'nt',  'Name-Tab')
-  call s:mapkeys(X.'nb',  'Name-Buffer')
+  call s:mapkeys(X.'nt',  'Rename-Tab')
+  call s:mapkeys(X.'nb',  'Rename-Buffer')
   call s:mapkeys(X.'bf',  'Buffer-Format')
   call s:mapkeys(X.'tt',  'Tab-Todo')
   call s:mapkeys(X.'rp',  'Relative-Paths')
@@ -178,8 +178,8 @@ let g:xtabline.leader_guide.o = {
       \'wd': ["XTabWD!",                "Change Working Directory".s:_ ],
       \'ti': [s:fk("Tab-Icon"),         "Change Tab Icon".s:_          ],
       \'bi': [s:fk("Buffer-Icon"),      "Change Buffer Icon".s:_       ],
-      \'nt': [s:fk("Name-Tab"),         "Name Tab".s:_                 ],
-      \'nb': [s:fk("Name-Buffer"),      "Name Buffer".s:_              ],
+      \'nt': [s:fk("Rename-Tab"),       "Rename Tab".s:_                 ],
+      \'nb': [s:fk("Rename-Buffer"),    "Rename Buffer".s:_              ],
       \}
 let g:xtabline.leader_guide.o.f = ["call xtabline#cmds#run('depth', [0, v:count])", "Toggle Filtering".s:_]
 

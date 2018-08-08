@@ -166,7 +166,7 @@ fun! s:clean_up(...)
   let nr = 0
   for b in range(1, bufnr('$'))
     if !buflisted(b) && !s:scratch(b) | continue | endif
-    if index(ok, b) == -1
+    if index(ok, b) == -1 && !getbufvar(b, '&modified')
       execute "silent! bdelete ".string(b)
       let nr += 1
     endif
@@ -369,9 +369,13 @@ endfun
 fun! s:check_dir(dir)
   """Create directory if not existant."""
   let f = s:F.fullpath(a:dir)
-  if filereadable(f) || isdirectory(f) | return f | endif
+  if filereadable(f)    | return fnamemodify(f, ":h")
+  elseif isdirectory(f) | return f | endif
+
   let f = fnamemodify(f, ":h")
-  if filereadable(f) || isdirectory(f) | return f | endif
+  if filereadable(f)    | return fnamemodify(f, ":h")
+  elseif isdirectory(f) | return f | endif
+
   call s:F.msg ([[ "Create new directory ", 'Label' ], [ f, 'None' ], [ " ?", 'Label' ]])
   if nr2char(getchar()) ==# 'y'
     call mkdir(f, 'p')
