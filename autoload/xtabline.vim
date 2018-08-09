@@ -97,7 +97,7 @@ fun! xtabline#new_tab_dict(...)
   let buffers = has_key(p, 'buffers')? p.buffers : {'valid': [], 'order': []}
   let exclude = has_key(p, 'exclude')? p.exclude : []
   let locked  = has_key(p, 'locked')?  p.locked  : 0
-  let depth   = has_key(p, 'depth')?   p.depth   : 0
+  let depth   = has_key(p, 'depth')?   p.depth   : -1
   let vimrc   = has_key(p, 'vimrc')?   p.vimrc   : {}
   let rpaths  = has_key(p, 'rpaths')?  p.rpaths  : 0
 

@@ -93,6 +93,10 @@ fun! s:Funcs.update_buffers() dict
 
   for buf in remove
     call remove(order, index(order, buf))
+    let i = index(s:X.pinned_buffers, buf)
+    if i >= 0
+      call remove(s:X.pinned_buffers, i)
+    endif
   endfor
 
   " add missing entries in ordered list
@@ -148,7 +152,7 @@ fun! s:Funcs.tab_template(...) dict
                \ 'cwd':     getcwd(),
                \ 'vimrc':   {},
                \ 'locked':  0,
-               \ 'depth':   0,
+               \ 'depth':   -1,
                \ 'rpaths':  0,
                \ 'icon':    '',
                \}, mod)

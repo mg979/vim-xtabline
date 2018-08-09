@@ -14,6 +14,7 @@ let s:Bd = { n,i,d -> extend( { 'name': n, 'icon': i, 'path': '', 'special': 1 }
 
 let s:special = { nr -> has_key(s:B(), nr) && has_key(s:B()[nr], 'special') }
 let s:refilter = 0
+let s:mod_width = 0
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Bufline/Tabline settings
@@ -60,6 +61,7 @@ let s:Hi = { -> g:xtabline_highlight.themes[s:Sets.theme] }
 
 let s:dirsep            = fnamemodify(getcwd(),':p')[-1:]
 let s:centerbuf         = winbufnr(0)
+let s:is_current_buf    = { nr -> nr == winbufnr(0) }
 let s:scratch           = { nr -> index(['nofile','acwrite'], getbufvar(nr, '&buftype')) >= 0 }
 let s:nowrite           = { nr -> !getbufvar(nr, '&modifiable') }
 let s:pinned            = { -> s:X.pinned_buffers               }
@@ -164,6 +166,8 @@ fun! xtabline#render#buffers()
     endif
     let currentside.width += tab.width
   endfor
+  let lft.width -= s:mod_width
+  let s:mod_width = 0
   if currentside is lft " centered buffer not seen?
     " then blame any overflow on the right side, to protect the left
     let [lft.width, rgt.width] = [0, lft.width]
@@ -196,7 +200,6 @@ fun! xtabline#render#buffers()
       let endtab.label = substitute(endtab.label, side.cut, side.indicator, '')
     endfor
   endif
-
 
   let swallowclicks = '%'.(1 + tabpagenr('$')).'X'
   let left = swallowclicks . join(map(tabs,'printf("%%#XBufLine%s#%s",v:val.hilite,strtrans(v:val.label))'),'')
@@ -236,8 +239,11 @@ endfun
 fun! s:buf_indicator(bnr)
   let mods = s:Sets.bufline_indicators | let nr = a:bnr
   let mod = index(s:pinned(), nr) >= 0 ? mods.pinned : ''
-  let modHi = has_key(s:Hi().extra, 'XBufLineMod') ? "%#XBufLineMod#" : ''
+  let modHi = s:is_current_buf(nr) ?
+        \ ( has_key(s:Hi().extra, 'XBufLineModSel') ? "%#XBufLineModSel#" : '' ) :
+        \ ( has_key(s:Hi().extra, 'XBufLineMod') ? "%#XBufLineMod#" : '' )
   if getbufvar(nr, '&mod')
+    let s:mod_width += len (modHi)
     return (mod . modHi . mods.modified)
   elseif s:special(nr)
     return ''

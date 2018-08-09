@@ -14,11 +14,12 @@ endfun
 fun! xtabline#hi#apply_theme(theme, ...)
   """Apply a theme."""
 
+  call s:clear_groups()
+  call xtabline#themes#init()
+
   if !empty(a:theme) && !has_key(s:Hi.themes, a:theme)
     echohl WarningMsg | echo "Wrong theme." | echohl None | return | endif
 
-  call s:clear_groups()
-  call xtabline#themes#init()
   let d = a:0? "default" : ""
   let theme = s:Hi.themes[a:theme]
 
