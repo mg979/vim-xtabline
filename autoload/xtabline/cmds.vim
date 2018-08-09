@@ -3,7 +3,7 @@
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 let s:X    = g:xtabline
 let s:F    = s:X.Funcs
-let s:V    = s:X.Vars
+let s:v    = s:X.Vars
 let s:Sets = g:xtabline_settings
 
 let s:T    =  { -> s:X.Tabs[tabpagenr()-1] }       "current tab
@@ -38,11 +38,11 @@ fun! s:toggle_tabs()
 
   if tabpagenr("$") == 1 | echo "There is only one tab." | return | endif
 
-  if s:V.showing_tabs
-    let s:V.showing_tabs = 0
+  if s:v.showing_tabs
+    let s:v.showing_tabs = 0
     call s:F.msg ([[ "Showing buffers", 'StorageClass' ]])
   else
-    let s:V.showing_tabs = 1
+    let s:v.showing_tabs = 1
     call s:F.msg ([[ "Showing tabs", 'StorageClass' ]])
   endif
 
@@ -54,13 +54,13 @@ endfun
 fun! s:toggle_buffers()
   """Toggle buffer filtering in the tabline."""
 
-  if s:V.filtering
+  if s:v.filtering
     let g:airline#extensions#tabline#exclude_buffers = []
     call s:F.msg ([[ "Buffer filtering turned off", 'WarningMsg' ]])
   else
     call s:F.msg ([[ "Buffer filtering turned on", 'StorageClass' ]])
   endif
-  let s:V.filtering = !s:V.filtering
+  let s:v.filtering = !s:v.filtering
   if !s:plugins_toggle_buffers() | call xtabline#filter_buffers() | endif
 endfun
 
@@ -112,7 +112,7 @@ endfun
 fun! s:purge_buffers()
   """Remove unmodified buffers with invalid paths."""
 
-  if s:T().depth < 0 || !s:V.filtering | echo "Buffer filtering is turned off." | return | endif
+  if s:T().depth < 0 || !s:v.filtering | echo "Buffer filtering is turned off." | return | endif
   let bcnt = 0 | let bufs = [] | let purged = [] | let accepted = s:vB()
 
   " include previews if not showing in tabline
@@ -184,24 +184,24 @@ fun! s:reopen_last_tab()
   if empty(s:X.closed_tabs)
     call s:F.msg("No recent tabs.", 1) | return | endif
 
-  let s:V.tab_properties = remove(s:X.closed_tabs, -1)
+  let s:v.tab_properties = remove(s:X.closed_tabs, -1)
   "check if the cwd must be removed from the blacklist closed_cwds
   let other_with_same_cwd = 0
-  let cwd = s:V.tab_properties.cwd
+  let cwd = s:v.tab_properties.cwd
 
   for t in s:X.Tabs
-    if t.cwd == s:V.tab_properties.cwd
+    if t.cwd == s:v.tab_properties.cwd
       let other_with_same_cwd = 1 | break | endif | endfor
 
   if !other_with_same_cwd
     call remove(s:X.closed_cwds, index(s:X.closed_cwds, cwd))
   endif
 
-  let s:V.halt = 1
+  let s:v.halt = 1
   $tabnew
   let empty = bufnr("%")
   cd `=cwd`
-  let s:V.halt = 0
+  let s:v.halt = 0
   call xtabline#filter_buffers()
   execute "b ".s:oB()[0]
   execute "bdelete ".empty
@@ -237,9 +237,9 @@ endfun
 
 fun! s:relative_paths()
   """Toggle between full relative path and tail only, in the bufline.
-  let s:V.buftail = !s:V.buftail
+  let s:v.buftail = !s:v.buftail
   call xtabline#filter_buffers()
-  if s:V.buftail
+  if s:v.buftail
     call s:F.msg ([[ "Buffers relative paths disabled.", 'WarningMsg']])
   else
     call s:F.msg ([[ "Buffers relative paths enabled.", 'StorageClass']])
@@ -349,19 +349,19 @@ fun! s:new_tab(...)
   """Open a new tab with optional name. CWD is $HOME.
   "args : 0 or 1 (tab name)
 
-  let s:V.auto_set_cwd = 1
+  let s:v.auto_set_cwd = 1
   let args = a:000[0]
   let n = args[0]? args[0] : ''
   if n > tabpagenr("$") | let n = tabpagenr("$") | endif
 
   if len(args) == 1
-    let s:V.tab_properties = {'cwd': expand("~")}
+    let s:v.tab_properties = {'cwd': expand("~")}
   else
-    let s:V.tab_properties = {'name': args[1], 'cwd': expand("~")}
+    let s:v.tab_properties = {'name': args[1], 'cwd': expand("~")}
   endif
   exe n . "tabnew"
   call xtabline#filter_buffers()
-  let s:V.auto_set_cwd = 0
+  let s:v.auto_set_cwd = 0
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -390,24 +390,24 @@ endfun
 fun! s:edit_tab(...)
   """Open a new tab with optional path. Bang triggers rename.
 
-  let s:V.auto_set_cwd = 1
+  let s:v.auto_set_cwd = 1
   let args = a:000[0]
   let n = args[0]? args[0] : ''
   let bang = args[1]
   if n > tabpagenr("$") | let n = tabpagenr("$") | endif
 
   if empty(args)
-    let s:V.tab_properties = {'cwd': expand("~")}
+    let s:v.tab_properties = {'cwd': expand("~")}
     exe n . "tabnew"
   else
     let dir = s:check_dir(args[2])
     if !empty(dir)
-      let s:V.tab_properties = {'cwd': dir}
+      let s:v.tab_properties = {'cwd': dir}
     endif
     exe n . "tabedit" args[2]
   endif
   call xtabline#filter_buffers()
-  let s:V.auto_set_cwd = 0
+  let s:v.auto_set_cwd = 0
   if bang
     call feedkeys("\<Plug>(XT-Rename-Tab)")
   endif
@@ -523,7 +523,7 @@ endfun
 
 fun! s:toggle_tab_names()
     """Toggle between custom icon/name and short path/folder icons."""
-    let s:V.show_tab_icons = !s:V.show_tab_icons
+    let s:v.show_tab_icons = !s:v.show_tab_icons
     call xtabline#filter_buffers()
 endfun
 
@@ -533,7 +533,7 @@ endfun
 
 fun! s:plugins_toggle_tabs()
   if exists('g:loaded_airline') && g:airline#extensions#tabline#enabled
-    let g:airline#extensions#tabline#show_tabs = s:V.showing_tabs
+    let g:airline#extensions#tabline#show_tabs = s:v.showing_tabs
     AirlineRefresh
     doautocmd BufAdd
     return 1
@@ -543,7 +543,7 @@ endfun
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:plugins_toggle_buffers()
-  if exists('g:loaded_airline') && !s:V.filtering
+  if exists('g:loaded_airline') && !s:v.filtering
     let g:airline#extensions#tabline#exclude_buffers = []
     doautocmd BufAdd
     return 1

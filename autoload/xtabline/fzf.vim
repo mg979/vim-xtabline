@@ -4,7 +4,7 @@
 
 let s:X = g:xtabline
 let s:F = g:xtabline.Funcs
-let s:V = g:xtabline.Vars
+let s:v = g:xtabline.Vars
 let s:Sets = g:xtabline_settings
 
 let s:T =  { -> s:X.Tabs[tabpagenr()-1] }       "current tab
@@ -95,9 +95,9 @@ endfun
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! xtabline#fzf#tab_load(...)
-  """Load a tab bookmark."""
+  """Load a saved tab."""
   let json = json_decode(readfile(s:Sets.bookmaks_file)[0])
-  let s:V.halt = 1
+  let s:v.halt = 1
 
   for bm in a:000
     let saved = json[substitute(bm, '\(\w*\)\s*\t.*', '\1', '')]
@@ -110,8 +110,8 @@ fun! xtabline#fzf#tab_load(...)
     endif
 
     "tab properties defined here will be applied by new_tab(), run by autocommand
-    let s:V.tab_properties = s:F.tab_template({'cwd': cwd})
-    let T = s:V.tab_properties
+    let s:v.tab_properties = s:F.tab_template({'cwd': cwd})
+    let T = s:v.tab_properties
     for prop in keys(saved)
       if prop ==? 'buffers' || prop ==? 'description'   | continue | endif
       if prop ==? 'valid_buffers'
@@ -131,7 +131,7 @@ fun! xtabline#fzf#tab_load(...)
     " purge the empty buffer that was created
     execute "bdelete ".newbuf
   endfor
-  let s:V.halt = 0
+  let s:v.halt = 0
   call xtabline#filter_buffers()
   " doautocmd BufAdd
 endfun
@@ -139,7 +139,7 @@ endfun
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! xtabline#fzf#tab_delete(...)
-  """Delete a tab bookmark."""
+  """Delete a saved tab."""
   let json = json_decode(readfile(s:Sets.bookmaks_file)[0])
 
   for bm in a:000
@@ -157,30 +157,31 @@ endfun
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! xtabline#fzf#tab_save()
-  """Create an entry and add it to the bookmarks file."""
+  """Create an entry and add it to the saved tabs file."""
 
-  if !s:V.filtering
+  if !s:v.filtering
     call s:F.msg("Activate buffer filtering first.", 1) | return | endif
 
   let json = json_decode(readfile(s:Sets.bookmaks_file)[0])
   let T = s:T()
 
-  "get name
+  " get name
   let s = !empty(T.name)? T.name : fnamemodify(T.cwd, ':t')
   let name = input("Enter a name for this bookmark:  ", s, "file_in_path")
   if empty(name) | call s:F.msg("Bookmark not saved.", 1) | return | endif
 
   let json[name] = {}
 
-  "get description
+  " get description
   let json[name].description = input("Enter an optional short description for this bookmark:  ")
 
-  " get cwd
+  " set tab properties
   let json[name].cwd = T.cwd
   let json[name].name = T.name
   let json[name].locked = T.locked
   let json[name].vimrc = T.vimrc
   let json[name].depth = T.depth
+  if has_key(T, 'icon') | let json[name].icon = T.icon | endif
 
   if T.locked
     let json[name].valid_buffers = T.buffers.valid
@@ -200,7 +201,7 @@ fun! xtabline#fzf#tab_save()
   endfor
   let json[name].buffers = bufs
 
-  "write the file
+  " write the file
   call writefile([json_encode(json)], s:Sets.bookmaks_file)
   call s:F.msg("\tTab bookmark saved.", 0)
 endfun

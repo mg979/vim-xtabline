@@ -3,17 +3,17 @@
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 let s:X    = g:xtabline
-let s:V    = s:X.Vars
+let s:v    = s:X.Vars
 let s:F    = s:X.Funcs
 let s:Sets = g:xtabline_settings
 
-let s:V.tab_properties = {}                     "if not empty, newly created tab will inherit them
-let s:V.filtering      = 1                      "whether bufline filtering is active
-let s:V.show_tab_icons = 1                      "tabline shows custom names/icons
-let s:V.showing_tabs   = 0                      "tabline or bufline?
-let s:V.buftail        = s:Sets.relative_paths  "whether the bufline is showing basenames only
-let s:V.halt           = 0                      "used to temporarily halt some functions
-let s:V.auto_set_cwd   = 0                      "used to temporarily allow auto cwd detection
+let s:v.tab_properties = {}                     "if not empty, newly created tab will inherit them
+let s:v.filtering      = 1                      "whether bufline filtering is active
+let s:v.show_tab_icons = 1                      "tabline shows custom names/icons
+let s:v.showing_tabs   = 0                      "tabline or bufline?
+let s:v.buftail        = s:Sets.relative_paths  "whether the bufline is showing basenames only
+let s:v.halt           = 0                      "used to temporarily halt some functions
+let s:v.auto_set_cwd   = 0                      "used to temporarily allow auto cwd detection
 
 let s:T  = { -> s:X.Tabs[tabpagenr()-1] }       "current tab
 let s:B  = { -> s:X.Buffers             }       "customized buffers
@@ -21,7 +21,7 @@ let s:vB = { -> s:T().buffers.valid     }       "valid buffers for tab
 let s:oB = { -> s:T().buffers.order     }       "ordered buffers for tab
 let s:pB = { -> s:X.pinned_buffers      }       "pinned buffers list
 
-let s:ready    = { -> !(exists('g:SessionLoad') || s:V.halt) }
+let s:ready    = { -> !(exists('g:SessionLoad') || s:v.halt) }
 let s:invalid  = { b -> !buflisted(b) || getbufvar(b, "&buftype") == 'quickfix' }
 let s:is_ma    = { b -> index(s:F.wins(), b) >= 0 && getbufvar(b, "&ma") }
 let s:is_special = { b -> index(s:F.wins(), b) >= 0 && has_key(s:B(), b) && has_key(s:B()[b], 'special') }
@@ -79,7 +79,7 @@ fun! xtabline#new_tab(...)
   """Create an entry in the Tabs list.
   """tab_properties can be set by a command, before this function is called.
 
-  let p = a:0? a:1 : s:V.tab_properties
+  let p = a:0? a:1 : s:v.tab_properties
 
   "cwd:     (string)  working directory
   "name:    (string)  tab name
@@ -100,7 +100,7 @@ fun! xtabline#new_tab(...)
   let depth   = has_key(p, 'depth')?   p.depth   : 0
   let vimrc   = has_key(p, 'vimrc')?   p.vimrc   : {}
 
-  let s:V.tab_properties = {}
+  let s:v.tab_properties = {}
 
   return {'name':    name,       'cwd':     cwd,
         \ 'buffers': buffers,    'exclude': exclude,
@@ -112,7 +112,7 @@ endfun
 
 fun! xtabline#filter_buffers(...)
   """Filter buffers so that only the ones within the tab's cwd will show up.
-  let T = s:T() | let can_show_tabs = s:V.showing_tabs && has_key(T, 'init')
+  let T = s:T() | let can_show_tabs = s:v.showing_tabs && has_key(T, 'init')
 
   " 'accepted' is a list of buffer numbers, for quick access.
   " 'excludes' is a list of paths, it will be used by Airline to hide buffers."""
@@ -129,7 +129,7 @@ fun! xtabline#filter_buffers(...)
   let cwd             = getcwd()
   let _pre            = s:Sets.exact_paths? '^' : ''
   let post_           = s:F.sep()
-  let nofilter        = T.depth < 0 || !s:V.filtering
+  let nofilter        = T.depth < 0 || !s:v.filtering
 
   for buf in range(1, bufnr("$"))
 

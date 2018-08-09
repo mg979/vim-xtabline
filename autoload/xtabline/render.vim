@@ -1,5 +1,5 @@
 let s:X    = g:xtabline
-let s:V    = g:xtabline.Vars
+let s:v    = g:xtabline.Vars
 let s:F    = g:xtabline.Funcs
 let s:Sets = g:xtabline_settings
 
@@ -123,7 +123,7 @@ fun! xtabline#render#buffers()
 
     if currentbuf == bnr | let [centerbuf, s:centerbuf] = [bnr, bnr] | endif
 
-    if strlen(tab.path) && !s:V.buftail
+    if strlen(tab.path) && !s:v.buftail
       let tab.path  = fnamemodify(tab.path, ':p:~:.')
 
     elseif strlen(tab.path)
@@ -451,7 +451,7 @@ endfun
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:get_tab_icon(tabnr)
-  if !s:V.show_tab_icons
+  if !s:v.show_tab_icons
     return get(s:Sets, 'tab_icon', ["📂", "📁"]) | endif
 
   let T = s:X.Tabs[a:tabnr-1]
@@ -492,7 +492,7 @@ let s:windows = { n -> range(1, tabpagewinnr(n, '$')) }
 let s:basename = { f -> fnamemodify(f, ':p:t') }
 
 fun! s:tabname(tabnr)
-  if s:V.show_tab_icons
+  if s:v.show_tab_icons
     return s:X.Tabs[a:tabnr-1].name
   else
     return s:short_cwd(a:tabnr, 2)

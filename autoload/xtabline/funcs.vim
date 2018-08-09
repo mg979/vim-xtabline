@@ -1,6 +1,6 @@
 fun! xtabline#funcs#init()
   let s:X = g:xtabline
-  let s:V = s:X.Vars
+  let s:v = s:X.Vars
   let s:Tabs = s:X.Tabs
   let s:Sets = g:xtabline_settings
 
@@ -223,7 +223,7 @@ endfun
 
 function! s:Funcs.not_enough_buffers(pinned) dict
   """Just return if there aren't enough buffers."""
-  let bufs = a:pinned ? s:V.pinned_buffers : s:oB()
+  let bufs = a:pinned ? s:v.pinned_buffers : s:oB()
   let pin  = a:pinned ? ' pinned ' : ' '
 
   if len(bufs) < 2
@@ -245,7 +245,7 @@ function! s:Funcs.refresh_tabline() dict
   if exists('g:loaded_airline') && g:airline#extensions#tabline#enabled
     let g:airline#extensions#tabline#exclude_buffers = s:T().exclude
     call airline#extensions#tabline#buflist#invalidate()
-  elseif s:V.showing_tabs
+  elseif s:v.showing_tabs
     set tabline=%!xtabline#render#tabs()
   else
     set tabline=%!xtabline#render#buffers()
