@@ -5,8 +5,8 @@ let s:Hi   = g:xtabline_highlight
 let s:Sets = g:xtabline_settings
 
 fun! xtabline#hi#init()
-  let s:Hi.active_theme = get(s:Hi, 'active_theme', 'default')
-  call xtabline#hi#apply_theme(s:Hi.active_theme, 1)
+  let s:Sets.theme = get(s:Sets, 'theme', 'default')
+  call xtabline#hi#apply_theme(s:Sets.theme, 1)
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -41,10 +41,10 @@ fun! xtabline#hi#apply_theme(theme, ...)
     endfor
   endif
 
-  if !exists('s:last_theme') || s:Hi.active_theme != s:last_theme
-    let s:last_theme = s:Hi.active_theme
+  if !exists('s:last_theme') || s:Sets.theme != s:last_theme
+    let s:last_theme = s:Sets.theme
   endif
-  let s:Hi.active_theme = a:theme
+  let s:Sets.theme = a:theme
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

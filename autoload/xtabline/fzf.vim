@@ -94,19 +94,32 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
+fun! s:abort_load(name, fzf_line, error_type)
+  let s:v.halt = 0
+  if a:error_type == 'buffers'
+    call s:F.msg ([[ a:name, 'Type' ],[ ": no saved buffers. Remove entry?\t", 'WarningMsg' ]])
+  else
+    call s:F.msg ([[ a:name, 'Type' ],[ ": invalid directory. Remove entry?\t", 'WarningMsg' ]])
+  endif
+  if nr2char(getchar()) == 'y'
+    call xtabline#fzf#tab_delete(a:fzf_line)
+  endif
+endfun
+
 fun! xtabline#fzf#tab_load(...)
   """Load a saved tab."""
   let json = json_decode(readfile(s:Sets.bookmaks_file)[0])
   let s:v.halt = 1
 
   for bm in a:000
-    let saved = json[substitute(bm, '\(\w*\)\s*\t.*', '\1', '')]
+    let name = substitute(bm, '\(\w*\)\s*\t.*', '\1', '')
+    let saved = json[name]
     let cwd = expand(saved['cwd'], ":p")
 
-    if isdirectory(cwd)                                 "valid bookmark
-      if empty(saved.buffers) | continue | endif        "no buffers
-    else                                                "invalid bookmark
-      call s:F.msg(saved['name'].": invalid bookmark.", 1) | continue
+    if isdirectory(cwd) && empty(saved.buffers)        "no valid buffers
+      call s:abort_load(name, bm, 'buffers') | return
+    elseif !isdirectory(cwd)                           "invalid directory
+      call s:abort_load(name, bm, 'dir')     | return
     endif
 
     "tab properties defined here will be applied by new_tab(), run by autocommand

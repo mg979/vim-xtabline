@@ -42,7 +42,7 @@ let s:Sets.modified_tab_flag         = get(s:Sets, "modified_tab_flag", "*")
 let s:Sets.close_tabs_label          = get(s:Sets, "close_tabs_label", "")
 let s:Sets.unnamed_tab_label         = get(s:Sets, "unnamed_tab_label", "[no name]")
 
-let s:Hi = { -> g:xtabline_highlight.themes[g:xtabline_highlight.active_theme] }
+let s:Hi = { -> g:xtabline_highlight.themes[s:Sets.theme] }
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
@@ -82,6 +82,15 @@ fun! xtabline#render#buffers()
   let tabs_per_tail = {}
   let currentbuf = winbufnr(0)
   let bufs = s:oB()
+
+  "put current buffer first
+  if s:Sets.sort_buffers_by_last_open
+    let i = index(bufs, currentbuf)
+    if i >= 0
+      call remove(bufs, i)
+      call insert(bufs, currentbuf, 0)
+    endif
+  endif
 
   "include pinned buffers and put them upfront
   for b in s:pinned()

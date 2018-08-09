@@ -36,13 +36,13 @@ function! xtabline#maps#init()
   call s:mapkeys(X.'wa',  'Wipe-All')
   call s:mapkeys(X.'wd',  'Working-Directory')
   call s:mapkeys(X.'cu',  'Clean-Up')
-  call s:mapkeys(X.'tr',  'Reopen')
+  call s:mapkeys(X.'rt',  'Reopen')
   call s:mapkeys(X.'sd',  'Set-Depth')
-  call s:mapkeys(X.'cti', 'Tab-Icon')
-  call s:mapkeys(X.'cbi', 'Buffer-Icon')
+  call s:mapkeys(X.'it',  'Tab-Icon')
+  call s:mapkeys(X.'ib',  'Buffer-Icon')
   call s:mapkeys(X.'nt',  'Rename-Tab')
   call s:mapkeys(X.'nb',  'Rename-Buffer')
-  call s:mapkeys(X.'bf',  'Buffer-Format')
+  call s:mapkeys(X.'fb',  'Buffer-Format')
   call s:mapkeys(X.'tt',  'Tab-Todo')
   call s:mapkeys(X.'rp',  'Relative-Paths')
   call s:mapkeys(X.'ct',  'Toggle-Custom-Tabs')
@@ -50,8 +50,8 @@ function! xtabline#maps#init()
   call s:mapkeys(X.'tf',  'Toggle-Filtering')
   call s:mapkeys(X.'cdc', 'Cd-Current')
   call s:mapkeys(X.'cdd', 'Cd-Down')
-  call s:mapkeys(X.'rt',  'Reset-Tab')
-  call s:mapkeys(X.'rb',  'Reset-Buffer')
+  call s:mapkeys(X.'Rt',  'Reset-Tab')
+  call s:mapkeys(X.'Rb',  'Reset-Buffer')
 
   call s:mapkeys('+t',    'Move-Tab+')
   call s:mapkeys('-t',    'Move-Tab-')
@@ -166,18 +166,18 @@ let g:xtabline.leader_guide.u = {
       \'w':  ["XTabCleanUp!",           "Wipe All".s:_                 ],
       \'r':  ["XTabReopen",             "Undo Close Tab".s:_           ],
       \'p':  ["XTabPurge",              "Purge".s:_                    ],
-      \'t':  ["XTabResetTab",           "Reset Tab".s:_                ],
-      \'b':  ["XTabResetBuffer",        "Reset Buffer".s:_             ],
+      \'T':  ["XTabResetTab",           "Reset Tab".s:_                ],
+      \'B':  ["XTabResetBuffer",        "Reset Buffer".s:_             ],
       \}
 
 let g:xtabline.leader_guide.o = {
       \'pb': ["XTabPinBuffer",          "Toggle Pin Buffer".s:_        ],
       \'rp': ["XTabRelativePaths",      "Toggle Relative Paths".s:_    ],
       \'ct': ["XTabCustomTabs",         "Toggle Custom Tabs".s:_       ],
-      \'bf': ["XTabFormatBuffer",       "Change Buffer Format".s:_     ],
+      \'fb': ["XTabFormatBuffer",       "Change Buffer Format".s:_     ],
       \'wd': ["XTabWD!",                "Change Working Directory".s:_ ],
-      \'ti': [s:fk("Tab-Icon"),         "Change Tab Icon".s:_          ],
-      \'bi': [s:fk("Buffer-Icon"),      "Change Buffer Icon".s:_       ],
+      \'it': [s:fk("Tab-Icon"),         "Change Tab Icon".s:_          ],
+      \'ib': [s:fk("Buffer-Icon"),      "Change Buffer Icon".s:_       ],
       \'nt': [s:fk("Rename-Tab"),       "Rename Tab".s:_                 ],
       \'nb': [s:fk("Rename-Buffer"),    "Rename Buffer".s:_              ],
       \}

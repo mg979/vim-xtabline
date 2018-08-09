@@ -122,6 +122,7 @@ let s:S.relative_paths             = get(s:S, 'relative_paths', 1)
 let s:S.superscript_unicode_nrs    = get(s:S, 'superscript_unicode_nrs', 0)
 let s:S.show_current_tab           = get(s:S, 'show_current_tab', 1)
 let s:S.enable_extra_highlight     = get(s:S, 'enable_extra_highlight', 1)
+let s:S.sort_buffers_by_last_open  = get(s:S, 'sort_buffers_by_last_open', 0)
 
 let s:S.todo                       = get(s:S, 'todo', {})
 let s:S.todo.command               = get(s:S.todo, 'command', 'sp')
