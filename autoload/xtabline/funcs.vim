@@ -19,8 +19,8 @@ let s:Funcs.fullpath    = { p -> fnamemodify(expand(p), ":p") }
 
 fun! s:Funcs.check_tabs() dict
   """Create or remove tab dicts if necessary. Rearrange tabs list if order is wrong."""
-  while len(s:Tabs) < tabpagenr("$") | call add(s:Tabs, xtabline#new_tab()) | endwhile
-  while len(s:Tabs) > tabpagenr('$') | call remove(s:Tabs, -1)              | endwhile
+  while len(s:Tabs) < tabpagenr("$") | call add(s:Tabs, xtabline#new_tab_dict()) | endwhile
+  while len(s:Tabs) > tabpagenr('$') | call remove(s:Tabs, -1)                   | endwhile
   call self.check_this_tab()
 endfun
 
@@ -159,13 +159,13 @@ endfun
 fun! s:Funcs.within_depth(path, depth) dict
   """If tab uses depth, verify if the path can be accepted."""
 
-  if !a:depth | return 1 | endif
+  if a:depth < 0 | return 1 | endif
 
   let basedir = fnamemodify(a:path, ":p:h")
   let diff = substitute(basedir, getcwd(), '', '')
 
-  "the number of dir separators in (basedir - cwd) must be < depth
-  return count(diff, self.sep()) < a:depth
+  "the number of dir separators in (basedir - cwd) must be <= depth
+  return count(diff, self.sep()) <= a:depth
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

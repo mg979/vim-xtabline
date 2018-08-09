@@ -543,7 +543,7 @@ fun! s:is_special_buffer(nr)
 
   if git >= 0
     let bufs[a:nr] = s:Bd(gitn[git], s:Sets.custom_icons.git, {})
-    if git == 0 | call s:lock_tab([a:nr], {'name': 'GV', 'icon': s:Sets.custom_icons.git}) | endif
+    if git == 0 | call s:lock_tab([a:nr], {'icon': s:Sets.custom_icons.git}) | endif
     return 1
 
   elseif s:Is(a:nr, "fugitive")      "fugitive buffer, set name and icon

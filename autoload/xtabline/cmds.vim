@@ -66,29 +66,27 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:depth(args)
-  """Set tab filtering depth, toggle filtering with bang."""
-  let [bang, cnt] = a:args | let T = s:T()
-
-  let current_dir_only  = bang && T.depth  || !T.depth && !cnt
-  let full_cwd          = bang && !T.depth || T.depth  && !cnt
-
-  let T.depth = current_dir_only ? 1 :
-        \       full_cwd         ? 0 : cnt
-
-  call xtabline#filter_buffers()
-
-  let tree = !executable('tree')? [] : systemlist('tree -d -L '.cnt.' '.getcwd())
+fun! s:tree(cnt)
+  let tree = systemlist('tree -d -L '.a:cnt.' '.getcwd())
 
   if !empty(tree) && len(tree) > s:Sets.depth_tree_size
     let tree = tree[:s:Sets.depth_tree_size] + ['...'] + [tree[-1]]
   endif
 
-  if !empty(tree)
-    let tree = ["\n\n".join(tree, "\n"), 'Type']
-  else
-    let tree = ['', 'None']
-  endif
+  return empty(tree) ? ['', 'None'] : ["\n\n".join(tree, "\n"), 'Type']
+endfun
+
+fun! s:depth(cnt)
+  """Set tab filtering depth, toggle filtering with bang."""
+  let cnt = a:cnt | let T = s:T()
+
+  let current_dir_only  = !cnt && T.depth < 0
+  let full_cwd          = !cnt && !current_dir_only
+  let T.depth           = cnt ? cnt : current_dir_only ? 0 : -1
+
+  call xtabline#filter_buffers()
+
+  let tree = !cnt || !executable('tree') ? [] : s:tree(cnt)
 
   if current_dir_only
     call s:F.msg ([[ "Buffer filtering is now restricted to ", 'WarningMsg'],
@@ -506,7 +504,7 @@ endfun
 fun! s:reset_tab(...)
   """Reset the tab to a pristine state.
   let cwd = a:0? fnamemodify(expand(a:1), :p) : s:F.find_suitable_cwd()
-  let s:X.Tabs[tabpagenr()-1] = xtabline#new_tab({'cwd': cwd})
+  let s:X.Tabs[tabpagenr()-1] = xtabline#new_tab_dict({'cwd': cwd})
   cd `=cwd`
   call xtabline#filter_buffers()
 endfun

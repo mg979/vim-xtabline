@@ -74,11 +74,11 @@ endfun
 " Main functions
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! xtabline#new_tab(...)
+fun! xtabline#new_tab_dict(...)
   """Create an entry in the Tabs list.
   """tab_properties can be set by a command, before this function is called.
 
-  let p = a:0? a:1 : s:v.tab_properties
+  let p = a:0? extend(a:1, s:v.tab_properties) : s:v.tab_properties
 
   "cwd:     (string)  working directory
   "name:    (string)  tab name
@@ -86,8 +86,9 @@ fun! xtabline#new_tab(...)
   "exclude: (list)    excluded buffer numbers
   "index:   (int)     tabpagenr() - 1, when tab is set
   "locked:  (bool)    when filtering is independent from cwd
+  "rpaths:  (int)     whether the bufferline shows relative paths or filenames
   "depth:   (int)     filtering recursive depth (n. of directories below cwd)
-  "                   0 means infinite, -1 means filtering disabled
+  "                   -1 means full cwd, 0 means root dir only, >0 means up to n subdirs
   "vimrc:   (dict)    settings to be sourced when entering the tab
   "                   it can hold: {'file': string, 'commands': list} (one, both or empty)
 
@@ -116,7 +117,7 @@ fun! xtabline#filter_buffers(...)
   let T = s:T() | let can_show_tabs = s:v.showing_tabs && has_key(T, 'init')
 
   " 'accepted' is a list of buffer numbers, for quick access.
-  " 'excludes' is a list of paths, it will be used by Airline to hide buffers."""
+  " 'excluded' is a list of paths, it will be used by Airline to hide buffers.
 
   if !s:ready()        | call s:F.check_tabs() | return
   elseif can_show_tabs | set tabline=%!xtabline#render#tabs()
@@ -130,14 +131,13 @@ fun! xtabline#filter_buffers(...)
   let cwd             = getcwd()
   let _pre            = s:Sets.exact_paths? '^' : ''
   let post_           = s:F.sep()
-  let nofilter        = T.depth < 0 || !s:v.filtering
 
   for buf in range(1, bufnr("$"))
 
     if s:is_special(buf)   | call add(accepted, buf) | continue
     elseif s:invalid(buf)  | continue
-    elseif s:is_ma(buf)    | call add(accepted, buf) | continue
-    elseif nofilter        | call add(accepted, buf) | continue | endif
+    elseif !s:v.filtering  | call add(accepted, buf) | continue
+    elseif s:is_ma(buf)    | call add(accepted, buf) | continue | endif
 
     " get the path
     let path = expand("#".buf.":p")
@@ -236,8 +236,7 @@ function! s:Do(action, ...)
 
   if a:action == 'new'
 
-    let tab = !empty(V.tab_properties)? V.tab_properties : {'cwd': '~'}
-    call insert(X.Tabs, xtabline#new_tab(tab), N)
+    call insert(X.Tabs, xtabline#new_tab_dict(), N)
     if V.auto_set_cwd && s:ready()
       let s:new_tab_created = 1
     endif
@@ -296,7 +295,7 @@ endfunction
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:set_new_tab_cwd(N)
-  """Find suitable cwd for the new tab."""
+  """Find suitable cwd for the new tab. Only runs after XT commands."""
   let s:new_tab_created = 0 | let T = s:X.Tabs[a:N]
 
   " empty tab sets cwd to ~, non-empty tab looks for a .git dir
