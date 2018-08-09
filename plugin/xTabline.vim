@@ -78,6 +78,7 @@ com! -nargs=?           XTabPinBuffer       call xtabline#cmds#run("toggle_pin_b
 com! -nargs=? -count    XTabNew             call xtabline#cmds#run("new_tab", <count>, <q-args>)
 com! -nargs=?           XTabMove            call xtabline#cmds#run("move_tab", <q-args>)
 
+com! -nargs=?        -complete=file                  XEdit               call xtabline#cmds#run("edit_buffer", <q-args>)
 com! -nargs=? -count -complete=file -bang            XTabEdit            call xtabline#cmds#run("edit_tab", <count>, <bang>0, <q-args>)
 com! -nargs=? -bang  -complete=file                  XTabWD              call xtabline#cmds#run("set_cwd", [<bang>0, <q-args>])
 com! -nargs=? -bang  -complete=customlist,<sid>icons XTabIcon            call xtabline#cmds#run("tab_icon", [<bang>0, <q-args>])
@@ -114,7 +115,8 @@ let s:S.close_buffer_can_quit_vim  = get(s:S, 'close_buffer_can_quit_vim', 0)
 let s:S.unload_session_ask_confirm = get(s:S, 'unload_session_ask_confirm', 1)
 let s:S.depth_tree_size            = get(s:S, 'depth_tree_size', 20)
 
-let s:S.alt_action                 = get(s:S, 'alt_action', "buffer #")
+let s:S.selbuf_alt_action          = get(s:S, 'selbuf_alt_action', "buffer #")
+let s:S.hidbuf_alt_action          = get(s:S, 'hidbuf_alt_action', "buffer #")
 let s:S.bookmaks_file              = get(s:S, 'bookmaks_file ', expand('$HOME/.vim/.XTablineBookmarks'))
 let s:S.sessions_data              = get(s:S, 'sessions_data', expand('$HOME/.vim/.XTablineSessions'))
 let s:S.default_named_tab_icon     = get(s:S, 'default_named_tab_icon', [])

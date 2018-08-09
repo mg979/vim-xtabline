@@ -110,7 +110,7 @@ endfun
 fun! s:purge_buffers()
   """Remove unmodified buffers with invalid paths."""
 
-  if s:T().depth < 0 || !s:v.filtering | echo "Buffer filtering is turned off." | return | endif
+  if !s:v.filtering | echo "Buffer filtering is turned off." | return | endif
   let bcnt = 0 | let bufs = [] | let purged = [] | let accepted = s:vB()
 
   " include previews if not showing in tabline
@@ -259,6 +259,40 @@ fun! s:tab_todo()
   nmap <silent><nowait> <buffer> q :w<bar>bdelete<cr>
 endfun
 
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:move_buffer(cnt, ...)
+  """Move buffer in the bufferline to a new position."""
+  let b = bufnr("%") | let oB = s:oB() | let max = len(oB) - 1
+  let i = index(oB, b)
+
+  if i < 0 || i == a:cnt          | return
+  elseif i == max && a:cnt >= max | return | endif
+
+  let new = min([a:cnt, max])
+  call remove (oB, i)
+  if new < max
+    call insert(oB, b, new)
+  else
+    call add(oB, b)
+  endif
+  if !a:0 | call xtabline#filter_buffers() | endif
+endfun
+
+fun! s:hide_buffer(new)
+  """Move buffer to the last position, then select another one."""
+  let b = bufnr("%") | let oB = s:oB() | let max = len(oB) - 1
+  let i = index(oB, b)
+  call s:move_buffer(1000, 1)
+
+  "if hiding, the buffer that will be selected
+  "new in this case is the wanted buffer
+  let new = a:new > i ?  a:new-2 : a:new-1
+  let then_select = new >= 0 ?  oB[new] : oB[0]
+
+  silent! exe 'b'.then_select
+  call xtabline#filter_buffers()
+endfun
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:rename_tab(label)
@@ -409,6 +443,18 @@ fun! s:edit_tab(...)
   let s:v.auto_set_cwd = 0
   if bang
     call feedkeys("\<Plug>(XT-Rename-Tab)")
+  endif
+endfun
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:edit_buffer(path)
+  """Like :edit, but check for directories nad optionally create them.."""
+  if empty(a:path)
+    new
+  else
+    call s:check_dir(a:path)
+    exe "e" a:path
   endif
 endfun
 

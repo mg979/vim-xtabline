@@ -6,20 +6,24 @@ function! xtabline#maps#init()
 
   let S = g:xtabline_settings
   let X = S.map_prefix
+  let L = '<leader>'
 
   fun! s:mapkeys(keys, plug)
-    if maparg(a:keys) == '' && !hasmapto(a:plug)
-      silent! execute 'nmap <unique> '.a:keys.' <Plug>(XT-'.a:plug.')'
+    let plug = '<Plug>(XT-'.a:plug.')'
+    if maparg(a:keys, 'n') == '' && !hasmapto(plug)
+      silent! execute 'nmap <unique>' a:keys plug
     endif
   endfun
 
   call s:mapkeys('<F5>',  'Toggle-Tabs')
   call s:mapkeys('<BS>',  'Select-Buffer')
+  call s:mapkeys(L.'<cr>','Hide-Buffer')
   call s:mapkeys(']b',    'Next-Buffer')
   call s:mapkeys('[b',    'Prev-Buffer')
   call s:mapkeys('[B',    'Prev-Pinned')
   call s:mapkeys(']B',    'Next-Pinned')
   call s:mapkeys(X.'q',   'Close-Buffer')
+  call s:mapkeys(X.'e',   'Edit')
   call s:mapkeys(X.'lb',  'List-Buffers')
   call s:mapkeys(X.'db',  'Delete-Buffers')
   call s:mapkeys(X.'dgb', 'Delete-Global-Buffers')
@@ -47,6 +51,8 @@ function! xtabline#maps#init()
   call s:mapkeys(X.'rp',  'Relative-Paths')
   call s:mapkeys(X.'ct',  'Toggle-Custom-Tabs')
   call s:mapkeys(X.'pb',  'Pin-Buffer')
+  call s:mapkeys(X.'at',  'Apply-Theme')
+  call s:mapkeys(X.'mb',  'Move-Buffer')
   call s:mapkeys(X.'tf',  'Toggle-Filtering')
   call s:mapkeys(X.'cdc', 'Cd-Current')
   call s:mapkeys(X.'cdd', 'Cd-Down')
@@ -70,10 +76,11 @@ function! xtabline#maps#init()
   nnoremap <unique> <silent>        <Plug>(XT-Move-Tab$)             :<c-u>XTabMove $<cr>
   nnoremap <unique>                 <Plug>(XT-Tab-New)               :<c-u>XTabNew<space>
   nnoremap <unique>                 <Plug>(XT-Tab-Edit)              :<c-u>XTabEdit<space>
+  nnoremap <unique>                 <Plug>(XT-Edit)                  :<c-u>XEdit<space>
 
   nnoremap <unique> <silent>        <Plug>(XT-Toggle-Tabs)           :<c-u>call xtabline#cmds#run('toggle_tabs')<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Toggle-Filtering)      :<c-u>call xtabline#cmds#run('toggle_buffers')<cr>
-  nnoremap <unique> <silent> <expr> <Plug>(XT-Select-Buffer)         v:count? ":\<C-U>silent! exe 'b'.\<sid>tab_buffers()[v:count-1]\<cr>" : ":\<C-U>".g:xtabline_settings.alt_action."\<cr>"
+  nnoremap <unique> <silent> <expr> <Plug>(XT-Select-Buffer)         v:count? <sid>select_buffer(v:count-1) : ":\<C-U>".g:xtabline_settings.selbuf_alt_action."\<cr>"
   nnoremap <unique> <silent> <expr> <Plug>(XT-Next-Buffer)           xtabline#next_buffer(v:count1, 0)
   nnoremap <unique> <silent> <expr> <Plug>(XT-Prev-Buffer)           xtabline#prev_buffer(v:count1, 0)
   nnoremap <unique> <silent> <expr> <Plug>(XT-Next-Pinned)           xtabline#next_buffer(v:count1, 1)
@@ -96,8 +103,12 @@ function! xtabline#maps#init()
   nnoremap <unique> <silent>        <Plug>(XT-Reopen)                :<c-u>XTabReopen<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Working-Directory)     :<c-u>XTabWD!<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Set-Depth)             :<c-u>call xtabline#cmds#run('depth', v:count)<cr>
+  nnoremap <unique> <silent>        <Plug>(XT-Move-Buffer)           :<c-u>call xtabline#cmds#run('move_buffer', v:count)<cr>
+  nnoremap <unique> <silent> <expr> <Plug>(XT-Hide-Buffer)           v:count? ":\<c-u>call xtabline#cmds#run('hide_buffer', v:count)\<cr>" : ":\<C-U>".g:xtabline_settings.hidbuf_alt_action."\<cr>"
+  " nnoremap <unique> <silent>        <Plug>(XT-Hide-Buffer)           :<c-u>call xtabline#cmds#run('hide_buffer', v:count1)<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Tab-Todo)              :<c-u>XTabTodo<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Toggle-Custom-Tabs)    :<c-u>XTabCustomTabs<cr>
+  nnoremap <unique>                 <Plug>(XT-Apply-Theme)           :<c-u>XTabTheme<Space>
   nnoremap <unique>                 <Plug>(XT-Tab-Icon)              :<c-u>XTabIcon<Space>
   nnoremap <unique>                 <Plug>(XT-Buffer-Icon)           :<c-u>XTabBufferIcon<Space>
   nnoremap <unique>                 <Plug>(XT-Rename-Tab)            :<c-u>XTabRenameTab<Space>
@@ -109,14 +120,22 @@ function! xtabline#maps#init()
   nnoremap <unique> <silent>        <Plug>(XT-Reset-Buffer)          :<c-u>XTabResetBuffer<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Relative-Paths)        :<c-u>XTabRelativePaths<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Leader-Guide)          :<c-u>silent! LeaderGuideD g:xtabline.leader_guide.x<cr>
-  nnoremap <unique> <silent>        <Plug>(XT-Leader-Guide-f)          :<c-u>silent! LeaderGuideD g:xtabline.leader_guide.f<cr>
-  nnoremap <unique> <silent>        <Plug>(XT-Leader-Guide-o)          :<c-u>silent! LeaderGuideD g:xtabline.leader_guide.o<cr>
-  nnoremap <unique> <silent>        <Plug>(XT-Leader-Guide-u)          :<c-u>silent! LeaderGuideD g:xtabline.leader_guide.u<cr>
+  nnoremap <unique> <silent>        <Plug>(XT-Leader-Guide-f)        :<c-u>silent! LeaderGuideD g:xtabline.leader_guide.f<cr>
+  nnoremap <unique> <silent>        <Plug>(XT-Leader-Guide-t)        :<c-u>silent! LeaderGuideD g:xtabline.leader_guide.t<cr>
+  nnoremap <unique> <silent>        <Plug>(XT-Leader-Guide-u)        :<c-u>silent! LeaderGuideD g:xtabline.leader_guide.u<cr>
+  nnoremap <unique> <silent>        <Plug>(XT-Leader-Guide-b)        :<c-u>silent! LeaderGuideD g:xtabline.leader_guide.b<cr>
 endfunction
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Helpers
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:select_buffer(cnt)
+  let bufs = s:tab_buffers()
+  let n = min([a:cnt, len(bufs)-1])
+  let b = bufs[n]
+  return ":\<C-U>silent! exe 'b'.".b."\<cr>"
+endfun
 
 fun! s:tab_buffers()
   return g:xtabline.Tabs[tabpagenr()-1].buffers.order
@@ -143,43 +162,51 @@ let s:fk = { p -> 'call feedkeys("\<Plug>(XT-'.p.')")"' }
 let s:_ = '                               '
 let g:xtabline.leader_guide   = {}
 let g:xtabline.leader_guide.x = {
-      \'f':   [s:fk('Leader-Guide-f'), "Tabs/Sessions".s:_.s:_.s:_  ],
-      \'o':   [s:fk('Leader-Guide-o'), "Options".s:_.s:_.s:_        ],
+      \'f':   [s:fk('Leader-Guide-f'), "Files/Sessions".s:_.s:_.s:_  ],
+      \'t':   [s:fk('Leader-Guide-t'), "Tabs".s:_.s:_.s:_  ],
+      \'b':   [s:fk('Leader-Guide-b'), "Buffers".s:_.s:_.s:_  ],
       \'u':   [s:fk('Leader-Guide-u'), "Utilities".s:_.s:_.s:_      ],
       \}
 
 let g:xtabline.leader_guide.f = {
-      \'lt': ["XTabLoadTab",            "Load Tab Bookmark(s)".s:_     ],
-      \'st': ["XTabSaveTab",            "Save Tab Bookmark(s)".s:_     ],
-      \'dt': ["XTabDeleteTab",          "Delete Tab Bookmark(s)".s:_   ],
-      \'ls': ["XTabLoadSession",        "Load Session".s:_             ],
-      \'ss': ["XTabSaveSession",        "Save Session".s:_             ],
-      \'ds': ["XTabDeleteSession",      "Delete Session".s:_           ],
-      \'ns': ["XTabNewSession",         "New Session".s:_              ],
-      \'te': [s:fk('Tab-Edit'),         "Tab Edit".s:_                 ],
-      \'tn': [s:fk('Tab-New'),          "Tab New".s:_                  ],
+      \'lt': ["XTabLoadTab",            "Load Tab Bookmark(s)".s:_      ],
+      \'st': ["XTabSaveTab",            "Save Tab Bookmark(s)".s:_      ],
+      \'dt': ["XTabDeleteTab",          "Delete Tab Bookmark(s)".s:_    ],
+      \'ls': ["XTabLoadSession",        "Load Session".s:_              ],
+      \'ss': ["XTabSaveSession",        "Save Session".s:_              ],
+      \'ds': ["XTabDeleteSession",      "Delete Session".s:_            ],
+      \'ns': ["XTabNewSession",         "New Session".s:_               ],
+      \}
+
+let g:xtabline.leader_guide.t = {
+      \'te': [s:fk('Tab-Edit'),         "Tab Edit".s:_                  ],
+      \'tn': [s:fk('Tab-New'),          "Tab New".s:_                   ],
+      \'R':  ["XTabResetTab",           "Reset Tab".s:_                 ],
+      \'wd': ["XTabWD!",                "Change Working Directory".s:_  ],
+      \'it': [s:fk("Tab-Icon"),         "Change Tab Icon".s:_           ],
+      \'nt': [s:fk("Rename-Tab"),       "Rename Tab".s:_                ],
+      \'ct': ["XTabCustomTabs",         "Toggle Custom Tabs".s:_        ],
+      \'r':  ["XTabReopen",             "Reopen Tab".s:_                ],
       \}
 
 let g:xtabline.leader_guide.u = {
-      \'o':  ["XTabTodo",               "Open Todo".s:_                ],
-      \'c':  ["XTabCleanUp",            "Clean Up".s:_                 ],
-      \'w':  ["XTabCleanUp!",           "Wipe All".s:_                 ],
-      \'r':  ["XTabReopen",             "Undo Close Tab".s:_           ],
-      \'p':  ["XTabPurge",              "Purge".s:_                    ],
-      \'T':  ["XTabResetTab",           "Reset Tab".s:_                ],
-      \'B':  ["XTabResetBuffer",        "Reset Buffer".s:_             ],
+      \'o':  ["XTabTodo",               "Open Todo".s:_                 ],
+      \'c':  ["XTabCleanUp",            "Clean Up".s:_                  ],
+      \'w':  ["XTabCleanUp!",           "Wipe All".s:_                  ],
+      \'p':  ["XTabPurge",              "Purge".s:_                     ],
+      \'t':  [s:fk("Apply-Theme"),      "Change Theme".s:_              ],
       \}
 
-let g:xtabline.leader_guide.o = {
-      \'pb': ["XTabPinBuffer",          "Toggle Pin Buffer".s:_        ],
-      \'rp': ["XTabRelativePaths",      "Toggle Relative Paths".s:_    ],
-      \'ct': ["XTabCustomTabs",         "Toggle Custom Tabs".s:_       ],
-      \'fb': ["XTabFormatBuffer",       "Change Buffer Format".s:_     ],
-      \'wd': ["XTabWD!",                "Change Working Directory".s:_ ],
-      \'it': [s:fk("Tab-Icon"),         "Change Tab Icon".s:_          ],
-      \'ib': [s:fk("Buffer-Icon"),      "Change Buffer Icon".s:_       ],
-      \'nt': [s:fk("Rename-Tab"),       "Rename Tab".s:_                 ],
-      \'nb': [s:fk("Rename-Buffer"),    "Rename Buffer".s:_              ],
+let g:xtabline.leader_guide.b = {
+      \'pb': ["XTabPinBuffer",          "Toggle Pin Buffer".s:_         ],
+      \'rp': ["XTabRelativePaths",      "Toggle Relative Paths".s:_     ],
+      \'fb': ["XTabFormatBuffer",       "Change Buffer Format".s:_      ],
+      \'ib': [s:fk("Buffer-Icon"),      "Change Buffer Icon".s:_        ],
+      \'nb': [s:fk("Rename-Buffer"),    "Rename Buffer".s:_             ],
+      \'R':  ["XTabResetBuffer",        "Reset Buffer".s:_              ],
+      \'h':  [s:fk("Hide-Buffer"),      "Hide Buffer".s:_               ],
+      \'0':  [s:fk("Move-Buffer"),      "Make First Buffer".s:_         ],
       \}
-let g:xtabline.leader_guide.o.f = ["call xtabline#cmds#run('depth', [0, v:count])", "Toggle Filtering".s:_]
+
+let g:xtabline.leader_guide.b.f = ["call xtabline#cmds#run('depth', [0, v:count])", "Toggle Filtering".s:_]
 
