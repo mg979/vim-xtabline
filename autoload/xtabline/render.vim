@@ -132,7 +132,7 @@ fun! xtabline#render#buffers()
 
     if currentbuf == bnr | let [centerbuf, s:centerbuf] = [bnr, bnr] | endif
 
-    if strlen(tab.path) && !s:v.buftail
+    if strlen(tab.path) && s:T().rpaths
       let tab.path  = fnamemodify(tab.path, ':p:~:.')
 
     elseif strlen(tab.path)
@@ -274,7 +274,7 @@ endfun
 fun! s:get_dev_icon(buf)
   """Return preferably devicon for buffer, or custom icon if present."""
   let a:buf.tried_devicon = 1
-  if g:loaded_webdevicons &&
+  if exists('g:loaded_webdevicons') &&
         \ (s:Sets.devicon_for_all_filetypes ||
         \ index(s:Sets.devicon_for_extensions, expand("#".a:buf.nr.":e")) >= 0)
     let a:buf.has_icon = 1
@@ -460,7 +460,7 @@ endfun
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:get_tab_icon(tabnr)
-  if !s:v.show_tab_icons
+  if !s:v.custom_tabs
     return get(s:Sets, 'tab_icon', ["📂", "📁"]) | endif
 
   let T = s:X.Tabs[a:tabnr-1]
@@ -501,7 +501,7 @@ let s:windows = { n -> range(1, tabpagewinnr(n, '$')) }
 let s:basename = { f -> fnamemodify(f, ':p:t') }
 
 fun! s:tabname(tabnr)
-  if s:v.show_tab_icons
+  if s:v.custom_tabs
     return s:X.Tabs[a:tabnr-1].name
   else
     return s:short_cwd(a:tabnr, 2)

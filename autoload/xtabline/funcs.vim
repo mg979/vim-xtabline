@@ -21,12 +21,21 @@ fun! s:Funcs.check_tabs() dict
   """Create or remove tab dicts if necessary. Rearrange tabs list if order is wrong."""
   while len(s:Tabs) < tabpagenr("$") | call add(s:Tabs, xtabline#new_tab()) | endwhile
   while len(s:Tabs) > tabpagenr('$') | call remove(s:Tabs, -1)              | endwhile
+  call self.check_this_tab()
+endfun
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:Funcs.check_this_tab() dict
+  """Ensure all dict keys are present."""
+  let s:X.Tabs[tabpagenr()-1] = extend(self.tab_template(), s:T())
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:Funcs.delay(time, func) dict
   """Call a function with a timer."""
+  " if exists('g:SessionLoad') || s:v.halt | return | endif
   let s:delayed_func = a:func
   call timer_start(a:time, self._delay)
 endfun
@@ -140,7 +149,8 @@ fun! s:Funcs.tab_template(...) dict
                \ 'vimrc':   {},
                \ 'locked':  0,
                \ 'depth':   0,
-               \ 'icon':   '',
+               \ 'rpaths':  0,
+               \ 'icon':    '',
                \}, mod)
 endfun
 

@@ -9,9 +9,8 @@ let s:Sets = g:xtabline_settings
 
 let s:v.tab_properties = {}                     "if not empty, newly created tab will inherit them
 let s:v.filtering      = 1                      "whether bufline filtering is active
-let s:v.show_tab_icons = 1                      "tabline shows custom names/icons
+let s:v.custom_tabs    = 1                      "tabline shows custom names/icons
 let s:v.showing_tabs   = 0                      "tabline or bufline?
-let s:v.buftail        = s:Sets.relative_paths  "whether the bufline is showing basenames only
 let s:v.halt           = 0                      "used to temporarily halt some functions
 let s:v.auto_set_cwd   = 0                      "used to temporarily allow auto cwd detection
 
@@ -99,13 +98,15 @@ fun! xtabline#new_tab(...)
   let locked  = has_key(p, 'locked')?  p.locked  : 0
   let depth   = has_key(p, 'depth')?   p.depth   : 0
   let vimrc   = has_key(p, 'vimrc')?   p.vimrc   : {}
+  let rpaths  = has_key(p, 'rpaths')?  p.rpaths  : 0
 
   let s:v.tab_properties = {}
 
-  return {'name':    name,       'cwd':     cwd,
+  return extend(s:F.tab_template(), {
+        \'name':    name,       'cwd':     cwd,
         \ 'buffers': buffers,    'exclude': exclude,
         \ 'locked':  locked,     'depth':   depth,
-        \ 'vimrc':   vimrc}
+        \ 'vimrc':   vimrc,      'rpaths':  rpaths})
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -117,7 +118,7 @@ fun! xtabline#filter_buffers(...)
   " 'accepted' is a list of buffer numbers, for quick access.
   " 'excludes' is a list of paths, it will be used by Airline to hide buffers."""
 
-  if !s:ready()        | return
+  if !s:ready()        | call s:F.check_tabs() | return
   elseif can_show_tabs | set tabline=%!xtabline#render#tabs()
     return
   endif

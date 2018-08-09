@@ -237,12 +237,13 @@ endfun
 
 fun! s:relative_paths()
   """Toggle between full relative path and tail only, in the bufline.
-  let s:v.buftail = !s:v.buftail
+  let T = s:T()
+  let T.rpaths = !T.rpaths
   call xtabline#filter_buffers()
-  if s:v.buftail
-    call s:F.msg ([[ "Buffers relative paths disabled.", 'WarningMsg']])
+  if T.rpaths
+    call s:F.msg ([[ "Bufferline shows relative paths.", 'StorageClass']])
   else
-    call s:F.msg ([[ "Buffers relative paths enabled.", 'StorageClass']])
+    call s:F.msg ([[ "Bufferline shows filename only.", 'WarningMsg']])
   endif
 endfun
 
@@ -523,7 +524,7 @@ endfun
 
 fun! s:toggle_tab_names()
     """Toggle between custom icon/name and short path/folder icons."""
-    let s:v.show_tab_icons = !s:v.show_tab_icons
+    let s:v.custom_tabs = !s:v.custom_tabs
     call xtabline#filter_buffers()
 endfun
 
