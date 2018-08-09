@@ -50,6 +50,7 @@ function! xtabline#maps#init()
   call s:mapkeys(X.'tt',  'Tab-Todo')
   call s:mapkeys(X.'rp',  'Relative-Paths')
   call s:mapkeys(X.'ct',  'Toggle-Custom-Tabs')
+  call s:mapkeys(X.'co',  'Change-Options')
   call s:mapkeys(X.'pb',  'Pin-Buffer')
   call s:mapkeys(X.'at',  'Apply-Theme')
   call s:mapkeys(X.'mb',  'Move-Buffer')
@@ -110,6 +111,7 @@ function! xtabline#maps#init()
   nnoremap <unique> <silent>        <Plug>(XT-Toggle-Custom-Tabs)    :<c-u>XTabCustomTabs<cr>
   nnoremap <unique>                 <Plug>(XT-Apply-Theme)           :<c-u>XTabTheme<Space>
   nnoremap <unique>                 <Plug>(XT-Tab-Icon)              :<c-u>XTabIcon<Space>
+  nnoremap <unique>                 <Plug>(XT-Change-Options)        :<c-u>XTabConfig<cr>
   nnoremap <unique>                 <Plug>(XT-Buffer-Icon)           :<c-u>XTabBufferIcon<Space>
   nnoremap <unique>                 <Plug>(XT-Rename-Tab)            :<c-u>XTabRenameTab<Space>
   nnoremap <unique>                 <Plug>(XT-Rename-Buffer)         :<c-u>XTabRenameBuffer<Space>

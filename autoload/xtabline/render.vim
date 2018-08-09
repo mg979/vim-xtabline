@@ -551,7 +551,7 @@ fun! s:is_special_buffer(nr)
     return 1
 
   elseif s:Ft(a:nr, "ctrlsf")
-    let bufs[a:nr] = s:Bd('❯❯❯ CtrlSF ❰❰❰', '', {'format': 'l'})
+    let bufs[a:nr] = s:Bd(' 🔍 CtrlSF 🔍 ', '', {'format': 'l'})
     return 1
   endif
 endfun

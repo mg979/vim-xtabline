@@ -74,6 +74,7 @@ com!                    XTabRelativePaths   call xtabline#cmds#run("relative_pat
 com!                    XTabFormatBuffer    call xtabline#cmds#run("format_buffer")
 com!                    XTabCustomTabs      call xtabline#cmds#run("toggle_tab_names")
 com! -nargs=?           XTabPinBuffer       call xtabline#cmds#run("toggle_pin_buffer", <q-args>)
+com!                    XTabConfig          call xtabline#config#start()
 
 com! -nargs=? -count    XTabNew             call xtabline#cmds#run("new_tab", <count>, <q-args>)
 com! -nargs=?           XTabMove            call xtabline#cmds#run("move_tab", <q-args>)
