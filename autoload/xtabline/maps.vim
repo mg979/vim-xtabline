@@ -129,7 +129,7 @@ function! xtabline#maps#init()
   nnoremap <unique> <silent>        <Plug>(XT-Leader-Guide-u)        :<c-u>silent! LeaderGuideD g:xtabline.leader_guide.u<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Leader-Guide-b)        :<c-u>silent! LeaderGuideD g:xtabline.leader_guide.b<cr>
 
-  if !S.disable_keybindings | call s:do_map() | endif
+  if !g:xtabline_settings.disable_keybindings | call s:do_map() | endif
 endfunction
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -155,8 +155,7 @@ fun! s:cd(count)
   let cwd = fnamemodify(expand("%", ":p"), path)
   cd `=cwd`
   let g:xtabline.Tabs[tabpagenr()-1].cwd = cwd
-  doautocmd BufAdd
-  call xtabline#update_obsession()
+  call xtabline#filter_buffers()
   pwd
 endfun
 

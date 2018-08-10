@@ -75,7 +75,7 @@ fun! xtabline#fzf#tab_nerd_bookmarks_load(...)
       exe "cd ".fnamemodify(bm, ":p:h")
     endif
   endfor
-  call s:F.refresh_tabline()
+  call xtabline#filter_buffers()
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -146,7 +146,6 @@ fun! xtabline#fzf#tab_load(...)
   endfor
   let s:v.halt = 0
   call xtabline#filter_buffers()
-  " doautocmd BufAdd
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

@@ -321,6 +321,6 @@ augroup plugin-xtabline
   "NOTE: BufEnter needed. Timer improves reliability. Keep it like this.
   autocmd BufAdd,BufWrite,BufEnter  * call g:xtabline.Funcs.delay(100, 'xtabline#filter_buffers()')
   autocmd QuitPre                   * call g:xtabline.Funcs.clean_up_buffer_dict() | call xtabline#update_obsession()
-  autocmd SessionLoadPost           * let cwd = g:xtabline.Tabs[tabpagenr()-1].cwd | cd `=cwd` | doautocmd BufAdd
+  autocmd SessionLoadPost           * let cwd = g:xtabline.Tabs[tabpagenr()-1].cwd | cd `=cwd` | call xtabline#filter_buffers()
 augroup END
 
