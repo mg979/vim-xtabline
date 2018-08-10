@@ -1,6 +1,9 @@
 ## xtabline
 
+![Imgur](https://i.imgur.com/yU6qbU5.gif)
 ![pic](https://i.imgur.com/SN6FNnA.gif)
+
+----------------------------------------------------------------------------
 
 <!-- vim-markdown-toc GFM -->
 
@@ -391,6 +394,9 @@ let g:xtabline_settings.custom_icons = {
     \'linux': '🐧',
     \'windows': '⌘',
     \'git': '',
+    \'palette': '🎨',
+    \'lens': '🔍',
+    \'flag': '🏁',
     \}
 ```
 

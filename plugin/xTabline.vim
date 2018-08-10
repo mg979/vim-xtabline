@@ -148,6 +148,9 @@ let s:S.custom_icons               = extend({
                                     \'linux': '🐧',
                                     \'windows': '⌘',
                                     \'git': '',
+                                    \'palette': '🎨',
+                                    \'lens': '🔍',
+                                    \'flag': '🏁',
                                     \}, get(s:S, 'custom_icons', {}))
 
                                     " \'folder_open': '📂',

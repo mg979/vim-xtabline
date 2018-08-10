@@ -491,6 +491,9 @@ tab/buffer, and can be used in other contexts (special buffers icon).
       \'linux': '🐧',
       \'windows': '⌘',
       \'git': '',
+      \'palette': '🎨',
+      \'lens': '🔍',
+      \'flag': '🏁',
       \}
 
 

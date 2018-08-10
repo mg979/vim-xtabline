@@ -559,6 +559,10 @@ fun! s:is_special_buffer(nr)
     let bufs[a:nr] = s:Bd('fugitive', s:Sets.custom_icons.git, {})
     return 1
 
+  elseif s:Ft(a:nr, "startify")
+    let bufs[a:nr] = s:Bd(' 🏁 Startify 🏁 ', '', {'format': 'l'})
+    return 1
+
   elseif s:Ft(a:nr, "ctrlsf")
     let bufs[a:nr] = s:Bd(' 🔍 CtrlSF 🔍 ', '', {'format': 'l'})
     return 1

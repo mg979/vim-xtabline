@@ -23,7 +23,9 @@ let s:oB = { -> s:F.buffers_order()     }       "ordered buffers for tab
 let s:ready    = { -> !(exists('g:SessionLoad') || s:v.halt) }
 let s:invalid  = { b -> !buflisted(b) || getbufvar(b, "&buftype") == 'quickfix' }
 let s:is_ma    = { b -> index(s:F.wins(), b) >= 0 && getbufvar(b, "&ma") }
-let s:is_special = { b -> index(s:F.wins(), b) >= 0 && has_key(s:B(), b) && has_key(s:B()[b], 'special') }
+let s:Is       = { n,s -> match(bufname(n), s) == 0 }
+let s:Ft       = { n,s -> getbufvar(n, "&ft")  == s }
+
 
 let s:most_recent = -1
 let s:new_tab_created = 0
@@ -314,6 +316,19 @@ fun! s:set_new_tab_cwd(N)
   cd `=T.cwd`
   call s:F.force_update()
   call s:F.delay(200, 'g:xtabline.Funcs.msg([[ "CWD set to ", "Label" ], [ "'.T.cwd.'", "Directory" ]])')
+endfun
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:is_special(nr)
+  """Prefilter special buffers."""
+  let ok = 0 | let b = a:nr
+
+  if s:Ft(b, "startify")
+    let ok = 1
+  endif
+
+  return ok || ( index(s:F.wins(), b) >= 0 && has_key(s:B(), b) && has_key(s:B()[b], 'special') )
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
