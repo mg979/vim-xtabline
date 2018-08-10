@@ -9,7 +9,7 @@ let s:Sets = g:xtabline_settings
 let s:T    =  { -> s:X.Tabs[tabpagenr()-1] }       "current tab
 let s:B    =  { -> s:X.Buffers             }       "customized buffers
 let s:vB   =  { -> s:T().buffers.valid     }       "valid buffers for tab
-let s:oB   =  { -> s:T().buffers.order     }       "ordered buffers for tab
+let s:oB   =  { -> s:F.buffers_order()     }       "ordered buffers for tab
 
 let s:scratch =  { nr -> index(['nofile','acwrite','help'], getbufvar(nr, '&buftype')) >= 0 }
 let s:pinned  =  { b  -> index(s:X.pinned_buffers, b) }
@@ -46,7 +46,8 @@ fun! s:toggle_tabs()
     call s:F.msg ([[ "Showing tabs", 'StorageClass' ]])
   endif
 
-  if !s:plugins_toggle_tabs() | call xtabline#filter_buffers() | endif
+  call s:plugins_toggle_tabs()
+  call s:F.force_update()
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -61,7 +62,8 @@ fun! s:toggle_buffers()
     call s:F.msg ([[ "Buffer filtering turned on", 'StorageClass' ]])
   endif
   let s:v.filtering = !s:v.filtering
-  if !s:plugins_toggle_buffers() | call xtabline#filter_buffers() | endif
+  call s:plugins_toggle_buffers()
+  call s:F.force_update()
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -84,7 +86,7 @@ fun! s:depth(cnt)
   let full_cwd          = !cnt && !current_dir_only
   let T.depth           = cnt ? cnt : current_dir_only ? 0 : -1
 
-  call xtabline#filter_buffers()
+  call s:F.force_update()
 
   let tree = !cnt || !executable('tree') ? [] : s:tree(cnt)
 
@@ -149,7 +151,7 @@ fun! s:purge_buffers()
 
   for buf in purged | execute "silent! bdelete ".buf | endfor
 
-  call xtabline#filter_buffers()
+  call s:F.force_update()
   let s = "Purged ".bcnt." buffer" | let s .= bcnt!=1 ? "s." : "." | echo s
 endfun
 
@@ -200,7 +202,7 @@ fun! s:reopen_last_tab()
   let empty = bufnr("%")
   cd `=cwd`
   let s:v.halt = 0
-  call xtabline#filter_buffers()
+  call s:F.force_update()
   execute "b ".s:oB()[0]
   execute "bdelete ".empty
 endfun
@@ -237,7 +239,7 @@ fun! s:relative_paths()
   """Toggle between full relative path and tail only, in the bufline.
   let T = s:T()
   let T.rpaths = !T.rpaths
-  call xtabline#filter_buffers()
+  call s:F.force_update()
   if T.rpaths
     call s:F.msg ([[ "Bufferline shows relative paths.", 'StorageClass']])
   else
@@ -276,7 +278,7 @@ fun! s:move_buffer(cnt, ...)
   else
     call add(oB, b)
   endif
-  if !a:0 | call xtabline#filter_buffers() | endif
+  if !a:0 | call s:F.force_update() | endif
 endfun
 
 fun! s:hide_buffer(new)
@@ -291,14 +293,14 @@ fun! s:hide_buffer(new)
   let then_select = new >= 0 ?  oB[new] : oB[0]
 
   silent! exe 'b'.then_select
-  call xtabline#filter_buffers()
+  call s:F.force_update()
 endfun
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:rename_tab(label)
   """Rename the current tab.
   let s:X.Tabs[tabpagenr()-1].name = a:label
-  call xtabline#filter_buffers()
+  call s:F.force_update()
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -307,7 +309,7 @@ fun! s:rename_buffer(label)
   """Rename the current buffer.
   let B = s:F.set_buffer_var('name', a:label)
   if empty(B) | return | endif
-  call xtabline#filter_buffers()
+  call s:F.force_update()
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -338,7 +340,7 @@ fun! s:tab_icon(...)
       let T.icon = icon
     endif
   endif
-  call xtabline#filter_buffers()
+  call s:F.force_update()
 endfun
 
 fun! s:buffer_icon(...)
@@ -355,7 +357,7 @@ fun! s:buffer_icon(...)
       let B.icon = icon
     endif
   endif
-  call xtabline#filter_buffers()
+  call s:F.force_update()
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -373,7 +375,7 @@ fun! s:toggle_pin_buffer(...)
   else
     call add(s:X.pinned_buffers, B)
   endif
-  call xtabline#filter_buffers()
+  call s:F.force_update()
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -393,7 +395,7 @@ fun! s:new_tab(...)
     let s:v.tab_properties = {'name': args[1], 'cwd': expand("~")}
   endif
   exe n . "tabnew"
-  call xtabline#filter_buffers()
+  call s:F.force_update()
   let s:v.auto_set_cwd = 0
 endfun
 
@@ -439,7 +441,7 @@ fun! s:edit_tab(...)
     endif
     exe n . "tabedit" args[2]
   endif
-  call xtabline#filter_buffers()
+  call s:F.force_update()
   let s:v.auto_set_cwd = 0
   if bang
     call feedkeys("\<Plug>(XT-Rename-Tab)")
@@ -492,7 +494,7 @@ fun! s:move_tab(...)
               \ bottom? '$' : '0'
 
   exe dest . "tabmove"
-  call xtabline#filter_buffers()
+  call s:F.force_update()
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -515,7 +517,7 @@ fun! s:format_buffer()
     endif
 
     let &ch = och
-    call xtabline#filter_buffers()
+    call s:F.force_update()
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -541,7 +543,7 @@ fun! s:set_cwd(...)
     redraw!
     call s:F.msg ([[ "New working directory set: ", 'Label' ], [ cwd, 'None' ]])
     let s:X.Tabs[tabpagenr()-1].cwd = cwd
-    call xtabline#filter_buffers()
+    call s:F.force_update()
   endif
 endfun
 
@@ -552,7 +554,7 @@ fun! s:reset_tab(...)
   let cwd = a:0? fnamemodify(expand(a:1), :p) : s:F.find_suitable_cwd()
   let s:X.Tabs[tabpagenr()-1] = xtabline#new_tab_dict({'cwd': cwd})
   cd `=cwd`
-  call xtabline#filter_buffers()
+  call s:F.force_update()
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -561,7 +563,7 @@ fun! s:reset_buffer(...)
   """Reset the buffer to a pristine state.
   let B = s:B() | let n = bufnr("%")
   if has_key(B, n) | unlet B[n] | endif
-  call xtabline#filter_buffers()
+  call s:F.force_update()
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -569,7 +571,7 @@ endfun
 fun! s:toggle_tab_names()
     """Toggle between custom icon/name and short path/folder icons."""
     let s:v.custom_tabs = !s:v.custom_tabs
-    call xtabline#filter_buffers()
+    call s:F.force_update()
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -577,21 +579,16 @@ endfun
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:plugins_toggle_tabs()
-  if exists('g:loaded_airline') && g:airline#extensions#tabline#enabled
+  if s:F.airline_enabled()
     let g:airline#extensions#tabline#show_tabs = s:v.showing_tabs
-    AirlineRefresh
-    doautocmd BufAdd
-    return 1
   endif
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:plugins_toggle_buffers()
-  if exists('g:loaded_airline') && !s:v.filtering
+  if !s:v.filtering && s:F.airline_enabled()
     let g:airline#extensions#tabline#exclude_buffers = []
-    doautocmd BufAdd
-    return 1
   endif
 endfun
 

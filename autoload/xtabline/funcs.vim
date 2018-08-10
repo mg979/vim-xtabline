@@ -7,7 +7,6 @@ fun! xtabline#funcs#init()
   let s:T =  { -> s:X.Tabs[tabpagenr()-1] }       "current tab
   let s:B =  { -> s:X.Buffers             }       "customized buffers
   let s:vB = { -> s:T().buffers.valid     }       "valid buffers for tab
-  let s:oB = { -> s:T().buffers.order     }       "ordered buffers for tab
   return s:Funcs
 endfun
 
@@ -29,6 +28,22 @@ endfun
 fun! s:Funcs.check_this_tab() dict
   """Ensure all dict keys are present."""
   let s:X.Tabs[tabpagenr()-1] = extend(self.tab_template(), s:T())
+endfun
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:Funcs.airline_enabled() dict
+  """Check if Airline tabline must be used."""
+  return exists('g:loaded_airline') &&
+        \exists('g:airline#extensions#tabline#enabled') &&
+        \g:airline#extensions#tabline#enabled
+endfun
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:Funcs.buffers_order() dict
+  """Current ordered list of valid buffers."""
+  return s:Funcs.airline_enabled() ? s:vB() : s:T().buffers.order
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -81,7 +96,7 @@ endfun
 
 fun! s:Funcs.update_buffers() dict
   let valid = s:vB()
-  let order = s:oB()
+  let order = self.buffers_order()
 
   "clean up ordered buffers list
   let remove = []
@@ -237,7 +252,7 @@ endfun
 
 function! s:Funcs.not_enough_buffers(pinned) dict
   """Just return if there aren't enough buffers."""
-  let bufs = a:pinned ? s:v.pinned_buffers : s:oB()
+  let bufs = a:pinned ? s:v.pinned_buffers : self.buffers_order()
   let pin  = a:pinned ? ' pinned ' : ' '
 
   if len(bufs) < 2
@@ -252,14 +267,24 @@ function! s:Funcs.not_enough_buffers(pinned) dict
   endif
 endfunction
 
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:Funcs.force_update() dict
+  """Airline is stubborn and wants au BufAdd."""
+  call xtabline#filter_buffers()
+  if self.airline_enabled()
+    doautocmd BufAdd
+  endif
+endfun
+
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 function! s:Funcs.refresh_tabline() dict
   """Invalidate old Airline tabline and force redraw."""
-  if exists('g:loaded_airline') && g:airline#extensions#tabline#enabled
+  if self.airline_enabled()
     let g:airline#extensions#tabline#exclude_buffers = s:T().exclude
-    call airline#extensions#tabline#buflist#invalidate()
-  elseif s:v.showing_tabs
+    call airline#extensions#tabline#buflist#invalidate() | endif
+  if s:v.showing_tabs
     set tabline=%!xtabline#render#tabs()
   else
     set tabline=%!xtabline#render#buffers()

@@ -17,8 +17,8 @@ let s:v.auto_set_cwd   = 0                      "used to temporarily allow auto 
 let s:T  = { -> s:X.Tabs[tabpagenr()-1] }       "current tab
 let s:B  = { -> s:X.Buffers             }       "customized buffers
 let s:vB = { -> s:T().buffers.valid     }       "valid buffers for tab
-let s:oB = { -> s:T().buffers.order     }       "ordered buffers for tab
 let s:pB = { -> s:X.pinned_buffers      }       "pinned buffers list
+let s:oB = { -> s:F.buffers_order()     }       "ordered buffers for tab
 
 let s:ready    = { -> !(exists('g:SessionLoad') || s:v.halt) }
 let s:invalid  = { b -> !buflisted(b) || getbufvar(b, "&buftype") == 'quickfix' }
@@ -44,6 +44,12 @@ fun! xtabline#init()
     let s:X.devicons = {'extensions': extensions, 'exact': exact, 'patterns': patterns}
   endif
 
+  if s:F.airline_enabled() && s:Sets.override_airline
+    let g:airline#extensions#tabline#enabled = 0
+  elseif s:F.airline_enabled()
+    let g:airline#extensions#tabline#show_buffers = 1
+  endif
+
   call s:F.check_tabs()
 endfun
 
@@ -53,7 +59,7 @@ fun! xtabline#update_obsession()
   let string = 'let g:xtabline.Tabs = '.string(s:X.Tabs).
         \' | let g:xtabline.Buffers = '.string(s:X.Buffers).
         \' | let g:xtabline.pinned_buffers = '.string(s:X.pinned_buffers).
-        \' | call xtabline#filter_buffers()'
+        \' | call xtabline#filter_buffers(1)'
   if !exists('g:obsession_append')
     let g:obsession_append = [string]
   else
@@ -116,8 +122,8 @@ fun! xtabline#filter_buffers(...)
   " 'accepted' is a list of buffer numbers, for quick access.
   " 'excluded' is a list of paths, it will be used by Airline to hide buffers.
 
-  if !s:ready()        | call s:F.check_tabs() | return
-  elseif can_show_tabs | set tabline=%!xtabline#render#tabs()
+  if !s:ready() && !a:0 | call s:F.check_tabs() | return
+  elseif can_show_tabs  | set tabline=%!xtabline#render#tabs()
     return
   endif
 
@@ -268,6 +274,10 @@ function! s:Do(action, ...)
       endif
     endif
 
+    if s:F.airline_enabled()
+      call xtabline#filter_buffers()
+    endif
+
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
   elseif a:action == 'leave'
@@ -302,7 +312,7 @@ fun! s:set_new_tab_cwd(N)
     let T.cwd = s:F.find_suitable_cwd()
   endif
   cd `=T.cwd`
-  call xtabline#filter_buffers()
+  call s:F.force_update()
   call s:F.delay(200, 'g:xtabline.Funcs.msg([[ "CWD set to ", "Label" ], [ "'.T.cwd.'", "Directory" ]])')
 endfun
 

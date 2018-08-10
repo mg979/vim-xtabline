@@ -6,7 +6,7 @@ let s:Sets = g:xtabline_settings
 let s:T =  { -> s:X.Tabs[tabpagenr()-1] }       "current tab
 let s:B =  { -> s:X.Buffers             }       "customized buffers
 let s:vB = { -> s:T().buffers.valid     }       "valid buffers for tab
-let s:oB = { -> s:T().buffers.order     }       "ordered buffers for tab
+let s:oB = { -> s:F.buffers_order()     }       "ordered buffers for tab
 
 let s:Is = { n,s -> match(bufname(n), s) == 0 }
 let s:Ft = { n,s -> getbufvar(n, "&ft")  == s }
@@ -74,6 +74,7 @@ let s:specialHi         = { b -> has_key(s:Hi().extra, 'XBufLineSpecial') && has
 " =============================================================================
 
 fun! xtabline#render#buffers()
+  if s:F.airline_enabled() | return airline#extensions#tabline#get() | endif
   let show_num = s:Sets.bufline_numbers
 
   let centerbuf = s:centerbuf " prevent tabline jumping around when non-user buffer current (e.g. help)
@@ -331,6 +332,8 @@ endfun
 
 " To construct the tabline string for terminal vim.
 fun! xtabline#render#tabs()
+  if s:F.airline_enabled() | return airline#extensions#tabline#get() | endif
+
   let tabline = ''
   let fmt_unnamed = s:fmt_chars(s:Sets.tab_format)
   let fmt_renamed = s:fmt_chars(s:Sets.renamed_tab_format)

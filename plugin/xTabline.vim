@@ -124,7 +124,7 @@ let s:S.superscript_unicode_nrs    = get(s:S, 'superscript_unicode_nrs', 0)
 let s:S.show_current_tab           = get(s:S, 'show_current_tab', 1)
 let s:S.enable_extra_highlight     = get(s:S, 'enable_extra_highlight', 1)
 let s:S.sort_buffers_by_last_open  = get(s:S, 'sort_buffers_by_last_open', 0)
-let s:S.override_airline           = get(s:S, 'override_airline', 0)
+let s:S.override_airline           = get(s:S, 'override_airline', 1)
 let s:S.disable_keybindings        = get(s:S, 'disable_keybindings', 0)
 
 let s:S.todo                       = get(s:S, 'todo', {})
@@ -154,11 +154,5 @@ let s:S.custom_icons               = extend({
                                     " \'folder_closed': '📁',
 if !filereadable(s:S.bookmarks_file) | call writefile(['{}'], S.bookmarks_file) | endif
 if !filereadable(s:S.sessions_data) | call writefile(['{}'], S.sessions_data) | endif
-
-if exists('g:loaded_airline') && s:S.override_airline
-  let g:airline#extensions#tabline#enabled = 0
-elseif exists('g:loaded_airline')
-  let g:airline#extensions#tabline#show_buffers = 1
-endif
 
 call xtabline#hi#init()

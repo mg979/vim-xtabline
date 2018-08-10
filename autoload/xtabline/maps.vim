@@ -144,7 +144,7 @@ fun! s:select_buffer(cnt)
 endfun
 
 fun! s:tab_buffers()
-  return g:xtabline.Tabs[tabpagenr()-1].buffers.order
+  return g:xtabline.Funcs.buffers_order()
 endfun
 
 fun! s:cd(count)
@@ -155,7 +155,7 @@ fun! s:cd(count)
   let cwd = fnamemodify(expand("%", ":p"), path)
   cd `=cwd`
   let g:xtabline.Tabs[tabpagenr()-1].cwd = cwd
-  call xtabline#filter_buffers()
+  call s:F.force_update()
   pwd
 endfun
 

@@ -449,12 +449,12 @@ nmap <M-q>             <Plug>(XT-Close-Buffer)
  
 #### Interaction With Airline
 
-xtabline will override Airline's tabline by default, because it's faster. To restore it, set:
+xtabline will override Airline's tabline by default. To use Airline's tabline instead, set:
 
     let g:xtabline_settings.override_airline = 0
 
 You will still have buffer filtering, but lose other features (custom names and icons, formatting, etc).  
-But you will be able to use Airline'themes. xtabline has its own ones and is not compatible with them.
+But you will be able to use Airline's themes. xtabline has its own ones and is not compatible with them.
 
 ----------------------------------------------------------------------------
  

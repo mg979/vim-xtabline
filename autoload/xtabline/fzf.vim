@@ -10,7 +10,7 @@ let s:Sets = g:xtabline_settings
 let s:T =  { -> s:X.Tabs[tabpagenr()-1] }       "current tab
 let s:B =  { -> s:X.Buffers             }       "customized buffers
 let s:vB = { -> s:T().buffers.valid     }       "valid buffers for tab
-let s:oB = { -> s:T().buffers.order     }       "ordered buffers for tab
+let s:oB = { -> s:F.buffers_order()     }       "ordered buffers for tab
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
@@ -45,7 +45,7 @@ fun! xtabline#fzf#bufdelete(name)
   else
     call xtabline#cmds#run('close_buffer')
   endif
-  call xtabline#filter_buffers()
+  call s:F.force_update()
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -75,7 +75,7 @@ fun! xtabline#fzf#tab_nerd_bookmarks_load(...)
       exe "cd ".fnamemodify(bm, ":p:h")
     endif
   endfor
-  call xtabline#filter_buffers()
+  call s:F.force_update()
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -145,7 +145,7 @@ fun! xtabline#fzf#tab_load(...)
     execute "bdelete ".newbuf
   endfor
   let s:v.halt = 0
-  call xtabline#filter_buffers()
+  call s:F.force_update()
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
