@@ -2,7 +2,7 @@
 " Mappings
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-function! xtabline#maps#init()
+fun! s:do_map()
 
   let S = g:xtabline_settings
   let X = S.map_prefix
@@ -17,7 +17,6 @@ function! xtabline#maps#init()
 
   call s:mapkeys('<F5>',  'Toggle-Tabs')
   call s:mapkeys('<BS>',  'Select-Buffer')
-  call s:mapkeys(L.'<cr>','Hide-Buffer')
   call s:mapkeys(']b',    'Next-Buffer')
   call s:mapkeys('[b',    'Prev-Buffer')
   call s:mapkeys('[B',    'Prev-Pinned')
@@ -50,10 +49,11 @@ function! xtabline#maps#init()
   call s:mapkeys(X.'tt',  'Tab-Todo')
   call s:mapkeys(X.'rp',  'Relative-Paths')
   call s:mapkeys(X.'ct',  'Toggle-Custom-Tabs')
-  call s:mapkeys(X.'co',  'Change-Options')
   call s:mapkeys(X.'pb',  'Pin-Buffer')
-  call s:mapkeys(X.'at',  'Apply-Theme')
+  call s:mapkeys(X.'C',   'Config')
+  call s:mapkeys(X.'T',   'Theme')
   call s:mapkeys(X.'mb',  'Move-Buffer')
+  call s:mapkeys(X.'hb',  'Hide-Buffer')
   call s:mapkeys(X.'tf',  'Toggle-Filtering')
   call s:mapkeys(X.'cdc', 'Cd-Current')
   call s:mapkeys(X.'cdd', 'Cd-Down')
@@ -66,10 +66,12 @@ function! xtabline#maps#init()
   call s:mapkeys('-T',    'Move-Tab$')
 
   if exists('g:loaded_leaderGuide_vim') && maparg(toupper(X)) == '' && !hasmapto('<Plug>(XT-Leader-Guide)')
-      silent! execute 'nmap <unique>' X '<Plug>(XT-Leader-Guide)'
-      silent! execute 'nmap <unique><nowait>' toupper(X) '<Plug>(XT-Leader-Guide)'
+    silent! execute 'nmap <unique>' X '<Plug>(XT-Leader-Guide)'
+    silent! execute 'nmap <unique><nowait>' toupper(X) '<Plug>(XT-Leader-Guide)'
   endif
+endfun
 
+function! xtabline#maps#init()
 
   nnoremap <unique> <silent>        <Plug>(XT-Move-Tab+)             :XTabMove +<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Move-Tab-)             :XTabMove -<cr>
@@ -105,13 +107,13 @@ function! xtabline#maps#init()
   nnoremap <unique> <silent>        <Plug>(XT-Working-Directory)     :<c-u>XTabWD!<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Set-Depth)             :<c-u>call xtabline#cmds#run('depth', v:count)<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Move-Buffer)           :<c-u>call xtabline#cmds#run('move_buffer', v:count)<cr>
-  nnoremap <unique> <silent> <expr> <Plug>(XT-Hide-Buffer)           v:count? ":\<c-u>call xtabline#cmds#run('hide_buffer', v:count)\<cr>" : ":\<C-U>".g:xtabline_settings.hidbuf_alt_action."\<cr>"
-  " nnoremap <unique> <silent>        <Plug>(XT-Hide-Buffer)           :<c-u>call xtabline#cmds#run('hide_buffer', v:count1)<cr>
+  nnoremap <unique> <silent>        <Plug>(XT-Hide-Buffer)           :<c-u>call xtabline#cmds#run('hide_buffer', v:count1)<cr>
+  nnoremap <unique> <silent> <expr> <Plug>(XT-Hide-Buffer-n)         v:count? ":\<c-u>call xtabline#cmds#run('hide_buffer', v:count)\<cr>" : ":\<C-U>".g:xtabline_settings.hidbuf_alt_action."\<cr>"
   nnoremap <unique> <silent>        <Plug>(XT-Tab-Todo)              :<c-u>XTabTodo<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Toggle-Custom-Tabs)    :<c-u>XTabCustomTabs<cr>
-  nnoremap <unique>                 <Plug>(XT-Apply-Theme)           :<c-u>XTabTheme<Space>
+  nnoremap <unique>                 <Plug>(XT-Theme)                 :<c-u>XTabTheme<Space>
   nnoremap <unique>                 <Plug>(XT-Tab-Icon)              :<c-u>XTabIcon<Space>
-  nnoremap <unique>                 <Plug>(XT-Change-Options)        :<c-u>XTabConfig<cr>
+  nnoremap <unique>                 <Plug>(XT-Config)                :<c-u>XTabConfig<cr>
   nnoremap <unique>                 <Plug>(XT-Buffer-Icon)           :<c-u>XTabBufferIcon<Space>
   nnoremap <unique>                 <Plug>(XT-Rename-Tab)            :<c-u>XTabRenameTab<Space>
   nnoremap <unique>                 <Plug>(XT-Rename-Buffer)         :<c-u>XTabRenameBuffer<Space>
@@ -126,6 +128,8 @@ function! xtabline#maps#init()
   nnoremap <unique> <silent>        <Plug>(XT-Leader-Guide-t)        :<c-u>silent! LeaderGuideD g:xtabline.leader_guide.t<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Leader-Guide-u)        :<c-u>silent! LeaderGuideD g:xtabline.leader_guide.u<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Leader-Guide-b)        :<c-u>silent! LeaderGuideD g:xtabline.leader_guide.b<cr>
+
+  if !S.disable_keybindings | call s:do_map() | endif
 endfunction
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

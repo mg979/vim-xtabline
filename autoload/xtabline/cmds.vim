@@ -250,7 +250,7 @@ endfun
 fun! s:tab_todo()
   """Open the Tab todo file.
   let todo = s:Sets.todo
-  if todo['command'] == 'edit'
+  if todo['command'] == 'edit' || todo['command'] == 'e'
     execute "edit ".s:F.todo_path()
   else
     execute todo['prefix']." ".todo['size'].todo['command']." ".s:F.todo_path()

@@ -82,7 +82,7 @@ endfun
 
 fun! xtabline#fzf#tabs()
   let bookmarks = ["Name\t\t\t\t\tDescription\t\t\t\tBuffers\t\tWorking Dirctory"]
-  let json = json_decode(readfile(s:Sets.bookmaks_file)[0])
+  let json = json_decode(readfile(s:Sets.bookmarks_file)[0])
 
   for bm in keys(json)
     let desc = has_key(json[bm], 'description')? json[bm].description : ''
@@ -108,7 +108,7 @@ endfun
 
 fun! xtabline#fzf#tab_load(...)
   """Load a saved tab."""
-  let json = json_decode(readfile(s:Sets.bookmaks_file)[0])
+  let json = json_decode(readfile(s:Sets.bookmarks_file)[0])
   let s:v.halt = 1
 
   for bm in a:000
@@ -153,7 +153,7 @@ endfun
 
 fun! xtabline#fzf#tab_delete(...)
   """Delete a saved tab."""
-  let json = json_decode(readfile(s:Sets.bookmaks_file)[0])
+  let json = json_decode(readfile(s:Sets.bookmarks_file)[0])
 
   for bm in a:000
     let name = substitute(bm, '\(\w*\)\s*\t.*', '\1', '')
@@ -161,7 +161,7 @@ fun! xtabline#fzf#tab_delete(...)
   endfor
 
   "write the file
-  call writefile([json_encode(json)],s:Sets.bookmaks_file)
+  call writefile([json_encode(json)],s:Sets.bookmarks_file)
   call s:F.msg ([[ "Tab bookmark ", 'WarningMsg' ],
         \[ name, 'Type' ],
         \[ " deleted.", 'WarningMsg' ]])
@@ -175,7 +175,7 @@ fun! xtabline#fzf#tab_save()
   if !s:v.filtering
     call s:F.msg("Activate buffer filtering first.", 1) | return | endif
 
-  let json = json_decode(readfile(s:Sets.bookmaks_file)[0])
+  let json = json_decode(readfile(s:Sets.bookmarks_file)[0])
   let T = s:T()
 
   " get name
@@ -215,7 +215,7 @@ fun! xtabline#fzf#tab_save()
   let json[name].buffers = bufs
 
   " write the file
-  call writefile([json_encode(json)], s:Sets.bookmaks_file)
+  call writefile([json_encode(json)], s:Sets.bookmarks_file)
   call s:F.msg("\tTab bookmark saved.", 0)
 endfun
 
@@ -379,7 +379,7 @@ endfun
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! xtabline#fzf#update_bookmarks_file()
-  let bfile = readfile(s:Sets.bookmaks_file)
+  let bfile = readfile(s:Sets.bookmarks_file)
   let json = {}
 
   for line in bfile
@@ -389,7 +389,7 @@ fun! xtabline#fzf#update_bookmarks_file()
     let json[name] = line
     let json[name]['description'] = ""
   endfor
-  call writefile([json_encode(json)], s:Sets.bookmaks_file)
+  call writefile([json_encode(json)], s:Sets.bookmarks_file)
 endfun
 
 

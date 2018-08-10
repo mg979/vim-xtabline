@@ -110,7 +110,6 @@ let s:S = g:xtabline_settings
 
 let s:S.sessions_path              = get(s:S, 'sessions_path', '$HOME/.vim/session')
 let s:S.map_prefix                 = get(s:S, 'map_prefix', '<leader>x')
-let s:S.exact_paths                = get(s:S, 'exact_paths', 0)
 let s:S.close_buffer_can_close_tab = get(s:S, 'close_buffer_can_close_tab', 0)
 let s:S.close_buffer_can_quit_vim  = get(s:S, 'close_buffer_can_quit_vim', 0)
 let s:S.unload_session_ask_confirm = get(s:S, 'unload_session_ask_confirm', 1)
@@ -118,13 +117,14 @@ let s:S.depth_tree_size            = get(s:S, 'depth_tree_size', 20)
 
 let s:S.selbuf_alt_action          = get(s:S, 'selbuf_alt_action', "buffer #")
 let s:S.hidbuf_alt_action          = get(s:S, 'hidbuf_alt_action', "buffer #")
-let s:S.bookmaks_file              = get(s:S, 'bookmaks_file ', expand('$HOME/.vim/.XTablineBookmarks'))
+let s:S.bookmarks_file              = get(s:S, 'bookmarks_file ', expand('$HOME/.vim/.XTablineBookmarks'))
 let s:S.sessions_data              = get(s:S, 'sessions_data', expand('$HOME/.vim/.XTablineSessions'))
 let s:S.default_named_tab_icon     = get(s:S, 'default_named_tab_icon', [])
 let s:S.superscript_unicode_nrs    = get(s:S, 'superscript_unicode_nrs', 0)
 let s:S.show_current_tab           = get(s:S, 'show_current_tab', 1)
 let s:S.enable_extra_highlight     = get(s:S, 'enable_extra_highlight', 1)
 let s:S.sort_buffers_by_last_open  = get(s:S, 'sort_buffers_by_last_open', 0)
+let s:S.override_airline           = get(s:S, 'override_airline', 1)
 
 let s:S.todo                       = get(s:S, 'todo', {})
 let s:S.todo.command               = get(s:S.todo, 'command', 'sp')
@@ -151,7 +151,13 @@ let s:S.custom_icons               = extend({
 
                                     " \'folder_open': '📂',
                                     " \'folder_closed': '📁',
-if !filereadable(s:S.bookmaks_file) | call writefile(['{}'], S.bookmaks_file) | endif
+if !filereadable(s:S.bookmarks_file) | call writefile(['{}'], S.bookmarks_file) | endif
 if !filereadable(s:S.sessions_data) | call writefile(['{}'], S.sessions_data) | endif
+
+if exists('g:loaded_airline') && s:S.override_airline
+  let g:airline#extensions#tabline#enabled = 0
+elseif exists('g:loaded_airline')
+  let g:airline#extensions#tabline#show_buffers = 1
+endif
 
 call xtabline#hi#init()

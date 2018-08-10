@@ -35,10 +35,7 @@ let s:new_tab_created = 0
 fun! xtabline#init()
   let s:X.Funcs = xtabline#funcs#init()
   let s:F = s:X.Funcs
-
-  if !exists('g:xtabline_disable_keybindings')
-    call xtabline#maps#init()
-  endif
+  call xtabline#maps#init()
 
   if exists('g:loaded_webdevicons')
     let extensions = g:WebDevIconsUnicodeDecorateFileNodesExtensionSymbols
@@ -129,7 +126,7 @@ fun! xtabline#filter_buffers(...)
   let excluded        = locked? T.exclude : []
   let depth           = T.depth
   let cwd             = getcwd()
-  let _pre            = s:Sets.exact_paths? '^' : ''
+  let _pre            = '^'
   let post_           = s:F.sep()
 
   for buf in range(1, bufnr("$"))
