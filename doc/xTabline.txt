@@ -127,16 +127,16 @@ Mapping                          | Default                              ~
 <Plug>(XT-Prev-Buffer)           | [count] [b
 <Plug>(XT-Close-Buffer)          | *q
 
-*Next-Buffer* and *Prev-Buffer* accept a [count], to move to ±[N] buffer, as
+{Next-Buffer} and {Prev-Buffer} accept a [count], to move to ±[N] buffer, as
 they are shown in the tabline.  If moving beyond the limit, it will start from
 the start (or the end).
 
-*Select-Buffer* works this way:
+{Select-Buffer} works this way:
 
 * it needs a [count] to work, eg. 2<BS> would bring you to buffer #2
 * when not using a [count], it will execute a command of your choice
 
-Define this command by setting the *g:xtabline_settings.alt_action* variable.
+Define this command by setting the `g:xtabline_settings.alt_action` variable.
 Default is `buffer #`
 
 Examples:
@@ -145,7 +145,7 @@ Examples:
     let g:xtabline_settings.selbuf_alt_action = "Buffers"     (call fzf-vim :Buffers command)
 
 
-*XTabCloseBuffer* will close and delete the current buffer, while keeping the
+`XTabCloseBuffer` will close and delete the current buffer, while keeping the
 window open, and loading either:
 
 * the alternate buffer
@@ -158,7 +158,7 @@ It will not try to close the tab page/quit vim, unless:
 
 
 
-TABS AND BUFFERS                            *xtabline-tabs-and-buffers*
+TABS AND BUFFERS                                     *xtabline-tabs-and-buffers*
 ==============================================================================
 
 
@@ -180,7 +180,7 @@ XEdit         | *rt      | <Plug>(XT-Edit)
 `XEdit`       like :edit, but prompts for directory creation, if not existant.
 
 
-REARRANGING TABS                            *xtabline-rearranging-tabs*
+REARRANGING TABS                                 *xtabline-rearranging-tabs*
 
 `XTabMove` should be used to rearrange tabs, and not the regular `tabmove`
 command. It can be called with arguments:
@@ -217,7 +217,7 @@ Saved tabs are stored in `$HOME/.vim/.XTablineTabs`.
 
 
 
-MANAGING BUFFERS                            *xtabline-managing-buffers*
+MANAGING BUFFERS                                  *xtabline-managing-buffers*
 
 
 _fzf-vim_ is required.
@@ -275,13 +275,13 @@ REARRANGING BUFFERS                         *xtabline-rearranging-buffers*
 *hb       | <Plug>(XT-Hide-Buffer)
           | <Plug>(XT-Hide-Buffer-n)
 
-*Move-Buffer* accepts a [count], and will move the current buffer after
+{Move-Buffer} accepts a [count], and will move the current buffer after
 [count] position.
 
-*Hide-Buffer* puts the current buffer last, and then selects [count] buffer,
+{Hide-Buffer} puts the current buffer last, and then selects [count] buffer,
 as by *Select-Buffer*. Selects first if no [count] is given.
 
-*Hide-Buffer-n* works like *Select-Buffer*, in that it needs a [count] and has
+{Hide-Buffer-n} works like *Select-Buffer*, in that it needs a [count] and has
 an alternative action when no [count] is given. There is no default mapping,
 so you have to map it yourself.
 
@@ -315,14 +315,14 @@ XTabCustomTabs    |  *ct      | <Plug>(XT-Custom-Tabs)
 
 When assigning an icon, you can autocomplete the icon name, or insert a single
 character. To expand the list of available icons for autocompletion, see
-*Customization*
+|xtabline-customization|
 
 `XTabResetTab` will also try to find a suitable cwd for that tab.
 
 
 
 
-SESSION MANAGEMENT                                        *xtabline-sessions*
+SESSION MANAGEMENT                                           *xtabline-sessions*
 ==============================================================================
 
 Both |vim-obsession| and |fzf-vim| are required.
@@ -347,7 +347,7 @@ the description and the symbol `[%]` that marks the active session (if any).
 
 
 
-OTHER COMMANDS                                      *xtabline-other-commands*
+OTHER COMMANDS                                         *xtabline-other-commands*
 ==============================================================================
 
 -----------------------+---------+------------------------------------------
@@ -361,7 +361,7 @@ XTabTodo               |  *tt     | <Plug>(XT-Tab-Todo)
 XTabNERDBookmarks opens the list of `NERDTreeBookmarks`
 
 
-BUFFERS CLEAN-UP                                    *xtabline-clean-up*
+BUFFERS CLEAN-UP                                         *xtabline-clean-up*
 
 `XTabPurge`
 
@@ -382,7 +382,7 @@ With a bang, it also deletes tab buffers, leaving only the currently open
 windows/buffers for each tab.
 
 
-TAB-TODO                                            *xtabline-tab-todo*
+TAB-TODO                                                  *xtabline-tab-todo*
 
 This command opens a todo file at the tab's CWD. Default mapping is *tt
 
@@ -400,7 +400,7 @@ You can define the filename and other options:
 *syntax*  : the syntax that will be loaded
 
 
-CWD SELECTION                                               *xtabline-cwd*
+CWD SELECTION                                                *xtabline-cwd*
 
 Plug                   Mapping    ~
 <Plug>(XT-Cd-Current)   *cdc    relative to the currently open buffer
@@ -412,7 +412,7 @@ tabline at the same time.
 
 
 
-CUSTOMIZATION                                          *xtabline-customization*
+CUSTOMIZATION                                           *xtabline-customization*
 ==============================================================================
 
 Command       Plug              Mapping    ~
@@ -448,7 +448,7 @@ sort_buffers_by_last_open  |                                  | 0
 override_airline           |                                  | 1
 
 
-FORMATTING                                    *xtabline-formatting*
+FORMATTING                                             *xtabline-formatting*
 
 ---------------------------+-------------------------------+----------
 Option                     | Description                   | Default ~
@@ -497,7 +497,7 @@ tab/buffer, and can be used in other contexts (special buffers icon).
       \}
 
 
-BUFFERS FORMATTING                            *xtabline-buffers-formatting*
+BUFFERS FORMATTING                         *xtabline-buffers-formatting*
 
 Default formatting is ` n I< l +`. In this notation, each character is
 replaced by something, while spaces are retained as they are. Possible
@@ -517,7 +517,7 @@ Option | Description                  ~
   >    | separator, can't be suppressed by icon
 
 
-TAB FORMATTING                                *xtabline-tab-formatting*
+TAB FORMATTING                                 *xtabline-tab-formatting*
 
 Default formatting is `N - 2+ ` for unnamed tabs, `N - l+ ` for named tabs.
 Notation rules are the same, but character meaning can be different:
@@ -542,7 +542,7 @@ Option | Description                  ~
   2    | short cwd, truncated at 2 directory separators
 
 
-REMAPPING COMMANDS                            *xtabline-remapping-commands*
+REMAPPING COMMANDS                             *xtabline-remapping-commands*
 
 You can remap commands individually. These are some easier mappings I use:
 
@@ -554,7 +554,7 @@ You can remap commands individually. These are some easier mappings I use:
 
 
 
-INTERACTION WITH AIRLINE                                      *xtabline-airline*
+INTERACTION WITH AIRLINE                                     *xtabline-airline*
 
 xtabline will override Airline's tabline by default. To use Airline's tabline
 instead, set:

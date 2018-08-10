@@ -5,7 +5,7 @@ let s:Hi   = g:xtabline_highlight
 let s:Sets = g:xtabline_settings
 
 fun! xtabline#hi#init()
-  let s:Sets.theme = get(s:Sets, 'theme', 'dracula')
+  let s:Sets.theme = get(s:Sets, 'theme', 'seoul')
   call xtabline#hi#apply_theme(s:Sets.theme, 1)
 endfun
 

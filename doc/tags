@@ -1,16 +1,7 @@
 :bnext	xTabline.txt	/*:bnext*
-Customization	xTabline.txt	/*Customization*
-Hide-Buffer	xTabline.txt	/*Hide-Buffer*
-Hide-Buffer-n	xTabline.txt	/*Hide-Buffer-n*
-Move-Buffer	xTabline.txt	/*Move-Buffer*
-Next-Buffer	xTabline.txt	/*Next-Buffer*
-Prev-Buffer	xTabline.txt	/*Prev-Buffer*
-Select-Buffer	xTabline.txt	/*Select-Buffer*
-XTabCloseBuffer	xTabline.txt	/*XTabCloseBuffer*
 command	xTabline.txt	/*command*
 file	xTabline.txt	/*file*
 fzf-vim	xTabline.txt	/*fzf-vim*
-g:xtabline_settings.alt_action	xTabline.txt	/*g:xtabline_settings.alt_action*
 prefix	xTabline.txt	/*prefix*
 size	xTabline.txt	/*size*
 syntax	xTabline.txt	/*syntax*

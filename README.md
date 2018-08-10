@@ -99,7 +99,7 @@ Most of xtabline mappings can be associated to a prefix. Default is:
     let g:xtabline_settings.map_prefix = '<leader>x'
 
 This means that most commands will be mapped to `<leader>x` + a modifier. You can change the prefix and all mappings will be changed accordingly.  
-Most mappings presented are meant prefixed by `prefix`, unless <kbd>enclosed<\kbd>. Other settings will be described later.
+Most mappings presented are meant prefixed by `prefix`, unless <kbd>enclosed</kbd>. Other settings will be described later.
 
 ----------------------------------------------------------------------------
  
@@ -148,8 +148,10 @@ It will not try to close the tab page/quit vim, unless:
  
 ### Tabs, buffers and sessions
 
-You can toggle between buffers and tabs with <kbd>F5<\kbd>.
+You can toggle between buffers and tabs with <kbd>F5</kbd>.
 
+----------------------------------------------------------------------------
+ 
 #### Opening tabs
 
 |Command      | Mapping | Plug                         | Description                                       |
@@ -159,6 +161,8 @@ You can toggle between buffers and tabs with <kbd>F5<\kbd>.
 |XTabReopen   | rt      | `<Plug>(XT-Reopen)`          | lets you reopen a previosly closed tab, and is repeatable  |
 |XEdit        | rt      | `<Plug>(XT-Edit)`            | llike :edit, but prompts for directory creation, if not existant. |
 
+----------------------------------------------------------------------------
+ 
 #### Rearranging tabs
 
 `XTabMove` should be used to rearrange tabs, and not the regular `tabmove` command. It can be called with arguments:
@@ -170,6 +174,8 @@ You can toggle between buffers and tabs with <kbd>F5<\kbd>.
 |`XTabMove 0`  | <kbd>+T</kbd>      | `<Plug>(XT-Move-Tab0)` | make it the first tab | 
 |`XTabMove $`  | <kbd>-T</kbd>      | `<Plug>(XT-Move-Tab$)` | move at end           | 
 
+----------------------------------------------------------------------------
+ 
 #### Saving and loading tabs
 
 _fzf-vim_ is required. With most of the *fzf-vim* commands you can select multiple items by pressing `<Tab>`.
@@ -182,6 +188,8 @@ _fzf-vim_ is required. With most of the *fzf-vim* commands you can select multip
 
 Saved tabs are stored in `$HOME/.vim/.XTablineTabs`.
 
+----------------------------------------------------------------------------
+ 
 #### Managing buffers
 
 _fzf-vim_ is required.
@@ -192,6 +200,8 @@ _fzf-vim_ is required.
 |XTabDeleteBuffers       | db      | `<Plug>(XT-Delete-Buffers)`         | same list, but use `bdelete` command on them      |
 |XTabDeleteGlobalBuffers | dgb     | `<Plug>(XT-Delete-Global-Buffers)`  | `bdelete`, but choose from the global buffers list|
 
+----------------------------------------------------------------------------
+ 
 #### Tuning buffer filtering
 
 |Command         | Mapping | Plug                             | Description                                       |
@@ -207,6 +217,8 @@ With `XTabDepth` you can define how many directories below the current one will 
     * If no [count] is given, command toggles between depth -1 (all dirs below cwd) and 0 (cwd root only)
     * If a [count] is given, filtering depth will be set to that number.
 
+----------------------------------------------------------------------------
+ 
 #### Rearranging buffers
 
 |Mapping               | Plug                                |
@@ -223,6 +235,8 @@ Alternative action for this command is defined by:
 
     let g:xtabline_settings.hidbuf_alt_action = "buffer #"    (switch to alternative buffer)
 
+----------------------------------------------------------------------------
+ 
 #### Customizing tabs and buffers
 
 |Command                | Mapping     | Plug                             | Notes                                             |
@@ -241,6 +255,8 @@ When assigning an icon, you can autocomplete the icon name, or insert a single c
 
 `XTabResetTab` will also try to find a suitable cwd for that tab.
 
+----------------------------------------------------------------------------
+ 
 #### Sessions management
 
 Both _vim-obsession_ and _fzf-vim_ are required for session management.
@@ -264,7 +280,7 @@ Session commands operate on sessions found in the specified directory. Default:
 
 |Command                | Mapping     | Plug                          | Notes                                                   |
 |-----------------------|-------------|-------------------------------|---------------------------------------------------------|
-|                       |<kbd>F5<\kbd>|`<Plug>(XT-Toggle-Tabs)`       | toggle between tabs and buffers                      |
+|                       |<kbd>F5</kbd>|`<Plug>(XT-Toggle-Tabs)`       | toggle between tabs and buffers                      |
 |XTabPurge              |  pt         |`<Plug>(XT-Purge)`             | purge orphaned buffers/previews                      |
 |XTabCleanUp!           |  wa         |`<Plug>(XT-Wipe-All)`          | only leaves buffers with open windows in each tab    |
 |XTabCleanUp            |  cu         |`<Plug>(XT-Clean-Up)`          | clean up the global buffers list                     |
@@ -273,6 +289,8 @@ Session commands operate on sessions found in the specified directory. Default:
 |                       |  cdd        |`<Plug>(XT-Cd-Down)`           | [count1] directories below current buffer     |
 |XTabNERDBookmarks      |             |                               | open the list of `NERDTreeBookmarks`                 |
 
+----------------------------------------------------------------------------
+ 
 #### Buffers clean-up
 
 `XTabPurge`
@@ -400,6 +418,8 @@ let g:xtabline_settings.custom_icons = {
     \}
 ```
 
+----------------------------------------------------------------------------
+ 
 #### Buffers formatting
 
 Default formatting is ` n I< l +`. In this notation, each character is replaced by something, while spaces are retained as they are. Possible elements are:
@@ -416,6 +436,8 @@ Default formatting is ` n I< l +`. In this notation, each character is replaced 
 | <      | separator, can be suppressed by icon                       |
 | >      | separator, can't be suppressed by icon                     |
 
+----------------------------------------------------------------------------
+ 
 #### Tab formatting
 
 Default formatting is `N - 2+ ` for unnamed tabs, `N - l+ ` for named tabs. Notation rules are the same, but character meaning can be different:

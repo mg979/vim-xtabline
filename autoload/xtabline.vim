@@ -21,7 +21,6 @@ let s:pB = { -> s:X.pinned_buffers      }       "pinned buffers list
 let s:oB = { -> s:F.buffers_order()     }       "ordered buffers for tab
 
 let s:ready    = { -> !(exists('g:SessionLoad') || s:v.halt) }
-let s:invalid  = { b -> !buflisted(b) || getbufvar(b, "&buftype") == 'quickfix' }
 let s:is_ma    = { b -> index(s:F.wins(), b) >= 0 && getbufvar(b, "&ma") }
 let s:Is       = { n,s -> match(bufname(n), s) == 0 }
 let s:Ft       = { n,s -> getbufvar(n, "&ft")  == s }
@@ -35,6 +34,7 @@ let s:new_tab_created = 0
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! xtabline#init()
+  set showtabline=2
   let s:X.Funcs = xtabline#funcs#init()
   let s:F = s:X.Funcs
   call xtabline#maps#init()
@@ -139,10 +139,10 @@ fun! xtabline#filter_buffers(...)
 
   for buf in range(1, bufnr("$"))
 
-    if s:is_special(buf)   | call add(accepted, buf) | continue
-    elseif s:invalid(buf)  | continue
-    elseif !s:v.filtering  | call add(accepted, buf) | continue
-    elseif s:is_ma(buf)    | call add(accepted, buf) | continue | endif
+    if s:is_special(buf)    | call add(accepted, buf) | continue
+    elseif s:F.invalid(buf) | continue
+    elseif !s:v.filtering   | call add(accepted, buf) | continue
+    elseif s:is_ma(buf)     | call add(accepted, buf) | continue | endif
 
     " get the path
     let path = expand("#".buf.":p")
@@ -296,6 +296,18 @@ function! s:Do(action, ...)
       call add(X.closed_cwds, X.Tabs[V.last_tab].cwd)
     endif
     call remove(X.Tabs, V.last_tab)
+
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+  elseif a:action == 'session'
+
+    for buf in s:X.pinned_buffers
+      let i = index(s:X.pinned_buffers, buf)
+      if F.invalid(buf)
+        call remove(s:X.pinned_buffers, i)
+      endif
+    endfor
+    let cwd = X.Tabs[N].cwd | cd `=cwd` | call xtabline#filter_buffers()
   endif
 endfunction
 
@@ -346,6 +358,6 @@ augroup plugin-xtabline
   "NOTE: BufEnter needed. Timer improves reliability. Keep it like this.
   autocmd BufAdd,BufWrite,BufEnter  * call g:xtabline.Funcs.delay(100, 'xtabline#filter_buffers()')
   autocmd QuitPre                   * call g:xtabline.Funcs.clean_up_buffer_dict() | call xtabline#update_obsession()
-  autocmd SessionLoadPost           * let cwd = g:xtabline.Tabs[tabpagenr()-1].cwd | cd `=cwd` | call xtabline#filter_buffers()
+  autocmd SessionLoadPost           * call s:Do('session')
 augroup END
 

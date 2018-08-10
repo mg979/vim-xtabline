@@ -13,6 +13,7 @@ endfun
 let s:Funcs = {}
 let s:Funcs.wins        = { -> tabpagebuflist(tabpagenr()) }
 let s:Funcs.fullpath    = { p -> fnamemodify(expand(p), ":p") }
+let s:Funcs.invalid     = { b -> !buflisted(b) || getbufvar(b, "&buftype") == 'quickfix' }
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
@@ -108,10 +109,6 @@ fun! s:Funcs.update_buffers() dict
 
   for buf in remove
     call remove(order, index(order, buf))
-    let i = index(s:X.pinned_buffers, buf)
-    if i >= 0
-      call remove(s:X.pinned_buffers, i)
-    endif
   endfor
 
   " add missing entries in ordered list

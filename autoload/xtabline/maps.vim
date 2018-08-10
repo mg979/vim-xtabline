@@ -155,7 +155,7 @@ fun! s:cd(count)
   let cwd = fnamemodify(expand("%", ":p"), path)
   cd `=cwd`
   let g:xtabline.Tabs[tabpagenr()-1].cwd = cwd
-  call s:F.force_update()
+  call g:xtabline.Funcs.force_update()
   pwd
 endfun
 

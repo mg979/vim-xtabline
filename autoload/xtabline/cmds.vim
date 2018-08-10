@@ -451,7 +451,7 @@ endfun
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:edit_buffer(path)
-  """Like :edit, but check for directories nad optionally create them.."""
+  """Like :edit, but check for directories and optionally create them."""
   if empty(a:path)
     new
   else
