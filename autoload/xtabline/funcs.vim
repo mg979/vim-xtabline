@@ -231,11 +231,11 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.find_suitable_cwd() dict
+fun! s:Funcs.find_suitable_cwd(...) dict
   """Look for a VCS dir below current directory."""
   let s = self.sep() | let l:Found = { d -> isdirectory(d.s.'.git') }
 
-  let f = expand("%")
+  let f = a:0 ? a:1 : expand("%")
   let h = ":p:h"
   for i in range(5)
     let dir = fnamemodify(f, h)

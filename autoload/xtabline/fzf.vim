@@ -343,7 +343,7 @@ fun! xtabline#fzf#session_save(...)
 
   let defname = a:0 || empty(v:this_session) ? '' : fnamemodify(v:this_session, ":t")
   let defdesc = get(data, defname, '')
-  let name = empty(a:1)? input('Enter a name for this session:   ', defname) : a:1
+  let name = !a:0 || empty(a:1)? input('Enter a name for this session:   ', defname) : a:1
   if !empty(name)
     let data[name] = input('Enter an optional description:   ', defdesc)
     call s:F.msg("\nConfirm (y/n)\t", 0)

@@ -437,7 +437,7 @@ fun! s:edit_tab(...)
   else
     let dir = s:check_dir(args[2])
     if !empty(dir)
-      let s:v.tab_properties = {'cwd': dir}
+      let s:v.tab_properties = {'cwd': s:F.find_suitable_cwd(args[2])}
     endif
     exe n . "tabedit" args[2]
   endif
