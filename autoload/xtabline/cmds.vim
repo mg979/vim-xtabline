@@ -36,17 +36,18 @@ endfun
 fun! s:toggle_tabs()
   """Toggle between tabs/buffers tabline."""
 
-  if tabpagenr("$") == 1 | echo "There is only one tab." | return | endif
-
-  if s:v.showing_tabs
+  if tabpagenr("$") == 1
+    call s:F.msg ("There is only one tab.", 1)
+  elseif s:v.showing_tabs
     let s:v.showing_tabs = 0
     call s:F.msg ([[ "Showing buffers", 'StorageClass' ]])
+    call s:plugins_toggle_tabs()
   else
     let s:v.showing_tabs = 1
     call s:F.msg ([[ "Showing tabs", 'StorageClass' ]])
+    call s:plugins_toggle_tabs()
   endif
 
-  call s:plugins_toggle_tabs()
   call s:F.force_update()
 endfun
 

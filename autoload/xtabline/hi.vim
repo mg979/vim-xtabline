@@ -119,6 +119,8 @@ let s:Hi.themes.default = {
       \'extra': {
           \"XBufLineSpecial" : ["DiffAdd",     1],
           \"XBufLineMod"     : ["WarningMsg",  1],
+          \"XBufLineModSel"  : ["TabLineSel",  1],
+          \"XBufLineModAct"  : ["Special",     1],
           \"XBufLinePinned"  : ["PmenuSel",    1]}
       \}
 

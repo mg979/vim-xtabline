@@ -242,6 +242,8 @@ fun! s:buf_indicator(bnr)
   let mod = index(s:pinned(), nr) >= 0 ? mods.pinned : ''
   let modHi = s:is_current_buf(nr) ?
         \ ( has_key(s:Hi().extra, 'XBufLineModSel') ? "%#XBufLineModSel#" : '' ) :
+        \ bufwinnr(nr) > 0 ?
+        \ ( has_key(s:Hi().extra, 'XBufLineModAct') ? "%#XBufLineModAct#" : '' ) :
         \ ( has_key(s:Hi().extra, 'XBufLineMod') ? "%#XBufLineMod#" : '' )
   if getbufvar(nr, '&mod')
     let s:mod_width += len (modHi)
