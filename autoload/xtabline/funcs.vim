@@ -28,7 +28,8 @@ endfun
 
 fun! s:Funcs.check_this_tab() dict
   """Ensure all dict keys are present."""
-  let s:X.Tabs[tabpagenr()-1] = extend(self.tab_template(), s:T())
+  let T = extend(s:T(), self.tab_template(), 'keep')
+  if !has_key(T.buffers, 'extra') | let T.buffers.extra = [] | endif
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -121,26 +122,20 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.clean_up_buffer_dict(...) dict
+fun! s:Funcs.clean_up_buffer_dict() dict
   """Remove customized buffer entries, if buffers are not valid anymore.
   let bufs = s:B()
   let l:Invalid = { b -> !bufexists(b)                  ||
                       \  has_key(bufs[b], 'special')    ||
                       \  bufs[b].path !=# expand("#".b.":p") }
 
-  "called on BufDelete for a single buffer
-  if a:0 && !bufexists(a:1) && has_key(bufs, a:1)
-    unlet bufs[a:1]
-    let i = index(sbufs, a:1)
-    if i > 0 | call remove(sbufs, i) | endif
-    return
-  endif
-
   for b in keys(bufs)
     if l:Invalid(b)
       unlet bufs[b]
     endif
   endfor
+
+  let s:X.Tabs[tabpagenr()-1].buffers.extra = []
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

@@ -22,6 +22,7 @@ let s:oB = { -> s:F.buffers_order()     }       "ordered buffers for tab
 
 let s:ready    = { -> !(exists('g:SessionLoad') || s:v.halt) }
 let s:is_ma    = { b -> index(s:F.wins(), b) >= 0 && getbufvar(b, "&ma") }
+let s:is_extra = { b -> buflisted(b) && index(s:T().buffers.extra, b) >= 0 }
 let s:Is       = { n,s -> match(bufname(n), s) == 0 }
 let s:Ft       = { n,s -> getbufvar(n, "&ft")  == s }
 
@@ -99,7 +100,7 @@ fun! xtabline#new_tab_dict(...)
 
   let cwd     = has_key(p, 'cwd')?     p.cwd     : getcwd()
   let name    = has_key(p, 'name')?    p.name    : ''
-  let buffers = has_key(p, 'buffers')? p.buffers : {'valid': [], 'order': []}
+  let buffers = has_key(p, 'buffers')? p.buffers : {'valid': [], 'order': [], 'extra': []}
   let exclude = has_key(p, 'exclude')? p.exclude : []
   let locked  = has_key(p, 'locked')?  p.locked  : 0
   let depth   = has_key(p, 'depth')?   p.depth   : -1
@@ -140,6 +141,7 @@ fun! xtabline#filter_buffers(...)
   for buf in range(1, bufnr("$"))
 
     if s:is_special(buf)    | call add(accepted, buf) | continue
+    elseif s:is_extra(buf)  | call add(accepted, buf) | continue
     elseif s:F.invalid(buf) | continue
     elseif !s:v.filtering   | call add(accepted, buf) | continue
     elseif s:is_ma(buf)     | call add(accepted, buf) | continue | endif
@@ -255,11 +257,6 @@ function! s:Do(action, ...)
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-  elseif a:action == 'bufdelete'
-    " call F.delay(100, 'g:xtabline.Funcs.clean_up_buffer_dict('.a:1.')')
-
-    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
   elseif a:action == 'enter'
 
     call F.check_tabs()
@@ -353,7 +350,6 @@ augroup plugin-xtabline
   autocmd TabLeave  * call s:Do('leave')
   autocmd TabClosed * call s:Do('close')
   autocmd BufEnter  * call s:Do('bufenter')
-  autocmd BufDelete * call s:Do('bufdelete', expand("<abuf>"))
 
   "NOTE: BufEnter needed. Timer improves reliability. Keep it like this.
   autocmd BufAdd,BufWrite,BufEnter  * call g:xtabline.Funcs.delay(100, 'xtabline#filter_buffers()')
