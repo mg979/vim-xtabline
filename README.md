@@ -122,13 +122,13 @@ Using xtabline buffer navigation commands you can switch among them, while using
 * it needs a *[count]* to work, eg. 2\<BS> would bring you to buffer #2
 * when not using a *[count]*, it will execute a command of your choice
 
-Define this command by setting the *g:xtabline_settings.alt_action* variable.
+Define this command by setting the *g:xtabline_settings.select_buffer_alt_action* variable.
 Default is `buffer #`
 
 Examples:
 
-    let g:xtabline_settings.selbuf_alt_action = "buffer #"    (switch to alternative buffer)
-    let g:xtabline_settings.selbuf_alt_action = "Buffers"     (call fzf-vim :Buffers command)
+    let g:xtabline_settings.select_buffer_alt_action = "buffer #"    (switch to alternative buffer)
+    let g:xtabline_settings.select_buffer_alt_action = "Buffers"     (call fzf-vim :Buffers command)
 
 ----------------------------------------------------------------------------
  
@@ -233,7 +233,7 @@ With `XTabDepth` you can define how many directories below the current one will 
 *Hide-Buffer-n* works like *Select-Buffer*, in that it needs a [count] and has an alternative action when no [count] is given. There is no default mapping, so you have to map it yourself.  
 Alternative action for this command is defined by:
 
-    let g:xtabline_settings.hidbuf_alt_action = "buffer #"    (switch to alternative buffer)
+    let g:xtabline_settings.hide_buffer_alt_action = "buffer #"    (switch to alternative buffer)
 
 ----------------------------------------------------------------------------
  
@@ -351,8 +351,8 @@ You can add any of these to your *.vimrc*, after having initialized the `g:xtabl
 |Option                     | Notes                               |  Default                         |
 |---------------------------|-------------------------------------|----------------------------------|
 |disable_keybindings        | only `<Plug>`s will be defined      |   0                              |
-|selbuf_alt_action          | SelectBuffer alternative command    |  `buffer #`                      |
-|hidbuf_alt_action          | HideBuffer alternative command      |  `buffer #`                      |
+|select_buffer_alt_action   | SelectBuffer alternative command    |  `buffer #`                      |
+|hide_buffer_alt_action     | HideBuffer alternative command      |  `buffer #`                      |
 |sessions_path              | sessions directory                  |  `$HOME/.vim/session`            |
 |map_prefix                 |                                     | `<leader>x`                      | 
 |close_buffer_can_close_tab |                                     | 0                                | 

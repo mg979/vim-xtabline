@@ -46,6 +46,7 @@ fun! xtabline#hi#apply_theme(theme, ...)
     let s:last_theme = s:Sets.theme
   endif
   let s:Sets.theme = a:theme
+  let g:xtabline.Vars.has_reloaded_scheme = 0
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -96,6 +97,16 @@ fun! xtabline#hi#generate(theme)
   endfor
   let T.enable_extra_highlight = get(t, 'enable_extra_highlight', 0)
   let s:Hi.themes[t.name] = T
+endfun
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+let g:xtabline.Vars.has_reloaded_scheme = 0
+
+fun! xtabline#hi#update_theme()
+  """Reload theme on colorscheme switch."""
+  if g:xtabline.Vars.has_reloaded_scheme | return | endif
+  call xtabline#hi#apply_theme(g:xtabline_settings.theme)
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

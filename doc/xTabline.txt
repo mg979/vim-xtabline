@@ -141,8 +141,8 @@ Default is `buffer #`
 
 Examples:
 >
-    let g:xtabline_settings.selbuf_alt_action = "buffer #"    (switch to alternative buffer)
-    let g:xtabline_settings.selbuf_alt_action = "Buffers"     (call fzf-vim :Buffers command)
+    let g:xtabline_settings.select_buffer_alt_action = "buffer #"    (switch to alternative buffer)
+    let g:xtabline_settings.select_buffer_alt_action = "Buffers"     (call fzf-vim :Buffers command)
 
 
 `XTabCloseBuffer` will close and delete the current buffer, while keeping the
@@ -287,7 +287,7 @@ so you have to map it yourself.
 
 Alternative action for this command is defined by:
 >
-    let g:xtabline_settings.hidbuf_alt_action = "buffer #"    (switch to alternative buffer)
+    let g:xtabline_settings.hide_buffer_alt_action = "buffer #"    (switch to alternative buffer)
 
 
 
@@ -430,8 +430,8 @@ configurator.
 Option                     | Description                      | Default ~
 ---------------------------+----------------------------------+----------
 disable_keybindings        | only `<Plug>`s will be defined     | 0
-selbuf_alt_action          | SelectBuffer alternative command | `buffer #`
-hidbuf_alt_action          | HideBuffer alternative command   | `buffer #`
+select_buffer_alt_action   | SelectBuffer alternative command | `buffer #`
+hide_buffer_alt_action     | HideBuffer alternative command   | `buffer #`
 sessions_path              | sessions directory               | `~/.vim/session`
 map_prefix                 |                                  | <leader>x
 close_buffer_can_close_tab |                                  | 0

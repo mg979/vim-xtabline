@@ -345,11 +345,12 @@ endfun
 augroup plugin-xtabline
   autocmd!
 
-  autocmd TabNew    * call s:Do('new')
-  autocmd TabEnter  * call s:Do('enter')
-  autocmd TabLeave  * call s:Do('leave')
-  autocmd TabClosed * call s:Do('close')
-  autocmd BufEnter  * call s:Do('bufenter')
+  autocmd TabNew        * call s:Do('new')
+  autocmd TabEnter      * call s:Do('enter')
+  autocmd TabLeave      * call s:Do('leave')
+  autocmd TabClosed     * call s:Do('close')
+  autocmd BufEnter      * call s:Do('bufenter')
+  autocmd ColorScheme   * if s:ready() | call xtabline#hi#update_theme() | endif
 
   "NOTE: BufEnter needed. Timer improves reliability. Keep it like this.
   autocmd BufAdd,BufWrite,BufEnter  * call g:xtabline.Funcs.delay(100, 'xtabline#filter_buffers()')
