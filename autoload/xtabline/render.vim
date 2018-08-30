@@ -20,28 +20,34 @@ let s:mod_width = 0
 " Bufline/Tabline settings
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
+let s:Sets.extra_icons               = get(s:Sets, 'extra_icons', 0)
+let s:extra_icons = s:Sets.extra_icons
+
 let s:indicators = {
       \ 'modified': '[+]',
-      \ 'readonly': '[🔒]',
+      \ 'readonly': s:extra_icons ? '[🔒]' : '[RO]',
       \ 'scratch': '[!]',
-      \ 'pinned': '[📌]',
+      \ 'pinned': s:extra_icons ? '[📌]' : '[⇲]',
       \}
 
 let s:Sets.bufline_numbers           = get(s:Sets, 'bufline_numbers',    1)
 let s:Sets.bufline_indicators        = extend(get(s:Sets, 'bufline_indicators', {}),  s:indicators)
 let s:Sets.bufline_sep_or_icon       = get(s:Sets, 'bufline_sep_or_icon', 0)
-let s:Sets.bufline_separators        = get(s:Sets, 'bufline_separators', ['', '']) "old: nr2char(0x23B8)
+let s:Sets.bufline_separators        = get(s:Sets, 'bufline_separators', ['|', '|']) "old: nr2char(0x23B8)
 let s:Sets.bufline_format            = get(s:Sets, 'bufline_format',  ' n I< l +')
-let s:Sets.devicon_for_all_filetypes = get(s:Sets, 'devicon_for_all_filetypes', 0)
-let s:Sets.devicon_for_extensions    = get(s:Sets, 'devicon_for_extensions', ['md', 'txt'])
+let s:Sets.bufline_format            = get(s:Sets, 'bufline_format',  ' n I< l +')
+let s:Sets.bufline_unnamed           = get(s:Sets, 'bufline_unnamed',  '...')
 
 let s:Sets.tab_format                = get(s:Sets, "tab_format", "N - 2+ ")
-let s:Sets.renamed_tab_format        = get(s:Sets, "renamed_tab_format", "N - l+ ")
-let s:Sets.bufline_named_tab_format  = get(s:Sets, "bufline_named_tab_format", "N - l+ ")
-let s:Sets.bufline_tab_format        = get(s:Sets, "bufline_tab_format", "N - 2+ ")
+let s:Sets.named_tab_format          = get(s:Sets, "named_tab_format", "N - l+ ")
+let s:Sets.bufline_named_tab_format  = get(s:Sets, "bufline_named_tab_format", s:Sets.named_tab_format)
+let s:Sets.bufline_tab_format        = get(s:Sets, "bufline_tab_format", s:Sets.tab_format)
 let s:Sets.modified_tab_flag         = get(s:Sets, "modified_tab_flag", "*")
 let s:Sets.close_tabs_label          = get(s:Sets, "close_tabs_label", "")
 let s:Sets.unnamed_tab_label         = get(s:Sets, "unnamed_tab_label", "[no name]")
+
+let s:Sets.devicon_for_all_filetypes = get(s:Sets, 'devicon_for_all_filetypes', 0)
+let s:Sets.devicon_for_extensions    = get(s:Sets, 'devicon_for_extensions', ['md', 'txt'])
 
 let s:Hi = { -> g:xtabline_highlight.themes[s:Sets.theme] }
 
@@ -275,7 +281,7 @@ fun! s:get_buf_name(buf)
   let bufs = s:B() | let nr = a:buf.nr
   let has_name = has_key(bufs, nr) && has_key(bufs[nr], 'name') && !empty(bufs[nr].name)
 
-  return has_name ? bufs[nr].name : a:buf.path
+  return has_name ? bufs[nr].name : empty( a:buf.path ) ? s:Sets.bufline_unnamed : a:buf.path
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -338,7 +344,7 @@ fun! xtabline#render#tabs()
 
   let tabline = ''
   let fmt_unnamed = s:fmt_chars(s:Sets.tab_format)
-  let fmt_renamed = s:fmt_chars(s:Sets.renamed_tab_format)
+  let fmt_renamed = s:fmt_chars(s:Sets.named_tab_format)
 
   for i in s:tabs()
     let tabline .= i == tabpagenr() ? '%#XTabLineSel#' : '%#XTabLine#'
@@ -562,11 +568,13 @@ fun! s:is_special_buffer(nr)
     return 1
 
   elseif s:Ft(a:nr, "startify")
-    let bufs[a:nr] = s:Bd(' 🏁 Startify 🏁 ', '', {'format': 'l'})
+    let i = s:extra_icons ? ' 🏁 ' : ' ⚑ '
+    let bufs[a:nr] = s:Bd(i.'Startify'.i, '', {'format': 'l'})
     return 1
 
   elseif s:Ft(a:nr, "ctrlsf")
-    let bufs[a:nr] = s:Bd(' 🔍 CtrlSF 🔍 ', '', {'format': 'l'})
+    let i = s:extra_icons ? ' 🔍 ' : ' ⚑ '
+    let bufs[a:nr] = s:Bd(i.'CtrlSF'.i, '', {'format': 'l'})
     return 1
   endif
 endfun

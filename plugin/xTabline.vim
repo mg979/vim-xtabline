@@ -17,7 +17,7 @@ let g:loaded_xtabline = 1
 " Commands
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-autocmd VimEnter  * call xtabline#init()
+autocmd VimEnter  * call xtabline#init() | doautocmd BufEnter
 
 com! -nargs=? -complete=buffer XTabListBuffers call fzf#vim#buffers(<q-args>, {
       \ 'source': xtabline#fzf#tab_buffers(),
@@ -150,12 +150,12 @@ let s:S.custom_icons               = extend({
                                     \'git': '',
                                     \'palette': '🎨',
                                     \'lens': '🔍',
-                                    \'flag': '🏁',
+                                    \'flag': '⚑',
                                     \}, get(s:S, 'custom_icons', {}))
 
                                     " \'folder_open': '📂',
                                     " \'folder_closed': '📁',
-if !filereadable(s:S.bookmarks_file) | call writefile(['{}'], S.bookmarks_file) | endif
-if !filereadable(s:S.sessions_data) | call writefile(['{}'], S.sessions_data) | endif
+if !filereadable(s:S.bookmarks_file) | call writefile(['{}'], s:S.bookmarks_file) | endif
+if !filereadable(s:S.sessions_data) | call writefile(['{}'], s:S.sessions_data) | endif
 
 call xtabline#hi#init()
