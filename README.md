@@ -367,6 +367,7 @@ You can add any of these to your *.vimrc*, after having initialized the `g:xtabl
 |enable_extra_highlight     |                                     | 1                                | 
 |sort_buffers_by_last_open  |                                     | 0                                | 
 |override_airline           |                                     | 1                                | 
+|extra_icons                | if your font supports extra icons   | 0                                | 
 
 ----------------------------------------------------------------------------
  
@@ -381,9 +382,9 @@ You can add any of these to your *.vimrc*, after having initialized the `g:xtabl
 | devicon_for_extensions    |                                     | `['md', 'txt']`|
 | bufline_format            |                                     | ` n I< l +`    |
 | tab_format                |                                     | `N - 2+ `      |
-| renamed_tab_format        |                                     | `N - l+ `      |
-| bufline_named_tab_format  |                                     | `N - l+ `      |
-| bufline_tab_format        |                                     | `N - 2+ `      |
+| named_tab_format          |                                     | `N - l+ `      |
+| bufline_named_tab_format  | defaults to settings above          | `N - l+ `      |
+| bufline_tab_format        | defaults to settings above          | `N - 2+ `      |
 | modified_tab_flag         |                                     | `*`            |
 | close_tabs_label          |                                     | ''             |
 | tab_icon                  |                                     | `["📂", "📁"]` |

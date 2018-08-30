@@ -1,7 +1,6 @@
 fun! xtabline#funcs#init()
   let s:X = g:xtabline
   let s:v = s:X.Vars
-  let s:Tabs = s:X.Tabs
   let s:Sets = g:xtabline_settings
 
   let s:T =  { -> s:X.Tabs[tabpagenr()-1] }       "current tab
@@ -13,14 +12,14 @@ endfun
 let s:Funcs = {}
 let s:Funcs.wins        = { -> tabpagebuflist(tabpagenr()) }
 let s:Funcs.fullpath    = { p -> fnamemodify(expand(p), ":p") }
-let s:Funcs.invalid     = { b -> !buflisted(b) || getbufvar(b, "&buftype") == 'quickfix' }
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:Funcs.check_tabs() dict
   """Create or remove tab dicts if necessary. Rearrange tabs list if order is wrong."""
-  while len(s:Tabs) < tabpagenr("$") | call add(s:Tabs, xtabline#new_tab_dict()) | endwhile
-  while len(s:Tabs) > tabpagenr('$') | call remove(s:Tabs, -1)                   | endwhile
+  let Tabs = s:X.Tabs
+  while len(Tabs) < tabpagenr("$") | call add(Tabs, xtabline#new_tab_dict()) | endwhile
+  while len(Tabs) > tabpagenr('$') | call remove(Tabs, -1)                   | endwhile
   call self.check_this_tab()
 endfun
 
@@ -82,14 +81,13 @@ endfun
 fun! s:Funcs.set_buffer_var(var, ...) dict
   """Init buffer variable in Tabs dict to 0 or a given value.
   """Return buffer dict if successful."""
-  let B = bufnr('%')
+  let B = bufnr('%') | let bufs = s:B() | let val = a:0 ? a:1 : 0
+
   if !self.is_tab_buffer(B)
-    call self.msg ([[ "Invalid buffer.", 'WarningMsg']])
-    return
-  endif
-  let bufs = s:B()
-  if has_key(bufs, B) | let bufs[B][a:var] = a:0? a:1 : 0
-  else                | let bufs[B] = {a:var: a:0? a:1 : 0, "path": expand("%:p")}
+    return self.msg ([[ "Invalid buffer.", 'WarningMsg']]) | endif
+
+  if has_key(bufs, B) | let bufs[B][a:var] = val
+  else                | let bufs[B] = {a:var: val, 'path': expand("%:p")}
   endif
   return bufs[B]
 endfun
@@ -136,6 +134,7 @@ fun! s:Funcs.clean_up_buffer_dict() dict
   endfor
 
   let s:X.Tabs[tabpagenr()-1].buffers.extra = []
+  call xtabline#update_obsession()
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -217,6 +216,10 @@ fun! s:Funcs.bdelete(buf) dict
   """Delete buffer if unmodified."""
   if index(s:X.pinned_buffers, a:buf) >= 0
     call self.msg("Pinned buffer has not been deleted.", 1)
+
+  elseif getbufvar(a:buf, '&ft') == 'nofile'
+    exe "silent! bwipe ".a:buf
+    call xtabline#filter_buffers()
 
   elseif !getbufvar(a:buf, '&modified')
     exe "silent! bdelete ".a:buf

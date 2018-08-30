@@ -134,27 +134,62 @@ let s:S.todo.file                  = get(s:S.todo, 'file',    ".TODO")
 let s:S.todo.size                  = get(s:S.todo, 'size',    20)
 let s:S.todo.syntax                = get(s:S.todo, 'syntax',  'markdown')
 
-let s:S.custom_icons               = extend({
-                                    \'pin': '📌',
-                                    \'star': '★',
-                                    \'book': '📖',
-                                    \'lock': '🔒',
-                                    \'hammer': '🔨',
-                                    \'tick': '✔',
-                                    \'cross': '✖',
-                                    \'warning': '⚠',
-                                    \'menu': '☰',
-                                    \'apple': '🍎',
-                                    \'linux': '🐧',
-                                    \'windows': '⌘',
-                                    \'git': '',
-                                    \'palette': '🎨',
-                                    \'lens': '🔍',
-                                    \'flag': '⚑',
-                                    \}, get(s:S, 'custom_icons', {}))
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Bufline/Tabline settings
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-                                    " \'folder_open': '📂',
-                                    " \'folder_closed': '📁',
+let s:S.custom_icons = extend({
+      \'pin': '📌',
+      \'star': '★',
+      \'book': '📖',
+      \'lock': '🔒',
+      \'hammer': '🔨',
+      \'tick': '✔',
+      \'cross': '✖',
+      \'warning': '⚠',
+      \'menu': '☰',
+      \'apple': '🍎',
+      \'linux': '🐧',
+      \'windows': '⌘',
+      \'git': '',
+      \'palette': '🎨',
+      \'lens': '🔍',
+      \'flag': '⚑',
+      \'fire': '🔥',
+      \'bomb': '💣',
+      \}, get(s:S, 'custom_icons', {}))
+
+" \'folder_open': '📂',
+" \'folder_closed': '📁',
+
+let s:S.extra_icons               = get(s:S, 'extra_icons', 1)
+
+let s:indicators = extend({
+      \ 'modified': s:S.extra_icons ? '✛ ' : '[+]',
+      \ 'readonly': s:S.extra_icons ? '🔒' : '[RO]',
+      \ 'scratch': s:S.extra_icons ? '💣' : '[!]',
+      \ 'pinned': s:S.extra_icons ? '[📌]' : '[⇲]',
+      \}, get(s:S, 'indicators', {}))
+
+let s:S.bufline_numbers           = get(s:S, 'bufline_numbers',    1)
+let s:S.bufline_indicators        = extend(get(s:S, 'bufline_indicators', {}),  s:indicators)
+let s:S.bufline_sep_or_icon       = get(s:S, 'bufline_sep_or_icon', 0)
+let s:S.bufline_separators        = get(s:S, 'bufline_separators', ['|', '|']) "old: nr2char(0x23B8)
+let s:S.bufline_format            = get(s:S, 'bufline_format',  ' n I< l +')
+let s:S.bufline_unnamed           = get(s:S, 'bufline_unnamed',  '...')
+
+let s:S.tab_format                = get(s:S, "tab_format", "N - 2+ ")
+let s:S.named_tab_format          = get(s:S, "named_tab_format", "N - l+ ")
+let s:S.bufline_named_tab_format  = get(s:S, "bufline_named_tab_format", s:S.named_tab_format)
+let s:S.bufline_tab_format        = get(s:S, "bufline_tab_format", s:S.tab_format)
+let s:S.modified_tab_flag         = get(s:S, "modified_tab_flag", "*")
+let s:S.close_tabs_label          = get(s:S, "close_tabs_label", "")
+let s:S.unnamed_tab_label         = get(s:S, "unnamed_tab_label", "[no name]")
+let s:S.tab_icon                  = get(s:S, "tab_icon", s:S.extra_icons ? ["📂", "📁"] : ["✔", "✖"])
+
+let s:S.devicon_for_all_filetypes = get(s:S, 'devicon_for_all_filetypes', 0)
+let s:S.devicon_for_extensions    = get(s:S, 'devicon_for_extensions', ['md', 'txt'])
+
 if !filereadable(s:S.bookmarks_file) | call writefile(['{}'], s:S.bookmarks_file) | endif
 if !filereadable(s:S.sessions_data) | call writefile(['{}'], s:S.sessions_data) | endif
 

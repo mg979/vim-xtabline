@@ -20,12 +20,12 @@ let s:vB = { -> s:T().buffers.valid     }       "valid buffers for tab
 let s:pB = { -> s:X.pinned_buffers      }       "pinned buffers list
 let s:oB = { -> s:F.buffers_order()     }       "ordered buffers for tab
 
+let s:invalid  = { b -> !buflisted(b) || getbufvar(b, "&buftype") == 'quickfix' }
 let s:ready    = { -> !(exists('g:SessionLoad') || s:v.halt) }
 let s:is_ma    = { b -> index(s:F.wins(), b) >= 0 && getbufvar(b, "&ma") }
 let s:is_extra = { b -> buflisted(b) && index(s:T().buffers.extra, b) >= 0 }
 let s:Is       = { n,s -> match(bufname(n), s) == 0 }
 let s:Ft       = { n,s -> getbufvar(n, "&ft")  == s }
-
 
 let s:most_recent = -1
 let s:new_tab_created = 0
@@ -140,24 +140,24 @@ fun! xtabline#filter_buffers(...)
 
   for buf in range(1, bufnr("$"))
 
-    if s:is_special(buf)    | call add(accepted, buf) | continue
-    elseif s:is_extra(buf)  | call add(accepted, buf) | continue
-    elseif s:F.invalid(buf) | continue
-    elseif !s:v.filtering   | call add(accepted, buf) | continue
-    elseif s:is_ma(buf)     | call add(accepted, buf) | continue | endif
-
-    " get the path
-    let path = expand("#".buf.":p")
-
-    " accept or exclude buffer
-    if locked && index(accepted, buf) < 0
-      call add(excluded, buf)
-
-    elseif s:F.within_depth(path, depth) && path =~ _pre.cwd.post_
-      call add(accepted, buf)
-
+    if s:is_special(buf)        | call add(accepted, buf)
+    elseif s:invalid(buf)       | continue
+    elseif !s:v.filtering       | call add(accepted, buf)
+    elseif s:is_ma(buf)         | call add(accepted, buf)
     else
-      call add(excluded, buf)
+      " get the path
+      let path = expand("#".buf.":p")
+
+      " accept or exclude buffer
+      if locked && index(accepted, buf) < 0
+        call add(excluded, buf)
+
+      elseif s:F.within_depth(path, depth) && path =~ _pre.cwd.post_
+        call add(accepted, buf)
+
+      else
+        call add(excluded, buf)
+      endif
     endif
   endfor
 
@@ -283,6 +283,7 @@ function! s:Do(action, ...)
 
     let V.last_tab = N
     let X.Tabs[N].cwd = getcwd()
+    call F.clean_up_buffer_dict()
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
@@ -300,7 +301,7 @@ function! s:Do(action, ...)
 
     for buf in s:X.pinned_buffers
       let i = index(s:X.pinned_buffers, buf)
-      if F.invalid(buf)
+      if s:invalid(buf)
         call remove(s:X.pinned_buffers, i)
       endif
     endfor
@@ -330,14 +331,16 @@ endfun
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:is_special(nr)
-  """Prefilter special buffers."""
-  let ok = 0 | let b = a:nr
+  """Prefilter special/extra buffers."""
+  let b = a:nr | let B = s:B()
 
-  if s:Ft(b, "startify")
-    let ok = 1
+  if s:is_extra(b)
+    if !buflisted(b)    | call remove(s:T().buffers.extra, b)
+    else                | return 1 | endif
+  elseif !has_key(B, b) | return
+  elseif !bufexists(b)  | unlet B[b]
+  else                  | return index(s:F.wins(), b) >= 0 && has_key(s:B()[b], 'special')
   endif
-
-  return ok || ( index(s:F.wins(), b) >= 0 && has_key(s:B(), b) && has_key(s:B()[b], 'special') )
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -354,7 +357,7 @@ augroup plugin-xtabline
 
   "NOTE: BufEnter needed. Timer improves reliability. Keep it like this.
   autocmd BufAdd,BufWrite,BufEnter  * call g:xtabline.Funcs.delay(100, 'xtabline#filter_buffers()')
-  autocmd QuitPre                   * call g:xtabline.Funcs.clean_up_buffer_dict() | call xtabline#update_obsession()
+  autocmd VimLeavePre               * call g:xtabline.Funcs.clean_up_buffer_dict()
   autocmd SessionLoadPost           * call s:Do('session')
 augroup END
 
