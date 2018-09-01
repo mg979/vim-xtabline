@@ -361,7 +361,6 @@ You can add any of these to your *.vimrc*, after having initialized the `g:xtabl
 |depth_tree_size            |                                     | 20                               | 
 |bookmarks_file             |                                     | `$HOME/.vim/.XTablineBookmarks`  | 
 |sessions_data              |                                     | `$HOME/.vim/.XTablineSessions`   | 
-|default_named_tab_icon     |                                     | []                               | 
 |superscript_unicode_nrs    | use superscript or subscript nrs    | 0                                | 
 |show_current_tab           |                                     | 1                                | 
 |enable_extra_highlight     |                                     | 1                                | 
@@ -388,6 +387,7 @@ You can add any of these to your *.vimrc*, after having initialized the `g:xtabl
 | modified_tab_flag         |                                     | `*`            |
 | close_tabs_label          |                                     | ''             |
 | tab_icon                  |                                     | `["📂", "📁"]` |
+| named_tab_icon            |                                     | `["📂", "📁"]` |
 
 `custom_icons` are the ones that can be used when assigning an icon to a tab/buffer, and can be used in other contexts (special buffers icon).
 

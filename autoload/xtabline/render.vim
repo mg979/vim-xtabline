@@ -445,16 +445,13 @@ endfun
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:get_tab_icon(tabnr)
-  if !s:v.custom_tabs
-    return get(s:Sets, 'tab_icon', ["📂", "📁"]) | endif
+  if !s:v.custom_tabs | return s:Sets.tab_icon | endif
 
   let T = s:X.Tabs[a:tabnr-1]
   let icon = s:has_tab_icon(T)
 
   return !empty(icon) ? icon :
-       \ !empty(T.name) && !empty(s:Sets.default_named_tab_icon) ?
-       \   s:Sets.default_named_tab_icon :
-       \   get(s:Sets, 'tab_icon', ["📂", "📁"])
+       \ !empty(T.name) ? s:Sets.named_tab_icon : s:Sets.tab_icon
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

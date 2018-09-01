@@ -119,7 +119,6 @@ let s:S.select_buffer_alt_action   = get(s:S, 'select_buffer_alt_action', "buffe
 let s:S.hide_buffer_alt_action     = get(s:S, 'hide_buffer_alt_action', "buffer #")
 let s:S.bookmarks_file             = get(s:S, 'bookmarks_file ', expand('$HOME/.vim/.XTablineBookmarks'))
 let s:S.sessions_data              = get(s:S, 'sessions_data', expand('$HOME/.vim/.XTablineSessions'))
-let s:S.default_named_tab_icon     = get(s:S, 'default_named_tab_icon', [])
 let s:S.superscript_unicode_nrs    = get(s:S, 'superscript_unicode_nrs', 0)
 let s:S.show_current_tab           = get(s:S, 'show_current_tab', 1)
 let s:S.enable_extra_highlight     = get(s:S, 'enable_extra_highlight', 1)
@@ -185,7 +184,8 @@ let s:S.bufline_tab_format        = get(s:S, "bufline_tab_format", s:S.tab_forma
 let s:S.modified_tab_flag         = get(s:S, "modified_tab_flag", "*")
 let s:S.close_tabs_label          = get(s:S, "close_tabs_label", "")
 let s:S.unnamed_tab_label         = get(s:S, "unnamed_tab_label", "[no name]")
-let s:S.tab_icon                  = get(s:S, "tab_icon", s:S.extra_icons ? ["📂", "📁"] : ["✔", "✖"])
+let s:S.tab_icon                  = get(s:S, "tab_icon", s:S.extra_icons ? ["📂", "📁"] : ["", ""])
+let s:S.named_tab_icon            = get(s:S, "named_tab_icon", s:S.extra_icons ? ["📂", "📁"] : ["", ""])
 
 let s:S.devicon_for_all_filetypes = get(s:S, 'devicon_for_all_filetypes', 0)
 let s:S.devicon_for_extensions    = get(s:S, 'devicon_for_extensions', ['md', 'txt'])
