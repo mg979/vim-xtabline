@@ -79,7 +79,6 @@ com!                    XTabConfig          call xtabline#config#start()
 com! -nargs=? -count    XTabNew             call xtabline#cmds#run("new_tab", <count>, <q-args>)
 com! -nargs=?           XTabMove            call xtabline#cmds#run("move_tab", <q-args>)
 
-com! -nargs=?        -complete=file                  XEdit               call xtabline#cmds#run("edit_buffer", <q-args>)
 com! -nargs=? -count -complete=file -bang            XTabEdit            call xtabline#cmds#run("edit_tab", <count>, <bang>0, <q-args>)
 com! -nargs=? -bang  -complete=file                  XTabWD              call xtabline#cmds#run("set_cwd", [<bang>0, <q-args>])
 com! -nargs=? -bang  -complete=customlist,<sid>icons XTabIcon            call xtabline#cmds#run("tab_icon", [<bang>0, <q-args>])
@@ -103,12 +102,16 @@ endfun
 let g:xtabline = {'Tabs': [], 'Vars': {}, 'Buffers': {}, 'Funcs': {},
                  \'pinned_buffers': [], 'closed_tabs': [], 'closed_cwds': []}
 
+let g:xtabline.Vars.winOS = has("win16") || has("win32") || has("win64")
+let s:vimdir = ( has('win32unix') || g:xtabline.Vars.winOS ) &&
+      \        isdirectory(expand('$HOME/vimfiles')) ? '$HOME/vimfiles' : '$HOME/.vim'
+
 let g:xtabline_settings  = get(g:, 'xtabline_settings', {})
 let g:xtabline_highlight = get(g:, 'xtabline_highlight', {'themes': {}})
 
 let s:S = g:xtabline_settings
 
-let s:S.sessions_path              = get(s:S, 'sessions_path', '$HOME/.vim/session')
+let s:S.sessions_path              = get(s:S, 'sessions_path', expand(s:vimdir . '/session'))
 let s:S.map_prefix                 = get(s:S, 'map_prefix', '<leader>x')
 let s:S.close_buffer_can_close_tab = get(s:S, 'close_buffer_can_close_tab', 0)
 let s:S.close_buffer_can_quit_vim  = get(s:S, 'close_buffer_can_quit_vim', 0)
@@ -117,8 +120,8 @@ let s:S.depth_tree_size            = get(s:S, 'depth_tree_size', 20)
 
 let s:S.select_buffer_alt_action   = get(s:S, 'select_buffer_alt_action', "buffer #")
 let s:S.hide_buffer_alt_action     = get(s:S, 'hide_buffer_alt_action', "buffer #")
-let s:S.bookmarks_file             = get(s:S, 'bookmarks_file ', expand('$HOME/.vim/.XTablineBookmarks'))
-let s:S.sessions_data              = get(s:S, 'sessions_data', expand('$HOME/.vim/.XTablineSessions'))
+let s:S.bookmarks_file             = get(s:S, 'bookmarks_file ', expand(s:vimdir . '/.XTablineBookmarks'))
+let s:S.sessions_data              = get(s:S, 'sessions_data', expand(s:vimdir . '/.XTablineSessions'))
 let s:S.superscript_unicode_nrs    = get(s:S, 'superscript_unicode_nrs', 0)
 let s:S.show_current_tab           = get(s:S, 'show_current_tab', 1)
 let s:S.enable_extra_highlight     = get(s:S, 'enable_extra_highlight', 1)
@@ -149,13 +152,15 @@ let s:S.custom_icons = extend({
       \'menu': '☰',
       \'apple': '🍎',
       \'linux': '🐧',
-      \'windows': '⌘',
+      \'windows': '❖',
       \'git': '',
       \'palette': '🎨',
       \'lens': '🔍',
       \'flag': '⚑',
       \'fire': '🔥',
       \'bomb': '💣',
+      \'home': '🏠',
+      \'mail': '✉ ',
       \}, get(s:S, 'custom_icons', {}))
 
 " \'folder_open': '📂',

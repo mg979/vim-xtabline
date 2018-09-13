@@ -8,14 +8,9 @@ let s:B =  { -> s:X.Buffers             }       "customized buffers
 let s:vB = { -> s:T().buffers.valid     }       "valid buffers for tab
 let s:oB = { -> s:F.buffers_order()     }       "ordered buffers for tab
 
-let s:Is = { n,s -> match(bufname(n), s) == 0 }
-let s:Ft = { n,s -> getbufvar(n, "&ft")  == s }
-let s:Bd = { n,i,d -> extend( { 'name': n, 'icon': i, 'path': '', 'special': 1 }, d ) }
-
-let s:special = { nr -> has_key(s:B(), nr) && has_key(s:B()[nr], 'special') }
+let s:special = { nr -> has_key(s:B(), nr) && s:B()[nr].special }
 let s:refilter = 0
 let s:mod_width = 0
-let s:extra_icons = s:Sets.extra_icons
 
 let s:Hi = { -> g:xtabline_highlight.themes[s:Sets.theme] }
 
@@ -42,7 +37,7 @@ let s:pinned            = { -> s:X.pinned_buffers               }
 let s:buffer_has_format = { buf -> has_key(s:B(), buf.nr) && has_key(s:B()[buf.nr], 'format') }
 let s:has_buf_icon      = { nr -> has_key(s:B(), string(nr)) && !empty(get(s:B()[nr], 'icon', '')) }
 let s:pinHi             = { b -> has_key(s:Hi().extra, 'XBufLinePinned') && index(s:pinned(), b) >= 0 }
-let s:specialHi         = { b -> has_key(s:Hi().extra, 'XBufLineSpecial') && has_key(s:B(), b) && has_key(s:B()[b], 'special') }
+let s:specialHi         = { b -> has_key(s:Hi().extra, 'XBufLineSpecial') && has_key(s:B(), b) && s:B()[b].special }
 
 " BufTabLine main function {{{1
 " =============================================================================
@@ -76,18 +71,18 @@ fun! xtabline#render#buffers()
     call insert(bufs, b, 0)
   endfor
 
-  "include special buffers
-  "Note: maybe not necessary to find index
+  "include special buffers, may force refiltering
   for b in s:F.wins()
-    if index(bufs, b) < 0 && s:is_special_buffer(b)
-      let i = index(bufs, b)
-      if i >= 0 | call remove(bufs, i) | endif
+    let B = s:X.Props.check_buffer(b)
+    if index(bufs, b) < 0 && B.special
       call insert(bufs, b, 0)
+      if has_key(B, 'refilter')
+        unlet B.refilter
+        call xtabline#filter_buffers()
+        return ''
+      endif
     endif
   endfor
-
-  " some buffer types may need a refresh to set further properties
-  if s:refilter | let s:refilter = 0 | call xtabline#filter_buffers() | return '' | endif
 
   " make buftab string
   for bnr in bufs
@@ -515,44 +510,6 @@ fun! s:unicode_nrs(nr)
   endfor
 
   return u_nr
-endfun
-
-fun! s:is_special_buffer(nr)
-  """Customize special buffers.
-  let bufs = s:B()
-  let git  = index(['GV', 'gitcommit', 'magit', 'git'], getbufvar(a:nr, "&ft"))
-  let gitn = ['GV', 'Commit', 'Magit', 'Git']
-
-  if git >= 0
-    let bufs[a:nr] = s:Bd(gitn[git], s:Sets.custom_icons.git, {})
-    if git == 0 | call s:lock_tab([a:nr], {'icon': s:Sets.custom_icons.git}) | endif
-    return 1
-
-  elseif s:Is(a:nr, "fugitive")      "fugitive buffer, set name and icon
-    let bufs[a:nr] = s:Bd('fugitive', s:Sets.custom_icons.git, {})
-    return 1
-
-  elseif s:Ft(a:nr, "startify")
-    let i = s:extra_icons ? ' 🏁 ' : ' ⚑ '
-    let bufs[a:nr] = s:Bd(i.'Startify'.i, '', {'format': 'l'})
-    return 1
-
-  elseif s:Ft(a:nr, "ctrlsf")
-    let i = s:extra_icons ? ' 🔍 ' : ' ⚑ '
-    let bufs[a:nr] = s:Bd(i.'CtrlSF'.i, '', {'format': 'l'})
-    return 1
-  endif
-endfun
-
-fun! s:lock_tab(bufs, props)
-  """Lock tab and force refiltering."""
-  let T = tabpagenr() - 1
-  let s:refilter = 1
-  let s:X.Tabs[T].locked = 1
-  let s:X.Tabs[T].buffers.valid = a:bufs
-  for prop in keys(a:props)
-    let s:X.Tabs[T][prop] = a:props[prop]
-  endfor
 endfun
 
 fun! s:get_tab_for_bufline()

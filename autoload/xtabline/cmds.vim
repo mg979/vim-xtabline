@@ -86,14 +86,16 @@ fun! s:depth(cnt)
   let current_dir_only  = !cnt && T.depth < 0
   let full_cwd          = !cnt && !current_dir_only
   let T.depth           = cnt ? cnt : current_dir_only ? 0 : -1
+  let T.use_dir         = T.depth == 0 ? s:F.fullpath(bufname("%"), ":p:h") : T.cwd
 
   call s:F.force_update()
 
-  let tree = !cnt || !executable('tree') ? [] : s:tree(cnt)
+  let tree = !cnt || !executable('tree') || s:v.winOS ? ['', 'None'] : s:tree(cnt)
 
   if current_dir_only
+    let show_dir = T.depth == 0 ? fnamemodify(bufname("%"), ":p:h") : getcwd()
     call s:F.msg ([[ "Buffer filtering is now restricted to ", 'WarningMsg'],
-                  \[ getcwd(), 'None'],
+                  \[ show_dir, 'None'],
                   \[ " alone", 'WarningMsg']])
 
   elseif full_cwd
@@ -126,20 +128,13 @@ fun! s:purge_buffers()
   " 2. path doesn't belong to cwd, but it has been accepted for partial match
 
   for buf in (accepted + bufs)
-    let bname = bufname(buf)
-    let bufpath = fnamemodify(bname, ":p")
+    let bufpath = s:F.fullpath(bufname(buf))
 
-    if !filereadable(bufpath)
-      if !getbufvar(buf, "&modified")
-        let bcnt += 1 | let ix = index(accepted, buf)
-        if ix >= 0    | call add(purged, remove(accepted, ix))
-        else          | call add(purged, buf) | endif
-      endif
+    let purge = !getbufvar(buf, "&modifiable") ||
+          \     !filereadable(bufpath) && !getbufvar(buf, "&modified") ||
+          \     bufpath !~ "^".s:T().cwd
 
-    elseif bname ==# '.git/index'               "purge git status
-      let bcnt += 1   | call add(purged, buf)
-
-    elseif bufpath !~ "^".s:T().cwd
+    if purge
       let bcnt += 1   | let ix = index(accepted, buf)
       if ix >= 0      | call add(purged, remove(accepted, ix))
       else            | call add(purged, buf) | endif
@@ -205,7 +200,17 @@ fun! s:reopen_last_tab()
   let s:v.halt = 0
   call s:F.force_update()
   execute "b ".s:oB()[0]
-  execute "bdelete ".empty
+  "find a valid buffer
+  let path = ''
+  for b in s:oB()
+    if bufexists(b)
+      execute "b ".b
+      execute "bdelete ".empty
+      return
+    endif
+  endfor
+  redraw!
+  call s:F.msg("There are no valid buffers for this tab", 1)
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -259,8 +264,8 @@ fun! s:tab_todo()
   else
     execute todo['prefix']." ".todo['size'].todo['command']." ".s:F.todo_path()
   endif
-  execute "setlocal syntax=".todo['syntax']
-  nmap <silent><nowait> <buffer> q :w<bar>bdelete<cr>
+  execute "setf ".todo['syntax']
+  nmap <silent><nowait> <buffer> q :if &mod<bar>w<bar>endif<bar>bdelete<cr>
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -403,27 +408,6 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:check_dir(dir)
-  """Create directory if not existant."""
-  let f = s:F.fullpath(a:dir)
-  if filereadable(f)    | return fnamemodify(f, ":h")
-  elseif isdirectory(f) | return f | endif
-
-  let f = fnamemodify(f, ":h")
-  if filereadable(f)    | return fnamemodify(f, ":h")
-  elseif isdirectory(f) | return f | endif
-
-  call s:F.msg ([[ "Create new directory ", 'Label' ], [ f, 'None' ], [ " ?", 'Label' ]])
-  if nr2char(getchar()) ==# 'y'
-    call mkdir(f, 'p')
-    return f
-  else
-    return
-  endif
-endfun
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
 fun! s:edit_tab(...)
   """Open a new tab with optional path. Bang triggers rename.
 
@@ -437,28 +421,13 @@ fun! s:edit_tab(...)
     let s:v.tab_properties = {'cwd': expand("~")}
     exe n . "tabnew"
   else
-    let dir = s:check_dir(args[2])
-    if !empty(dir)
-      let s:v.tab_properties = {'cwd': s:F.find_suitable_cwd(args[2])}
-    endif
+    let s:v.tab_properties = {'cwd': s:F.find_suitable_cwd(args[2])}
     exe n . "tabedit" args[2]
   endif
   call s:F.force_update()
   let s:v.auto_set_cwd = 0
   if bang
     call feedkeys("\<Plug>(XT-Rename-Tab)")
-  endif
-endfun
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! s:edit_buffer(path)
-  """Like :edit, but check for directories and optionally create them."""
-  if empty(a:path)
-    new
-  else
-    call s:check_dir(a:path)
-    exe "e" a:path
   endif
 endfun
 
@@ -527,7 +496,7 @@ endfun
 fun! s:set_cwd(...)
   """Set new working directory."""
   let [bang, cwd] = a:1
-  let cwd = expand(cwd, ":p")
+  let cwd = s:F.fullpath(cwd)
 
   if !bang && empty(cwd)
     call s:F.msg ([[ "Canceled.", 'WarningMsg' ]]) | return
@@ -545,6 +514,7 @@ fun! s:set_cwd(...)
     redraw!
     call s:F.msg ([[ "New working directory set: ", 'Label' ], [ cwd, 'None' ]])
     let s:X.Tabs[tabpagenr()-1].cwd = cwd
+    let s:X.Tabs[tabpagenr()-1].use_dir = cwd
     call s:F.force_update()
   endif
 endfun
@@ -554,7 +524,7 @@ endfun
 fun! s:reset_tab(...)
   """Reset the tab to a pristine state.
   let cwd = a:0? fnamemodify(expand(a:1), :p) : s:F.find_suitable_cwd()
-  let s:X.Tabs[tabpagenr()-1] = xtabline#new_tab_dict({'cwd': cwd})
+  let s:X.Tabs[tabpagenr()-1] = s:X.Props.new_tab({'cwd': cwd})
   cd `=cwd`
   call s:F.force_update()
 endfun

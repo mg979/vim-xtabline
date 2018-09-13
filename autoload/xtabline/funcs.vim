@@ -10,26 +10,8 @@ fun! xtabline#funcs#init()
 endfun
 
 let s:Funcs = {}
-let s:Funcs.wins        = { -> tabpagebuflist(tabpagenr()) }
-let s:Funcs.fullpath    = { p -> fnamemodify(expand(p), ":p") }
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! s:Funcs.check_tabs() dict
-  """Create or remove tab dicts if necessary. Rearrange tabs list if order is wrong."""
-  let Tabs = s:X.Tabs
-  while len(Tabs) < tabpagenr("$") | call add(Tabs, xtabline#new_tab_dict()) | endwhile
-  while len(Tabs) > tabpagenr('$') | call remove(Tabs, -1)                   | endwhile
-  call self.check_this_tab()
-endfun
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! s:Funcs.check_this_tab() dict
-  """Ensure all dict keys are present."""
-  let T = extend(s:T(), self.tab_template(), 'keep')
-  if !has_key(T.buffers, 'extra') | let T.buffers.extra = [] | endif
-endfun
+let s:Funcs.wins    = {   -> tabpagebuflist(tabpagenr()) }
+let s:Funcs.has_win = { b -> index(s:Funcs.wins(), b) >= 0 }
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
@@ -95,6 +77,7 @@ endfun
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:Funcs.update_buffers() dict
+  let B = s:B()
   let valid = s:vB()
   let order = self.buffers_order()
 
@@ -123,18 +106,27 @@ endfun
 fun! s:Funcs.clean_up_buffer_dict() dict
   """Remove customized buffer entries, if buffers are not valid anymore.
   let bufs = s:B()
-  let l:Invalid = { b -> !bufexists(b)                  ||
-                      \  has_key(bufs[b], 'special')    ||
-                      \  bufs[b].path !=# expand("#".b.":p") }
 
   for b in keys(bufs)
-    if l:Invalid(b)
+    if !bufexists(b) || bufs[b].special
       unlet bufs[b]
     endif
   endfor
 
-  let s:X.Tabs[tabpagenr()-1].buffers.extra = []
+  for tab in s:X.Tabs
+    let tab.buffers.extra = []
+  endfor
   call xtabline#update_obsession()
+endfun
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:Funcs.fullpath(path, ...) dict
+  """OS-specific modified path."""
+  let path = expand(a:path)
+  let path = empty(path) ? a:path : path        "expand can fail
+  let mod = a:0 ? a:1 : ":p"
+  return s:v.winOS ? substitute(fnamemodify(path, mod), '\', '/', 'g') : fnamemodify(path, mod)
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -152,30 +144,17 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.tab_template(...) dict
-  let mod = a:0? a:1 : {}
-  return extend({'name':    '',
-               \ 'cwd':     getcwd(),
-               \ 'vimrc':   {},
-               \ 'locked':  0,
-               \ 'depth':   -1,
-               \ 'rpaths':  0,
-               \ 'icon':    '',
-               \}, mod)
-endfun
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
 fun! s:Funcs.within_depth(path, depth) dict
   """If tab uses depth, verify if the path can be accepted."""
 
   if a:depth < 0 | return 1 | endif
 
-  let basedir = fnamemodify(a:path, ":p:h")
-  let diff = substitute(basedir, getcwd(), '', '')
+  let basedir = self.fullpath(a:path, ":p:h")
+  let diff = substitute(basedir, s:T().use_dir, '', '')
 
-  "the number of dir separators in (basedir - cwd) must be <= depth
-  return count(diff, self.sep()) <= a:depth
+  "the number of dir separators in (basedir - cwd) must be < depth
+  "but if depth == 0 (only root dir), only accept an empty diff
+  return !a:depth ? empty(diff) : count(diff, '/') < a:depth
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -237,10 +216,10 @@ fun! s:Funcs.find_suitable_cwd(...) dict
   let h = ":p:h"
   for i in range(5)
     let dir = fnamemodify(f, h)
-    if l:Found(dir) | return dir | endif
+    if l:Found(dir) | return self.fullpath(dir) | endif
     let h .= ":h"
   endfor
-  return fnamemodify(f, ":p:h")
+  return self.fullpath(getcwd())
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -278,7 +257,8 @@ function! s:Funcs.refresh_tabline() dict
   """Invalidate old Airline tabline and force redraw."""
   if self.airline_enabled()
     let g:airline#extensions#tabline#exclude_buffers = s:T().exclude
-    call airline#extensions#tabline#buflist#invalidate() | endif
+    call airline#extensions#tabline#buflist#invalidate()
+  endif
   if s:v.showing_tabs
     set tabline=%!xtabline#render#tabs()
   else

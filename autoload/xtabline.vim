@@ -8,6 +8,7 @@ let s:F    = s:X.Funcs
 let s:Sets = g:xtabline_settings
 
 let s:v.tab_properties = {}                     "if not empty, newly created tab will inherit them
+let s:v.buffer_properties = {}                  "if not empty, newly created tab will inherit them
 let s:v.filtering      = 1                      "whether bufline filtering is active
 let s:v.custom_tabs    = 1                      "tabline shows custom names/icons
 let s:v.showing_tabs   = 0                      "tabline or bufline?
@@ -20,12 +21,10 @@ let s:vB = { -> s:T().buffers.valid     }       "valid buffers for tab
 let s:pB = { -> s:X.pinned_buffers      }       "pinned buffers list
 let s:oB = { -> s:F.buffers_order()     }       "ordered buffers for tab
 
-let s:invalid  = { b -> !buflisted(b) || getbufvar(b, "&buftype") == 'quickfix' }
-let s:ready    = { -> !(exists('g:SessionLoad') || s:v.halt) }
-let s:is_ma    = { b -> index(s:F.wins(), b) >= 0 && getbufvar(b, "&ma") }
-let s:is_extra = { b -> buflisted(b) && index(s:T().buffers.extra, b) >= 0 }
-let s:Is       = { n,s -> match(bufname(n), s) == 0 }
-let s:Ft       = { n,s -> getbufvar(n, "&ft")  == s }
+let s:invalid    = { b -> !buflisted(b) || getbufvar(b, "&buftype") == 'quickfix' }
+let s:is_ma      = { b -> s:F.has_win(b) && getbufvar(b, "&ma") }
+let s:is_special = { b -> s:F.has_win(b) && s:B()[b].special }
+let s:ready      = { -> !(exists('g:SessionLoad') || s:v.halt) }
 
 let s:most_recent = -1
 let s:new_tab_created = 0
@@ -37,6 +36,7 @@ let s:new_tab_created = 0
 fun! xtabline#init()
   set showtabline=2
   let s:X.Funcs = xtabline#funcs#init()
+  let s:X.Props = xtabline#props#init()
   let s:F = s:X.Funcs
   call xtabline#maps#init()
 
@@ -53,7 +53,7 @@ fun! xtabline#init()
     let g:airline#extensions#tabline#show_buffers = 1
   endif
 
-  call s:F.check_tabs()
+  call s:X.Props.check_tabs()
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -77,56 +77,25 @@ fun! xtabline#update_obsession()
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Main functions
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! xtabline#new_tab_dict(...)
-  """Create an entry in the Tabs list.
-  """tab_properties can be set by a command, before this function is called.
-
-  let p = a:0? extend(a:1, s:v.tab_properties) : s:v.tab_properties
-
-  "cwd:     (string)  working directory
-  "name:    (string)  tab name
-  "buffers: (dict)    with accepted and ordered buffer numbers lists
-  "exclude: (list)    excluded buffer numbers
-  "index:   (int)     tabpagenr() - 1, when tab is set
-  "locked:  (bool)    when filtering is independent from cwd
-  "rpaths:  (int)     whether the bufferline shows relative paths or filenames
-  "depth:   (int)     filtering recursive depth (n. of directories below cwd)
-  "                   -1 means full cwd, 0 means root dir only, >0 means up to n subdirs
-  "vimrc:   (dict)    settings to be sourced when entering the tab
-  "                   it can hold: {'file': string, 'commands': list} (one, both or empty)
-
-  let cwd     = has_key(p, 'cwd')?     p.cwd     : getcwd()
-  let name    = has_key(p, 'name')?    p.name    : ''
-  let buffers = has_key(p, 'buffers')? p.buffers : {'valid': [], 'order': [], 'extra': []}
-  let exclude = has_key(p, 'exclude')? p.exclude : []
-  let locked  = has_key(p, 'locked')?  p.locked  : 0
-  let depth   = has_key(p, 'depth')?   p.depth   : -1
-  let vimrc   = has_key(p, 'vimrc')?   p.vimrc   : {}
-  let rpaths  = has_key(p, 'rpaths')?  p.rpaths  : 0
-
-  let s:v.tab_properties = {}
-
-  return extend(s:F.tab_template(), {
-        \'name':    name,       'cwd':     cwd,
-        \ 'buffers': buffers,    'exclude': exclude,
-        \ 'locked':  locked,     'depth':   depth,
-        \ 'vimrc':   vimrc,      'rpaths':  rpaths})
-endfun
-
+" Filter buffers
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! xtabline#filter_buffers(...)
   """Filter buffers so that only the ones within the tab's cwd will show up.
-  let T = s:T() | let can_show_tabs = s:v.showing_tabs && has_key(T, 'init')
+  if !s:ready() && !a:0 | return | endif
 
   " 'accepted' is a list of buffer numbers, for quick access.
   " 'excluded' is a list of paths, it will be used by Airline to hide buffers.
+  " TODO: 'extra' are either:
+  "     - modfiable buffers in a tab window, even if they don't belong to the tab
+  "     - buffers that have been purposefully added by other means to the tab
 
-  if !s:ready() && !a:0 | call s:F.check_tabs() | return
-  elseif can_show_tabs  | set tabline=%!xtabline#render#tabs()
+  call s:X.Props.check_tabs()
+  call s:X.Props.check_this_tab()
+  let T = s:T()
+
+  if s:v.showing_tabs && has_key(T, 'init')
+    set tabline=%!xtabline#render#tabs()
     return
   endif
 
@@ -134,25 +103,24 @@ fun! xtabline#filter_buffers(...)
   let accepted        = locked? T.buffers.valid   : []
   let excluded        = locked? T.exclude : []
   let depth           = T.depth
-  let cwd             = getcwd()
-  let _pre            = '^'
-  let post_           = s:F.sep()
+
+  " /////////////////// ITERATE BUFFERS //////////////////////
 
   for buf in range(1, bufnr("$"))
+    let B = s:X.Props.check_buffer(buf)
 
     if s:is_special(buf)        | call add(accepted, buf)
-    elseif s:invalid(buf)       | continue
+    elseif s:invalid(buf)       | call add(excluded, buf)
     elseif !s:v.filtering       | call add(accepted, buf)
     elseif s:is_ma(buf)         | call add(accepted, buf)
     else
-      " get the path
-      let path = expand("#".buf.":p")
-
       " accept or exclude buffer
-      if locked && index(accepted, buf) < 0
-        call add(excluded, buf)
+      if locked
+        if index(accepted, buf) < 0
+          call add(excluded, buf)
+        endif
 
-      elseif s:F.within_depth(path, depth) && path =~ _pre.cwd.post_
+      elseif s:F.within_depth(B.path, depth) && B.path =~ '^'.T['use_dir']
         call add(accepted, buf)
 
       else
@@ -161,15 +129,18 @@ fun! xtabline#filter_buffers(...)
     endif
   endfor
 
+  " //////////////////////////////////////////////////////////
+
   let T.buffers.valid = accepted
   let T.exclude       = excluded
-  let T.init          = 1
   call s:F.update_buffers()
   call s:F.refresh_tabline()
   call xtabline#update_obsession()
 endfun
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Select buffers
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! xtabline#next_buffer(nr, pinned)
   """Switch to next visible/pinned buffer."""
@@ -225,6 +196,46 @@ fun! xtabline#prev_buffer(nr, pinned)
   return ":buffer " . accepted[s:most_recent] . "\<cr>"
 endfun
 
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Helpers
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:set_new_tab_cwd(N)
+  """Find suitable cwd for the new tab. Only runs after XT commands."""
+  let s:new_tab_created = 0 | let T = s:X.Tabs[a:N]
+
+  " empty tab sets cwd to ~, non-empty tab looks for a .git dir
+  if empty(bufname("%"))
+    let T.cwd = s:F.fullpath(getcwd())
+  elseif T.cwd == '~' || s:F.fullpath("%") !~ s:F.fullpath(T.cwd)
+    let T.cwd = s:F.find_suitable_cwd()
+  endif
+  cd `=T.cwd`
+  call s:F.force_update()
+  call s:F.delay(200, 'g:xtabline.Funcs.msg([[ "CWD set to ", "Label" ], [ "'.T.cwd.'", "Directory" ]])')
+endfun
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:set_buf_props()
+  if !empty(s:v.buffer_properties)
+    call extend(s:X.Buffers[expand('<abuf>')], s:v.buffer_properties)
+    let s:v.buffer_properties = {}
+  endif
+endfun
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:is_extra(nr)
+  """Prefilter extra buffers."""
+  if index(s:T().buffers.extra, a:nr) >= 0
+    if buflisted(a:nr) && s:B()[a:nr].path == s:F.fullpath(bufname(a:nr))
+      return 1
+    else
+      call remove(s:T().buffers.extra, a:nr)
+    endif
+  endif
+endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Autocommand Functions
@@ -243,7 +254,7 @@ function! s:Do(action, ...)
 
   if a:action == 'new'
 
-    call insert(X.Tabs, xtabline#new_tab_dict(), N)
+    call insert(X.Tabs, s:X.Props.new_tab(), N)
     if V.auto_set_cwd && s:ready()
       let s:new_tab_created = 1
     endif
@@ -251,15 +262,16 @@ function! s:Do(action, ...)
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
   elseif a:action == 'bufenter'
-    if s:new_tab_created && V.auto_set_cwd && s:ready()
+    if s:new_tab_created
       call s:set_new_tab_cwd(N)
     endif
+    call s:X.Props.check_buffer(bufnr("%"))
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
   elseif a:action == 'enter'
 
-    call F.check_tabs()
+    call s:X.Props.check_tabs()
     let T = X.Tabs[N]
 
     cd `=T.cwd`
@@ -282,7 +294,7 @@ function! s:Do(action, ...)
   elseif a:action == 'leave'
 
     let V.last_tab = N
-    let X.Tabs[N].cwd = getcwd()
+    let X.Tabs[N].cwd = F.fullpath(getcwd())
     call F.clean_up_buffer_dict()
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -305,43 +317,10 @@ function! s:Do(action, ...)
         call remove(s:X.pinned_buffers, i)
       endif
     endfor
-    let cwd = X.Tabs[N].cwd | cd `=cwd` | call xtabline#filter_buffers()
+    let cwd = X.Tabs[N].cwd | cd `=cwd`
+    call xtabline#filter_buffers()
   endif
 endfunction
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Helpers
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! s:set_new_tab_cwd(N)
-  """Find suitable cwd for the new tab. Only runs after XT commands."""
-  let s:new_tab_created = 0 | let T = s:X.Tabs[a:N]
-
-  " empty tab sets cwd to ~, non-empty tab looks for a .git dir
-  if empty(bufname("%"))
-    let T.cwd = s:F.fullpath('~')
-  elseif T.cwd == '~' || s:F.fullpath("%") !~ s:F.fullpath(T.cwd)
-    let T.cwd = s:F.find_suitable_cwd()
-  endif
-  cd `=T.cwd`
-  call s:F.force_update()
-  call s:F.delay(200, 'g:xtabline.Funcs.msg([[ "CWD set to ", "Label" ], [ "'.T.cwd.'", "Directory" ]])')
-endfun
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! s:is_special(nr)
-  """Prefilter special/extra buffers."""
-  let b = a:nr | let B = s:B()
-
-  if s:is_extra(b)
-    if !buflisted(b)    | call remove(s:T().buffers.extra, b)
-    else                | return 1 | endif
-  elseif !has_key(B, b) | return
-  elseif !bufexists(b)  | unlet B[b]
-  else                  | return index(s:F.wins(), b) >= 0 && has_key(s:B()[b], 'special')
-  endif
-endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
@@ -354,10 +333,13 @@ augroup plugin-xtabline
   autocmd TabClosed     * call s:Do('close')
   autocmd BufEnter      * call s:Do('bufenter')
   autocmd ColorScheme   * if s:ready() | call xtabline#hi#update_theme() | endif
+  autocmd BufWinEnter   * call s:set_buf_props()
+  autocmd BufAdd        * call s:set_buf_props()
 
   "NOTE: BufEnter needed. Timer improves reliability. Keep it like this.
-  autocmd BufAdd,BufWrite,BufEnter  * call g:xtabline.Funcs.delay(100, 'xtabline#filter_buffers()')
-  autocmd VimLeavePre               * call g:xtabline.Funcs.clean_up_buffer_dict()
-  autocmd SessionLoadPost           * call s:Do('session')
+  autocmd BufAdd,BufWrite,BufEnter    * call g:xtabline.Funcs.delay(50, 'xtabline#filter_buffers()')
+  autocmd BufDelete,BufLeave          * silent! unlet s:X.Buffers[expand('<abuf>')]
+  autocmd VimLeavePre                 * call g:xtabline.Funcs.clean_up_buffer_dict()
+  autocmd SessionLoadPost             * call s:Do('session')
 augroup END
 

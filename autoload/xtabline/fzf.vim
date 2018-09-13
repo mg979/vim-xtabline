@@ -114,7 +114,7 @@ fun! xtabline#fzf#tab_load(...)
   for bm in a:000
     let name = substitute(bm, '\(\w*\)\s*\t.*', '\1', '')
     let saved = json[name]
-    let cwd = expand(saved['cwd'], ":p")
+    let cwd = s:F.fullpath(saved['cwd'])
 
     if isdirectory(cwd) && empty(saved.buffers)        "no valid buffers
       call s:abort_load(name, bm, 'buffers') | return
@@ -123,7 +123,7 @@ fun! xtabline#fzf#tab_load(...)
     endif
 
     "tab properties defined here will be applied by new_tab(), run by autocommand
-    let s:v.tab_properties = s:F.tab_template({'cwd': cwd})
+    let s:v.tab_properties = s:X.Props.tab_template({'cwd': cwd})
     let T = s:v.tab_properties
     for prop in keys(saved)
       if prop ==? 'buffers' || prop ==? 'description'   | continue | endif
@@ -206,7 +206,7 @@ fun! xtabline#fzf#tab_save()
     let current = bufnr("%")
     call add(bufs, bufname(current))
   endif
-  for buf in range(1, bufnr("$"))
+  for buf in s:oB()
     if index(s:vB(), buf) >= 0 && (buf != current)
       call add(bufs, fnameescape(bufname(buf)))
     endif
@@ -230,7 +230,11 @@ fun! s:desc_string(s, n, sfile)
   let spaces = 30 - len(a:n)
   let spaces = printf("%".spaces."s", "")
   let pad = empty(active_mark) ? '     ' : ''
-  let time = system('date=`stat -c %Y '.fnameescape(a:s).'` && date -d@"$date" +%Y.%m.%d')[:-2]
+  if !s:v.winOS
+    let time = system('date=`stat -c %Y '.fnameescape(a:s).'` && date -d@"$date" +%Y.%m.%d')[:-2]
+  else
+    let time = ''
+  endif
   return s:yellow(a:n).spaces."\t".s:cyan(time).pad.active_mark.description
 endfun
 
@@ -244,21 +248,25 @@ fun! xtabline#fzf#sessions_list()
   let _last = index(sessions, last)
   if _last >= 0 | call remove(sessions, _last) | endif
 
-  "sort sessions by last modfication time
-  let times = {}
-  for s in sessions
-    let t = s:lastmod(s)
-    "prevent key overwriting
-    while has_key(times, t) | let t += 1 | endwhile
-    let times[t] = s
-  endfor
+  if !s:v.winOS
+    "sort sessions by last modfication time
+    let times = {}
+    for s in sessions
+      let t = s:lastmod(s)
+      "prevent key overwriting
+      while has_key(times, t) | let t += 1 | endwhile
+      let times[t] = s
+    endfor
 
-  let ord_times = map(keys(times), 'str2nr(v:val)')
-  let ord_times = reverse(sort(ord_times, 'n'))
-  let ordered = map(ord_times, 'times[v:val]')
+    let ord_times = map(keys(times), 'str2nr(v:val)')
+    let ord_times = reverse(sort(ord_times, 'n'))
+    let ordered = map(ord_times, 'times[v:val]')
 
-  "readd __LAST__ if found
-  if _last >= 0 | call add(ordered, last) | endif
+    "readd __LAST__ if found
+    if _last >= 0 | call add(ordered, last) | endif
+  else
+    let ordered = sessions
+  endif
 
   for s in ordered
     let n = fnamemodify(expand(s), ':t:r')
