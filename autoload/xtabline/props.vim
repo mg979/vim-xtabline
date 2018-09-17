@@ -19,6 +19,18 @@ let s:Props = {}
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:Props.tab_template(...) dict
+  "cwd:     (string)  working directory
+  "name:    (string)  tab name
+  "buffers: (dict)    with accepted and ordered buffer numbers lists
+  "exclude: (list)    excluded buffer numbers
+  "index:   (int)     tabpagenr() - 1, when tab is set
+  "locked:  (bool)    when filtering is independent from cwd
+  "rpaths:  (int)     whether the bufferline shows relative paths or filenames
+  "depth:   (int)     filtering recursive depth (n. of directories below cwd)
+  "                   -1 means full cwd, 0 means root dir only, >0 means up to n subdirs
+  "vimrc:   (dict)    settings to be sourced when entering the tab
+  "                   it can hold: {'file': string, 'commands': list} (one, both or empty)
+
   let mod = a:0? a:1 : {}
   return extend({'name':    '',
         \ 'cwd':     s:F.fullpath(getcwd()),
@@ -28,6 +40,8 @@ fun! s:Props.tab_template(...) dict
         \ 'rpaths':  0,
         \ 'icon':    '',
         \ 'use_dir': s:F.fullpath(getcwd()),
+        \ 'buffers': {'valid': [], 'order': [], 'extra': []},
+        \ 'exclude': [],
         \}, mod)
 endfun
 
@@ -81,35 +95,8 @@ fun! s:Props.new_tab(...) dict
   """tab_properties can be set by a command, before this function is called.
 
   let p = a:0? extend(a:1, s:v.tab_properties) : s:v.tab_properties
-
-  "cwd:     (string)  working directory
-  "name:    (string)  tab name
-  "buffers: (dict)    with accepted and ordered buffer numbers lists
-  "exclude: (list)    excluded buffer numbers
-  "index:   (int)     tabpagenr() - 1, when tab is set
-  "locked:  (bool)    when filtering is independent from cwd
-  "rpaths:  (int)     whether the bufferline shows relative paths or filenames
-  "depth:   (int)     filtering recursive depth (n. of directories below cwd)
-  "                   -1 means full cwd, 0 means root dir only, >0 means up to n subdirs
-  "vimrc:   (dict)    settings to be sourced when entering the tab
-  "                   it can hold: {'file': string, 'commands': list} (one, both or empty)
-
-  let cwd     = has_key(p, 'cwd')?     p.cwd     : s:F.fullpath(getcwd())
-  let name    = has_key(p, 'name')?    p.name    : ''
-  let buffers = has_key(p, 'buffers')? p.buffers : {'valid': [], 'order': [], 'extra': []}
-  let exclude = has_key(p, 'exclude')? p.exclude : []
-  let locked  = has_key(p, 'locked')?  p.locked  : 0
-  let depth   = has_key(p, 'depth')?   p.depth   : -1
-  let vimrc   = has_key(p, 'vimrc')?   p.vimrc   : {}
-  let rpaths  = has_key(p, 'rpaths')?  p.rpaths  : 0
-
   let s:v.tab_properties = {}
-
-  return extend(self.tab_template(), {
-        \'name':    name,       'cwd':     cwd,
-        \ 'buffers': buffers,    'exclude': exclude,
-        \ 'locked':  locked,     'depth':   depth,
-        \ 'vimrc':   vimrc,      'rpaths':  rpaths})
+  return extend(self.tab_template(), p)
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

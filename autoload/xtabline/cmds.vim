@@ -181,6 +181,7 @@ fun! s:reopen_last_tab()
     call s:F.msg("No recent tabs.", 1) | return | endif
 
   let s:v.tab_properties = remove(s:X.closed_tabs, -1)
+
   "check if the cwd must be removed from the blacklist closed_cwds
   let other_with_same_cwd = 0
   let cwd = s:v.tab_properties.cwd
