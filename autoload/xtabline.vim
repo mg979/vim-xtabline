@@ -341,5 +341,6 @@ augroup plugin-xtabline
   autocmd BufDelete,BufLeave          * silent! unlet s:X.Buffers[expand('<abuf>')]
   autocmd VimLeavePre                 * call g:xtabline.Funcs.clean_up_buffer_dict()
   autocmd SessionLoadPost             * call s:Do('session')
+  autocmd BufNewFile                  * call xtabline#automkdir#ensure_dir_exists()
 augroup END
 
