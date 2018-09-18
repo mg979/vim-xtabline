@@ -18,12 +18,16 @@ let s:v.auto_set_cwd   = 0                      "used to temporarily allow auto 
 let s:T  = { -> s:X.Tabs[tabpagenr()-1] }       "current tab
 let s:B  = { -> s:X.Buffers             }       "customized buffers
 let s:vB = { -> s:T().buffers.valid     }       "valid buffers for tab
+let s:eB = { -> s:T().buffers.extra     }       "extra buffers for tab
+let s:fB = { -> s:T().buffers.front     }       "front buffers for tab
 let s:pB = { -> s:X.pinned_buffers      }       "pinned buffers list
 let s:oB = { -> s:F.buffers_order()     }       "ordered buffers for tab
 
 let s:invalid    = { b -> !buflisted(b) || getbufvar(b, "&buftype") == 'quickfix' }
 let s:is_extra   = { b -> s:B()[b].extra }
+let s:is_front   = { b -> s:B()[b].front && index(s:fB(), b) < 0}
 let s:is_special = { b -> s:F.has_win(b) && s:B()[b].special }
+let s:is_open    = { b -> s:F.has_win(b) && getbufvar(b, "&ma") }
 let s:ready      = { -> !(exists('g:SessionLoad') || s:v.halt) }
 
 let s:most_recent = -1
@@ -84,11 +88,15 @@ fun! xtabline#filter_buffers(...)
   """Filter buffers so that only the ones within the tab's cwd will show up.
   if !s:ready() && !(a:0 && a:1 == 1) | return | endif
 
-  " 'accepted' is a list of buffer numbers, for quick access.
-  " 'excluded' is a list of paths, it will be used by Airline to hide buffers.
-  " 'extra' are either:
+  " 'accepted' is a list of buffer numbers that belong to the tab, either because:
+  "     - within filtering working directory
+  "     - tab is locked and buffers are included
+  " 'excluded' is a list of buffer numbers, it will be used by Airline to hide buffers.
+  " 'extra' are buffers that have been purposefully added by other means to the tab
+  "     - not a dynamic list, elements are manually added or removed
+  " 'front' are either:
+  "     - pinned buffers
   "     - modfiable buffers in a tab window, even if they don't belong to the tab
-  "     - buffers that have been purposefully added by other means to the tab
 
   call s:X.Props.check_tabs()
   call s:X.Props.check_this_tab()
@@ -104,6 +112,7 @@ fun! xtabline#filter_buffers(...)
   let excluded        = locked? T.exclude : []
   let depth           = T.depth
   let extra           = T.buffers.extra
+  let front           = T.buffers.front
 
   " /////////////////// ITERATE BUFFERS //////////////////////
 
@@ -113,7 +122,7 @@ fun! xtabline#filter_buffers(...)
     if s:is_special(buf)        | call add(accepted, buf)
     elseif s:invalid(buf)       | call add(excluded, buf)
     elseif !s:v.filtering       | call add(accepted, buf)
-    elseif s:is_extra(buf)      | call add(extra, buf)
+    elseif s:is_extra(buf)      | continue
     else
       " accept or exclude buffer
       if locked
@@ -123,6 +132,9 @@ fun! xtabline#filter_buffers(...)
 
       elseif s:F.within_depth(B.path, depth) && B.path =~ '^'.T['use_dir']
         call add(accepted, buf)
+
+      elseif s:is_front(buf)
+        call add(front, buf)
 
       else
         call add(excluded, buf)
@@ -149,17 +161,9 @@ fun! s:update_buffers()
   let valid = s:vB()
   let order = s:F.buffers_order()
 
-  "clean up ordered buffers list
-  let remove = []
-  for buf in order
-    if index(valid, buf) < 0 && !s:is_extra(buf)
-      call add(remove, buf)
-    endif
-  endfor
-
-  for buf in remove
-    call remove(order, index(order, buf))
-  endfor
+  "clean up ordered/front buffers list
+  call filter(order, 'index(valid, v:val) >= 0 || s:is_extra(v:val)')
+  call filter(s:fB(), 's:B()[v:val].front')
 
   " add missing entries in ordered list
   for buf in valid
@@ -290,6 +294,7 @@ function! s:Do(action, ...)
   elseif a:action == 'enter'
 
     call s:X.Props.check_tabs()
+    call s:X.Props.check_this_tab()
     let T = X.Tabs[N]
 
     cd `=T.cwd`
@@ -303,7 +308,7 @@ function! s:Do(action, ...)
       endif
     endif
 
-    if s:F.airline_enabled()
+    if s:F.airline_enabled() || get(s:Sets, 'refresh_on_tabenter', 0)
       call xtabline#filter_buffers()
     endif
 

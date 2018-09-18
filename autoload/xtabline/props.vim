@@ -9,6 +9,7 @@ fun! xtabline#props#init()
   let s:T =  { -> s:X.Tabs[tabpagenr()-1] }       "current tab
   let s:B =  { -> s:X.Buffers             }       "customized buffers
   let s:vB = { -> s:T().buffers.valid     }       "valid buffers for tab
+  let s:fB = { -> s:T().buffers.front     }       "temp buffers for tab
   return s:Props
 endfun
 
@@ -46,7 +47,7 @@ fun! s:Props.tab_template(...) dict
         \ 'rpaths':  0,
         \ 'icon':    '',
         \ 'use_dir': s:F.fullpath(getcwd()),
-        \ 'buffers': {'valid': [], 'order': [], 'extra': []},
+        \ 'buffers': {'valid': [], 'order': [], 'extra': [], 'front': []},
         \ 'exclude': [],
         \}, mod)
 endfun
@@ -56,8 +57,9 @@ endfun
 fun! s:Props.buf_template(nr, ...) dict
   let buf = {
         \ 'name':    '',
-        \ 'extra':   self.extra_flag(a:nr),
+        \ 'extra':   s:is_extra(a:nr),
         \ 'path':    self.bufpath(a:nr),
+        \ 'front':   s:is_open(a:nr) || s:is_pinned(a:nr),
         \ 'icon':    ''}
 
   call extend(buf, self.is_special(a:nr))
@@ -78,7 +80,9 @@ endfun
 fun! s:Props.check_this_tab() dict
   """Ensure all tab dict keys are present.
   call extend(s:T(), self.tab_template(), 'keep')
-  call extend(s:T().buffers, {'valid': [], 'order': [], 'extra': []}, 'keep')
+  call extend(s:T().buffers,
+        \{'valid': [], 'order': [], 'extra': [], 'front': []},
+        \'keep')
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -135,12 +139,6 @@ fun! s:Props.is_special(nr, ...) dict
   else
     return { 'special': 0 }
   endif
-endfun
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! s:Props.extra_flag(nr) dict
-  return s:is_open(a:nr) || s:is_extra(a:nr) || s:is_pinned(a:nr)
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

@@ -7,6 +7,7 @@ let s:T =  { -> s:X.Tabs[tabpagenr()-1] }       "current tab
 let s:B =  { -> s:X.Buffers             }       "customized buffers
 let s:vB = { -> s:T().buffers.valid     }       "valid buffers for tab
 let s:eB = { -> s:T().buffers.extra     }       "extra buffers for tab
+let s:fB = { -> s:T().buffers.front     }       "temp buffers for tab
 let s:oB = { -> s:F.buffers_order()     }       "ordered buffers for tab
 
 let s:special = { nr -> has_key(s:B(), nr) && s:B()[nr].special }
@@ -37,8 +38,8 @@ let s:nowrite           = { nr -> !getbufvar(nr, '&modifiable') }
 let s:pinned            = { -> s:X.pinned_buffers               }
 let s:buffer_has_format = { buf -> has_key(s:B(), buf.nr) && has_key(s:B()[buf.nr], 'format') }
 let s:has_buf_icon      = { nr -> has_key(s:B(), string(nr)) && !empty(get(s:B()[nr], 'icon', '')) }
-let s:extraHi           = { b -> s:B()[b].extra }
-let s:specialHi         = { b -> has_key(s:B(), b) && s:B()[b].special }
+let s:extraHi           = { b -> s:B()[b].extra || s:B()[b].front }
+let s:specialHi         = { b -> s:B()[b].special }
 
 " BufTabLine main function {{{1
 " =============================================================================
@@ -65,8 +66,8 @@ fun! xtabline#render#buffers()
     endif
   endif
 
-  "include extra/pinned buffers and put them upfront
-  for b in s:eB()
+  "include extra/pinned/temp buffers and put them upfront
+  for b in ( s:eB() + s:fB() )
     let i = index(bufs, b)
     if i >= 0 | call remove(bufs, i) | endif
     call insert(bufs, b, 0)
