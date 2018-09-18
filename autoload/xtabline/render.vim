@@ -36,8 +36,8 @@ let s:nowrite           = { nr -> !getbufvar(nr, '&modifiable') }
 let s:pinned            = { -> s:X.pinned_buffers               }
 let s:buffer_has_format = { buf -> has_key(s:B(), buf.nr) && has_key(s:B()[buf.nr], 'format') }
 let s:has_buf_icon      = { nr -> has_key(s:B(), string(nr)) && !empty(get(s:B()[nr], 'icon', '')) }
-let s:pinHi             = { b -> has_key(s:Hi().extra, 'XBufLinePinned') && index(s:pinned(), b) >= 0 }
-let s:specialHi         = { b -> has_key(s:Hi().extra, 'XBufLineSpecial') && has_key(s:B(), b) && s:B()[b].special }
+let s:pinHi             = { b -> index(s:pinned(), b) >= 0 }
+let s:specialHi         = { b -> has_key(s:B(), b) && s:B()[b].special }
 
 " BufTabLine main function {{{1
 " =============================================================================
@@ -97,8 +97,8 @@ fun! xtabline#render#buffers()
               \ 'path': bufname(bnr),
               \ 'indicator': s:buf_indicator(bnr),
               \ 'hilite' : currentbuf == bnr && s:specialHi(bnr) ? 'Special' :
-                          \currentbuf == bnr ? 'Current' :
-                          \s:pinHi(bnr)      ? 'Pinned' :
+                          \currentbuf == bnr ? 'Select' :
+                          \s:pinHi(bnr)      ? 'Extra' :
                           \bufwinnr(bnr) > 0 ? 'Active' : 'Hidden'
               \}
 
@@ -172,8 +172,8 @@ fun! xtabline#render#buffers()
   endif
 
   let swallowclicks = '%'.(1 + tabpagenr('$')).'X'
-  let left = swallowclicks . join(map(tabs,'printf("%%#XBufLine%s#%s",v:val.hilite,strtrans(v:val.label))'),'')
-  let right = active_tab . '%#XBufLineFill#'
+  let left = swallowclicks . join(map(tabs,'printf("%%#XT%s#%s",v:val.hilite,strtrans(v:val.label))'),'')
+  let right = active_tab . '%#XTFill#'
   let l_r =  lft.width + rgt.width
   return left . s:extra_padding(l_r) . right
 endfun
@@ -209,11 +209,10 @@ endfun
 fun! s:buf_indicator(bnr)
   let mods = s:Sets.bufline_indicators | let nr = a:bnr
   let mod = index(s:pinned(), nr) >= 0 ? mods.pinned : ''
-  let modHi = s:is_current_buf(nr) ?
-        \ ( has_key(s:Hi().extra, 'XBufLineModSel') ? "%#XBufLineModSel#" : '' ) :
-        \ bufwinnr(nr) > 0 ?
-        \ ( has_key(s:Hi().extra, 'XBufLineModAct') ? "%#XBufLineModAct#" : '' ) :
-        \ ( has_key(s:Hi().extra, 'XBufLineMod') ? "%#XBufLineMod#" : '' )
+  " TODO: extra: filter_buffers must process valid buffers and assign extra flag
+  let modHi = s:is_current_buf(nr) ? "%#XTSelectMod#" :
+        \     !empty(mod)          ? "%#XTExtraMod#" :
+        \     bufwinnr(nr) > 0     ? "%#XTActiveMod#" : "%#XTHiddenMod#"
   if getbufvar(nr, '&mod')
     let s:mod_width += len (modHi)
     return (mod . modHi . mods.modified)
@@ -310,14 +309,14 @@ fun! xtabline#render#tabs()
   let fmt_renamed = s:fmt_chars(s:Sets.named_tab_format)
 
   for i in s:tabs()
-    let tabline .= i == tabpagenr() ? '%#XTabLineSel#' : '%#XTabLine#'
+    let tabline .= i == tabpagenr() ? '%#XTTabActive#' : '%#XTTabInactive#'
     let tabline .= '%' . i . 'T'
     let fmt = empty(s:tabname(i)) ? fmt_unnamed : fmt_renamed
     let tabline .= s:format_tab(i, fmt)
   endfor
 
-  let tabline .= '%#XTabLineFill#%T'
-  let tabline .= '%=%#XTabLine#%999X' . s:Sets.close_tabs_label
+  let tabline .= '%#XTFill#%T'
+  let tabline .= '%=%#XTHidden#%999X' . s:Sets.close_tabs_label
   return tabline
 endfun
 
@@ -381,8 +380,8 @@ endfun
 
 fun! s:tabnum(tabnr, all)
   return a:tabnr == tabpagenr() ?
-        \        "%#XTabLineNumSel# " . a:tabnr . " %#XTabLineSel#" :
-        \a:all ? "%#XTabLineNum# "    . a:tabnr . " %#XTabLine#" : ''
+        \        "%#XTNumSel# " . a:tabnr . " %#XTTabActive#" :
+        \a:all ? "%#XTNum# "    . a:tabnr . " %#XTTabInactive#" : ''
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -406,8 +405,8 @@ fun! s:modflag(tabnr)
   for buf in tabpagebuflist(a:tabnr)
     if getbufvar(buf, "&mod")
       return a:tabnr == tabpagenr() ?
-              \ "%#XTabLineSelMod#" . flag . "%#XTabLineSel#" :
-              \ "%#XTabLineMod#"    . flag . "%#XTabLine#"
+              \ "%#XTHiddenMod#" . flag . "%#XTHidden#" :
+              \ "%#XTActiveMod#"    . flag . "%#XTActive#"
     endif
   endfor
   return ""
@@ -521,7 +520,7 @@ fun! s:get_tab_for_bufline()
   let fmt_chars = s:fmt_chars(fmt)                                      "formatting options
   let fmt_tab = s:format_tab(N, fmt_chars)                              "formatted string
   let active_tab_label = substitute(fmt_tab, '%#X\w*#', '', 'g')        "text only, to find width
-  let active_tab = '%#XBufLineFill#%#XBufLineCurrent#'.fmt_tab          "use LineFill until label
+  let active_tab = '%#XTFill#%#XTSelect#'.fmt_tab          "use LineFill until label
   return [active_tab, active_tab_label]
 endfun
 
@@ -532,6 +531,6 @@ fun! s:extra_padding(l_r)
   for i in range(spaces)
     let s .= ' '
   endfor
-  return '%#XBufLineFill#'.s
+  return '%#XTFill#'.s
 endfun
 

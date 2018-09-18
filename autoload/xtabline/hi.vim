@@ -23,24 +23,13 @@ fun! xtabline#hi#apply_theme(theme, ...)
   let d = a:0? "default" : ""
   let theme = s:Hi.themes[a:theme]
 
-  for group in keys(theme.basic)
-    if theme.basic[group][1]
-      exe "hi ".d." link ".group." ".theme.basic[group][0]
+  for group in keys(theme)
+    if theme[group][1]
+      exe "hi ".d." link ".group." ".theme[group][0]
     else
-      exe "hi ".d." ".group." ".theme.basic[group][0]
+      exe "hi ".d." ".group." ".theme[group][0]
     endif
   endfor
-
-  if s:Sets.enable_extra_highlight &&
-        \get(theme, 'enable_extra_highlight', 0) && has_key(theme, 'extra')
-    for group in keys(theme.extra)
-      if theme.extra[group][1]
-        exe "hi ".d." link ".group." ".theme.extra[group][0]
-      else
-        exe "hi ".d." ".group." ".theme.extra[group][0]
-      endif
-    endfor
-  endif
 
   if !exists('s:last_theme') || s:Sets.theme != s:last_theme
     let s:last_theme = s:Sets.theme
@@ -80,23 +69,16 @@ fun! s:style(k)
   return ("term=".s." cterm=".s." gui=".s)
 endfun
 
-fun! xtabline#hi#generate(theme)
+fun! xtabline#hi#generate(theme, name)
   """Create an entry in g:xtabline_highlight.themes for the give theme."""
-  let t = a:theme | let T = {'basic': {}, 'extra':{}}
-  if !has_key(t, 'name') | return | endif
+  let t = a:theme | let T = {}
 
-  for h in keys(t.basic)
-    let T.basic[h] = [printf(
-                      \"ctermfg=%s ctermbg=%s guifg=%s guibg=%s ".s:style(t.basic[h][4]),
-                      \t.basic[h][0], t.basic[h][1], t.basic[h][2], t.basic[h][3]), 0]
+  for h in keys(t)
+    let T[h] = [printf(
+          \"ctermfg=%s ctermbg=%s guifg=%s guibg=%s ".s:style(t[h][4]),
+          \t[h][0], t[h][1], t[h][2], t[h][3]), 0]
   endfor
-  for h in keys(t.extra)
-    let T.extra[h] = [printf(
-                      \"ctermfg=%s ctermbg=%s guifg=%s guibg=%s ".s:style(t.extra[h][4]),
-                      \t.extra[h][0], t.extra[h][1], t.extra[h][2], t.extra[h][3]), 0]
-  endfor
-  let T.enable_extra_highlight = get(t, 'enable_extra_highlight', 0)
-  let s:Hi.themes[t.name] = T
+  let s:Hi.themes[a:name] = T
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -114,24 +96,17 @@ endfun
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 let s:Hi.themes.default = {
-      \'enable_extra_highlight': 1,
-      \'basic': {
-          \"XBufLineCurrent" : ["TabLineSel",  1],
-          \"XBufLineActive"  : ["Special",     1],
-          \"XBufLineHidden"  : ["TabLine",     1],
-          \"XBufLineFill"    : ["TabLineFill", 1],
-          \"XTabLineSelMod"  : ["TabLineSel",  1],
-          \"XTabLineSel"     : ["TabLineSel",  1],
-          \"XTabLineMod"     : ["TabLine",     1],
-          \"XTabLine"        : ["TabLine",     1],
-          \"XTabLineFill"    : ["TabLineFill", 1],
-          \"XTabLineNumSel"  : ["DiffAdd",     1],
-          \"XTabLineNum"     : ["Special",     1]},
-      \'extra': {
-          \"XBufLineSpecial" : ["DiffAdd",     1],
-          \"XBufLineMod"     : ["WarningMsg",  1],
-          \"XBufLineModSel"  : ["TabLineSel",  1],
-          \"XBufLineModAct"  : ["Special",     1],
-          \"XBufLinePinned"  : ["PmenuSel",    1]}
+      \"XTSelect"        : ["TabLineSel",  1],
+      \"XTActive"        : ["Special",     1],
+      \"XTHidden"        : ["TabLine",     1],
+      \"XTSelectMod"     : ["TabLineSel",  1],
+      \"XTActiveMod"     : ["Special",     1],
+      \"XTHiddenMod"     : ["WarningMsg",  1],
+      \"XTExtra"         : ["PmenuSel",    1],
+      \"XTSpecial"       : ["DiffAdd",     1],
+      \"XTFill"          : ["TabLineFill", 1],
+      \"XTActiveTab"     : ["TabLineSel",  1],
+      \"XTNumSel"        : ["DiffAdd",     1],
+      \"XTNum"           : ["Special",     1],
       \}
 
