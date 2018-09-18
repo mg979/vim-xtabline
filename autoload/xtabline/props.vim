@@ -59,7 +59,7 @@ fun! s:Props.buf_template(nr, ...) dict
         \ 'name':    '',
         \ 'extra':   s:is_extra(a:nr),
         \ 'path':    self.bufpath(a:nr),
-        \ 'front':   s:is_open(a:nr) || s:is_pinned(a:nr),
+        \ 'front':   s:is_open(a:nr),
         \ 'icon':    ''}
 
   call extend(buf, self.is_special(a:nr))

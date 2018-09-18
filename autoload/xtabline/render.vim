@@ -38,7 +38,7 @@ let s:nowrite           = { nr -> !getbufvar(nr, '&modifiable') }
 let s:pinned            = { -> s:X.pinned_buffers               }
 let s:buffer_has_format = { buf -> has_key(s:B(), buf.nr) && has_key(s:B()[buf.nr], 'format') }
 let s:has_buf_icon      = { nr -> has_key(s:B(), string(nr)) && !empty(get(s:B()[nr], 'icon', '')) }
-let s:extraHi           = { b -> s:B()[b].extra || s:B()[b].front }
+let s:extraHi           = { b -> s:B()[b].extra || s:B()[b].front || index(s:pinned(), b) >= 0 }
 let s:specialHi         = { b -> s:B()[b].special }
 
 " BufTabLine main function {{{1
@@ -68,6 +68,13 @@ fun! xtabline#render#buffers()
 
   "include extra/pinned/temp buffers and put them upfront
   for b in ( s:eB() + s:fB() )
+    let i = index(bufs, b)
+    if i >= 0 | call remove(bufs, i) | endif
+    call insert(bufs, b, 0)
+  endfor
+
+  "include pinned buffers and put them upfront
+  for b in s:pinned()
     let i = index(bufs, b)
     if i >= 0 | call remove(bufs, i) | endif
     call insert(bufs, b, 0)
