@@ -76,33 +76,6 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.update_buffers() dict
-  let B = s:B()
-  let valid = s:vB()
-  let order = self.buffers_order()
-
-  "clean up ordered buffers list
-  let remove = []
-  for buf in order
-    if index(valid, buf) < 0
-      call add(remove, buf)
-    endif
-  endfor
-
-  for buf in remove
-    call remove(order, index(order, buf))
-  endfor
-
-  " add missing entries in ordered list
-  for buf in valid
-    if index(order, buf) < 0
-      call add(order, buf)
-    endif
-  endfor
-endfun
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
 fun! s:Funcs.clean_up_buffer_dict() dict
   """Remove customized buffer entries, if buffers are not valid anymore.
   let bufs = s:B()

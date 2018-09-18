@@ -14,7 +14,13 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
+let s:is_valid = { n -> index(s:vB(), n) >= 0 }
+let s:is_extra = { n -> index(s:T().buffers.extra, n) >= 0 }
+let s:is_pinned = { n -> index(s:X.pinned_buffers, n) >= 0 }
+let s:is_open = { n -> s:F.has_win(n) && index(s:vB(), n) < 0 && getbufvar(n, "&ma") }
+
 let s:Props = {}
+let s:Props.bufpath = { n -> filereadable(bufname(n)) ? s:F.fullpath(bufname(n)) : '' }
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
@@ -50,9 +56,10 @@ endfun
 fun! s:Props.buf_template(nr, ...) dict
   let buf = {
         \ 'name':    '',
+        \ 'extra':   self.extra_flag(a:nr),
+        \ 'path':    self.bufpath(a:nr),
         \ 'icon':    ''}
 
-  let buf.path = filereadable(bufname(a:nr)) ? s:F.fullpath(bufname(a:nr)) : ''
   call extend(buf, self.is_special(a:nr))
   return extend(buf, a:0? a:1 : {})
 endfun
@@ -76,16 +83,11 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Props.check_buffer(nr, ...) dict
-  """Ensure buffer dict is initialized, return the buffer dict.
+fun! s:Props.update_buffer(nr, ...) dict
+  """Update and return the buffer dict.
   let B = s:B() | let n = a:nr
-
-  if has_key(B, n) && s:F.fullpath(bufname(a:nr)) == B[n].path
-    return B[n]
-  else
-    let B[n] = self.buf_template(n)
-    return B[n]
-  endif
+  let B[n] = self.buf_template(n)
+  return B[n]
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -133,6 +135,12 @@ fun! s:Props.is_special(nr, ...) dict
   else
     return { 'special': 0 }
   endif
+endfun
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:Props.extra_flag(nr) dict
+  return s:is_open(a:nr) || s:is_extra(a:nr) || s:is_pinned(a:nr)
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

@@ -6,6 +6,7 @@ let s:Sets = g:xtabline_settings
 let s:T =  { -> s:X.Tabs[tabpagenr()-1] }       "current tab
 let s:B =  { -> s:X.Buffers             }       "customized buffers
 let s:vB = { -> s:T().buffers.valid     }       "valid buffers for tab
+let s:eB = { -> s:T().buffers.extra     }       "extra buffers for tab
 let s:oB = { -> s:F.buffers_order()     }       "ordered buffers for tab
 
 let s:special = { nr -> has_key(s:B(), nr) && s:B()[nr].special }
@@ -36,7 +37,7 @@ let s:nowrite           = { nr -> !getbufvar(nr, '&modifiable') }
 let s:pinned            = { -> s:X.pinned_buffers               }
 let s:buffer_has_format = { buf -> has_key(s:B(), buf.nr) && has_key(s:B()[buf.nr], 'format') }
 let s:has_buf_icon      = { nr -> has_key(s:B(), string(nr)) && !empty(get(s:B()[nr], 'icon', '')) }
-let s:pinHi             = { b -> index(s:pinned(), b) >= 0 }
+let s:extraHi           = { b -> s:B()[b].extra }
 let s:specialHi         = { b -> has_key(s:B(), b) && s:B()[b].special }
 
 " BufTabLine main function {{{1
@@ -64,29 +65,36 @@ fun! xtabline#render#buffers()
     endif
   endif
 
-  "include pinned buffers and put them upfront
-  for b in s:pinned()
+  "include extra/pinned buffers and put them upfront
+  for b in s:eB()
     let i = index(bufs, b)
     if i >= 0 | call remove(bufs, i) | endif
     call insert(bufs, b, 0)
   endfor
 
-  "include special buffers, may force refiltering
+  "include special buffers (upfront), may force refiltering
   for b in s:F.wins()
-    let B = s:X.Props.check_buffer(b)
-    if index(bufs, b) < 0 && B.special
-      call insert(bufs, b, 0)
-      if has_key(B, 'refilter')
-        unlet B.refilter
-        call xtabline#filter_buffers()
-        return ''
+    let B = s:X.Props.update_buffer(b)
+    if B.special
+      if index(bufs, b) < 0
+        call insert(bufs, b, 0)
+        if has_key(B, 'refilter')
+          unlet B.refilter
+          return xtabline#filter_buffers(2)
+        endif
+      else
+        call insert(bufs, remove(bufs, index(bufs, b)), 0)
       endif
+    elseif B.extra && index(bufs, b) < 0
+      return xtabline#filter_buffers(2)
     endif
   endfor
 
   " make buftab string
   for bnr in bufs
     let n = index(bufs, bnr) + 1       "tab buffer index
+    let special = s:specialHi(bnr)
+    let is_currentbuf = currentbuf == bnr
 
     let tab = { 'nr': bnr,
               \ 'n': n,
@@ -96,13 +104,13 @@ fun! xtabline#render#buffers()
               \ 'separators': s:buf_separators(bnr),
               \ 'path': bufname(bnr),
               \ 'indicator': s:buf_indicator(bnr),
-              \ 'hilite' : currentbuf == bnr && s:specialHi(bnr) ? 'Special' :
-                          \currentbuf == bnr ? 'Select' :
-                          \s:pinHi(bnr)      ? 'Extra' :
-                          \bufwinnr(bnr) > 0 ? 'Active' : 'Hidden'
+              \ 'hilite' : is_currentbuf && special  ? 'Special' :
+                          \is_currentbuf             ? 'Select' :
+                          \special || s:extraHi(bnr) ? 'Extra' :
+                          \bufwinnr(bnr) > 0         ? 'Active' : 'Hidden'
               \}
 
-    if currentbuf == bnr | let [centerbuf, s:centerbuf] = [bnr, bnr] | endif
+    if is_currentbuf | let [centerbuf, s:centerbuf] = [bnr, bnr] | endif
 
     if strlen(tab.path) && s:T().rpaths
       let tab.path  = fnamemodify(tab.path, ':p:~:.')
@@ -209,9 +217,8 @@ endfun
 fun! s:buf_indicator(bnr)
   let mods = s:Sets.bufline_indicators | let nr = a:bnr
   let mod = index(s:pinned(), nr) >= 0 ? mods.pinned : ''
-  " TODO: extra: filter_buffers must process valid buffers and assign extra flag
   let modHi = s:is_current_buf(nr) ? "%#XTSelectMod#" :
-        \     !empty(mod)          ? "%#XTExtraMod#" :
+        \     s:extraHi(nr)        ? "%#XTExtraMod#" :
         \     bufwinnr(nr) > 0     ? "%#XTActiveMod#" : "%#XTHiddenMod#"
   if getbufvar(nr, '&mod')
     let s:mod_width += len (modHi)

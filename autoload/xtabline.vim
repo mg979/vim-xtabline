@@ -22,7 +22,7 @@ let s:pB = { -> s:X.pinned_buffers      }       "pinned buffers list
 let s:oB = { -> s:F.buffers_order()     }       "ordered buffers for tab
 
 let s:invalid    = { b -> !buflisted(b) || getbufvar(b, "&buftype") == 'quickfix' }
-let s:is_ma      = { b -> s:F.has_win(b) && getbufvar(b, "&ma") }
+let s:is_extra   = { b -> s:B()[b].extra }
 let s:is_special = { b -> s:F.has_win(b) && s:B()[b].special }
 let s:ready      = { -> !(exists('g:SessionLoad') || s:v.halt) }
 
@@ -82,11 +82,11 @@ endfun
 
 fun! xtabline#filter_buffers(...)
   """Filter buffers so that only the ones within the tab's cwd will show up.
-  if !s:ready() && !a:0 | return | endif
+  if !s:ready() && !(a:0 && a:1 == 1) | return | endif
 
   " 'accepted' is a list of buffer numbers, for quick access.
   " 'excluded' is a list of paths, it will be used by Airline to hide buffers.
-  " TODO: 'extra' are either:
+  " 'extra' are either:
   "     - modfiable buffers in a tab window, even if they don't belong to the tab
   "     - buffers that have been purposefully added by other means to the tab
 
@@ -103,16 +103,17 @@ fun! xtabline#filter_buffers(...)
   let accepted        = locked? T.buffers.valid   : []
   let excluded        = locked? T.exclude : []
   let depth           = T.depth
+  let extra           = T.buffers.extra
 
   " /////////////////// ITERATE BUFFERS //////////////////////
 
   for buf in range(1, bufnr("$"))
-    let B = s:X.Props.check_buffer(buf)
+    let B = s:X.Props.update_buffer(buf)
 
     if s:is_special(buf)        | call add(accepted, buf)
     elseif s:invalid(buf)       | call add(excluded, buf)
     elseif !s:v.filtering       | call add(accepted, buf)
-    elseif s:is_ma(buf)         | call add(accepted, buf)
+    elseif s:is_extra(buf)      | call add(extra, buf)
     else
       " accept or exclude buffer
       if locked
@@ -133,9 +134,39 @@ fun! xtabline#filter_buffers(...)
 
   let T.buffers.valid = accepted
   let T.exclude       = excluded
-  call s:F.update_buffers()
+  call s:update_buffers()
   call s:F.refresh_tabline()
   call xtabline#update_obsession()
+  if a:0 && a:1 == 2
+    return xtabline#render#buffers()
+  endif
+endfun
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:update_buffers()
+  let B = s:B()
+  let valid = s:vB()
+  let order = s:F.buffers_order()
+
+  "clean up ordered buffers list
+  let remove = []
+  for buf in order
+    if index(valid, buf) < 0 && !s:is_extra(buf)
+      call add(remove, buf)
+    endif
+  endfor
+
+  for buf in remove
+    call remove(order, index(order, buf))
+  endfor
+
+  " add missing entries in ordered list
+  for buf in valid
+    if index(order, buf) < 0
+      call add(order, buf)
+    endif
+  endfor
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -224,19 +255,6 @@ fun! s:set_buf_props()
   endif
 endfun
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! s:is_extra(nr)
-  """Prefilter extra buffers."""
-  if index(s:T().buffers.extra, a:nr) >= 0
-    if buflisted(a:nr) && s:B()[a:nr].path == s:F.fullpath(bufname(a:nr))
-      return 1
-    else
-      call remove(s:T().buffers.extra, a:nr)
-    endif
-  endif
-endfun
-
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Autocommand Functions
 " Inspired by TabPageCd
@@ -265,7 +283,7 @@ function! s:Do(action, ...)
     if s:new_tab_created
       call s:set_new_tab_cwd(N)
     endif
-    call s:X.Props.check_buffer(bufnr("%"))
+    call s:X.Props.update_buffer(bufnr("%"))
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
@@ -295,7 +313,6 @@ function! s:Do(action, ...)
 
     let V.last_tab = N
     let X.Tabs[N].cwd = F.fullpath(getcwd())
-    call F.clean_up_buffer_dict()
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
@@ -337,8 +354,7 @@ augroup plugin-xtabline
   autocmd BufAdd        * call s:set_buf_props()
 
   "NOTE: BufEnter needed. Timer improves reliability. Keep it like this.
-  autocmd BufAdd,BufWrite,BufEnter    * call g:xtabline.Funcs.delay(50, 'xtabline#filter_buffers()')
-  autocmd BufDelete,BufLeave          * silent! unlet s:X.Buffers[expand('<abuf>')]
+  autocmd BufAdd,BufWrite,BufEnter,BufDelete    * call g:xtabline.Funcs.delay(50, 'xtabline#filter_buffers()')
   autocmd VimLeavePre                 * call g:xtabline.Funcs.clean_up_buffer_dict()
   autocmd SessionLoadPost             * call s:Do('session')
   autocmd BufNewFile                  * call xtabline#automkdir#ensure_dir_exists()
