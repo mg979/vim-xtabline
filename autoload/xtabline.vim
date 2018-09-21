@@ -120,13 +120,16 @@ fun! xtabline#filter_buffers(...)
     let B = s:X.Props.update_buffer(buf)
 
     if s:is_special(buf)        | call add(accepted, buf)
-    elseif s:invalid(buf)       | call add(excluded, buf)
+    elseif s:invalid(buf)
+      if index(excluded, buf) < 0
+        call add(excluded, buf)
+      endif
     elseif !s:v.filtering       | call add(accepted, buf)
     elseif s:is_extra(buf)      | continue
     else
       " accept or exclude buffer
       if locked
-        if index(accepted, buf) < 0
+        if index(accepted, buf) < 0 && index(excluded, buf) < 0
           call add(excluded, buf)
         endif
 
@@ -136,7 +139,7 @@ fun! xtabline#filter_buffers(...)
       elseif s:is_front(buf)
         call add(front, buf)
 
-      else
+      elseif index(excluded, buf) < 0
         call add(excluded, buf)
       endif
     endif

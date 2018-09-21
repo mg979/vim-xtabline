@@ -100,6 +100,7 @@ fun! xtabline#render#buffers()
 
   " make buftab string
   for bnr in bufs
+    if !bufexists(bnr) | call s:clean_buf(bnr) | continue | endif
     let n = index(bufs, bnr) + 1       "tab buffer index
     let special = s:specialHi(bnr)
     let is_currentbuf = currentbuf == bnr
@@ -549,3 +550,13 @@ fun! s:extra_padding(l_r)
   return '%#XTFill#'.s
 endfun
 
+fun! s:clean_buf(b)
+  let iv = index(s:vB(), a:b)
+  let io = index(s:oB(), a:b)
+  if iv >= 0
+    call remove(s:vB(), iv)
+  endif
+  if io >= 0
+    call remove(s:oB(), io)
+  endif
+endfun

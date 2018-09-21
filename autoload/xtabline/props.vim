@@ -128,6 +128,10 @@ fun! s:Props.is_special(nr, ...) dict
   elseif s:Is(n, "fugitive")      "fugitive buffer, set name and icon
     return s:set_special('fugitive', { 'icon': s:Sets.custom_icons.git })
 
+  elseif s:Ft(n, "netrw")
+    let i = s:Sets.extra_icons ? ' '.s:Sets.custom_icons.netrw.' ' : ' '
+    return s:set_special(i.'Netrw'.i, { 'format': 'l' })
+
   elseif s:Ft(n, "startify")
     let i = s:Sets.extra_icons ? ' 🏁 ' : ' ⚑ '
     return s:set_special(i.'Startify'.i, { 'format': 'l' })

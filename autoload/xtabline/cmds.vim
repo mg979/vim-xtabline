@@ -9,6 +9,7 @@ let s:Sets = g:xtabline_settings
 let s:T    =  { -> s:X.Tabs[tabpagenr()-1] }       "current tab
 let s:B    =  { -> s:X.Buffers             }       "customized buffers
 let s:vB   =  { -> s:T().buffers.valid     }       "valid buffers for tab
+let s:eB   =  { -> s:T().buffers.extra     }       "extra buffers for tab
 let s:oB   =  { -> s:F.buffers_order()     }       "ordered buffers for tab
 
 let s:scratch =  { nr -> index(['nofile','acwrite','help'], getbufvar(nr, '&buftype')) >= 0 }
@@ -116,16 +117,12 @@ fun! s:purge_buffers()
   """Remove unmodified buffers with invalid paths."""
 
   if !s:v.filtering | echo "Buffer filtering is turned off." | return | endif
-  let bcnt = 0 | let bufs = [] | let purged = [] | let accepted = s:vB()
+  let bcnt = 0 | let bufs = [] | let purged = [] | let accepted = s:vB() +s:eB()
 
-  " include previews if not showing in tabline
+  " include open buffers if not showing in tabline
   for buf in tabpagebuflist(tabpagenr())
-    if index(accepted, buf) == -1 | call add(bufs, buf) | endif
+    if index(accepted, buf) < 0 | call add(bufs, buf) | endif
   endfor
-
-  " purge the buffer if:
-  " 1. non-existant path and file unmodified
-  " 2. path doesn't belong to cwd, but it has been accepted for partial match
 
   for buf in (accepted + bufs)
     let bufpath = s:F.fullpath(bufname(buf))
@@ -148,21 +145,21 @@ fun! s:purge_buffers()
   for buf in purged | execute "silent! bdelete ".buf | endfor
 
   call s:F.force_update()
+  redraw!
   let s = "Purged ".bcnt." buffer" | let s .= bcnt!=1 ? "s." : "." | echo s
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:clean_up(...)
+fun! s:clean_up(bang)
   """Remove all invalid/not open(!) buffers in all tabs.
   let valid  = s:F.all_valid_buffers()
   let active = s:F.all_open_buffers()
-  let ok     = !a:1? valid + active : active
+  let ok     = a:bang? active : valid + active
 
   let nr = 0
   for b in range(1, bufnr('$'))
-    if !buflisted(b) && !s:scratch(b) | continue | endif
-    if index(ok, b) == -1 && !getbufvar(b, '&modified')
+    if s:scratch(b) || index(ok, b) < 0 && !getbufvar(b, '&modified')
       execute "silent! bdelete ".string(b)
       let nr += 1
     endif
@@ -185,6 +182,7 @@ fun! s:reopen_last_tab()
   "check if the cwd must be removed from the blacklist closed_cwds
   let other_with_same_cwd = 0
   let cwd = s:v.tab_properties.cwd
+  let s:v.tab_properties.use_dir = s:v.tab_properties.cwd
 
   for t in s:X.Tabs
     if t.cwd == s:v.tab_properties.cwd
@@ -212,6 +210,18 @@ fun! s:reopen_last_tab()
   endfor
   redraw!
   call s:F.msg("There are no valid buffers for this tab", 1)
+endfun
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:lock_tab()
+  """Lock a tab, including currently displayed buffers as valid buffers.
+  let T = s:T()
+  let T.buffers.valid = filter(copy(T.buffers.order), 'buflisted(v:val) && filereadable(bufname(v:val))')
+  let T.locked = 1
+  call s:F.force_update()
+  redraw!
+  echo s:F.msg('Tab has been locked', 1)
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

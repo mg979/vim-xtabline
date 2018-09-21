@@ -127,22 +127,28 @@ fun! xtabline#fzf#tab_load(...)
     let T = s:v.tab_properties
     for prop in keys(saved)
       if prop ==? 'buffers' || prop ==? 'description'   | continue | endif
-      if prop ==? 'valid_buffers'
-        let T.buffers = { 'valid' : saved[prop] }       | continue | endif
       let T[prop] = saved[prop]
     endfor
+    let T.use_dir = T.cwd
 
     $tabnew | let newbuf = bufnr("%")
     cd `=cwd`
 
     "add buffers
-    for buf in saved['buffers'] | execute "badd ".buf | endfor
+    if T.locked
+      for buf in saved['buffers']
+        execute "edit ".buf
+        call add(T.buffers.valid, bufnr("%"))
+      endfor
+    else
+      for buf in saved['buffers'] | execute "badd ".buf | endfor
+    endif
 
     "load the first buffer
     execute "edit ".saved['buffers'][0]
 
     " purge the empty buffer that was created
-    execute "bdelete ".newbuf
+    execute "bwipe ".newbuf
   endfor
   let s:v.halt = 0
   call s:F.force_update()

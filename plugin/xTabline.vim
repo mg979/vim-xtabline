@@ -73,6 +73,7 @@ com!                    XTabResetBuffer     call xtabline#cmds#run("reset_buffer
 com!                    XTabRelativePaths   call xtabline#cmds#run("relative_paths")
 com!                    XTabFormatBuffer    call xtabline#cmds#run("format_buffer")
 com!                    XTabCustomTabs      call xtabline#cmds#run("toggle_tab_names")
+com!                    XTabLock            call xtabline#cmds#run("lock_tab")
 com! -nargs=?           XTabPinBuffer       call xtabline#cmds#run("toggle_pin_buffer", <q-args>)
 com!                    XTabConfig          call xtabline#config#start()
 
@@ -161,6 +162,7 @@ let s:S.custom_icons = extend({
       \'bomb': '💣',
       \'home': '🏠',
       \'mail': '✉ ',
+      \'netrw': '🖪 ',
       \}, get(s:S, 'custom_icons', {}))
 
 " \'folder_open': '📂',

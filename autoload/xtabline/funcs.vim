@@ -146,10 +146,16 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.all_valid_buffers() dict
+fun! s:Funcs.all_valid_buffers(...) dict
     """Return all valid buffers for all tabs."""
   let valid = []
-  for i in range(tabpagenr('$')) | call extend(valid, s:X.Tabs[i].buffers.valid) | endfor
+  for i in range(tabpagenr('$'))
+    if a:0
+      call extend(valid, s:X.Tabs[i].buffers.order)
+    else
+      call extend(valid, s:X.Tabs[i].buffers.valid)
+    endif
+  endfor
   return valid
 endfun
 
