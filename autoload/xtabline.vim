@@ -302,14 +302,7 @@ function! s:Do(action, ...)
 
     cd `=T.cwd`
 
-    if !empty(T)
-      if has_key(T.vimrc, 'commands')
-        for c in commands | exe c | endfor
-      endif
-      if has_key(T.vimrc, 'file')
-        exe "source ".T.vimrc.file
-      endif
-    endif
+    call xtabline#vimrc#exe(T)
 
     if s:F.airline_enabled() || get(s:Sets, 'refresh_on_tabenter', 0)
       call xtabline#filter_buffers()
