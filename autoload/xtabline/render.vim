@@ -86,10 +86,6 @@ fun! xtabline#render#buffers()
     if B.special
       if index(bufs, b) < 0
         call insert(bufs, b, 0)
-        if has_key(B, 'refilter')
-          unlet B.refilter
-          return xtabline#filter_buffers(2)
-        endif
       else
         call insert(bufs, remove(bufs, index(bufs, b)), 0)
       endif

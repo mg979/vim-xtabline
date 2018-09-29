@@ -117,7 +117,7 @@ fun! xtabline#filter_buffers(...)
   " /////////////////// ITERATE BUFFERS //////////////////////
 
   for buf in range(1, bufnr("$"))
-    let B = s:X.Props.update_buffer(buf)
+    let B = s:B()[buf]
 
     if s:is_special(buf)        | call add(accepted, buf)
     elseif s:invalid(buf)
