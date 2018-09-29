@@ -57,14 +57,26 @@ endfun
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:Props.buf_template(nr, ...) dict
-  let buf = {
-        \ 'name':    '',
-        \ 'extra':   s:is_extra(a:nr),
-        \ 'path':    self.bufpath(a:nr),
-        \ 'front':   s:is_open(a:nr),
-        \ 'icon':    ''}
+  let bv = getbufvar(a:nr, 'XTbuf')
+  if !empty(bv)
+    let buf = extend(bv, {
+          \ 'extra':   s:is_extra(a:nr),
+          \ 'path':    self.bufpath(a:nr),
+          \ 'front':   s:is_open(a:nr)
+          \})
+  else
+    let buf = {
+          \ 'name':    '',
+          \ 'extra':   s:is_extra(a:nr),
+          \ 'path':    self.bufpath(a:nr),
+          \ 'front':   s:is_open(a:nr),
+          \ 'icon':    '',
+          \}
 
-  call extend(buf, self.is_special(a:nr))
+    if !a:0 || !has_key(a:1, 'special')
+      call extend(buf, self.is_special(a:nr))
+    endif
+  endif
   return extend(buf, a:0? a:1 : {})
 endfun
 
