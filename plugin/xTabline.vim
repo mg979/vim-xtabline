@@ -79,6 +79,8 @@ com!                    XTabConfig          call xtabline#config#start()
 
 com! -nargs=? -count    XTabNew             call xtabline#cmds#run("new_tab", <count>, <q-args>)
 com! -nargs=?           XTabMove            call xtabline#cmds#run("move_tab", <q-args>)
+com!                    XTabFzf             call xtabline#fzf#cmds()
+com!                    XTabVimrc           call xtabline#vimrc#open()
 
 com! -nargs=? -count -complete=file -bang            XTabEdit            call xtabline#cmds#run("edit_tab", <count>, <bang>0, <q-args>)
 com! -nargs=? -bang  -complete=file                  XTabWD              call xtabline#cmds#run("set_cwd", [<bang>0, <q-args>])

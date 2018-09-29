@@ -12,6 +12,9 @@ let s:B =  { -> s:X.Buffers             }       "customized buffers
 let s:vB = { -> s:T().buffers.valid     }       "valid buffers for tab
 let s:oB = { -> s:F.buffers_order()     }       "ordered buffers for tab
 
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Tab buffers {{{1
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! xtabline#fzf#tab_buffers()
@@ -49,35 +52,7 @@ fun! xtabline#fzf#bufdelete(name)
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! xtabline#fzf#tab_nerd_bookmarks()
-  let bfile = readfile(g:NERDTreeBookmarksFile)
-  let bookmarks = []
-  "skip last emty line
-  for line in bfile[:-2]
-    let b = substitute(line, '^.\+ ', "", "")
-    call add(bookmarks, b)
-  endfor
-  return bookmarks
-endfun
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! xtabline#fzf#tab_nerd_bookmarks_load(...)
-  for bm in a:000
-    let bm = expand(bm, ":p")
-    if isdirectory(bm)
-      tabnew
-      exe "cd ".bm
-      exe "NERDTree ".bm
-    elseif filereadable(bm)
-      exe "tabedit ".bm
-      exe "cd ".fnamemodify(bm, ":p:h")
-    endif
-  endfor
-  call s:F.force_update()
-endfun
-
+" Saved tabs {{{1
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! xtabline#fzf#tabs()
@@ -229,7 +204,7 @@ fun! xtabline#fzf#tab_save()
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Sessions
+" Sessions {{{1
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 let s:lastmod = { f -> str2nr(system('date -r '.f.' +%s')) }
@@ -420,10 +395,63 @@ endfun
 
 
 
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Misc commands {{{1
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! xtabline#fzf#cmds()
+  """Run any XTabline command with fzf."""
+  redraw!
+  call fzf#vim#files('', {
+        \ 'source': map(copy(s:cmds), 'v:val[0]'),
+        \ 'sink': function('xtabline#fzf#run'), 'down': '30%',
+        \ 'options': '--no-multi --no-preview --ansi --prompt "Command >>>  "'})
+endfun
+
+fun! xtabline#fzf#run(cmd)
+  let i = 0
+  for cmd in map(copy(s:cmds), 'v:val[0]')
+    if a:cmd == cmd
+      exe s:cmds[i][1]
+      break
+    endif
+    let i += 1
+  endfor
+endfun
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! xtabline#fzf#tab_nerd_bookmarks()
+  let bfile = readfile(g:NERDTreeBookmarksFile)
+  let bookmarks = []
+  "skip last emty line
+  for line in bfile[:-2]
+    let b = substitute(line, '^.\+ ', "", "")
+    call add(bookmarks, b)
+  endfor
+  return bookmarks
+endfun
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! xtabline#fzf#tab_nerd_bookmarks_load(...)
+  for bm in a:000
+    let bm = expand(bm, ":p")
+    if isdirectory(bm)
+      tabnew
+      exe "cd ".bm
+      exe "NERDTree ".bm
+    elseif filereadable(bm)
+      exe "tabedit ".bm
+      exe "cd ".fnamemodify(bm, ":p:h")
+    endif
+  endfor
+  call s:F.force_update()
+endfun
 
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" fzf helper functions
+" Helper functions {{{1
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:get_color(attr, ...)
@@ -503,3 +531,41 @@ fun! s:pad(t, n)
   endif
 endfun
 
+let s:cmds = [
+      \['Reopen last tab',               "XTabReopen"],
+      \['Close buffer',                  "XTabCloseBuffer"],
+      \['Pin buffer',                    "XTabPinBuffer"],
+      \['Hide buffer',                   "normal \<Plug>(XT-Hide-Buffer)"],
+      \['Open tab buffers',              "XTabListBuffers"],
+      \['Delete tab buffers',            "XTabDeleteBuffers"],
+      \['Delete global buffers',         "XTabDeleteGlobalBuffers"],
+      \['Clean up buffers',              "XTabCleanUp"],
+      \['Purge all hidden buffers',      "XTabCleanUp"],
+      \['Tab todo',                      "XTabTodo"],
+      \['Toggle tabs',                   "normal \<Plug>(XT-Toggle-Tabs)"],
+      \['Purge tab',                     "XTabPurge"],
+      \['Load tab',                      "XTabLoadTab"],
+      \['Save tab',                      "XTabSaveTab"],
+      \['Delete tab',                    "XTabDeleteTab"],
+      \['Load session',                  "XTabLoadSession"],
+      \['Save session',                  "XTabSaveSession"],
+      \['New session',                   "XTabNewSession"],
+      \['Delete session',                "XTabDeleteSession"],
+      \['Toggle filtering',              "normal \<Plug>(XT-Toggle-Filtering)"],
+      \['Working directory',             "normal \<Plug>(XT-Working-Directory)"],
+      \['Toggle only current dir',       "normal \<Plug>(XT-Set-Depth)"],
+      \['Toggle custom tabs',            "XTabCustomTabs"],
+      \['Toggle buffer relative paths',  "XTabRelativePaths"],
+      \['Cd to current directory',       "normal \<Plug>(XT-Cd-Current)"],
+      \['Cd to parent directory',        "normal \<Plug>(XT-Cd-Down)"],
+      \['Reset tab',                     "XTabResetTab"],
+      \['Reset buffer',                  "XTabResetBuffer"],
+      \['Rename tab',                    "call feedkeys(':XTabRenameTab ', 'n')"],
+      \['Rename buffer',                 "call feedkeys(':XTabRenameBuffer ', 'n')"],
+      \['Change tab icon',               "call feedkeys(':XTabIcon ', 'n')"],
+      \['Change buffer icon',            "call feedkeys(':XTabBufferIcon ', 'n')"],
+      \['Buffer format',                 "XTabFormatBuffer"],
+      \['Configure',                     "XTabConfig"],
+      \['Select theme',                  "call feedkeys(':XTabTheme ', 'n')"],
+      \['Tab vimrc',                     "XTabVimrc"],
+      \]
