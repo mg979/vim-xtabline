@@ -24,6 +24,8 @@ let s:Props = {}
 let s:Props.bufpath = { n -> filereadable(bufname(n)) ? s:F.fullpath(bufname(n)) : '' }
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Templates {{{1
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:Props.tab_template(...) dict
   "cwd:     (string)  working directory
@@ -67,6 +69,8 @@ fun! s:Props.buf_template(nr, ...) dict
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Functions {{{1
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:Props.check_tabs() dict
   """Create or remove tab dicts if necessary. Rearrange tabs list if order is wrong.
@@ -107,8 +111,22 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
+fun! s:Props.lock_tab(bufs, props) dict
+  """Lock tab with predefined buffers and properties.
+  let T = tabpagenr() - 1
+  let s:X.Tabs[T].locked = 1
+  let s:X.Tabs[T].buffers.valid = a:bufs
+  for prop in keys(a:props)
+    let s:X.Tabs[T][prop] = a:props[prop]
+  endfor
+endfun
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Special buffers {{{1
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
 let s:set_special = { name, dict -> extend({ 'name': name, 'special': 1 }, dict) }
-let s:Is          = { n,s -> match(bufname(n), s) == 0 }
+let s:Is          = { n,s -> match(bufname(n), '\C'.s) == 0 }
 let s:Ft          = { n,s -> getbufvar(n, "&ft")  == s }
 
 fun! s:Props.is_special(nr, ...) dict
@@ -125,8 +143,15 @@ fun! s:Props.is_special(nr, ...) dict
     let gitn   = ['Commit', 'Magit', 'Git']
     return s:set_special(gitn[git], { 'icon': s:Sets.custom_icons.git })
 
-  elseif s:Is(n, "fugitive")      "fugitive buffer, set name and icon
+  elseif s:Is(n, "fugitive")
     return s:set_special('fugitive', { 'icon': s:Sets.custom_icons.git })
+
+  elseif s:Is(n, "Kronos")
+    let i = s:Sets.extra_icons ? ' ➤ ' : ' ⚑ '
+    if exists('t:original_tab')
+      call self.lock_tab([n], {'name': 'Kronos', 'icon': i})
+    endif
+    return s:set_special(bufname(n), { 'icon': i })
 
   elseif s:Ft(n, "netrw")
     let i = s:Sets.extra_icons ? ' '.s:Sets.custom_icons.netrw.' ' : ' '
@@ -140,20 +165,12 @@ fun! s:Props.is_special(nr, ...) dict
     let i = s:Sets.extra_icons ? ' 🔍 ' : ' ⚑ '
     return s:set_special(i.'CtrlSF'.i, { 'format': 'l' })
 
+  elseif s:Ft(n, "colortemplate-info")
+    let i = s:Sets.extra_icons ? ' 🎨 ' : ' '
+    return s:set_special(i.'Colortemplate'.i, { 'format': 'l' })
+
   else
     return { 'special': 0 }
   endif
-endfun
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! s:Props.lock_tab(bufs, props) dict
-  """Lock tab with predefined buffers and properties.
-  let T = tabpagenr() - 1
-  let s:X.Tabs[T].locked = 1
-  let s:X.Tabs[T].buffers.valid = a:bufs
-  for prop in keys(a:props)
-    let s:X.Tabs[T][prop] = a:props[prop]
-  endfor
 endfun
 

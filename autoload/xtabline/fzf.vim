@@ -86,7 +86,9 @@ fun! xtabline#fzf#tabs()
 
   for bm in keys(json)
     let desc = has_key(json[bm], 'description')? json[bm].description : ''
-    let line = s:yellow(s:pad(bm, 39))."\t".s:cyan(s:pad(desc, 39))."\t".len(json[bm].buffers)." Buffers\t".json[bm].cwd
+    let line = s:yellow(s:pad(bm, 39))."\t".
+          \    s:cyan(s:pad(desc, 39))."\t".
+          \    len(json[bm].buffers) . " Buffers\t" . json[bm].cwd
     call add(bookmarks, line)
   endfor
   return bookmarks
@@ -97,9 +99,11 @@ endfun
 fun! s:abort_load(name, fzf_line, error_type)
   let s:v.halt = 0
   if a:error_type == 'buffers'
-    call s:F.msg ([[ a:name, 'Type' ],[ ": no saved buffers. Remove entry?\t", 'WarningMsg' ]])
+    call s:F.msg ([[ a:name, 'Type' ],
+          \[ ": no saved buffers. Remove entry?\t", 'WarningMsg' ]])
   else
-    call s:F.msg ([[ a:name, 'Type' ],[ ": invalid directory. Remove entry?\t", 'WarningMsg' ]])
+    call s:F.msg ([[ a:name, 'Type' ],
+          \[ ": invalid directory. Remove entry?\t", 'WarningMsg' ]])
   endif
   if nr2char(getchar()) == 'y'
     call xtabline#fzf#tab_delete(a:fzf_line)
@@ -315,7 +319,9 @@ fun! xtabline#fzf#session_load(file)
   "-----------------------------------------------------------
 
   " upadate and pause Obsession
-  if ObsessionStatus() == "[$]" | exe "silent Obsession ".fnameescape(g:this_obsession) | silent Obsession | endif
+  if ObsessionStatus() == "[$]"
+    exe "silent Obsession ".fnameescape(g:this_obsession)
+    silent Obsession | endif
 
   execute "silent! %bdelete"
   execute "source ".fnameescape(file)
@@ -326,10 +332,12 @@ endfun
 fun! xtabline#fzf#session_delete(file)
 
   let session = a:file
-  if match(session, "\t") | let session = substitute(session, " *\t.*", "", "") | endif
+  if match(session, "\t")
+    let session = substitute(session, " *\t.*", "", "") | endif
   let file = expand(s:Sets.sessions_path.s:F.sep().session, ":p")
 
-  if !filereadable(file)    | call s:F.msg("Session file doesn't exist.", 1) | return | endif
+  if !filereadable(file)
+    call s:F.msg("Session file doesn't exist.", 1) | return | endif
 
   "-----------------------------------------------------------
 
@@ -355,16 +363,21 @@ endfun
 fun! xtabline#fzf#session_save(...)
   let data = json_decode(readfile(s:Sets.sessions_data)[0])
 
-  let defname = a:0 || empty(v:this_session) ? '' : fnamemodify(v:this_session, ":t")
+  let defname = a:0 || empty(v:this_session)
+        \ ? '' : fnamemodify(v:this_session, ":t")
   let defdesc = get(data, defname, '')
-  let name = !a:0 || empty(a:1)? input('Enter a name for this session:   ', defname) : a:1
+  let name = !a:0 || empty(a:1)
+        \ ? input('Enter a name for this session:   ', defname) : a:1
+
   if !empty(name)
     let data[name] = input('Enter an optional description:   ', defdesc)
     call s:F.msg("\nConfirm (y/n)\t", 0)
     if nr2char(getchar()) ==? 'y'
       if a:0
         "update and pause Obsession, then clean buffers
-        if ObsessionStatus() == "[$]" | exe "silent Obsession ".fnameescape(g:this_obsession) | silent Obsession | endif
+        if ObsessionStatus() == "[$]"
+          exe "silent Obsession ".fnameescape(g:this_obsession)
+          silent Obsession | endif
         execute "silent! %bdelete"
       endif
       call writefile([json_encode(data)], s:Sets.sessions_data)
