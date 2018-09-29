@@ -152,7 +152,7 @@ fun! s:cd(count)
   for c in range(a:count)
     let path .= ':h'
   endfor
-  let cwd = g:xtabline.Funcs.fullpath(expand("%"), path)
+  let cwd = g:xtabline.Funcs.fullpath(expand("%"), path).'/'
   cd `=cwd`
   let g:xtabline.Tabs[tabpagenr()-1].cwd = cwd
   let g:xtabline.Tabs[tabpagenr()-1].use_dir = cwd

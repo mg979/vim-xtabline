@@ -10,9 +10,11 @@ let s:T    =  { -> s:X.Tabs[tabpagenr()-1] }       "current tab
 let s:B    =  { -> s:X.Buffers             }       "customized buffers
 let s:vB   =  { -> s:T().buffers.valid     }       "valid buffers for tab
 let s:eB   =  { -> s:T().buffers.extra     }       "extra buffers for tab
+let s:fB   =  { -> s:T().buffers.front     }       "front buffers for tab
 let s:oB   =  { -> s:F.buffers_order()     }       "ordered buffers for tab
 
 let s:scratch =  { nr -> index(['nofile','acwrite','help'], getbufvar(nr, '&buftype')) >= 0 }
+let s:badpath =  { nr -> !filereadable(bufname(nr)) && !getbufvar(nr, "&mod") }
 let s:pinned  =  { b  -> index(s:X.pinned_buffers, b) }
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -117,7 +119,7 @@ fun! s:purge_buffers()
   """Remove unmodified buffers with invalid paths."""
 
   if !s:v.filtering | echo "Buffer filtering is turned off." | return | endif
-  let bcnt = 0 | let bufs = [] | let purged = [] | let accepted = s:vB() +s:eB()
+  let bcnt = 0 | let bufs = [] | let purged = [] | let accepted = s:vB() + s:eB()
 
   " include open buffers if not showing in tabline
   for buf in tabpagebuflist(tabpagenr())
@@ -159,7 +161,7 @@ fun! s:clean_up(bang)
 
   let nr = 0
   for b in range(1, bufnr('$'))
-    if s:scratch(b) || index(ok, b) < 0 && !getbufvar(b, '&modified')
+    if s:scratch(b) || s:badpath(b) || index(ok, b) < 0 && !getbufvar(b, '&modified')
       execute "silent! bdelete ".string(b)
       let nr += 1
     endif
