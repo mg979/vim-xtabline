@@ -166,9 +166,12 @@ fun! s:clean_up(bang)
 
   let nr = 0
   for b in range(1, bufnr('$'))
-    if s:scratch(b) || s:badpath(b) || index(ok, b) < 0 && !getbufvar(b, '&modified')
-      execute "silent! bdelete ".string(b)
-      let nr += 1
+    if buflisted(b)
+      if s:scratch(b) || s:badpath(b) ||
+            \index(ok, b) < 0 && !getbufvar(b, '&modified')
+        execute "silent! bdelete ".string(b)
+        let nr += 1
+      endif
     endif
   endfor
 
@@ -199,24 +202,27 @@ fun! s:reopen_last_tab()
     call remove(s:X.closed_cwds, index(s:X.closed_cwds, cwd))
   endif
 
-  let s:v.halt = 1
-  $tabnew
-  let empty = bufnr("%")
+  "find a valid buffer
+  let has_buffer = 0
+  for b in s:v.tab_properties.buffers.valid
+    if buflisted(b)
+      let s:v.halt = 1
+      exe "$tabnew" bufname(b)
+      let has_buffer = 1
+      break
+    endif
+  endfor
+  if !has_buffer
+    let s:v.tab_properties = {}
+    redraw!
+    call s:F.msg([[ "There are no valid buffers for ", 'WarningMsg'],
+          \       [ cwd, 'None']])
+    return
+  endif
+
   cd `=cwd`
   let s:v.halt = 0
   call s:F.force_update()
-  execute "b ".s:oB()[0]
-  "find a valid buffer
-  let path = ''
-  for b in s:oB()
-    if bufexists(b)
-      execute "b ".b
-      execute "bdelete ".empty
-      return
-    endif
-  endfor
-  redraw!
-  call s:F.msg("There are no valid buffers for this tab", 1)
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
