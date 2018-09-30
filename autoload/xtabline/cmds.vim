@@ -119,32 +119,37 @@ fun! s:purge_buffers()
   """Remove unmodified buffers with invalid paths."""
 
   if !s:v.filtering | echo "Buffer filtering is turned off." | return | endif
-  let bcnt = 0 | let bufs = [] | let purged = [] | let accepted = s:vB() + s:eB()
+  let bcnt = 0 | let bufs = [] | let purged = []
+  let verify = s:oB() + s:eB() + s:fB()
 
   " include open buffers if not showing in tabline
   for buf in tabpagebuflist(tabpagenr())
-    if index(accepted, buf) < 0 | call add(bufs, buf) | endif
+    if index(verify, buf) < 0 | call add(bufs, buf) | endif
   endfor
 
-  for buf in (accepted + bufs)
+  for buf in (verify + bufs)
     let bufpath = s:F.fullpath(bufname(buf))
 
-    let purge = !getbufvar(buf, "&modifiable") ||
+    let purge =  !buflisted(buf) || !getbufvar(buf, "&modifiable") ||
           \     !filereadable(bufpath) && !getbufvar(buf, "&modified") ||
           \     bufpath !~ "^".s:T().cwd
 
     if purge
-      let bcnt += 1   | let ix = index(accepted, buf)
-      if ix >= 0      | call add(purged, remove(accepted, ix))
+      let bcnt += 1   | let ix = index(verify, buf)
+      if ix >= 0      | call add(purged, remove(verify, ix))
       else            | call add(purged, buf) | endif
     endif
   endfor
 
   " the tab may be closed if there is one window, and it's going to be purged
-  if len(tabpagebuflist()) == 1 && !empty(accepted) && index(purged, bufnr("%")) >= 0
-    execute "buffer ".accepted[0] | endif
+  if len(tabpagebuflist()) == 1 && !empty(verify) && index(purged, bufnr("%")) >= 0
+    execute "buffer ".s:vB()[0] | endif
 
-  for buf in purged | execute "silent! bdelete ".buf | endfor
+  for buf in purged
+    execute "silent! bdelete ".buf
+    let i = index(s:fB(), buf)
+    if i >= 0 | call remove(s:fB(), i) | endif
+  endfor
 
   call s:F.force_update()
   redraw!

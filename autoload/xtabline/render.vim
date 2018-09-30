@@ -82,7 +82,7 @@ fun! xtabline#render#buffers()
 
   "include special buffers (upfront), may force refiltering
   for b in s:F.wins()
-    let B = s:X.Props.update_buffer(b)
+    let B = s:X.Props.set_buffer(b)
     if B.special
       if index(bufs, b) < 0
         call insert(bufs, b, 0)

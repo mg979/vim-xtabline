@@ -103,8 +103,8 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Props.update_buffer(nr, ...) dict
-  """Update and return the buffer dict.
+fun! s:Props.set_buffer(nr, ...) dict
+  """Set and return the buffer dict.
   let B = s:B() | let n = a:nr
   let B[n] = self.buf_template(n)
   return B[n]

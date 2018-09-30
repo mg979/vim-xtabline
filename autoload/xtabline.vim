@@ -117,7 +117,7 @@ fun! xtabline#filter_buffers(...)
   " /////////////////// ITERATE BUFFERS //////////////////////
 
   for buf in range(1, bufnr("$"))
-    let B = s:B()[buf]
+    let B = s:X.Props.set_buffer(buf)
 
     if s:is_special(buf)        | call add(accepted, buf)
     elseif s:invalid(buf)
@@ -290,7 +290,6 @@ function! s:Do(action, ...)
     if s:new_tab_created
       call s:set_new_tab_cwd(N)
     endif
-    call s:X.Props.update_buffer(bufnr("%"))
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 

@@ -107,7 +107,7 @@ endfun
 
 fun! s:Funcs.sep() dict
   """OS-specific directory separator."""
-  return exists('+shellslash') && &shellslash ? '\' : '/'
+  return s:v.winOS ? '\' : '/'
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
