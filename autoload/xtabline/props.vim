@@ -5,6 +5,7 @@ fun! xtabline#props#init()
   let s:F = s:X.Funcs
   let s:v = s:X.Vars
   let s:Sets = g:xtabline_settings
+  let s:v.reset_dir = 0
 
   let s:T =  { -> s:X.Tabs[tabpagenr()-1] }       "current tab
   let s:B =  { -> s:X.Buffers             }       "customized buffers
@@ -48,7 +49,6 @@ fun! s:Props.tab_template(...) dict
         \ 'depth':   -1,
         \ 'rpaths':  0,
         \ 'icon':    '',
-        \ 'use_dir': s:F.fullpath(getcwd()),
         \ 'buffers': {'valid': [], 'order': [], 'extra': [], 'front': []},
         \ 'exclude': [],
         \}, mod)
@@ -95,10 +95,15 @@ endfun
 
 fun! s:Props.check_this_tab() dict
   """Ensure all tab dict keys are present.
-  call extend(s:T(), self.tab_template(), 'keep')
-  call extend(s:T().buffers,
+  let T = s:T()
+  call extend(T, self.tab_template(), 'keep')
+  call extend(T.buffers,
         \{'valid': [], 'order': [], 'extra': [], 'front': []},
         \'keep')
+  if !has_key(T, 'use_dir') || s:v.reset_dir
+    let T.use_dir = s:F.fullpath(T.cwd)
+    let s:v.reset_dir = 0
+  endif
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

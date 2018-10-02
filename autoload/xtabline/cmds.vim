@@ -192,7 +192,6 @@ fun! s:reopen_last_tab()
   "check if the cwd must be removed from the blacklist closed_cwds
   let other_with_same_cwd = 0
   let cwd = s:v.tab_properties.cwd
-  let s:v.tab_properties.use_dir = s:v.tab_properties.cwd
 
   for t in s:X.Tabs
     if t.cwd == s:v.tab_properties.cwd
@@ -538,7 +537,7 @@ fun! s:set_cwd(...)
     redraw!
     call s:F.msg ([[ "New working directory set: ", 'Label' ], [ cwd, 'None' ]])
     let s:X.Tabs[tabpagenr()-1].cwd = cwd
-    let s:X.Tabs[tabpagenr()-1].use_dir = cwd
+    let s:v.reset_dir = 1
     call s:F.force_update()
   endif
 endfun

@@ -108,7 +108,6 @@ fun! xtabline#fzf#tab_load(...)
       if prop ==? 'buffers' || prop ==? 'description'   | continue | endif
       let T[prop] = saved[prop]
     endfor
-    let T.use_dir = T.cwd
 
     $tabnew | let newbuf = bufnr("%")
     cd `=cwd`

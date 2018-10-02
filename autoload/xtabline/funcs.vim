@@ -99,8 +99,9 @@ fun! s:Funcs.fullpath(path, ...) dict
   let path = expand(a:path)
   let path = empty(path) ? a:path : path        "expand can fail
   let mod = a:0 ? a:1 : ":p"
-  return s:v.winOS ?
+  let path = s:v.winOS ?
         \tr(fnamemodify(path, mod), '\', '/') : fnamemodify(path, mod)
+  return resolve(path)
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
