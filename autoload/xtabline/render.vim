@@ -380,11 +380,14 @@ fun! s:short_cwd(tabnr, h)
   if !a:h
     return fnamemodify(expand(s:X.Tabs[a:tabnr-1].cwd), ":t")
   else
-    let H = fnamemodify(expand(s:X.Tabs[a:tabnr-1].cwd), ":~")
+    let H = fnamemodify(s:X.Tabs[a:tabnr-1].cwd, ":~")
+    if s:v.winOS
+      let H = tr(H, '\', '/')
+    endif
     while len(split(H, '/')) > a:h+1
-      let H = substitute(H, "/[^/]*", "\.", "")
+      let H = substitute(H, '/\([^/]\)[^/]*', '°\1', "")
     endwhile
-    return H
+    return tr(H, '°', '/')
   endif
 endfun
 
