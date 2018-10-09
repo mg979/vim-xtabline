@@ -131,6 +131,8 @@ fun! xtabline#filter_buffers(...)
       if locked
         if index(accepted, buf) < 0 && index(excluded, buf) < 0
           call add(excluded, buf)
+        elseif s:is_front(buf)
+          call add(front, buf)
         endif
 
       elseif s:F.within_depth(B.path, depth) && B.path =~ '^'.T['use_dir']

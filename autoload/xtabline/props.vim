@@ -62,7 +62,10 @@ fun! s:Props.buf_template(nr, ...) dict
     let buf = extend(bv, {
           \ 'extra':   s:is_extra(a:nr),
           \ 'path':    self.bufpath(a:nr),
-          \ 'front':   s:is_open(a:nr)
+          \ 'front':   s:is_open(a:nr),
+          \ 'special': get(bv, 'special', 1),
+          \ 'icon':    get(bv, 'icon', ''),
+          \ 'name':    get(bv, 'name', ''),
           \})
   else
     let buf = {
