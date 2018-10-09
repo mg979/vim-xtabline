@@ -1,4 +1,4 @@
-*xTabline.txt*    xTabline     Version 0.8.0    Last change: August 10 2018
+*xtabline.txt*    xTabline     Version 0.8.0    Last change: August 10 2018
 
 XTABLINE - TABLE OF CONTENTS                        *xtabline-vim* *xtabline-toc*
 ==============================================================================
