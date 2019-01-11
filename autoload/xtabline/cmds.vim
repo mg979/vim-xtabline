@@ -143,10 +143,20 @@ fun! s:purge_buffers()
 
   " the tab may be closed if there is one window, and it's going to be purged
   if len(tabpagebuflist()) == 1 && !empty(verify) && index(purged, bufnr("%")) >= 0
-    execute "buffer ".s:vB()[0] | endif
+    for b in s:vB()
+      if ( index(purged, b) < 0 )
+        execute "buffer ".b
+        break
+      else
+        continue
+      endif
+      let s = "Not executing because no other valid buffers for this tab"
+      return s:F.msg([[s, 'WarningMsg']])
+    endfor
+  endif
 
   for buf in purged
-    execute "silent! bdelete ".buf
+    execute "silent! bwipe ".buf
     let i = index(s:fB(), buf)
     if i >= 0 | call remove(s:fB(), i) | endif
   endfor
