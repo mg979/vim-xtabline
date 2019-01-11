@@ -468,7 +468,7 @@ close_tabs_label           |                              | ''
 tab_icon                   |                              | ["📂", "📁"]
 named_tab_icon             |                              | ["📂", "📁"]
 
-`custom_icons` are the ones that can be used when assigning an icon to a
+`icons` are the ones that can be used when assigning an icon to a
 tab/buffer, and can be used in other contexts (special buffers icon).
 >
   let g:xtabline_settings.bufline_indicators = {
@@ -478,7 +478,7 @@ tab/buffer, and can be used in other contexts (special buffers icon).
       \ 'pinned': '[📌]',
       \}
 
-  let g:xtabline_settings.custom_icons = {
+  let g:xtabline_settings.icons = {
       \'pin': '📌',
       \'star': '★',
       \'book': '📖',

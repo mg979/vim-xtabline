@@ -356,7 +356,7 @@ endfun
 
 fun! s:get_icon(ico)
   """Get current icon for this tab."""
-  let I = get(s:Sets, 'custom_icons', {})
+  let I = get(s:Sets, 'icons', {})
   if index(keys(I), a:ico) >= 0
     return I[a:ico]
   elseif strchars(a:ico) == 1

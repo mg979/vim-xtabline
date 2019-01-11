@@ -281,8 +281,9 @@ fun! xtabline#fzf#session_load(file)
   if file ==# v:this_session | call s:F.msg("Session is already loaded.", 1)  | return | endif
 
   "-----------------------------------------------------------
+  " confirm session unloading
 
-  if s:Sets.unload_session_ask_confirm
+  if get(s:Sets, 'unload_session_ask_confirm', 1)
     call s:F.msg ([[ "Current session will be unloaded.", 'WarningMsg' ],
           \[ " Confirm (y/n)? ", 'Type' ]])
 
@@ -291,11 +292,15 @@ fun! xtabline#fzf#session_load(file)
   endif
 
   "-----------------------------------------------------------
-
   " upadate and pause Obsession
+
   if ObsessionStatus() == "[$]"
     exe "silent Obsession ".fnameescape(g:this_obsession)
-    silent Obsession | endif
+    silent Obsession
+  endif
+
+  "-----------------------------------------------------------
+  " unload current session and load new one
 
   execute "silent! %bdelete"
   execute "source ".fnameescape(file)

@@ -5,7 +5,6 @@ fzf-vim	xTabline.txt	/*fzf-vim*
 prefix	xTabline.txt	/*prefix*
 size	xTabline.txt	/*size*
 syntax	xTabline.txt	/*syntax*
-xTabline.txt	xTabline.txt	/*xTabline.txt*
 xtabline-airline	xTabline.txt	/*xtabline-airline*
 xtabline-buffers-formatting	xTabline.txt	/*xtabline-buffers-formatting*
 xtabline-clean-up	xTabline.txt	/*xtabline-clean-up*
@@ -34,3 +33,4 @@ xtabline-tabs-and-buffers	xTabline.txt	/*xtabline-tabs-and-buffers*
 xtabline-toc	xTabline.txt	/*xtabline-toc*
 xtabline-tuning-buffer-filtering	xTabline.txt	/*xtabline-tuning-buffer-filtering*
 xtabline-vim	xTabline.txt	/*xtabline-vim*
+xtabline.txt	xTabline.txt	/*xtabline.txt*

@@ -153,18 +153,18 @@ fun! s:Props.is_special(nr, ...) dict
   """Customize special buffers, if visible in a window.
   let n = a:nr | if !s:F.has_win(n) | return { 'special': 0 } | endif
 
-  let git = index(['gitcommit', 'magit', 'git'], getbufvar(n, "&ft"))
+  let git = index(['gitcommit', 'magit', 'git', 'fugitive'], getbufvar(n, "&ft"))
 
   if s:Ft(n, "GV")
-    call self.lock_tab([n], {'icon': s:Sets.custom_icons.git})
-    return s:set_special('GV', { 'icon': s:Sets.custom_icons.git, 'refilter': 1 })
+    call self.lock_tab([n], {'icon': s:Sets.icons.git})
+    return s:set_special('GV', { 'icon': s:Sets.icons.git, 'refilter': 1 })
 
   elseif git >= 0
-    let gitn   = ['Commit', 'Magit', 'Git']
-    return s:set_special(gitn[git], { 'icon': s:Sets.custom_icons.git })
+    let gitn   = ['Commit', 'Magit', 'Git', 'Status']
+    return s:set_special(gitn[git], { 'icon': s:Sets.icons.git })
 
   elseif s:Is(n, "fugitive")
-    return s:set_special('fugitive', { 'icon': s:Sets.custom_icons.git })
+    return s:set_special('fugitive', { 'icon': s:Sets.icons.git })
 
   elseif s:Is(n, "Kronos")
     let i = s:Sets.extra_icons ? ' ➤ ' : ' ⚑ '
@@ -174,7 +174,7 @@ fun! s:Props.is_special(nr, ...) dict
     return s:set_special(bufname(n), { 'icon': i })
 
   elseif s:Ft(n, "netrw")
-    let i = s:Sets.extra_icons ? ' '.s:Sets.custom_icons.netrw.' ' : ' '
+    let i = s:Sets.extra_icons ? ' '.s:Sets.icons.netrw.' ' : ' '
     return s:set_special(i.'Netrw'.i, { 'format': 'l' })
 
   elseif s:Ft(n, "startify")

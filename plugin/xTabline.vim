@@ -90,7 +90,7 @@ com! -nargs=? -bang  -complete=customlist,<sid>theme XTabTheme           call xt
 
 fun! s:icons(A,L,P)
   """Icons completions for commands.
-  return keys(s:S.custom_icons)
+  return keys(s:S.icons)
 endfun
 
 fun! s:theme(A,L,P)
@@ -118,7 +118,6 @@ let s:S.sessions_path              = get(s:S, 'sessions_path', expand(s:vimdir .
 let s:S.map_prefix                 = get(s:S, 'map_prefix', '<leader>x')
 let s:S.close_buffer_can_close_tab = get(s:S, 'close_buffer_can_close_tab', 0)
 let s:S.close_buffer_can_quit_vim  = get(s:S, 'close_buffer_can_quit_vim', 0)
-let s:S.unload_session_ask_confirm = get(s:S, 'unload_session_ask_confirm', 1)
 let s:S.depth_tree_size            = get(s:S, 'depth_tree_size', 20)
 
 let s:S.select_buffer_alt_action   = get(s:S, 'select_buffer_alt_action', "buffer #")
@@ -143,7 +142,7 @@ let s:S.todo.syntax                = get(s:S.todo, 'syntax',  'markdown')
 " Bufline/Tabline settings
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-let s:S.custom_icons = extend({
+let s:S.icons = extend({
       \'pin': '📌',
       \'star': '★',
       \'book': '📖',
@@ -157,6 +156,7 @@ let s:S.custom_icons = extend({
       \'linux': '🐧',
       \'windows': '❖',
       \'git': '',
+      \'git2': '⎇ ',
       \'palette': '🎨',
       \'lens': '🔍',
       \'flag': '⚑',
@@ -165,7 +165,7 @@ let s:S.custom_icons = extend({
       \'home': '🏠',
       \'mail': '✉ ',
       \'netrw': '🖪 ',
-      \}, get(s:S, 'custom_icons', {}))
+      \}, get(s:S, 'icons', {}))
 
 " \'folder_open': '📂',
 " \'folder_closed': '📁',
