@@ -445,7 +445,6 @@ show_current_tab           |                                  | 1
 enable_extra_highlight     |                                  | 1
 sort_buffers_by_last_open  |                                  | 0
 override_airline           |                                  | 1
-extra_icons                | if your font supports extra icons| 0
 
 
 FORMATTING                                             *xtabline-formatting*

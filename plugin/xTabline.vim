@@ -160,23 +160,25 @@ let s:S.icons = extend({
       \'palette': '🎨',
       \'lens': '🔍',
       \'flag': '⚑',
+      \'flag2': '🏁',
       \'fire': '🔥',
       \'bomb': '💣',
       \'home': '🏠',
       \'mail': '✉ ',
       \'netrw': '🖪 ',
+      \'arrow': '➤',
       \}, get(s:S, 'icons', {}))
 
 " \'folder_open': '📂',
 " \'folder_closed': '📁',
 
-let s:S.extra_icons               = get(s:S, 'extra_icons', 1)
+let s:S.no_icons = get(s:S, 'no_icons', 0)
 
 let s:indicators = extend({
-      \ 'modified': s:S.extra_icons ? '✛ ' : '[+]',
-      \ 'readonly': s:S.extra_icons ? '🔒' : '[RO]',
-      \ 'scratch': s:S.extra_icons ? '💣' : '[!]',
-      \ 'pinned': s:S.extra_icons ? '[📌]' : '[⇲]',
+      \ 'modified': s:S.no_icons ? '[+]'  : '✛ ',
+      \ 'readonly': s:S.no_icons ? '[RO]' : '🔒',
+      \ 'scratch': s:S.no_icons ?  '[!]'  : '💣',
+      \ 'pinned': s:S.no_icons ?   '[^]'  : '[📌]',
       \}, get(s:S, 'indicators', {}))
 
 let s:S.bufline_numbers           = get(s:S, 'bufline_numbers',    1)
@@ -193,8 +195,8 @@ let s:S.bufline_tab_format        = get(s:S, "bufline_tab_format", s:S.tab_forma
 let s:S.modified_tab_flag         = get(s:S, "modified_tab_flag", "*")
 let s:S.close_tabs_label          = get(s:S, "close_tabs_label", "")
 let s:S.unnamed_tab_label         = get(s:S, "unnamed_tab_label", "[no name]")
-let s:S.tab_icon                  = get(s:S, "tab_icon", s:S.extra_icons ? ["📂", "📁"] : ["", ""])
-let s:S.named_tab_icon            = get(s:S, "named_tab_icon", s:S.extra_icons ? ["📂", "📁"] : ["", ""])
+let s:S.tab_icon                  = get(s:S, "tab_icon", ["📂", "📁"])
+let s:S.named_tab_icon            = get(s:S, "named_tab_icon", ["📂", "📁"])
 
 let s:S.devicon_for_all_filetypes = get(s:S, 'devicon_for_all_filetypes', 0)
 let s:S.devicon_for_extensions    = get(s:S, 'devicon_for_extensions', ['md', 'txt'])

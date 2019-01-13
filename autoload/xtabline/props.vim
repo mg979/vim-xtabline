@@ -167,26 +167,26 @@ fun! s:Props.is_special(nr, ...) dict
     return s:set_special('fugitive', { 'icon': s:Sets.icons.git })
 
   elseif s:Is(n, "Kronos")
-    let i = s:Sets.extra_icons ? ' ➤ ' : ' ⚑ '
+    let i = ' '.s:Sets.icons.arrow.' '
     if exists('t:original_tab')
       call self.lock_tab([n], {'name': 'Kronos', 'icon': i})
     endif
     return s:set_special(bufname(n), { 'icon': i })
 
   elseif s:Ft(n, "netrw")
-    let i = s:Sets.extra_icons ? ' '.s:Sets.icons.netrw.' ' : ' '
+    let i = ' '.s:Sets.icons.netrw.' '
     return s:set_special(i.'Netrw'.i, { 'format': 'l' })
 
   elseif s:Ft(n, "startify")
-    let i = s:Sets.extra_icons ? ' 🏁 ' : ' ⚑ '
+    let i = ' '.s:Sets.icons.flag2.' '
     return s:set_special(i.'Startify'.i, { 'format': 'l' })
 
   elseif s:Ft(n, "ctrlsf")
-    let i = s:Sets.extra_icons ? ' 🔍 ' : ' ⚑ '
+    let i = ' '.s:Sets.icons.lens.' '
     return s:set_special(i.'CtrlSF'.i, { 'format': 'l' })
 
   elseif s:Ft(n, "colortemplate-info")
-    let i = s:Sets.extra_icons ? ' 🎨 ' : ' '
+    let i = ' '.s:Sets.icons.palette.' '
     return s:set_special(i.'Colortemplate'.i, { 'format': 'l' })
 
   else
