@@ -393,11 +393,11 @@ You can define the filename and other options:
   let g:xtabline_settings.todo = { 'file': '.TODO', 'prefix': 'below',
     \'command': 'sp', 'size': 20, 'syntax': 'markdown'}
 
-*file*    : the filename that will be used
-*prefix*  : check `opening-window` for help
-*command* : can be `sp`, `vs`, `edit`, etc.
-*size*    : the height/width of the window
-*syntax*  : the syntax that will be loaded
+`file`    : the filename that will be used
+`prefix`  : check `opening-window` for help
+`command` : can be `sp`, `vs`, `edit`, etc.
+`size`    : the height/width of the window
+`syntax`  : the syntax that will be loaded
 
 
 CWD SELECTION                                                *xtabline-cwd*
@@ -571,7 +571,7 @@ xtabline has its own ones and is not compatible with them.
 CREDITS                                                       *xtabline-credits*
 ==============================================================================
 
-Braam Moolenaar for Vim
+Bram Moolenaar for Vim
 Buftabline for the bufferline rendering    https://github.com/ap/vim-buftabline
 Taboo for the tabline rendering            https://github.com/gcmt/taboo.vim
 Junegunn Choi for [fzf-vim]                https://github.com/junegunn/fzf.vim
