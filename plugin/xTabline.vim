@@ -4,7 +4,7 @@
 " Mantainer:    Gianmaria Bajo <mg1979.git@gmail.com>
 " Url:          https://github.com/mg979/vim-xtabline
 " Copyright:    (c) 2018 Gianmaria Bajo <mg1979.git@gmail.com>
-" Licence:      The MIT License (MIT)
+" Licence:      The MIT License
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 if exists("g:loaded_xtabline")
@@ -90,7 +90,7 @@ com! -nargs=? -bang  -complete=customlist,<sid>theme XTabTheme           call xt
 
 fun! s:icons(A,L,P)
   """Icons completions for commands.
-  return keys(s:S.icons)
+  return keys(g:xtabline_settings.icons)
 endfun
 
 fun! s:theme(A,L,P)
@@ -109,99 +109,90 @@ let g:xtabline.Vars.winOS = has("win16") || has("win32") || has("win64")
 let s:vimdir = ( has('win32unix') || g:xtabline.Vars.winOS ) &&
       \        isdirectory(expand('$HOME/vimfiles')) ? '$HOME/vimfiles' : '$HOME/.vim'
 
-let g:xtabline_settings  = get(g:, 'xtabline_settings', {})
 let g:xtabline_highlight = get(g:, 'xtabline_highlight', {'themes': {}})
 
-let s:S = g:xtabline_settings
+let s:S = {}
 
-let s:S.sessions_path              = get(s:S, 'sessions_path', expand(s:vimdir . '/session'))
-let s:S.map_prefix                 = get(s:S, 'map_prefix', '<leader>x')
-let s:S.close_buffer_can_close_tab = get(s:S, 'close_buffer_can_close_tab', 0)
-let s:S.close_buffer_can_quit_vim  = get(s:S, 'close_buffer_can_quit_vim', 0)
-let s:S.depth_tree_size            = get(s:S, 'depth_tree_size', 20)
+let s:S.sessions_path              = expand(s:vimdir . '/session')
+let s:S.map_prefix                 = '<leader>x'
+let s:S.close_buffer_can_close_tab = 0
+let s:S.close_buffer_can_quit_vim  = 0
+let s:S.depth_tree_size            = 20
 
-let s:S.select_buffer_alt_action   = get(s:S, 'select_buffer_alt_action', "buffer #")
-let s:S.hide_buffer_alt_action     = get(s:S, 'hide_buffer_alt_action', "buffer #")
-let s:S.bookmarks_file             = get(s:S, 'bookmarks_file ', expand(s:vimdir . '/.XTablineBookmarks'))
-let s:S.sessions_data              = get(s:S, 'sessions_data', expand(s:vimdir . '/.XTablineSessions'))
-let s:S.superscript_unicode_nrs    = get(s:S, 'superscript_unicode_nrs', 0)
-let s:S.show_current_tab           = get(s:S, 'show_current_tab', 1)
-let s:S.enable_extra_highlight     = get(s:S, 'enable_extra_highlight', 1)
-let s:S.sort_buffers_by_last_open  = get(s:S, 'sort_buffers_by_last_open', 0)
-let s:S.override_airline           = get(s:S, 'override_airline', 1)
-let s:S.disable_keybindings        = get(s:S, 'disable_keybindings', 0)
-
-let s:S.todo                       = get(s:S, 'todo', {})
-let s:S.todo.command               = get(s:S.todo, 'command', 'sp')
-let s:S.todo.prefix                = get(s:S.todo, 'prefix',  'below')
-let s:S.todo.file                  = get(s:S.todo, 'file',    ".TODO")
-let s:S.todo.size                  = get(s:S.todo, 'size',    20)
-let s:S.todo.syntax                = get(s:S.todo, 'syntax',  'markdown')
+let s:S.select_buffer_alt_action   = "buffer #"
+let s:S.hide_buffer_alt_action     = "buffer #"
+let s:S.bookmarks_file             = expand(s:vimdir . '/.XTablineBookmarks')
+let s:S.sessions_data              = expand(s:vimdir . '/.XTablineSessions')
+let s:S.superscript_unicode_nrs    = 0
+let s:S.show_current_tab           = 1
+let s:S.enable_extra_highlight     = 1
+let s:S.sort_buffers_by_last_open  = 0
+let s:S.override_airline           = 1
+let s:S.disable_keybindings        = 0
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Bufline/Tabline settings
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-let s:S.icons = extend({
-      \'pin': '📌',
-      \'star': '★',
-      \'book': '📖',
-      \'lock': '🔒',
-      \'hammer': '🔨',
-      \'tick': '✔',
-      \'cross': '✖',
-      \'warning': '⚠',
-      \'menu': '☰',
-      \'apple': '🍎',
-      \'linux': '🐧',
-      \'windows': '❖',
-      \'git': '',
-      \'git2': '⎇ ',
-      \'palette': '🎨',
-      \'lens': '🔍',
-      \'flag': '⚑',
-      \'flag2': '🏁',
-      \'fire': '🔥',
-      \'bomb': '💣',
-      \'home': '🏠',
-      \'mail': '✉ ',
-      \'netrw': '🖪 ',
-      \'arrow': '➤',
-      \}, get(s:S, 'icons', {}))
+let s:S.no_icons = 0
 
-" \'folder_open': '📂',
-" \'folder_closed': '📁',
-
-let s:S.no_icons = get(s:S, 'no_icons', 0)
-
-let s:indicators = extend({
+let s:S.bufline_indicators = {
       \ 'modified': s:S.no_icons ? '[+]'  : '✛ ',
       \ 'readonly': s:S.no_icons ? '[RO]' : '🔒',
       \ 'scratch': s:S.no_icons ?  '[!]'  : '💣',
       \ 'pinned': s:S.no_icons ?   '[^]'  : '[📌]',
-      \}, get(s:S, 'indicators', {}))
+      \}
 
-let s:S.bufline_numbers           = get(s:S, 'bufline_numbers',    1)
-let s:S.bufline_indicators        = extend(get(s:S, 'bufline_indicators', {}),  s:indicators)
-let s:S.bufline_sep_or_icon       = get(s:S, 'bufline_sep_or_icon', 0)
-let s:S.bufline_separators        = get(s:S, 'bufline_separators', ['|', '|']) "old: nr2char(0x23B8)
-let s:S.bufline_format            = get(s:S, 'bufline_format',  ' n I< l +')
-let s:S.bufline_unnamed           = get(s:S, 'bufline_unnamed',  '...')
+let s:S.bufline_numbers           = 1
+let s:S.bufline_sep_or_icon       = 0
+let s:S.bufline_separators        = ['|', '|']
+let s:S.bufline_format            =  ' n I< l +'
+let s:S.bufline_unnamed           =  '...'
 
-let s:S.tab_format                = get(s:S, "tab_format", "N - 2+ ")
-let s:S.named_tab_format          = get(s:S, "named_tab_format", "N - l+ ")
-let s:S.bufline_named_tab_format  = get(s:S, "bufline_named_tab_format", s:S.named_tab_format)
-let s:S.bufline_tab_format        = get(s:S, "bufline_tab_format", s:S.tab_format)
-let s:S.modified_tab_flag         = get(s:S, "modified_tab_flag", "*")
-let s:S.close_tabs_label          = get(s:S, "close_tabs_label", "")
-let s:S.unnamed_tab_label         = get(s:S, "unnamed_tab_label", "[no name]")
-let s:S.tab_icon                  = get(s:S, "tab_icon", ["📂", "📁"])
-let s:S.named_tab_icon            = get(s:S, "named_tab_icon", ["📂", "📁"])
+let s:S.tab_format                = "N - 2+ "
+let s:S.named_tab_format          = "N - l+ "
+let s:S.bufline_named_tab_format  = s:S.named_tab_format
+let s:S.bufline_tab_format        = s:S.tab_format
+let s:S.modified_tab_flag         = "*"
+let s:S.close_tabs_label          = ""
+let s:S.unnamed_tab_label         = "[no name]"
+let s:S.tab_icon                  = ["📂", "📁"]
+let s:S.named_tab_icon            = ["📂", "📁"]
 
-let s:S.devicon_for_all_filetypes = get(s:S, 'devicon_for_all_filetypes', 0)
-let s:S.devicon_for_extensions    = get(s:S, 'devicon_for_extensions', ['md', 'txt'])
+let s:S.devicon_for_all_filetypes = 0
+let s:S.devicon_for_extensions    = ['md', 'txt']
 
-if !filereadable(s:S.bookmarks_file) | call writefile(['{}'], s:S.bookmarks_file) | endif
-if !filereadable(s:S.sessions_data) | call writefile(['{}'], s:S.sessions_data) | endif
+let g:xtabline_settings  = extend(s:S, get(g:, 'xtabline_settings', {}))
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Icons
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+let g:xtabline_settings.icons = extend({
+      \'pin':     '📌',     'star':    '★',     'book':    '📖',     'lock':    '🔒',
+      \'hammer':  '🔨',     'tick':    '✔',     'cross':   '✖',      'warning': '⚠',
+      \'menu':    '☰',      'apple':   '🍎',    'linux':   '🐧',     'windows': '❖',
+      \'git':     '',      'git2':    '⎇ ',    'palette': '🎨',     'lens':    '🔍',
+      \'flag':    '⚑',      'flag2':   '🏁',    'fire':    '🔥',     'bomb':    '💣',
+      \'home':    '🏠',     'mail':    '✉ ',    'netrw':   '🖪 ',     'arrow':   '➤',
+      \}, get(g:xtabline_settings, 'icons', {}))
+
+" \'folder_open': '📂',
+" \'folder_closed': '📁',
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" TabTodo settings
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+let g:xtabline_settings.todo = extend({
+      \"command": 'sp',
+      \"prefix":  'below',
+      \"file":    ".TODO",
+      \"size":    20,
+      \"syntax":  'markdown',
+      \}, get(g:xtabline_settings, 'todo', {}))
+
+if !filereadable(g:xtabline_settings.bookmarks_file) | call writefile(['{}'], g:xtabline_settings.bookmarks_file) | endif
+if !filereadable(g:xtabline_settings.sessions_data) | call writefile(['{}'], g:xtabline_settings.sessions_data) | endif
 
 call xtabline#hi#init()

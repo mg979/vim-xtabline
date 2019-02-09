@@ -82,7 +82,6 @@ Braam Moolenaar for Vim
 [Taboo](https://github.com/gcmt/taboo.vim) for the tabline rendering  
 Junegunn Choi for [fzf-vim](https://github.com/junegunn/fzf.vim)  
 Tim Pope for [vim-obsession](https://github.com/tpope/vim-obsession)  
-[vim-airline](https://github.com/vim-airline/vim-airline) authors  
 Kana Natsuno for [tabpagecd](https://github.com/kana/vim-tabpagecd)  
 
 ----------------------------------------------------------------------------

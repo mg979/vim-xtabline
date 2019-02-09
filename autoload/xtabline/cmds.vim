@@ -51,7 +51,7 @@ fun! s:toggle_tabs()
     call s:plugins_toggle_tabs()
   endif
 
-  call s:F.force_update()
+  call xtabline#filter_buffers()
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -67,7 +67,7 @@ fun! s:toggle_buffers()
   endif
   let s:v.filtering = !s:v.filtering
   call s:plugins_toggle_buffers()
-  call s:F.force_update()
+  call xtabline#filter_buffers()
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -91,7 +91,7 @@ fun! s:depth(cnt)
   let T.depth           = cnt ? cnt : current_dir_only ? 0 : -1
   let T.use_dir         = T.depth == 0 ? s:F.fullpath(bufname("%"), ":p:h") : T.cwd
 
-  call s:F.force_update()
+  call xtabline#filter_buffers()
 
   let tree = !cnt || !executable('tree') || s:v.winOS ? ['', 'None'] : s:tree(cnt)
 
@@ -161,7 +161,7 @@ fun! s:purge_buffers()
     if i >= 0 | call remove(s:fB(), i) | endif
   endfor
 
-  call s:F.force_update()
+  call xtabline#filter_buffers()
   redraw!
   let s = "Purged ".bcnt." buffer" | let s .= bcnt!=1 ? "s." : "." | echo s
 endfun
@@ -231,7 +231,7 @@ fun! s:reopen_last_tab()
 
   cd `=cwd`
   let s:v.halt = 0
-  call s:F.force_update()
+  call xtabline#filter_buffers()
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -241,7 +241,7 @@ fun! s:lock_tab()
   let T = s:T()
   let T.buffers.valid = filter(copy(T.buffers.order), 'buflisted(v:val) && filereadable(bufname(v:val))')
   let T.locked = 1
-  call s:F.force_update()
+  call xtabline#filter_buffers()
   redraw!
   echo s:F.msg('Tab has been locked', 1)
 endfun
@@ -279,7 +279,7 @@ fun! s:relative_paths()
   """Toggle between full relative path and tail only, in the bufline.
   let T = s:T()
   let T.rpaths = !T.rpaths
-  call s:F.force_update()
+  call xtabline#filter_buffers()
   if T.rpaths
     call s:F.msg ([[ "Bufferline shows relative paths.", 'StorageClass']])
   else
@@ -318,7 +318,7 @@ fun! s:move_buffer(cnt, ...)
   else
     call add(oB, b)
   endif
-  if !a:0 | call s:F.force_update() | endif
+  if !a:0 | call xtabline#filter_buffers() | endif
 endfun
 
 fun! s:hide_buffer(new)
@@ -333,14 +333,14 @@ fun! s:hide_buffer(new)
   let then_select = new >= 0 ?  oB[new] : oB[0]
 
   silent! exe 'b'.then_select
-  call s:F.force_update()
+  call xtabline#filter_buffers()
 endfun
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:rename_tab(label)
   """Rename the current tab.
   let s:X.Tabs[tabpagenr()-1].name = a:label
-  call s:F.force_update()
+  call xtabline#filter_buffers()
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -349,7 +349,7 @@ fun! s:rename_buffer(label)
   """Rename the current buffer.
   let B = s:F.set_buffer_var('name', a:label)
   if empty(B) | return | endif
-  call s:F.force_update()
+  call xtabline#filter_buffers()
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -380,7 +380,7 @@ fun! s:tab_icon(...)
       let T.icon = icon
     endif
   endif
-  call s:F.force_update()
+  call xtabline#filter_buffers()
 endfun
 
 fun! s:buffer_icon(...)
@@ -397,7 +397,7 @@ fun! s:buffer_icon(...)
       let B.icon = icon
     endif
   endif
-  call s:F.force_update()
+  call xtabline#filter_buffers()
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -415,7 +415,7 @@ fun! s:toggle_pin_buffer(...)
   else
     call add(s:X.pinned_buffers, B)
   endif
-  call s:F.force_update()
+  call xtabline#filter_buffers()
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -435,7 +435,7 @@ fun! s:new_tab(...)
     let s:v.tab_properties = {'name': args[1], 'cwd': expand("~")}
   endif
   exe n . "tabnew"
-  call s:F.force_update()
+  call xtabline#filter_buffers()
   let s:v.auto_set_cwd = 0
 endfun
 
@@ -457,7 +457,7 @@ fun! s:edit_tab(...)
     let s:v.tab_properties = {'cwd': s:F.find_suitable_cwd(args[2])}
     exe n . "tabedit" args[2]
   endif
-  call s:F.force_update()
+  call xtabline#filter_buffers()
   let s:v.auto_set_cwd = 0
   if bang
     call feedkeys("\<Plug>(XT-Rename-Tab)")
@@ -498,7 +498,7 @@ fun! s:move_tab(...)
               \ bottom? '$' : '0'
 
   exe dest . "tabmove"
-  call s:F.force_update()
+  call xtabline#filter_buffers()
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -521,7 +521,7 @@ fun! s:format_buffer()
     endif
 
     let &ch = och
-    call s:F.force_update()
+    call xtabline#filter_buffers()
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -546,9 +546,7 @@ fun! s:set_cwd(...)
     cd `=cwd`
     redraw!
     call s:F.msg ([[ "New working directory set: ", 'Label' ], [ cwd, 'None' ]])
-    let s:X.Tabs[tabpagenr()-1].cwd = cwd
-    let s:v.reset_dir = 1
-    call s:F.force_update()
+    call xtabline#update_tab()
   endif
 endfun
 
@@ -559,7 +557,7 @@ fun! s:reset_tab(...)
   let cwd = a:0? fnamemodify(expand(a:1), :p) : s:F.find_suitable_cwd()
   let s:X.Tabs[tabpagenr()-1] = s:X.Props.new_tab({'cwd': cwd})
   cd `=cwd`
-  call s:F.force_update()
+  call xtabline#filter_buffers()
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -568,7 +566,7 @@ fun! s:reset_buffer(...)
   """Reset the buffer to a pristine state.
   let B = s:B() | let n = bufnr("%")
   if has_key(B, n) | unlet B[n] | endif
-  call s:F.force_update()
+  call xtabline#filter_buffers()
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -576,7 +574,7 @@ endfun
 fun! s:toggle_tab_names()
     """Toggle between custom icon/name and short path/folder icons."""
     let s:v.custom_tabs = !s:v.custom_tabs
-    call s:F.force_update()
+    call xtabline#filter_buffers()
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -584,17 +582,11 @@ endfun
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:plugins_toggle_tabs()
-  if s:F.airline_enabled()
-    let g:airline#extensions#tabline#show_tabs = s:v.showing_tabs
-  endif
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:plugins_toggle_buffers()
-  if !s:v.filtering && s:F.airline_enabled()
-    let g:airline#extensions#tabline#exclude_buffers = []
-  endif
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

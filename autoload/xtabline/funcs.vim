@@ -15,18 +15,9 @@ let s:Funcs.has_win = { b -> index(s:Funcs.wins(), b) >= 0 }
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.airline_enabled() dict
-  """Check if Airline tabline must be used."""
-  return exists('g:loaded_airline') &&
-        \exists('g:airline#extensions#tabline#enabled') &&
-        \g:airline#extensions#tabline#enabled
-endfun
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
 fun! s:Funcs.buffers_order() dict
   """Current ordered list of valid buffers."""
-  return s:Funcs.airline_enabled() ? s:vB() : s:T().buffers.order
+  return s:T().buffers.order
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -177,6 +168,9 @@ fun! s:Funcs.bdelete(buf) dict
   if index(s:X.pinned_buffers, a:buf) >= 0
     call self.msg("Pinned buffer has not been deleted.", 1)
 
+  elseif s:T().locked && index(s:T().buffers.valid, a:buf) >= 0
+    call remove(s:T().buffers.valid, index(s:T().buffers.valid, a:buf))
+
   elseif getbufvar(a:buf, '&ft') == 'nofile'
     exe "silent! bwipe ".a:buf
     call xtabline#filter_buffers()
@@ -224,26 +218,11 @@ endfunction
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.force_update() dict
-  """Airline is stubborn and wants au BufAdd."""
-  call xtabline#filter_buffers()
-  if self.airline_enabled()
-    doautocmd BufAdd
-  endif
-endfun
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-function! s:Funcs.refresh_tabline() dict
-  """Invalidate old Airline tabline and force redraw."""
-  if self.airline_enabled()
-    let g:airline#extensions#tabline#exclude_buffers = s:T().exclude
-    call airline#extensions#tabline#buflist#invalidate()
-  endif
+fun! s:Funcs.refresh_tabline() dict
   if s:v.showing_tabs
     set tabline=%!xtabline#render#tabs()
   else
     set tabline=%!xtabline#render#buffers()
   endif
-endfunction
+endfun
 

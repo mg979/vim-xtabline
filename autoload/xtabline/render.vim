@@ -45,7 +45,6 @@ let s:specialHi         = { b -> s:B()[b].special }
 " =============================================================================
 
 fun! xtabline#render#buffers()
-  if s:F.airline_enabled() | return airline#extensions#tabline#get() | endif
   let show_num = s:Sets.bufline_numbers
 
   let centerbuf = s:centerbuf " prevent tabline jumping around when non-user buffer current (e.g. help)
@@ -314,8 +313,6 @@ endfun
 
 " To construct the tabline string for terminal vim.
 fun! xtabline#render#tabs()
-  if s:F.airline_enabled() | return airline#extensions#tabline#get() | endif
-
   let tabline = ''
   let fmt_unnamed = s:fmt_chars(s:Sets.tab_format)
   let fmt_renamed = s:fmt_chars(s:Sets.named_tab_format)

@@ -18,7 +18,7 @@ function! xtabline#automkdir#ensure_dir_exists ()
   if exists("loaded_AutoMkdir") || !get(g:xtabline_settings, 'automkdir', 1)
     return
   endif
-  let required_dir = expand("%:h")
+  let required_dir = resolve(expand("%:p:h"))
   if !isdirectory(required_dir)
     if !s:quit("Parent directory '" . required_dir . "' doesn't exist.",
           \       "&Create it\nor &Abort?", 2)

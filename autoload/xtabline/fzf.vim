@@ -48,7 +48,7 @@ fun! xtabline#fzf#bufdelete(name)
   else
     call xtabline#cmds#run('close_buffer')
   endif
-  call s:F.force_update()
+  call xtabline#filter_buffers()
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -129,7 +129,7 @@ fun! xtabline#fzf#tab_load(...)
     execute "bwipe ".newbuf
   endfor
   let s:v.halt = 0
-  call s:F.force_update()
+  call xtabline#filter_buffers()
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -450,7 +450,7 @@ fun! xtabline#fzf#tab_nerd_bookmarks_load(...)
       exe "cd ".fnamemodify(bm, ":p:h")
     endif
   endfor
-  call s:F.force_update()
+  call xtabline#filter_buffers()
 endfun
 
 

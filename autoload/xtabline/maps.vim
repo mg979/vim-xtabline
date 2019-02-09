@@ -155,9 +155,7 @@ fun! s:cd(count)
     return
   endif
   cd `=cwd`
-  let g:xtabline.Vars.reset_dir = 1
-  let g:xtabline.Tabs[tabpagenr()-1].cwd = cwd
-  call g:xtabline.Funcs.force_update()
+  call xtabline#update_tab()
   pwd
 endfun
 

@@ -27,7 +27,6 @@ XTABLINE - TABLE OF CONTENTS                        *xtabline-vim* *xtabline-toc
       Buffers formatting                  |xtabline-buffers-formatting|
       Tab formatting                      |xtabline-tab-formatting|
       Remapping commands                  |xtabline-remapping-commands|
-      Interaction With Airline            |xtabline-airline|
     Credits                               |xtabline-credits|
     License                               |xtabline-license|
 
@@ -444,7 +443,6 @@ superscript_unicode_nrs    | use superscript or subscript nrs | 0
 show_current_tab           |                                  | 1
 enable_extra_highlight     |                                  | 1
 sort_buffers_by_last_open  |                                  | 0
-override_airline           |                                  | 1
 
 
 FORMATTING                                             *xtabline-formatting*
@@ -554,20 +552,6 @@ You can remap commands individually. These are some easier mappings I use:
 
 
 
-INTERACTION WITH AIRLINE                                     *xtabline-airline*
-
-xtabline will override Airline's tabline by default. To use Airline's tabline
-instead, set:
->
-    let g:xtabline_settings.override_airline = 0
-
-You will still have buffer filtering, but lose other features (custom names
-and icons, formatting, etc). But you will be able to use Airline's themes.
-xtabline has its own ones and is not compatible with them.
-
-
-
-
 CREDITS                                                       *xtabline-credits*
 ==============================================================================
 
@@ -576,7 +560,6 @@ Buftabline for the bufferline rendering    https://github.com/ap/vim-buftabline
 Taboo for the tabline rendering            https://github.com/gcmt/taboo.vim
 Junegunn Choi for [fzf-vim]                https://github.com/junegunn/fzf.vim
 Tim Pope for [vim-obsession]               https://github.com/tpope/vim-obsession
-authors of [vim-airline]                   https://github.com/vim-airline/vim-airline
 Kana Natsuno for [tabpagecd]               https://github.com/kana/vim-tabpagecd
 
 

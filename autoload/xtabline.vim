@@ -51,12 +51,6 @@ fun! xtabline#init()
     let s:X.devicons = {'extensions': extensions, 'exact': exact, 'patterns': patterns}
   endif
 
-  if s:F.airline_enabled() && s:Sets.override_airline
-    let g:airline#extensions#tabline#enabled = 0
-  elseif s:F.airline_enabled()
-    let g:airline#extensions#tabline#show_buffers = 1
-  endif
-
   call s:X.Props.check_tabs()
 endfun
 
@@ -91,7 +85,6 @@ fun! xtabline#filter_buffers(...)
   " 'accepted' is a list of buffer numbers that belong to the tab, either because:
   "     - within filtering working directory
   "     - tab is locked and buffers are included
-  " 'excluded' is a list of buffer numbers, it will be used by Airline to hide buffers.
   " 'extra' are buffers that have been purposefully added by other means to the tab
   "     - not a dynamic list, elements are manually added or removed
   " 'front' are either:
@@ -109,7 +102,6 @@ fun! xtabline#filter_buffers(...)
 
   let locked          = T.locked
   let accepted        = locked? T.buffers.valid   : []
-  let excluded        = locked? T.exclude : []
   let depth           = T.depth
   let extra           = T.buffers.extra
   let front           = T.buffers.front
@@ -119,19 +111,14 @@ fun! xtabline#filter_buffers(...)
   for buf in range(1, bufnr("$"))
     let B = s:X.Props.set_buffer(buf)
 
-    if s:is_special(buf)        | call add(accepted, buf)
-    elseif s:invalid(buf)
-      if index(excluded, buf) < 0
-        call add(excluded, buf)
-      endif
-    elseif !s:v.filtering       | call add(accepted, buf)
-    elseif s:is_extra(buf)      | continue
+    if s:is_special(buf)   | call add(accepted, buf)
+    elseif s:invalid(buf)  | continue
+    elseif !s:v.filtering  | call add(accepted, buf)
+    elseif s:is_extra(buf) | continue
     else
       " accept or exclude buffer
       if locked
-        if index(accepted, buf) < 0 && index(excluded, buf) < 0
-          call add(excluded, buf)
-        elseif s:is_front(buf)
+        if s:is_front(buf)
           call add(front, buf)
         endif
 
@@ -141,8 +128,6 @@ fun! xtabline#filter_buffers(...)
       elseif s:is_front(buf)
         call add(front, buf)
 
-      elseif index(excluded, buf) < 0
-        call add(excluded, buf)
       endif
     endif
   endfor
@@ -150,7 +135,6 @@ fun! xtabline#filter_buffers(...)
   " //////////////////////////////////////////////////////////
 
   let T.buffers.valid = accepted
-  let T.exclude       = excluded
   call s:update_buffers()
   call s:F.refresh_tabline()
   call xtabline#update_obsession()
@@ -236,6 +220,15 @@ fun! xtabline#prev_buffer(nr, pinned)
   return ":buffer " . accepted[s:most_recent] . "\<cr>"
 endfun
 
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! xtabline#update_tab()
+  let T = g:xtabline.Tabs[tabpagenr()-1]
+  let T.cwd = s:F.fullpath(getcwd())
+  let T.use_dir = T.cwd
+  call xtabline#filter_buffers()
+endfun
+
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Helpers
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -251,7 +244,7 @@ fun! s:set_new_tab_cwd(N)
     let T.cwd = s:F.find_suitable_cwd()
   endif
   cd `=T.cwd`
-  call s:F.force_update()
+  call xtabline#filter_buffers()
   call s:F.delay(200, 'g:xtabline.Funcs.msg([[ "CWD set to ", "Label" ], [ "'.T.cwd.'", "Directory" ]])')
 endfun
 
@@ -305,7 +298,7 @@ function! s:Do(action, ...)
 
     call xtabline#vimrc#exe(T)
 
-    if s:F.airline_enabled() || get(s:Sets, 'refresh_on_tabenter', 0)
+    if get(s:Sets, 'refresh_on_tabenter', 0)
       call xtabline#filter_buffers()
     endif
 
