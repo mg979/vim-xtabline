@@ -80,6 +80,12 @@ fun! xtabline#session_loaded()
       call remove(s:X.pinned_buffers, i)
     endif
   endfor
+  for t in s:X.Tabs " backwards compatibility
+    if has_key(t, 'use_dir')
+      let t.dirs = [t.use_dir]
+      unlet t.use_dir
+    endif
+  endfor
   cd `=s:X.Tabs[tabpagenr()-1].cwd`
   let s:force_update = 1
   call xtabline#filter_buffers()
@@ -105,7 +111,6 @@ fun! xtabline#filter_buffers(...)
   "     - modfiable buffers in a tab window, even if they don't belong to the tab
 
   call s:check_tabs()
-  call s:check_this_tab()
   let T = s:T()
 
   if s:v.showing_tabs && has_key(T, 'init')
@@ -131,7 +136,7 @@ fun! xtabline#filter_buffers(...)
           call add(T.buffers.front, buf)
         endif
 
-      elseif B.path =~ '^'.T['use_dir'] && s:F.within_depth(B.path, T.depth)
+      elseif B.path =~ '^'.T.dirs[0] && s:F.within_depth(B.path, T.depth)
         " to be accepted, buffer's path must be valid for this tab
         call add(T.buffers.valid, buf)
 
@@ -185,24 +190,10 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:check_this_tab()
-  """Ensure all tab dict keys are present.
-  let T = s:T()
-  call extend(T, s:X.Props.tab_template(), 'keep')
-  call extend(T.buffers,
-        \{'valid': [], 'order': [], 'extra': [], 'front': []},
-        \'keep')
-  if !has_key(T, 'use_dir')
-    let T.use_dir = s:F.fullpath(T.cwd)
-  endif
-endfun
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
 fun! xtabline#update_tab()
   let T = g:xtabline.Tabs[tabpagenr()-1]
   let T.cwd = s:F.fullpath(getcwd())
-  let T.use_dir = T.cwd
+  let T.dirs = [T.cwd]
   call xtabline#filter_buffers()
 endfun
 
@@ -240,7 +231,7 @@ endfun
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 function! s:Do(action, ...)
-  if empty(g:xtabline.Tabs) | return | endif
+  if exists('g:SessionLoad') || empty(g:xtabline.Tabs) | return | endif
 
   let X = g:xtabline | let F = X.Funcs | let V = X.Vars
   let N = tabpagenr() - 1
@@ -266,7 +257,6 @@ function! s:Do(action, ...)
   elseif a:action == 'enter'
 
     call s:check_tabs()
-    call s:check_this_tab()
     let T = X.Tabs[N]
 
     cd `=T.cwd`

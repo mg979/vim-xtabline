@@ -116,7 +116,7 @@ fun! s:Funcs.within_depth(path, depth) dict
   if a:depth < 0 | return 1 | endif
 
   let basedir = self.fullpath(a:path, ":p:h")
-  let diff = substitute(basedir, s:T().use_dir, '', '')
+  let diff = substitute(basedir, s:T().dirs[0], '', '')
 
   "the number of dir separators in (basedir - cwd) must be < depth
   "but if depth == 0 (only root dir), only accept an empty diff

@@ -151,7 +151,7 @@ fun! s:depth(cnt)
   let current_dir_only  = !cnt && T.depth < 0
   let full_cwd          = !cnt && !current_dir_only
   let T.depth           = cnt ? cnt : current_dir_only ? 0 : -1
-  let T.use_dir         = T.depth == 0 ? s:F.fullpath(bufname("%"), ":p:h") : T.cwd
+  let T.dirs[0]         = T.depth == 0 ? s:F.fullpath(bufname("%"), ":p:h") : T.cwd
 
   call xtabline#filter_buffers()
 

@@ -43,6 +43,7 @@ fun! s:Props.tab_template(...) dict
   let mod = a:0? a:1 : {}
   return extend({'name':    '',
         \ 'cwd':     s:F.fullpath(getcwd()),
+        \ 'dirs':    [s:F.fullpath(getcwd())],
         \ 'vimrc':   {},
         \ 'locked':  0,
         \ 'depth':   -1,
