@@ -6,10 +6,9 @@ fun! xtabline#vimrc#open()
   """Open buffer with tab vimrc."""
   let lead = get(g:, 'mapleader', '\')
 
+  let s:v.buffer_properties = {'name': 'TabVimrc', 'special': 1}
   silent! botright sp TabVimrc
   setlocal bt=nofile bh=wipe nobl noswf
-  let b:XTbuf = s:X.Props.buf_template(
-        \bufnr("%"), {'name': 'TabVimrc', 'special': 1})
   setfiletype vim
   call append(0, '"This Tab vimrc will be temporary, unless you save the tab.')
   call append(1, '"Save this vimrc with'.lead.'w, quit with '.lead.'q')

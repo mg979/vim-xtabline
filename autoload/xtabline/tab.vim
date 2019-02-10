@@ -48,7 +48,7 @@ fun! xtabline#tab#lock(bufs, ...)
   let T = g:xtabline.Tabs[tabpagenr()-1]
   let T.locked = 1
   let T.buffers.valid = a:bufs
-  call extend(self, a:0 ? a:1, {})
+  call extend(T, a:0 ? a:1 : {})
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

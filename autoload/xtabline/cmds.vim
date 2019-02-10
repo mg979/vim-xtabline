@@ -113,7 +113,7 @@ fun! s:toggle_tabs()
     call s:plugins_toggle_tabs()
   endif
 
-  call xtabline#filter_buffers()
+  call s:F.refresh_tabline()
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -354,13 +354,14 @@ endfun
 fun! s:tab_todo()
   """Open the Tab todo file.
   let todo = s:Sets.todo
+  let s:v.buffer_properties = { 'name': 'TODO', 'special': 1 }
   if todo['command'] == 'edit' || todo['command'] == 'e'
     execute "edit ".s:F.todo_path()
   else
     execute todo['prefix']." ".todo['size'].todo['command']." ".s:F.todo_path()
   endif
   execute "setf ".todo['syntax']
-  nmap <silent><nowait> <buffer> q :if &mod<bar>w<bar>endif<bar>bdelete<cr>
+  nmap <silent><nowait> <buffer> \q :if &mod<bar>w<bar>endif<bar>bwipeout<cr>
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

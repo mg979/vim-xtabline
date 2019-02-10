@@ -49,6 +49,7 @@ fun! xtabline#init()
   endif
 
   call s:check_tabs()
+  call s:F.refresh_tabline()
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -78,6 +79,11 @@ fun! xtabline#session_loaded()
     let i = index(s:X.pinned_buffers, buf)
     if s:invalid(buf)
       call remove(s:X.pinned_buffers, i)
+    endif
+  endfor
+  for buf in keys(s:X.Buffers) " restored buffers may be mismatched
+    if s:invalid(buf) || s:X.Buffers[buf].path != s:F.fullpath(buf)
+      unlet s:X.Buffers[buf]
     endif
   endfor
   for t in s:X.Tabs " backwards compatibility
@@ -111,7 +117,6 @@ fun! xtabline#filter_buffers(...)
   "     - pinned buffers
   "     - modfiable buffers in a tab window, even if they don't belong to the tab
 
-  call s:check_tabs()
   let T = s:T()
 
   if s:v.showing_tabs && has_key(T, 'init')
@@ -125,7 +130,7 @@ fun! xtabline#filter_buffers(...)
   " /////////////////// ITERATE BUFFERS //////////////////////
 
   for buf in range(1, bufnr("$"))
-    let B = s:X.Props.set_buffer(buf)
+    let B = xtabline#buffer#get(buf)
 
     if s:is_special(buf)   | call add(T.buffers.valid, buf)
     elseif s:invalid(buf)  | continue
@@ -152,7 +157,6 @@ fun! xtabline#filter_buffers(...)
   " //////////////////////////////////////////////////////////
 
   call s:update_buffers()
-  call s:F.refresh_tabline()
   call xtabline#update_obsession()
   if a:0 && a:1 == 2
     return xtabline#render#buffers()
@@ -215,15 +219,6 @@ fun! s:set_new_tab_cwd(N)
   call s:F.delay(200, 'g:xtabline.Funcs.msg([[ "CWD set to ", "Label" ], [ "'.T.cwd.'", "Directory" ]])')
 endfun
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! s:set_buf_props()
-  if !empty(s:v.buffer_properties)
-    call extend(s:X.Buffers[expand('<abuf>')], s:v.buffer_properties)
-    let s:v.buffer_properties = {}
-  endif
-endfun
-
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Autocommand Functions
 " Inspired by TabPageCd
@@ -249,6 +244,7 @@ function! s:Do(action, ...)
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
   elseif a:action == 'bufenter'
+    call xtabline#buffer#add(bufnr("%"))
     if s:new_tab_created
       call s:set_new_tab_cwd(N)
     endif
@@ -263,10 +259,6 @@ function! s:Do(action, ...)
     cd `=T.cwd`
 
     call xtabline#vimrc#exe(T)
-
-    if get(s:Sets, 'refresh_on_tabenter', 0)
-      call xtabline#filter_buffers()
-    endif
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
@@ -284,6 +276,7 @@ function! s:Do(action, ...)
       call add(X.closed_cwds, X.Tabs[V.last_tab].cwd)
     endif
     call remove(X.Tabs, V.last_tab)
+    call g:xtabline.Funcs.clean_up_buffer_dict()
 
   endif
 endfunction
@@ -299,11 +292,10 @@ augroup plugin-xtabline
   autocmd TabClosed     * call s:Do('close')
   autocmd BufEnter      * call s:Do('bufenter')
   autocmd ColorScheme   * if s:ready() | call xtabline#hi#update_theme() | endif
-  autocmd BufWinEnter   * call s:set_buf_props()
-  autocmd BufAdd        * call s:set_buf_props()
 
-  "NOTE: BufEnter needed. Timer improves reliability. Keep it like this.
-  autocmd BufAdd,BufWrite,BufEnter,BufDelete    * call g:xtabline.Funcs.delay(50, 'xtabline#filter_buffers()')
-  autocmd BufNewFile                  * call xtabline#automkdir#ensure_dir_exists()
+  autocmd BufWrite      * call g:xtabline.Funcs.clean_up_buffer_dict()
+  autocmd BufDelete     * call g:xtabline.Funcs.clean_up_buffer_dict()
+  autocmd BufWinEnter   * call xtabline#filter_buffers()
+  autocmd BufNewFile    * call xtabline#automkdir#ensure_dir_exists()
 augroup END
 

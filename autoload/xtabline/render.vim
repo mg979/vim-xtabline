@@ -81,7 +81,7 @@ fun! xtabline#render#buffers()
 
   "include special buffers (upfront), may force refiltering
   for b in s:F.wins()
-    let B = s:X.Props.set_buffer(b)
+    let B = xtabline#buffer#get(b)
     if B.special
       if index(bufs, b) < 0
         call insert(bufs, b, 0)
@@ -95,9 +95,12 @@ fun! xtabline#render#buffers()
 
   " make buftab string
   for bnr in bufs
-    if !bufexists(bnr) | call s:clean_buf(bnr) | continue | endif
-    let n = index(bufs, bnr) + 1       "tab buffer index
+    if !s:clean_buf(bnr) | continue | endif
+
     let special = s:specialHi(bnr)
+    if special && !s:F.has_win(bnr) | continue | endif
+
+    let n = index(bufs, bnr) + 1       "tab buffer index
     let is_currentbuf = currentbuf == bnr
 
     let tab = { 'nr': bnr,
@@ -532,7 +535,7 @@ fun! s:get_tab_for_bufline()
   let fmt_chars = s:fmt_chars(fmt)                                      "formatting options
   let fmt_tab = s:format_tab(N, fmt_chars)                              "formatted string
   let active_tab_label = substitute(fmt_tab, '%#X\w*#', '', 'g')        "text only, to find width
-  let active_tab = '%#XTFill#%#XTSelect#'.fmt_tab          "use LineFill until label
+  let active_tab = '%#XTFill#%#XTSelect#'.fmt_tab                       "use LineFill until label
   return [active_tab, active_tab_label]
 endfun
 
@@ -547,6 +550,9 @@ fun! s:extra_padding(l_r)
 endfun
 
 fun! s:clean_buf(b)
+  if bufexists(a:b) && has_key(s:B(), a:b)
+    return 1
+  endif
   let iv = index(s:vB(), a:b)
   let io = index(s:oB(), a:b)
   if iv >= 0
@@ -555,4 +561,5 @@ fun! s:clean_buf(b)
   if io >= 0
     call remove(s:oB(), io)
   endif
+  silent! unlet! s:X.Buffers[a:b]
 endfun

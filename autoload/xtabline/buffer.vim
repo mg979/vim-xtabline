@@ -24,13 +24,13 @@ let s:bufpath = { f -> filereadable(f) ? s:F.fullpath(f) : '' }
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:template(nr)
-  let buf = extend({
+  let buf = {
         \ 'name':    '',
         \ 'extra':   s:is_extra(a:nr),
         \ 'path':    s:bufpath(bufname(a:nr)),
         \ 'front':   s:is_open(a:nr),
         \ 'icon':    '',
-        \}, s:buf_var(a:nr))
+        \}
 
   if !has_key(buf, 'special')
     call extend(buf, s:is_special(a:nr))
@@ -43,6 +43,9 @@ endfun
 fun! s:update(nr)
   let s:X.Buffers[a:nr].front = s:is_open(a:nr)
   let s:X.Buffers[a:nr].extra = s:is_extra(a:nr)
+  if !s:X.Buffers[a:nr].special
+    call extend(s:X.Buffers[a:nr], s:is_special(a:nr))
+  endif
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -50,7 +53,8 @@ endfun
 fun! xtabline#buffer#get(nr)
   """Generate/update buffer properties while filtering.
   if !has_key(s:X.Buffers, a:nr)
-    let s:X.Buffers[a:nr] = extend(s:template(a:nr), s:buf_var(a:nr))
+    call xtabline#buffer#add(a:nr)
+    call extend(s:X.Buffers[a:nr], s:buf_var(a:nr))
   else
     call s:update(a:nr)
     call extend(s:X.Buffers[a:nr], s:buf_var(a:nr))
@@ -58,16 +62,14 @@ fun! xtabline#buffer#get(nr)
   return s:X.Buffers[a:nr]
 endfun
 
-fun! xtabline#buffer#delete(nr)
-  """Delete a buffer entry on BufDelete event.
-  silent! unlet! s:X.Buffers[a:nr]
-endfun
-
 fun! xtabline#buffer#add(nr)
-  """Apply s:v.buffer_properties on BufAdd event.
-  if !has_key(s:X.Buffers, a:nr) && !empty(s:v.buffer_properties)
-    let s:X.Buffers[a:nr] = extend(s:template(a:nr), s:v.buffer_properties)
-    let s:v.buffer_properties = {}
+  """For new buffers, apply s:v.buffer_properties and update tabline.
+  if !has_key(s:X.Buffers, a:nr)
+    let s:X.Buffers[a:nr] = s:template(a:nr)
+    if !empty(s:v.buffer_properties)
+      call extend(s:X.Buffers[a:nr], s:v.buffer_properties)
+      let s:v.buffer_properties = {}
+    endif
   endif
 endfun
 
@@ -119,6 +121,10 @@ fun! s:is_special(nr, ...)
   elseif s:Ft(n, "netrw")
     let i = ' '.s:Sets.icons.netrw.' '
     return s:set_special(i.'Netrw'.i, { 'format': 'l' })
+
+  elseif s:Ft(n, "dirvish")
+    let i = ' '.s:Sets.icons.netrw.' '
+    return s:set_special(i.'Dirvish'.i, { 'format': 'l' })
 
   elseif s:Ft(n, "startify")
     let i = ' '.s:Sets.icons.flag2.' '
