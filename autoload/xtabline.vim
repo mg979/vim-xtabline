@@ -37,7 +37,6 @@ let s:new_tab_created = 0
 fun! xtabline#init()
   set showtabline=2
   let s:X.Funcs = xtabline#funcs#init()
-  let s:X.Props = xtabline#props#init()
   let s:F = s:X.Funcs
   call xtabline#maps#init()
 
@@ -74,7 +73,7 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! xtabline#session_loaded()
+fun! xtabline#session_loaded() abort
   for buf in s:X.pinned_buffers
     let i = index(s:X.pinned_buffers, buf)
     if s:invalid(buf)
@@ -102,7 +101,7 @@ endfun
 " Filter buffers
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! xtabline#filter_buffers(...)
+fun! xtabline#filter_buffers(...) abort
   """Filter buffers so that only the ones within the tab's cwd will show up.
   if exists('s:force_update') | unlet s:force_update
   elseif !s:ready() | return  | endif
@@ -189,8 +188,8 @@ endfun
 fun! s:check_tabs()
   """Create or remove tab dicts if necessary. Rearrange tabs list if order is wrong.
   let Tabs = s:X.Tabs
-  while len(Tabs) < tabpagenr("$") | call add(Tabs, s:X.Props.new_tab()) | endwhile
-  while len(Tabs) > tabpagenr('$') | call remove(Tabs, -1)               | endwhile
+  while len(Tabs) < tabpagenr("$") | call add(Tabs, xtabline#tab#new()) | endwhile
+  while len(Tabs) > tabpagenr('$') | call remove(Tabs, -1)              | endwhile
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -236,7 +235,7 @@ function! s:Do(action, ...)
 
   if a:action == 'new'
 
-    call insert(X.Tabs, s:X.Props.new_tab(), N)
+    call insert(X.Tabs, xtabline#tab#new(), N)
     if V.auto_set_cwd && s:ready()
       let s:new_tab_created = 1
     endif

@@ -102,7 +102,7 @@ fun! xtabline#fzf#tab_load(...)
     endif
 
     "tab properties defined here will be applied by new_tab(), run by autocommand
-    let s:v.tab_properties = s:X.Props.tab_template({'cwd': cwd, 'dirs': [cwd]})
+    let s:v.tab_properties = {'cwd': cwd, 'dirs': [cwd]}
     let T = s:v.tab_properties
     for prop in keys(saved)
       if prop ==? 'buffers' || prop ==? 'description'   | continue | endif

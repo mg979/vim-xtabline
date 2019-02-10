@@ -301,9 +301,8 @@ endfun
 fun! s:lock_tab()
   """Lock a tab, including currently displayed buffers as valid buffers.
   let T = s:T()
-  let T.buffers.valid = filter(copy(T.buffers.order), 'buflisted(v:val) && filereadable(bufname(v:val))')
+  let T.buffers.valid = filter(T.buffers.order, 'buflisted(v:val) && filereadable(bufname(v:val))')
   let T.locked = 1
-  call xtabline#filter_buffers()
   redraw!
   echo s:F.msg('Tab has been locked', 1)
 endfun
@@ -618,7 +617,7 @@ endfun
 fun! s:reset_tab(...)
   """Reset the tab to a pristine state.
   let cwd = a:0? fnamemodify(expand(a:1), :p) : s:F.find_suitable_cwd()
-  let s:X.Tabs[tabpagenr()-1] = s:X.Props.new_tab({'cwd': cwd})
+  let s:X.Tabs[tabpagenr()-1] = xtabline#tab#new({'cwd': cwd})
   cd `=cwd`
   call xtabline#filter_buffers()
 endfun
