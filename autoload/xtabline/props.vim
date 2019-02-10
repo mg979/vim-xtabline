@@ -86,29 +86,6 @@ endfun
 " Functions {{{1
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Props.check_tabs() dict
-  """Create or remove tab dicts if necessary. Rearrange tabs list if order is wrong.
-  let Tabs = s:X.Tabs
-  while len(Tabs) < tabpagenr("$") | call add(Tabs, self.new_tab()) | endwhile
-  while len(Tabs) > tabpagenr('$') | call remove(Tabs, -1)          | endwhile
-endfun
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! s:Props.check_this_tab() dict
-  """Ensure all tab dict keys are present.
-  let T = s:T()
-  call extend(T, self.tab_template(), 'keep')
-  call extend(T.buffers,
-        \{'valid': [], 'order': [], 'extra': [], 'front': []},
-        \'keep')
-  if !has_key(T, 'use_dir')
-    let T.use_dir = s:F.fullpath(T.cwd)
-  endif
-endfun
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
 fun! s:Props.set_buffer(nr, ...) dict
   """Set and return the buffer dict.
   let B = s:B() | let n = a:nr

@@ -49,7 +49,7 @@ fun! xtabline#init()
     let s:X.devicons = {'extensions': extensions, 'exact': exact, 'patterns': patterns}
   endif
 
-  call s:X.Props.check_tabs()
+  call s:check_tabs()
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -104,8 +104,8 @@ fun! xtabline#filter_buffers(...)
   "     - pinned buffers
   "     - modfiable buffers in a tab window, even if they don't belong to the tab
 
-  call s:X.Props.check_tabs()
-  call s:X.Props.check_this_tab()
+  call s:check_tabs()
+  call s:check_this_tab()
   let T = s:T()
 
   if s:v.showing_tabs && has_key(T, 'init')
@@ -176,6 +176,29 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
+fun! s:check_tabs()
+  """Create or remove tab dicts if necessary. Rearrange tabs list if order is wrong.
+  let Tabs = s:X.Tabs
+  while len(Tabs) < tabpagenr("$") | call add(Tabs, s:X.Props.new_tab()) | endwhile
+  while len(Tabs) > tabpagenr('$') | call remove(Tabs, -1)          | endwhile
+endfun
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:check_this_tab()
+  """Ensure all tab dict keys are present.
+  let T = s:T()
+  call extend(T, s:X.Props.tab_template(), 'keep')
+  call extend(T.buffers,
+        \{'valid': [], 'order': [], 'extra': [], 'front': []},
+        \'keep')
+  if !has_key(T, 'use_dir')
+    let T.use_dir = s:F.fullpath(T.cwd)
+  endif
+endfun
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
 fun! xtabline#update_tab()
   let T = g:xtabline.Tabs[tabpagenr()-1]
   let T.cwd = s:F.fullpath(getcwd())
@@ -242,8 +265,8 @@ function! s:Do(action, ...)
 
   elseif a:action == 'enter'
 
-    call s:X.Props.check_tabs()
-    call s:X.Props.check_this_tab()
+    call s:check_tabs()
+    call s:check_this_tab()
     let T = X.Tabs[N]
 
     cd `=T.cwd`
