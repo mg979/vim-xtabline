@@ -28,7 +28,6 @@ let s:is_special = { b -> s:F.has_win(b) && s:B()[b].special }
 let s:is_open    = { b -> s:F.has_win(b) && getbufvar(b, "&ma") }
 let s:ready      = { -> !(exists('g:SessionLoad') || s:v.halt) }
 
-let s:most_recent = -1
 let s:new_tab_created = 0
 let s:force_update = 0
 
@@ -154,6 +153,9 @@ fun! xtabline#filter_buffers(...)
   endif
 endfun
 
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Helpers
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:update_buffers()
@@ -173,64 +175,6 @@ fun! s:update_buffers()
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Select buffers
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! xtabline#next_buffer(nr, pinned)
-  """Switch to next visible/pinned buffer."""
-
-  if s:F.not_enough_buffers(a:pinned) | return | endif
-  let accepted = a:pinned? s:pB() : s:oB()
-
-  let ix = index(accepted, bufnr("%"))
-  let target = ix + a:nr
-  let total = len(accepted)
-
-  if target >= total
-    " over last buffer
-    let s:most_recent = target - total
-
-  elseif ix == -1
-    " not in index, go back to most recent or back to first
-    if s:most_recent == -1 || index(accepted, s:most_recent) == -1
-      let s:most_recent = 0
-    endif
-  else
-    let s:most_recent = target
-  endif
-
-  return ":buffer " . accepted[s:most_recent] . "\<cr>"
-endfun
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! xtabline#prev_buffer(nr, pinned)
-  """Switch to previous visible/pinned buffer."""
-
-  if s:F.not_enough_buffers(a:pinned) | return | endif
-  let accepted = a:pinned? s:pB() : s:oB()
-
-  let ix = index(accepted, bufnr("%"))
-  let target = ix - a:nr
-  let total = len(accepted)
-
-  if target < 0
-    " before first buffer
-    let s:most_recent = total + target
-
-  elseif ix == -1
-    " not in index, go back to most recent or back to first
-    if s:most_recent == -1 || index(accepted, s:most_recent) == -1
-      let s:most_recent = 0
-    endif
-  else
-    let s:most_recent = target
-  endif
-
-  return ":buffer " . accepted[s:most_recent] . "\<cr>"
-endfun
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! xtabline#update_tab()
   let T = g:xtabline.Tabs[tabpagenr()-1]
@@ -239,8 +183,6 @@ fun! xtabline#update_tab()
   call xtabline#filter_buffers()
 endfun
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Helpers
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:set_new_tab_cwd(N)

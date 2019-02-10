@@ -17,7 +17,69 @@ let s:scratch =  { nr -> index(['nofile','acwrite','help'], getbufvar(nr, '&buft
 let s:badpath =  { nr -> !filereadable(bufname(nr)) && !getbufvar(nr, "&mod") }
 let s:pinned  =  { b  -> index(s:X.pinned_buffers, b) }
 
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Select buffers
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+let s:most_recent = -1
+
+fun! xtabline#cmds#next_buffer(nr, pinned)
+  """Switch to next visible/pinned buffer."""
+
+  if s:F.not_enough_buffers(a:pinned) | return | endif
+  let accepted = a:pinned? s:pB() : s:oB()
+
+  let ix = index(accepted, bufnr("%"))
+  let target = ix + a:nr
+  let total = len(accepted)
+
+  if target >= total
+    " over last buffer
+    let s:most_recent = target - total
+
+  elseif ix == -1
+    " not in index, go back to most recent or back to first
+    if s:most_recent == -1 || index(accepted, s:most_recent) == -1
+      let s:most_recent = 0
+    endif
+  else
+    let s:most_recent = target
+  endif
+
+  return ":buffer " . accepted[s:most_recent] . "\<cr>"
+endfun
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! xtabline#cmds#prev_buffer(nr, pinned)
+  """Switch to previous visible/pinned buffer."""
+
+  if s:F.not_enough_buffers(a:pinned) | return | endif
+  let accepted = a:pinned? s:pB() : s:oB()
+
+  let ix = index(accepted, bufnr("%"))
+  let target = ix - a:nr
+  let total = len(accepted)
+
+  if target < 0
+    " before first buffer
+    let s:most_recent = total + target
+
+  elseif ix == -1
+    " not in index, go back to most recent or back to first
+    if s:most_recent == -1 || index(accepted, s:most_recent) == -1
+      let s:most_recent = 0
+    endif
+  else
+    let s:most_recent = target
+  endif
+
+  return ":buffer " . accepted[s:most_recent] . "\<cr>"
+endfun
+
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Other commands
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! xtabline#cmds#run(cmd, ...)
   if a:0 == 1

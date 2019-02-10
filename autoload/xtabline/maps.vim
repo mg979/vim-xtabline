@@ -84,10 +84,10 @@ function! xtabline#maps#init()
   nnoremap <unique> <silent>        <Plug>(XT-Toggle-Tabs)           :<c-u>call xtabline#cmds#run('toggle_tabs')<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Toggle-Filtering)      :<c-u>call xtabline#cmds#run('toggle_buffers')<cr>
   nnoremap <unique> <silent> <expr> <Plug>(XT-Select-Buffer)         v:count? <sid>select_buffer(v:count-1) : ":\<C-U>".g:xtabline_settings.select_buffer_alt_action."\<cr>"
-  nnoremap <unique> <silent> <expr> <Plug>(XT-Next-Buffer)           xtabline#next_buffer(v:count1, 0)
-  nnoremap <unique> <silent> <expr> <Plug>(XT-Prev-Buffer)           xtabline#prev_buffer(v:count1, 0)
-  nnoremap <unique> <silent> <expr> <Plug>(XT-Next-Pinned)           xtabline#next_buffer(v:count1, 1)
-  nnoremap <unique> <silent> <expr> <Plug>(XT-Prev-Pinned)           xtabline#prev_buffer(v:count1, 1)
+  nnoremap <unique> <silent> <expr> <Plug>(XT-Next-Buffer)           xtabline#cmds#next_buffer(v:count1, 0)
+  nnoremap <unique> <silent> <expr> <Plug>(XT-Prev-Buffer)           xtabline#cmds#prev_buffer(v:count1, 0)
+  nnoremap <unique> <silent> <expr> <Plug>(XT-Next-Pinned)           xtabline#cmds#next_buffer(v:count1, 1)
+  nnoremap <unique> <silent> <expr> <Plug>(XT-Prev-Pinned)           xtabline#cmds#prev_buffer(v:count1, 1)
   nnoremap <unique> <silent>        <Plug>(XT-Close-Buffer)          :<c-u>XTabCloseBuffer<cr>
   nnoremap <unique> <silent>        <Plug>(XT-List-Buffers)          :<c-u>XTabListBuffers<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Delete-Buffers)        :<c-u>XTabDeleteBuffers<cr>
