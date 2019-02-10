@@ -56,14 +56,22 @@ endfun
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! xtabline#fzf#tabs()
-  let bookmarks = ["Name\t\t\t\t\tDescription\t\t\t\tBuffers\t\tWorking Dirctory"]
   let json = json_decode(readfile(s:Sets.bookmarks_file)[0])
+
+  let bookmarks = &columns > 99 ?
+        \ ["Name\t\t\tDescription\t\t\t\tBuffers\t\tWorking Directory"] :
+        \ ["Name\t\t\tBuffers\t\tWorking Directory"]
 
   for bm in keys(json)
     let desc = has_key(json[bm], 'description')? json[bm].description : ''
-    let line = s:yellow(s:pad(bm, 39))."\t".
-          \    s:cyan(s:pad(desc, 39))."\t".
-          \    len(json[bm].buffers) . " Buffers\t" . json[bm].cwd
+    if &columns > 99
+      let line = s:yellow(s:pad(bm, 19))."\t".
+            \    s:cyan(s:pad(desc, 39))."\t".
+            \    len(json[bm].buffers) . " Buffers\t" . json[bm].cwd
+    else
+      let line = s:yellow(s:pad(bm, 19))."\t".
+            \    len(json[bm].buffers) . " Buffers\t" . json[bm].cwd
+    endif
     call add(bookmarks, line)
   endfor
   return bookmarks
