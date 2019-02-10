@@ -60,7 +60,7 @@ endfun
 
 fun! xtabline#buffer#delete(nr)
   """Delete a buffer entry on BufDelete event.
-  unlet! s:X.Buffers[a:nr]
+  silent! unlet! s:X.Buffers[a:nr]
 endfun
 
 fun! xtabline#buffer#add(nr)

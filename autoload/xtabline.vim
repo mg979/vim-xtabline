@@ -29,7 +29,6 @@ let s:is_open    = { b -> s:F.has_win(b) && getbufvar(b, "&ma") }
 let s:ready      = { -> !(exists('g:SessionLoad') || s:v.halt) }
 
 let s:new_tab_created = 0
-let s:force_update = 0
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Init functions
@@ -57,7 +56,8 @@ endfun
 fun! xtabline#update_obsession()
   let string = 'let g:xtabline.Tabs = '.string(s:X.Tabs).
         \' | let g:xtabline.Buffers = '.string(s:X.Buffers).
-        \' | let g:xtabline.pinned_buffers = '.string(s:X.pinned_buffers)
+        \' | let g:xtabline.pinned_buffers = '.string(s:X.pinned_buffers).
+        \' | call xtabline#session_loaded()'
   if !exists('g:obsession_append')
     let g:obsession_append = [string]
   else
@@ -91,8 +91,8 @@ endfun
 
 fun! xtabline#filter_buffers(...)
   """Filter buffers so that only the ones within the tab's cwd will show up.
-  if s:force_update | let s:force_update = 0
-  elseif !s:ready() | return | endif
+  if exists('s:force_update') | unlet s:force_update
+  elseif !s:ready() | return  | endif
 
   " 'accepted' is a list of buffer numbers that belong to the tab, either because:
   "     - their path is valid for this tab
@@ -180,7 +180,7 @@ fun! s:check_tabs()
   """Create or remove tab dicts if necessary. Rearrange tabs list if order is wrong.
   let Tabs = s:X.Tabs
   while len(Tabs) < tabpagenr("$") | call add(Tabs, s:X.Props.new_tab()) | endwhile
-  while len(Tabs) > tabpagenr('$') | call remove(Tabs, -1)          | endwhile
+  while len(Tabs) > tabpagenr('$') | call remove(Tabs, -1)               | endwhile
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -314,7 +314,6 @@ augroup plugin-xtabline
   "NOTE: BufEnter needed. Timer improves reliability. Keep it like this.
   autocmd BufAdd,BufWrite,BufEnter,BufDelete    * call g:xtabline.Funcs.delay(50, 'xtabline#filter_buffers()')
   autocmd VimLeavePre                 * call g:xtabline.Funcs.clean_up_buffer_dict()
-  autocmd SessionLoadPost             * call xtabline#session_loaded()
   autocmd BufNewFile                  * call xtabline#automkdir#ensure_dir_exists()
 augroup END
 
