@@ -4,7 +4,6 @@ fun! xtabline#funcs#init()
   let s:Sets = g:xtabline_settings
 
   let s:T =  { -> s:X.Tabs[tabpagenr()-1] }       "current tab
-  let s:B =  { -> s:X.Buffers             }       "customized buffers
   let s:vB = { -> s:T().buffers.valid     }       "valid buffers for tab
   return s:Funcs
 endfun
@@ -54,7 +53,7 @@ endfun
 fun! s:Funcs.set_buffer_var(var, ...) dict
   """Init buffer variable in Tabs dict to 0 or a given value.
   """Return buffer dict if successful."""
-  let B = bufnr('%') | let bufs = s:B() | let val = a:0 ? a:1 : 0
+  let B = bufnr('%') | let bufs = s:X.Buffers | let val = a:0 ? a:1 : 0
 
   if !self.is_tab_buffer(B)
     return self.msg ([[ "Invalid buffer.", 'WarningMsg']]) | endif
@@ -69,10 +68,10 @@ endfun
 
 fun! s:Funcs.clean_up_buffer_dict() dict
   """Remove customized buffer entries, if buffers are not valid anymore.
-  let bufs = s:B()
+  let bufs = s:X.Buffers
 
   for b in keys(bufs)
-    if !bufexists(b) || bufs[b].special
+    if !bufexists(str2nr(b)) || bufs[b].special
       unlet bufs[b]
     endif
   endfor

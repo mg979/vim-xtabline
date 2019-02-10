@@ -86,6 +86,7 @@ fun! xtabline#session_loaded()
       unlet t.use_dir
     endif
   endfor
+  call g:xtabline.Funcs.clean_up_buffer_dict()
   cd `=s:X.Tabs[tabpagenr()-1].cwd`
   let s:force_update = 1
   call xtabline#filter_buffers()
@@ -303,7 +304,6 @@ augroup plugin-xtabline
 
   "NOTE: BufEnter needed. Timer improves reliability. Keep it like this.
   autocmd BufAdd,BufWrite,BufEnter,BufDelete    * call g:xtabline.Funcs.delay(50, 'xtabline#filter_buffers()')
-  autocmd VimLeavePre                 * call g:xtabline.Funcs.clean_up_buffer_dict()
   autocmd BufNewFile                  * call xtabline#automkdir#ensure_dir_exists()
 augroup END
 
