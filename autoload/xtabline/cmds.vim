@@ -129,7 +129,7 @@ fun! s:toggle_buffers()
   endif
   let s:v.filtering = !s:v.filtering
   call s:plugins_toggle_buffers()
-  call xtabline#filter_buffers()
+  call s:F.refresh_tabline()
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -340,7 +340,7 @@ fun! s:relative_paths()
   """Toggle between full relative path and tail only, in the bufline.
   let T = s:T()
   let T.rpaths = !T.rpaths
-  call xtabline#filter_buffers()
+  call s:F.refresh_tabline()
   if T.rpaths
     call s:F.msg ([[ "Bufferline shows relative paths.", 'StorageClass']])
   else
@@ -442,7 +442,7 @@ fun! s:tab_icon(...)
       let T.icon = icon
     endif
   endif
-  call xtabline#filter_buffers()
+  call s:F.refresh_tabline()
 endfun
 
 fun! s:buffer_icon(...)
@@ -459,7 +459,7 @@ fun! s:buffer_icon(...)
       let B.icon = icon
     endif
   endif
-  call xtabline#filter_buffers()
+  call s:F.refresh_tabline()
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

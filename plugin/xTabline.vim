@@ -23,6 +23,10 @@ com! -nargs=? -complete=buffer XTabListBuffers call fzf#vim#buffers(<q-args>, {
       \ 'source': xtabline#fzf#tab_buffers(),
       \ 'options': '--multi --prompt "Open Tab Buffer >>>  "'})
 
+com! -nargs=? -complete=buffer XTabListTabs call fzf#vim#files(<q-args>, {
+      \ 'source': xtabline#fzf#tablist(), 'sink': function('xtabline#fzf#tabopen'),
+      \ 'options': '--header-lines=1 --no-preview --ansi --prompt "Go to Tab >>>  "'})
+
 com! -nargs=? -complete=buffer XTabDeleteBuffers call fzf#vim#files(<q-args>, {
       \ 'source': xtabline#fzf#tab_buffers(),
       \ 'sink': function('xtabline#fzf#bufdelete'), 'down': '30%',

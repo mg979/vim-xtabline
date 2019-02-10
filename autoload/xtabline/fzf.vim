@@ -52,6 +52,46 @@ fun! xtabline#fzf#bufdelete(name)
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Tabs overview {{{1
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! xtabline#fzf#tablist()
+  let lines = []
+  for tab in range(tabpagenr("$"))
+    let T = g:xtabline.Tabs[tab]
+    let bufs = len(T.buffers.valid)
+    " let icon = empty(T.icon) ? s:Sets.tab_icon[0] : T.icon
+    let line = s:yellow(s:pad(tab+1, 5))."\t".
+          \    s:green(s:pad(bufs, 5))."\t".
+          \    s:cyan(s:pad(T.name, 20))."\t".
+          \    s:pad(s:short_cwd(T.cwd, 0), &columns/2)
+    call add(lines, line)
+  endfor
+  call add(lines, "Tab\tBufs\tName\t\t\tWorking Directory")
+  return reverse(lines)
+endfun
+
+fun! xtabline#fzf#tabopen(line)
+  let tab = a:line[0:(match(a:line, '\s')-1)]
+  exe "normal!" tab."gt"
+endfun
+
+fun! s:short_cwd(cwd, h)
+  if !a:h
+    return fnamemodify(a:cwd, ":~")
+  else
+    let H = fnamemodify(a:cwd, ":~")
+    if s:v.winOS
+      let H = tr(H, '\', '/')
+    endif
+    while len(split(H, '/')) > a:h+1
+      let H = substitute(H, '/\([^/]\)[^/]*', '°\1', "")
+    endwhile
+    return tr(H, '°', '/')
+  endif
+endfun
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Saved tabs {{{1
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
