@@ -32,14 +32,14 @@ let s:Hi = { -> g:xtabline_highlight.themes[s:Sets.theme] }
 
 let s:dirsep            = fnamemodify(getcwd(),':p')[-1:]
 let s:centerbuf         = winbufnr(0)
-let s:is_current_buf    = { nr -> nr == winbufnr(0) }
-let s:scratch           = { nr -> index(['nofile','acwrite'], getbufvar(nr, '&buftype')) >= 0 }
-let s:nowrite           = { nr -> !getbufvar(nr, '&modifiable') }
-let s:pinned            = { -> s:X.pinned_buffers               }
-let s:buffer_has_format = { buf -> has_key(s:B(), buf.nr) && has_key(s:B()[buf.nr], 'format') }
+let s:is_current_buf    = { nr -> nr == winbufnr(0)                                                }
+let s:scratch           = { nr -> index(['nofile','acwrite'], getbufvar(nr, '&buftype')) >= 0      }
+let s:nowrite           = { nr -> !getbufvar(nr, '&modifiable')                                    }
+let s:pinned            = { -> s:X.pinned_buffers                                                  }
+let s:buffer_has_format = { buf -> has_key(s:B(), buf.nr) && has_key(s:B()[buf.nr], 'format')      }
 let s:has_buf_icon      = { nr -> has_key(s:B(), string(nr)) && !empty(get(s:B()[nr], 'icon', '')) }
-let s:extraHi           = { b -> s:B()[b].extra || s:B()[b].front || index(s:pinned(), b) >= 0 }
-let s:specialHi         = { b -> s:B()[b].special }
+let s:extraHi           = { b -> s:B()[b].extra || s:B()[b].front || index(s:pinned(), b) >= 0     }
+let s:specialHi         = { b -> s:B()[b].special                                                  }
 
 " BufTabLine main function {{{1
 " =============================================================================
@@ -98,7 +98,9 @@ fun! xtabline#render#buffers()
     if !s:clean_buf(bnr) | continue | endif
 
     let special = s:specialHi(bnr)
-    if special && !s:F.has_win(bnr) | continue | endif
+    let scratch = s:scratch(bnr)
+    if special && !s:F.has_win(bnr) | continue
+    elseif !special && scratch      | continue | endif
 
     let n = index(bufs, bnr) + 1       "tab buffer index
     let is_currentbuf = currentbuf == bnr
@@ -125,7 +127,7 @@ fun! xtabline#render#buffers()
     elseif strlen(tab.path)
       let tab.path  = fnamemodify(tab.path, ':t')
 
-    elseif !s:scratch(bnr)       " unnamed file
+    elseif !scratch   " unnamed file
       let tab.name = '[ Unnamed ]'
     endif
     let tabs += [tab]
@@ -138,6 +140,8 @@ fun! xtabline#render#buffers()
   let rgt = { 'lasttab': -1, 'cut': '.$', 'indicator': '>', 'width': 0, 'half': &columns - lft.half }
 
   " 2. sum the string lengths for the left and right halves
+  let s:default_buffer_format = s:fmt_chars(s:Sets.bufline_format)
+
   let currentside = lft
   for tab in tabs
     let tab.label = s:format_buffer(tab)
@@ -197,24 +201,13 @@ endfun
 " =============================================================================
 
 fun! s:format_buffer(buf)
-  let fmt = s:buffer_has_format(a:buf)? s:B()[a:buf.nr].format : s:Sets.bufline_format
-  let chars = s:fmt_chars(fmt)
+  let fmt = s:buffer_has_format(a:buf)?
+        \ s:fmt_chars(s:B()[a:buf.nr].format) : s:default_buffer_format
 
   let out = []
-  for c in chars
-    let C = nr2char(c)
+  for c in fmt
     "custom tab icon, if tab has a name and/or icon has been defined
-    if     C ==# 'l' | let C = s:get_buf_name(a:buf)
-    elseif C ==# 'n' | let C = s:unicode_nrs(a:buf.n)
-    elseif C ==# 'N' | let C = a:buf.n
-    elseif C ==# '+' | let C = a:buf.indicator
-    elseif C ==# 'f' | let C = a:buf.path
-    elseif C ==# 'i' | let C = s:get_dev_icon(a:buf)
-    elseif C ==# 'I' | let C = s:get_buf_icon(a:buf)
-    elseif C ==# '<' | let C = s:needs_separator(a:buf)? a:buf.separators[0] : ''
-    elseif C ==# '>' | let C = a:buf.separators[1]
-    endif
-    call add(out, C)
+    call add(out, s:fmt_buf(c, a:buf))
   endfor
   return join(out, '')
 endfun
@@ -335,41 +328,17 @@ endfun
 " Tab label formatting {{{1
 " =============================================================================
 
-fun! s:fmt_chars(fmt)
-  """Return a split string with the formatting option in use.
-  let chars = []
-  for i in range(strchars(a:fmt))
-    call add(chars, strgetchar(a:fmt, i))
-  endfor
-  return chars
-endfun
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
 fun! s:format_tab(tabnr, fmt)
   let out = []
   for c in a:fmt
-    let C = nr2char(c)
     "custom tab icon, if tab has a name and/or icon has been defined
-    if C == '-'
+    if c == '-'
       let icon = s:get_tab_icon(a:tabnr)
-      let C = a:tabnr == tabpagenr()? icon[0] : icon[1]
-    elseif C ==# 'n' | let C = s:tabnum(a:tabnr, 0)
-    elseif C ==# 'N' | let C = s:tabnum(a:tabnr, 1)
-    elseif C ==# 'w' | let C = s:wincount(a:tabnr, 0)
-    elseif C ==# 'W' | let C = s:wincount(a:tabnr, 1)
-    elseif C ==# 'u' | let C = s:wincountUnicode(a:tabnr, 0)
-    elseif C ==# 'U' | let C = s:wincountUnicode(a:tabnr, 1)
-    elseif C ==# '+' | let C = s:modflag(a:tabnr)
-    elseif C ==# 'l' | let C = s:tabname(a:tabnr)
-    elseif C ==# 'f' | let C = s:bufname(a:tabnr)
-    elseif C ==# 'a' | let C = s:bufpath(a:tabnr)
-    elseif C ==# 'P' | let C = s:tabcwd(a:tabnr)
-    elseif C ==# '0' | let C = s:short_cwd(a:tabnr, 0)
-    elseif C ==# '1' | let C = s:short_cwd(a:tabnr, 1)
-    elseif C ==# '2' | let C = s:short_cwd(a:tabnr, 2)
+      let c = a:tabnr == tabpagenr()? icon[0] : icon[1]
+    else
+      let c = s:fmt_tab(c, a:tabnr)
     endif
-    call add(out, C)
+    call add(out, c)
   endfor
   return join(out, '')
 endfun
@@ -491,6 +460,39 @@ let s:tabcwd = { n -> s:X.Tabs[n-1].cwd }
 let s:windows = { n -> range(1, tabpagewinnr(n, '$')) }
 let s:basename = { f -> fnamemodify(f, ':p:t') }
 
+let s:fmt_chars = { s -> split(s, '\zs') }
+let s:fmt_buf = { c, buf -> {
+      \' ': ' ',
+      \'l': s:get_buf_name(buf),
+      \'n': s:unicode_nrs(buf.n),
+      \'N': buf.n,
+      \'+': buf.indicator,
+      \'f': buf.path,
+      \'i': s:get_dev_icon(buf),
+      \'I': s:get_buf_icon(buf),
+      \'<': s:needs_separator(buf)? buf.separators[0] : '',
+      \'>': buf.separators[1],
+      \}[c]
+      \}
+let s:fmt_tab = { c, tab -> {
+      \' ': ' ',
+      \'n': s:tabnum(tab, 0),
+      \'N': s:tabnum(tab, 1),
+      \'w': s:wincount(tab, 0),
+      \'W': s:wincount(tab, 1),
+      \'u': s:wincountUnicode(tab, 0),
+      \'U': s:wincountUnicode(tab, 1),
+      \'+': s:modflag(tab),
+      \'l': s:tabname(tab),
+      \'f': s:bufname(tab),
+      \'a': s:bufpath(tab),
+      \'P': s:tabcwd(tab),
+      \'0': s:short_cwd(tab, 0),
+      \'1': s:short_cwd(tab, 1),
+      \'2': s:short_cwd(tab, 2),
+      \}[c]
+      \}
+
 fun! s:tabname(tabnr)
   if s:v.custom_tabs
     return s:X.Tabs[a:tabnr-1].name
@@ -532,10 +534,9 @@ fun! s:get_tab_for_bufline()
   let N = tabpagenr()
   let fmt = empty(s:tabname(N)) ? s:Sets.bufline_tab_format : s:Sets.bufline_named_tab_format
 
-  let fmt_chars = s:fmt_chars(fmt)                                      "formatting options
-  let fmt_tab = s:format_tab(N, fmt_chars)                              "formatted string
-  let active_tab_label = substitute(fmt_tab, '%#X\w*#', '', 'g')        "text only, to find width
-  let active_tab = '%#XTFill#%#XTSelect#'.fmt_tab                       "use LineFill until label
+  let fmt_tab = s:format_tab(N, s:fmt_chars(fmt))                 "formatted string
+  let active_tab_label = substitute(fmt_tab, '%#X\w*#', '', 'g')  "text only, to find width
+  let active_tab = '%#XTSelect#'.fmt_tab                          "use LineFill until label
   return [active_tab, active_tab_label]
 endfun
 
