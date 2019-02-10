@@ -32,6 +32,7 @@ let s:ready      = { -> !(exists('g:SessionLoad') || s:v.halt) }
 
 let s:most_recent = -1
 let s:new_tab_created = 0
+let s:force_update = 0
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Init functions
@@ -59,8 +60,7 @@ endfun
 fun! xtabline#update_obsession()
   let string = 'let g:xtabline.Tabs = '.string(s:X.Tabs).
         \' | let g:xtabline.Buffers = '.string(s:X.Buffers).
-        \' | let g:xtabline.pinned_buffers = '.string(s:X.pinned_buffers).
-        \' | call xtabline#filter_buffers(1)'
+        \' | let g:xtabline.pinned_buffers = '.string(s:X.pinned_buffers)
   if !exists('g:obsession_append')
     let g:obsession_append = [string]
   else
@@ -75,12 +75,27 @@ fun! xtabline#update_obsession()
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! xtabline#session_loaded()
+  for buf in s:X.pinned_buffers
+    let i = index(s:X.pinned_buffers, buf)
+    if s:invalid(buf)
+      call remove(s:X.pinned_buffers, i)
+    endif
+  endfor
+  cd `=s:X.Tabs[tabpagenr()-1].cwd`
+  let s:force_update = 1
+  call xtabline#filter_buffers()
+endfun
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Filter buffers
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! xtabline#filter_buffers(...)
   """Filter buffers so that only the ones within the tab's cwd will show up.
-  if !s:ready() && !(a:0 && a:1 == 1) | return | endif
+  if s:force_update | let s:force_update = 0
+  elseif !s:ready() | return | endif
 
   " 'accepted' is a list of buffer numbers that belong to the tab, either because:
   "     - within filtering working directory
@@ -319,18 +334,6 @@ function! s:Do(action, ...)
     endif
     call remove(X.Tabs, V.last_tab)
 
-    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-  elseif a:action == 'session'
-
-    for buf in s:X.pinned_buffers
-      let i = index(s:X.pinned_buffers, buf)
-      if s:invalid(buf)
-        call remove(s:X.pinned_buffers, i)
-      endif
-    endfor
-    let cwd = X.Tabs[N].cwd | cd `=cwd`
-    call xtabline#filter_buffers()
   endif
 endfunction
 
@@ -351,7 +354,7 @@ augroup plugin-xtabline
   "NOTE: BufEnter needed. Timer improves reliability. Keep it like this.
   autocmd BufAdd,BufWrite,BufEnter,BufDelete    * call g:xtabline.Funcs.delay(50, 'xtabline#filter_buffers()')
   autocmd VimLeavePre                 * call g:xtabline.Funcs.clean_up_buffer_dict()
-  autocmd SessionLoadPost             * call s:Do('session')
+  autocmd SessionLoadPost             * call xtabline#session_loaded()
   autocmd BufNewFile                  * call xtabline#automkdir#ensure_dir_exists()
 augroup END
 
