@@ -155,7 +155,7 @@ fun! s:cd(count)
     return
   endif
   cd `=cwd`
-  call xtabline#update_tab()
+  call xtabline#update(1)
   pwd
 endfun
 

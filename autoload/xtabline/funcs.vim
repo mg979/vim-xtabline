@@ -215,13 +215,3 @@ function! s:Funcs.not_enough_buffers(pinned) dict
   endif
 endfunction
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! s:Funcs.refresh_tabline() dict
-  if s:v.showing_tabs
-    set tabline=%!xtabline#render#tabs()
-  else
-    set tabline=%!xtabline#render#buffers()
-  endif
-endfun
-

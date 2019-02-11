@@ -48,7 +48,7 @@ fun! xtabline#init()
   endif
 
   call s:check_tabs()
-  call s:F.refresh_tabline()
+  call xtabline#update(1)
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -94,7 +94,20 @@ fun! xtabline#session_loaded() abort
   call g:xtabline.Funcs.clean_up_buffer_dict()
   cd `=s:X.Tabs[tabpagenr()-1].cwd`
   let s:force_update = 1
-  call xtabline#filter_buffers()
+  call xtabline#update(1)
+endfun
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! xtabline#update(...) abort
+  if a:0
+    call xtabline#filter_buffers()
+  endif
+  if s:v.showing_tabs
+    set tabline=%!xtabline#render#tabs()
+  else
+    set tabline=%!xtabline#render#buffers()
+  endif
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -102,7 +115,7 @@ endfun
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! xtabline#filter_buffers(...) abort
-  """Filter buffers so that only the ones within the tab's cwd will show up.
+  """Filter buffers so that only valid buffers for this tab will be shown.
   if exists('s:force_update') | unlet s:force_update
   elseif !s:ready() | return  | endif
 
@@ -155,7 +168,7 @@ fun! xtabline#filter_buffers(...) abort
 
   " //////////////////////////////////////////////////////////
 
-  call s:update_buffers()
+  call s:ordered_buffers()
   call xtabline#update_obsession()
   if a:0 && a:1 == 2
     return xtabline#render#buffers()
@@ -167,7 +180,7 @@ endfun
 " Helpers
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:update_buffers()
+fun! s:ordered_buffers()
   let valid = s:vB()
   let order = s:oB()
   let extra = s:eB()
@@ -186,19 +199,10 @@ endfun
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:check_tabs()
-  """Create or remove tab dicts if necessary. Rearrange tabs list if order is wrong.
+  """Create or remove tab dicts if necessary.
   let Tabs = s:X.Tabs
   while len(Tabs) < tabpagenr("$") | call add(Tabs, xtabline#tab#new()) | endwhile
   while len(Tabs) > tabpagenr('$') | call remove(Tabs, -1)              | endwhile
-endfun
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! xtabline#update_tab()
-  let T = g:xtabline.Tabs[tabpagenr()-1]
-  let T.cwd = s:F.fullpath(getcwd())
-  let T.dirs = [T.cwd]
-  call xtabline#filter_buffers()
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
