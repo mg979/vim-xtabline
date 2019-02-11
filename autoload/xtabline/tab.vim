@@ -17,7 +17,7 @@ fun s:template()
         \ 'rpaths':  0,
         \ 'icon':    '',
         \ 'index':   tabpagenr()-1,
-        \ 'buffers': {'valid': [], 'order': [], 'extra': [], 'front': []},
+        \ 'buffers': {'valid': [], 'order': [], 'extra': []},
         \}
 endfun
 

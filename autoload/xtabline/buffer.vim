@@ -6,17 +6,6 @@ let s:v = s:X.Vars
 let s:Sets = g:xtabline_settings
 
 let s:T =  { -> s:X.Tabs[tabpagenr()-1] }       "current tab
-let s:B =  { -> s:X.Buffers             }       "customized buffers
-let s:vB = { -> s:T().buffers.valid     }       "valid buffers for tab
-let s:fB = { -> s:T().buffers.front     }       "temp buffers for tab
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-let s:is_valid = { n -> index(s:vB(), n) >= 0 }
-let s:is_extra = { n -> index(s:T().buffers.extra, n) >= 0 }
-let s:is_pinned = { n -> index(s:X.pinned_buffers, n) >= 0 }
-let s:is_open = { n -> s:F.has_win(n) && index(s:vB(), n) < 0 && getbufvar(n, "&ma") }
-
 let s:bufpath = { f -> filereadable(f) ? s:F.fullpath(f) : '' }
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -26,9 +15,7 @@ let s:bufpath = { f -> filereadable(f) ? s:F.fullpath(f) : '' }
 fun! s:template(nr)
   let buf = {
         \ 'name':    '',
-        \ 'extra':   s:is_extra(a:nr),
         \ 'path':    s:bufpath(bufname(a:nr)),
-        \ 'front':   s:is_open(a:nr),
         \ 'icon':    '',
         \}
 
@@ -41,8 +28,6 @@ endfun
 "------------------------------------------------------------------------------
 
 fun! s:update(nr)
-  let s:X.Buffers[a:nr].front = s:is_open(a:nr)
-  let s:X.Buffers[a:nr].extra = s:is_extra(a:nr)
   if !s:X.Buffers[a:nr].special
     call extend(s:X.Buffers[a:nr], s:is_special(a:nr))
   endif

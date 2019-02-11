@@ -7,14 +7,16 @@ let s:T =  { -> s:X.Tabs[tabpagenr()-1] }       "current tab
 let s:B =  { -> s:X.Buffers             }       "customized buffers
 let s:vB = { -> s:T().buffers.valid     }       "valid buffers for tab
 let s:eB = { -> s:T().buffers.extra     }       "extra buffers for tab
-let s:fB = { -> s:T().buffers.front     }       "temp buffers for tab
 let s:oB = { -> s:F.buffers_order()     }       "ordered buffers for tab
 
 let s:special = { nr -> has_key(s:B(), nr) && s:B()[nr].special }
 let s:refilter = 0
 let s:mod_width = 0
 
-let s:Hi = { -> g:xtabline_highlight.themes[s:Sets.theme] }
+let s:Hi        = { -> g:xtabline_highlight.themes[s:Sets.theme] }
+let s:is_open   = { n -> s:F.has_win(n) && index(s:vB(), n) < 0 && getbufvar(n, "&ma") }
+let s:is_extra  = { n -> index(s:eB(), n) >= 0 }
+
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
@@ -38,7 +40,7 @@ let s:nowrite           = { nr -> !getbufvar(nr, '&modifiable')                 
 let s:pinned            = { -> s:X.pinned_buffers                                                  }
 let s:buffer_has_format = { buf -> has_key(s:B(), buf.nr) && has_key(s:B()[buf.nr], 'format')      }
 let s:has_buf_icon      = { nr -> has_key(s:B(), string(nr)) && !empty(get(s:B()[nr], 'icon', '')) }
-let s:extraHi           = { b -> s:B()[b].extra || s:B()[b].front || index(s:pinned(), b) >= 0     }
+let s:extraHi           = { b -> s:is_extra(b) || s:is_open(b) || index(s:pinned(), b) >= 0        }
 let s:specialHi         = { b -> s:B()[b].special                                                  }
 
 " BufTabLine main function {{{1
@@ -65,40 +67,30 @@ fun! xtabline#render#buffers()
     endif
   endif
 
-  "include extra/pinned/temp buffers and put them upfront
-  for b in ( s:eB() + s:fB() )
-    let i = index(bufs, b)
-    if i >= 0 | call remove(bufs, i) | endif
-    call insert(bufs, b, 0)
-  endfor
-
-  "include pinned buffers and put them upfront
-  for b in s:pinned()
-    let i = index(bufs, b)
-    if i >= 0 | call remove(bufs, i) | endif
-    call insert(bufs, b, 0)
-  endfor
-
-  "include special buffers (upfront), may force refiltering
+  "include special buffers (upfront)
+  let front = [] | let specials = []
   for b in s:F.wins()
     let B = xtabline#buffer#get(b)
     if B.special
-      if index(bufs, b) < 0
-        call insert(bufs, b, 0)
-      else
-        call insert(bufs, remove(bufs, index(bufs, b)), 0)
-      endif
-    elseif B.extra && index(bufs, b) < 0
-      return xtabline#filter_buffers(2)
+      call add(specials, b)
+    elseif s:is_open(b)
+      call add(front, b)
     endif
   endfor
 
-  " make buftab string
+  "put upfront: special > pinned > open > extra buffers
+  for b in ( s:eB() + front + s:pinned() + specials )
+    call s:put_first(b)
+  endfor
+
+  " make buftabline string
   for bnr in bufs
     if !s:clean_buf(bnr) | continue | endif
 
     let special = s:specialHi(bnr)
     let scratch = s:scratch(bnr)
+
+    " exclude special buffers without window, or non-special scratch buffers
     if special && !s:F.has_win(bnr) | continue
     elseif !special && scratch      | continue | endif
 
@@ -113,22 +105,18 @@ fun! xtabline#render#buffers()
               \ 'separators': s:buf_separators(bnr),
               \ 'path': bufname(bnr),
               \ 'indicator': s:buf_indicator(bnr),
-              \ 'hilite' : is_currentbuf && special  ? 'Special' :
-                          \is_currentbuf             ? 'Select' :
-                          \special || s:extraHi(bnr) ? 'Extra' :
-                          \bufwinnr(bnr) > 0         ? 'Active' : 'Hidden'
+              \ 'hilite':   is_currentbuf && special  ? 'Special' :
+                          \ is_currentbuf             ? 'Select' :
+                          \ special || s:extraHi(bnr) ? 'Extra' :
+                          \ s:F.has_win(bnr)          ? 'Active' : 'Hidden'
               \}
 
     if is_currentbuf | let [centerbuf, s:centerbuf] = [bnr, bnr] | endif
 
-    if strlen(tab.path) && s:T().rpaths
+    if s:T().rpaths
       let tab.path  = fnamemodify(tab.path, ':p:~:.')
-
-    elseif strlen(tab.path)
+    else
       let tab.path  = fnamemodify(tab.path, ':t')
-
-    elseif !scratch   " unnamed file
-      let tab.name = '[ Unnamed ]'
     endif
     let tabs += [tab]
   endfor
@@ -492,6 +480,14 @@ let s:fmt_tab = { c, tab -> {
       \'2': s:short_cwd(tab, 2),
       \}[c]
       \}
+
+fun! s:put_first(b)
+  """Ensure a buffer goes first in the bufline.
+  let bufs = s:oB()
+  let i = index(bufs, a:b)
+  if i >= 0 | call remove(bufs, i) | endif
+  call insert(bufs, a:b, 0)
+endfun
 
 fun! s:tabname(tabnr)
   if s:v.custom_tabs

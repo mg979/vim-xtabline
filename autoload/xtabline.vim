@@ -19,7 +19,6 @@ let s:T  = { -> s:X.Tabs[tabpagenr()-1] }       "current tab
 let s:B  = { -> s:X.Buffers             }       "customized buffers
 let s:vB = { -> s:T().buffers.valid     }       "valid buffers for tab
 let s:eB = { -> s:T().buffers.extra     }       "extra buffers for tab
-let s:fB = { -> s:T().buffers.front     }       "front buffers for tab
 let s:pB = { -> s:X.pinned_buffers      }       "pinned buffers list
 let s:oB = { -> s:F.buffers_order()     }       "ordered buffers for tab
 
@@ -93,7 +92,7 @@ fun! xtabline#session_loaded() abort
   endfor
   call g:xtabline.Funcs.clean_up_buffer_dict()
   cd `=s:X.Tabs[tabpagenr()-1].cwd`
-  let s:force_update = 1
+  let s:v.force_update = 1
   call xtabline#update(1)
 endfun
 
@@ -114,9 +113,9 @@ endfun
 " Filter buffers
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! xtabline#filter_buffers(...) abort
+fun! xtabline#filter_buffers() abort
   """Filter buffers so that only valid buffers for this tab will be shown.
-  if exists('s:force_update') | unlet s:force_update
+  if exists('s:v.force_update') | unlet s:v.force_update
   elseif !s:ready() | return  | endif
 
   " 'accepted' is a list of buffer numbers that belong to the tab, either because:
@@ -125,9 +124,6 @@ fun! xtabline#filter_buffers(...) abort
   " 'extra' are buffers that have been purposefully added by other means to the tab
   "     - not a dynamic list, elements are manually added or removed
   "     - they aren't handled here, they are handled at render time
-  " 'front' are either:
-  "     - pinned buffers
-  "     - modfiable buffers in a tab window, even if they don't belong to the tab
 
   let T = s:T()
 
@@ -137,7 +133,6 @@ fun! xtabline#filter_buffers(...) abort
   endif
 
   let T.buffers.valid = T.locked? T.buffers.valid : []
-  let T.buffers.front = []
 
   " /////////////////// ITERATE BUFFERS //////////////////////
 
@@ -147,21 +142,10 @@ fun! xtabline#filter_buffers(...) abort
     if s:is_special(buf)   | call add(T.buffers.valid, buf)
     elseif s:invalid(buf)  | continue
     elseif !s:v.filtering  | call add(T.buffers.valid, buf)
-    else
-      if T.locked
-        " valid buffers are already defined, just add front buffers
-        if B.front
-          call add(T.buffers.front, buf)
-        endif
-
-      elseif B.path =~ '^'.T.dirs[0] && s:F.within_depth(B.path, T.depth)
+    elseif !T.locked
+      if B.path =~ '^'.T.dirs[0] && s:F.within_depth(B.path, T.depth)
         " to be accepted, buffer's path must be valid for this tab
         call add(T.buffers.valid, buf)
-
-      elseif B.front
-        " evaluated later, front but non-valid buffers use different hi
-        call add(T.buffers.front, buf)
-
       endif
     endif
   endfor
@@ -170,9 +154,6 @@ fun! xtabline#filter_buffers(...) abort
 
   call s:ordered_buffers()
   call xtabline#update_obsession()
-  if a:0 && a:1 == 2
-    return xtabline#render#buffers()
-  endif
 endfun
 
 
