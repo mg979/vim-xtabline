@@ -115,7 +115,7 @@ fun! xtabline#render#buffers()
               \ 'hilite':   is_currentbuf && special  ? 'Special' :
                           \ is_currentbuf             ? 'Select' :
                           \ special || s:extraHi(bnr) ? 'Extra' :
-                          \ s:F.has_win(bnr)          ? 'Active' : 'Hidden'
+                          \ s:F.has_win(bnr)          ? 'Visible' : 'Hidden'
               \}
 
     if is_currentbuf | let [centerbuf, s:centerbuf] = [bnr, bnr] | endif
@@ -214,7 +214,7 @@ fun! s:buf_indicator(bnr)
   let mod = index(s:pinned(), nr) >= 0 ? mods.pinned : ''
   let modHi = s:is_current_buf(nr) ? "%#XTSelectMod#" :
         \     s:extraHi(nr)        ? "%#XTExtraMod#" :
-        \     bufwinnr(nr) > 0     ? "%#XTActiveMod#" : "%#XTHiddenMod#"
+        \     bufwinnr(nr) > 0     ? "%#XTVisibleMod#" : "%#XTHiddenMod#"
   if getbufvar(nr, '&mod')
     let s:mod_width += len (modHi)
     return (mod . modHi . mods.modified)
@@ -384,8 +384,8 @@ fun! s:modflag(tabnr)
   for buf in tabpagebuflist(a:tabnr)
     if getbufvar(buf, "&mod")
       return a:tabnr == tabpagenr() ?
-              \ "%#XTHiddenMod#" . flag . "%#XTHidden#" :
-              \ "%#XTActiveMod#"    . flag . "%#XTActive#"
+              \ "%#XTHiddenMod#"  . flag . "%#XTHidden#" :
+              \ "%#XTVisibleMod#" . flag . "%#XTVisible#"
     endif
   endfor
   return ""

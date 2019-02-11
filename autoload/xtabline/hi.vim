@@ -55,7 +55,7 @@ endfun
 
 fun! s:clear_groups()
   """Clear highlight before applying a theme."""
-  let xbuf = ['Current', 'Active', 'Hidden', 'Fill', 'Special', 'Mod', 'Pinned']
+  let xbuf = ['Current', 'Visible', 'Hidden', 'Fill', 'Special', 'Mod', 'Pinned']
   let xtab = ['SelMod', 'Sel', 'Mod', 'Fill', 'NumSel', 'Num', '']
 
   for h in xbuf | exe "silent! hi clear XBufLine".h | endfor
@@ -96,17 +96,17 @@ endfun
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 let s:Hi.themes.default = {
-      \"XTSelect"        : ["TabLineSel",  1],
-      \"XTActive"        : ["Special",     1],
-      \"XTHidden"        : ["TabLine",     1],
-      \"XTSelectMod"     : ["TabLineSel",  1],
-      \"XTActiveMod"     : ["Special",     1],
-      \"XTHiddenMod"     : ["WarningMsg",  1],
-      \"XTExtra"         : ["PmenuSel",    1],
-      \"XTSpecial"       : ["DiffAdd",     1],
-      \"XTFill"          : ["TabLineFill", 1],
-      \"XTActiveTab"     : ["TabLineSel",  1],
-      \"XTNumSel"        : ["DiffAdd",     1],
-      \"XTNum"           : ["Special",     1],
+      \"XTSelect":     ["TabLineSel",  1],
+      \"XTVisible":    ["Special",     1],
+      \"XTHidden":     ["TabLine",     1],
+      \"XTSelectMod":  ["TabLineSel",  1],
+      \"XTVisibleMod": ["Special",     1],
+      \"XTHiddenMod":  ["WarningMsg",  1],
+      \"XTExtra":      ["PmenuSel",    1],
+      \"XTSpecial":    ["DiffAdd",     1],
+      \"XTFill":       ["TabLineFill", 1],
+      \"XTVisibleTab": ["TabLineSel",  1],
+      \"XTNumSel":     ["DiffAdd",     1],
+      \"XTNum":        ["Special",     1],
       \}
 
