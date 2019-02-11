@@ -57,6 +57,7 @@ fun! xtabline#render#buffers()
   let tabs_per_tail = {}
   let currentbuf = winbufnr(0)
   let bufs = s:oB()
+  let was_locked = s:T().locked
 
   "put current buffer first
   if s:Sets.sort_buffers_by_last_open
@@ -77,6 +78,12 @@ fun! xtabline#render#buffers()
       call add(front, b)
     endif
   endfor
+
+  " if the tab has been locked by an open buffer, must refilter
+  if !was_locked && s:T().locked
+    call xtabline#filter_buffers()
+    return xtabline#render#buffers()
+  endif
 
   "put upfront: special > pinned > open > extra buffers
   for b in ( s:eB() + front + s:pinned() + specials )
