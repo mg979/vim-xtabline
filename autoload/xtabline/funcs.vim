@@ -66,24 +66,6 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.clean_up_buffer_dict()
-  """Remove customized buffer entries, if buffers are not valid anymore.
-  let bufs = s:X.Buffers
-
-  for b in keys(bufs)
-    if !bufexists(str2nr(b)) || bufs[b].special
-      unlet bufs[b]
-    endif
-  endfor
-
-  for tab in s:X.Tabs
-    let tab.buffers.extra = []
-  endfor
-  call xtabline#update_obsession()
-endfun
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
 fun! s:Funcs.fullpath(path, ...)
   """OS-specific modified path."""
   let path = expand(a:path)

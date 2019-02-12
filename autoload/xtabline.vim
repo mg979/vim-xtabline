@@ -93,7 +93,6 @@ fun! xtabline#session_loaded() abort
     endif
     call extend(t, xtabline#tab#new(t))
   endfor
-  call g:xtabline.Funcs.clean_up_buffer_dict()
   cd `=s:X.Tabs[tabpagenr()-1].cwd`
   let s:v.force_update = 1
   call xtabline#update(1)
@@ -141,7 +140,10 @@ fun! xtabline#filter_buffers() abort
   " /////////////////// ITERATE BUFFERS //////////////////////
 
   for buf in range(1, bufnr("$"))
-    if !bufexists(buf) | continue | endif
+    if !bufexists(buf)
+      if has_key(T.buffers, buf) | unlet T.buffers[buf] | endif
+      continue
+    endif
     let B = xtabline#buffer#get(buf)
 
     if s:is_special(buf)   | call add(T.buffers.valid, buf)
@@ -275,7 +277,6 @@ function! s:Do(action, ...)
       call add(X.closed_cwds, X.Tabs[V.last_tab].cwd)
     endif
     call remove(X.Tabs, V.last_tab)
-    call g:xtabline.Funcs.clean_up_buffer_dict()
 
   endif
 endfunction
@@ -292,8 +293,6 @@ augroup plugin-xtabline
   autocmd BufEnter      * call s:Do('bufenter')
   autocmd ColorScheme   * if s:ready() | call xtabline#hi#update_theme() | endif
 
-  autocmd BufWrite      * call g:xtabline.Funcs.clean_up_buffer_dict()
-  autocmd BufDelete     * call g:xtabline.Funcs.clean_up_buffer_dict()
   autocmd BufWinEnter   * call xtabline#filter_buffers()
   autocmd BufNewFile    * call xtabline#automkdir#ensure_dir_exists()
   autocmd BufWritePost  * call xtabline#tab#update_git_files()
