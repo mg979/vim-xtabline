@@ -127,6 +127,7 @@ let s:S.select_buffer_alt_action   = "buffer #"
 let s:S.hide_buffer_alt_action     = "buffer #"
 let s:S.bookmarks_file             = expand(s:vimdir . '/.XTablineBookmarks')
 let s:S.sessions_data              = expand(s:vimdir . '/.XTablineSessions')
+let s:S.use_git                    = 0
 let s:S.superscript_unicode_nrs    = 0
 let s:S.show_current_tab           = 1
 let s:S.enable_extra_highlight     = 1

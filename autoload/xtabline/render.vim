@@ -99,7 +99,7 @@ fun! xtabline#render#buffers()
 
     " exclude special buffers without window, or non-special scratch buffers
     if special && !s:F.has_win(bnr) | continue
-    elseif !special && scratch      | continue | endif
+    elseif scratch && !special      | continue | endif
 
     let n = index(bufs, bnr) + 1       "tab buffer index
     let is_currentbuf = currentbuf == bnr
@@ -234,7 +234,7 @@ endfun
 fun! s:buf_separators(nr)
   """Use custom separators if defined in buffer entry."""
   let bufs = s:B()
-  return has_key(bufs, a:nr) && has_key(bufs[a:nr], 'separators') ?
+  return has_key(bufs[a:nr], 'separators') ?
         \       bufs[a:nr].separators : s:Sets.bufline_separators
 endfun
 

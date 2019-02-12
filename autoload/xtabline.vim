@@ -28,6 +28,7 @@ let s:is_open    = { b -> s:F.has_win(b) && getbufvar(b, "&ma") }
 let s:ready      = { -> !(exists('g:SessionLoad') || s:v.halt) }
 
 let s:new_tab_created = 0
+let s:v.slash         = exists('+shellslash') && !&shellslash ? '\' : '/'
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Init functions
@@ -73,6 +74,7 @@ endfun
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! xtabline#session_loaded() abort
+  call s:check_tabs()
   for buf in s:X.pinned_buffers
     let i = index(s:X.pinned_buffers, buf)
     if s:invalid(buf)
@@ -89,6 +91,7 @@ fun! xtabline#session_loaded() abort
       let t.dirs = [t.use_dir]
       unlet t.use_dir
     endif
+    call extend(t, xtabline#tab#new(t))
   endfor
   call g:xtabline.Funcs.clean_up_buffer_dict()
   cd `=s:X.Tabs[tabpagenr()-1].cwd`
@@ -133,17 +136,29 @@ fun! xtabline#filter_buffers() abort
   endif
 
   let T.buffers.valid = T.locked? T.buffers.valid : []
+  let Files = get(T, 'files', [])
 
   " /////////////////// ITERATE BUFFERS //////////////////////
 
   for buf in range(1, bufnr("$"))
+    if !bufexists(buf) | continue | endif
     let B = xtabline#buffer#get(buf)
 
     if s:is_special(buf)   | call add(T.buffers.valid, buf)
     elseif s:invalid(buf)  | continue
     elseif !s:v.filtering  | call add(T.buffers.valid, buf)
     elseif !T.locked
-      if B.path =~ '^'.T.dirs[0] && s:F.within_depth(B.path, T.depth)
+
+      if !empty(Files)
+        " to be accepted, buffer's path must be among valid files
+        " when using git paths, they'll be relative
+        if T.is_git && index(Files, bufname(buf)) >= 0
+          call add(T.buffers.valid, buf)
+        elseif index(Files, B.path) >= 0
+          call add(T.buffers.valid, buf)
+        endif
+
+      elseif B.path =~ '^'.T.dirs[0] && s:F.within_depth(B.path, T.depth)
         " to be accepted, buffer's path must be valid for this tab
         call add(T.buffers.valid, buf)
       endif
@@ -281,5 +296,6 @@ augroup plugin-xtabline
   autocmd BufDelete     * call g:xtabline.Funcs.clean_up_buffer_dict()
   autocmd BufWinEnter   * call xtabline#filter_buffers()
   autocmd BufNewFile    * call xtabline#automkdir#ensure_dir_exists()
+  autocmd BufWritePost  * call xtabline#tab#update_git_files()
 augroup END
 
