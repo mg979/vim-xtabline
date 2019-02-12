@@ -65,8 +65,8 @@ fun! s:do_map()
   call s:mapkeys('+T',    'Move-Tab0')
   call s:mapkeys('-T',    'Move-Tab$')
 
-  if exists('g:loaded_fzf') && maparg(toupper(X)) == '' && !hasmapto('<Plug>(XT-Fzf)')
-    silent! execute 'nmap <unique><nowait>' toupper(X) '<Plug>(XT-Fzf)'
+  if exists('g:loaded_fzf') && maparg(toupper(X)) == '' && !hasmapto('<Plug>(XT-Menu)')
+    silent! execute 'nmap <unique><nowait>' toupper(X) '<Plug>(XT-Menu)'
   endif
 endfun
 
@@ -123,7 +123,7 @@ function! xtabline#maps#init()
   nnoremap <unique> <silent>        <Plug>(XT-Reset-Tab)             :<c-u>XTabResetTab<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Reset-Buffer)          :<c-u>XTabResetBuffer<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Relative-Paths)        :<c-u>XTabRelativePaths<cr>
-  nnoremap <unique> <silent>        <Plug>(XT-Fzf)                   :<c-u>XTabFzf<cr>
+  nnoremap <unique> <silent>        <Plug>(XT-Menu)                  :<c-u>XTabMenu<cr>
 
   if !g:xtabline_settings.no_mappings | call s:do_map() | endif
 endfunction

@@ -452,10 +452,18 @@ endfun
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! xtabline#fzf#cmds()
-  """Run any XTabline command with fzf."""
+  """Run any XTabline command with fzf or finder."""
   redraw!
+  let input = map(copy(s:cmds), 'v:val[0]')
+  if !exists('g:loaded_fzf') || !g:loaded_fzf
+    let res = xtabline#finder#open(input, 'Command ', 0)
+    if !empty(res)
+      call xtabline#fzf#run(res[0])
+    endif
+    return
+  endif
   call fzf#vim#files('', {
-        \ 'source': map(copy(s:cmds), 'v:val[0]'),
+        \ 'source': input,
         \ 'sink': function('xtabline#fzf#run'), 'down': '30%',
         \ 'options': '--no-multi --no-preview --ansi --prompt "Command >>>  "'})
 endfun
