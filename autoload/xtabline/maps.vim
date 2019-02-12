@@ -6,11 +6,10 @@ fun! s:do_map()
 
   let S = g:xtabline_settings
   let X = S.map_prefix
-  let L = '<leader>'
 
   fun! s:mapkeys(keys, plug)
     let plug = '<Plug>(XT-'.a:plug.')'
-    if maparg(a:keys, 'n') == '' && !hasmapto(plug)
+    if !hasmapto(plug) && empty(maparg(a:keys, 'n'))
       silent! execute 'nmap <unique>' a:keys plug
     endif
   endfun
@@ -126,7 +125,7 @@ function! xtabline#maps#init()
   nnoremap <unique> <silent>        <Plug>(XT-Relative-Paths)        :<c-u>XTabRelativePaths<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Fzf)                   :<c-u>XTabFzf<cr>
 
-  if !g:xtabline_settings.disable_keybindings | call s:do_map() | endif
+  if !g:xtabline_settings.no_mappings | call s:do_map() | endif
 endfunction
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

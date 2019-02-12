@@ -131,8 +131,7 @@ let s:S.superscript_unicode_nrs    = 0
 let s:S.show_current_tab           = 1
 let s:S.enable_extra_highlight     = 1
 let s:S.sort_buffers_by_last_open  = 0
-let s:S.override_airline           = 1
-let s:S.disable_keybindings        = 0
+let s:S.no_mappings                = 1
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Bufline/Tabline settings

@@ -14,30 +14,30 @@ let s:Funcs.has_win = { b -> index(s:Funcs.wins(), b) >= 0 }
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.buffers_order() dict
+fun! s:Funcs.buffers_order()
   """Current ordered list of valid buffers."""
   return s:T().buffers.order
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.delay(time, func) dict
+fun! s:Funcs.delay(time, func)
   """Call a function with a timer."""
   " if exists('g:SessionLoad') || s:v.halt | return | endif
   let s:delayed_func = a:func
   call timer_start(a:time, self._delay)
 endfun
 
-fun! s:Funcs._delay(timer) dict
+fun! s:Funcs._delay(timer)
   exe "call" s:delayed_func
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.msg(txt, ...) dict
+fun! s:Funcs.msg(txt, ...)
   """Print a message with highlighting."""
   if type(a:txt) == v:t_string
-    exe "echohl" a:1? "WarningMsg" : "Label"
+    exe "echohl" a:0 && a:1? "WarningMsg" : "Label"
     echon a:txt | echohl None
     return | endif
 
@@ -50,7 +50,7 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.set_buffer_var(var, ...) dict
+fun! s:Funcs.set_buffer_var(var, ...)
   """Init buffer variable in Tabs dict to 0 or a given value.
   """Return buffer dict if successful."""
   let B = bufnr('%') | let bufs = s:X.Buffers | let val = a:0 ? a:1 : 0
@@ -66,7 +66,7 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.clean_up_buffer_dict() dict
+fun! s:Funcs.clean_up_buffer_dict()
   """Remove customized buffer entries, if buffers are not valid anymore.
   let bufs = s:X.Buffers
 
@@ -84,7 +84,7 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.fullpath(path, ...) dict
+fun! s:Funcs.fullpath(path, ...)
   """OS-specific modified path."""
   let path = expand(a:path)
   let path = empty(path) ? a:path : path        "expand can fail
@@ -96,20 +96,20 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.sep() dict
+fun! s:Funcs.sep()
   """OS-specific directory separator."""
   return s:v.winOS ? '\' : '/'
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.todo_path() dict
+fun! s:Funcs.todo_path()
   return getcwd().self.sep().s:Sets.todo.file
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.within_depth(path, depth) dict
+fun! s:Funcs.within_depth(path, depth)
   """If tab uses depth, verify if the path can be accepted."""
 
   if a:depth < 0 | return 1 | endif
@@ -124,21 +124,21 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-function! s:Funcs.tab_buffers() dict
+fun! s:Funcs.tab_buffers()
   """Return a list of buffers names for this tab."""
   return map(copy(s:vB()), 'bufname(v:val)')
-endfunction
+endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.is_tab_buffer(...) dict
+fun! s:Funcs.is_tab_buffer(...)
   """Verify that the buffer belongs to the tab."""
   return (index(s:vB(), a:1) != -1)
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.all_valid_buffers(...) dict
+fun! s:Funcs.all_valid_buffers(...)
     """Return all valid buffers for all tabs."""
   let valid = []
   for i in range(tabpagenr('$'))
@@ -153,7 +153,7 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.all_open_buffers() dict
+fun! s:Funcs.all_open_buffers()
     """Return all open buffers for all tabs."""
   let open = []
   for i in range(tabpagenr('$')) | call extend(open, tabpagebuflist(i + 1)) | endfor
@@ -162,7 +162,7 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.bdelete(buf) dict
+fun! s:Funcs.bdelete(buf)
   """Delete buffer if unmodified."""
   if index(s:X.pinned_buffers, a:buf) >= 0
     call self.msg("Pinned buffer has not been deleted.", 1)
@@ -182,13 +182,14 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.find_suitable_cwd(...) dict
+fun! s:Funcs.find_suitable_cwd(...)
   """Look for a VCS dir below current directory."""
   let s = self.sep() | let l:Found = { d -> isdirectory(d.s.'.git') }
 
+  let limit = get(s:Sets, 'git_dir_search_down_limit', 5)
   let f = a:0 ? a:1 : expand("%")
   let h = ":p:h"
-  for i in range(5)
+  for i in range(limit)
     let dir = fnamemodify(f, h)
     if l:Found(dir) | return self.fullpath(dir) | endif
     let h .= ":h"
@@ -213,5 +214,5 @@ function! s:Funcs.not_enough_buffers(pinned) dict
     endif
     return 1
   endif
-endfunction
+endfun
 

@@ -122,7 +122,6 @@ fun! s:toggle_buffers()
   """Toggle buffer filtering in the tabline."""
 
   if s:v.filtering
-    let g:airline#extensions#tabline#exclude_buffers = []
     call s:F.msg ([[ "Buffer filtering turned off", 'WarningMsg' ]])
   else
     call s:F.msg ([[ "Buffer filtering turned on", 'StorageClass' ]])
@@ -640,7 +639,7 @@ fun! s:toggle_tab_names()
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Adjustments for Airline or other plugins
+" Adjustments for other plugins
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:plugins_toggle_tabs()

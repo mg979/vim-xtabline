@@ -428,7 +428,7 @@ configurator.
 ---------------------------+----------------------------------+----------
 Option                     | Description                      | Default ~
 ---------------------------+----------------------------------+----------
-disable_keybindings        | only `<Plug>`s will be defined     | 0
+no_mappings                | only `<Plug>`s will be defined   | 1
 select_buffer_alt_action   | SelectBuffer alternative command | `buffer #`
 hide_buffer_alt_action     | HideBuffer alternative command   | `buffer #`
 sessions_path              | sessions directory               | `~/.vim/session`
