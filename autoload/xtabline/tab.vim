@@ -4,7 +4,6 @@ let s:F = g:xtabline.Funcs
 let s:v = g:xtabline.Vars
 let s:Sets = g:xtabline_settings
 let s:T = { -> g:xtabline.Tabs[tabpagenr()-1] } "current tab
-let s:is_repo = { t -> isdirectory(t.cwd . s:v.slash . '.git') }
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
@@ -46,7 +45,7 @@ fun! xtabline#tab#new(...)
   "it defaults to [], or git files if tab is using git
   "a list, passed through s:v.tab_properties or arguments, will override this list
   "tab.is_git can also be overwritten with properties or arguments
-  let tab.is_git = get(tab, 'is_git', s:Sets.use_git && s:is_repo(tab))
+  let tab.is_git = get(tab, 'is_git', s:Sets.use_git && s:F.is_repo(tab))
   let tab.files  = get(tab, 'files', tab.is_git ? systemlist('git ls-files') : [])
 
   call extend(tab, a:0 ? a:1 : {})
@@ -69,7 +68,7 @@ endfun
 fun! xtabline#tab#update_git_files()
   """Update tracked files if tab cwd is a repo, or disable tracking.
   let T = s:T()
-  if T.is_git && s:is_repo(T)
+  if T.is_git && s:F.is_repo(T)
     let T.files = systemlist('git ls-files')
   elseif T.is_git
     let T.is_git = 0

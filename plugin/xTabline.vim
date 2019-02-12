@@ -80,6 +80,7 @@ com!                    XTabCustomTabs      call xtabline#cmds#run("toggle_tab_n
 com!                    XTabLock            call xtabline#cmds#run("lock_tab")
 com! -nargs=?           XTabPinBuffer       call xtabline#cmds#run("toggle_pin_buffer", <q-args>)
 com!                    XTabConfig          call xtabline#config#start()
+com!                    XTabGit             call xtabline#cmds#run("toggle_git")
 
 com! -nargs=? -count    XTabNew             call xtabline#cmds#run("new_tab", <count>, <q-args>)
 com! -nargs=?           XTabMove            call xtabline#cmds#run("move_tab", <q-args>)

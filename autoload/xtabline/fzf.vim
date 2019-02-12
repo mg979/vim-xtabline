@@ -628,4 +628,5 @@ let s:cmds = [
       \['Configure',                     "XTabConfig"],
       \['Select theme',                  "call feedkeys(':XTabTheme ', 'n')"],
       \['Tab vimrc',                     "XTabVimrc"],
+      \['Git mode',                      "XTabGit"],
       \]
