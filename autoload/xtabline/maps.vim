@@ -148,13 +148,7 @@ fun! s:cd(count)
   for c in range(a:count)
     let path .= ':h'
   endfor
-  let cwd = g:xtabline.Funcs.fullpath(expand("%"), path).'/'
-  if !isdirectory(cwd)
-    echoerr "Invalid directory:" cwd
-    return
-  endif
-  cd `=cwd`
-  call xtabline#update(1)
-  pwd
+  let cwd = g:xtabline.Funcs.fullpath(expand("%"), path)
+  call g:xtabline.Funcs.change_wd(cwd)
 endfun
 

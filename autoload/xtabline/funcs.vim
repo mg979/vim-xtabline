@@ -199,7 +199,20 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-function! s:Funcs.not_enough_buffers(pinned) dict
+fun! s:Funcs.change_wd(cwd)
+  if !isdirectory(a:cwd)
+    return  self.msg("Invalid directory: ".a:cwd, 1)
+  endif
+  call extend(s:T(), { 'cwd': a:cwd, 'dirs': [a:cwd] })
+  cd `=a:cwd`
+  call xtabline#update(1)
+  redraw
+  call self.msg ([[ "Working directory: ", 'Label' ], [ a:cwd, 'None' ]])
+endfun
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:Funcs.not_enough_buffers(pinned)
   """Just return if there aren't enough buffers."""
   let bufs = a:pinned ? s:v.pinned_buffers : self.buffers_order()
   let pin  = a:pinned ? ' pinned ' : ' '

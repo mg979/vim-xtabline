@@ -601,13 +601,8 @@ fun! s:set_cwd(...)
 
   if empty(cwd)
     call s:F.msg ([[ "Canceled.", 'WarningMsg' ]])
-  elseif !isdirectory(cwd)
-    call s:F.msg ([[ "Wrong directory.", 'WarningMsg' ]])
   else
-    cd `=cwd`
-    redraw!
-    call s:F.msg ([[ "New working directory set: ", 'Label' ], [ cwd, 'None' ]])
-    call xtabline#update(1)
+    call s:F.change_wd(cwd)
   endif
 endfun
 
@@ -617,8 +612,7 @@ fun! s:reset_tab(...)
   """Reset the tab to a pristine state.
   let cwd = a:0? fnamemodify(expand(a:1), :p) : s:F.find_suitable_cwd()
   let s:X.Tabs[tabpagenr()-1] = xtabline#tab#new({'cwd': cwd})
-  cd `=cwd`
-  call xtabline#update(1)
+  call s:F.change_wd(cwd)
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
