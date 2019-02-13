@@ -188,7 +188,7 @@ fun! s:Funcs.change_wd(cwd)
   endif
   call extend(s:T(), { 'cwd': a:cwd, 'dirs': [a:cwd] })
   cd `=a:cwd`
-  call xtabline#tab#update_git_files()
+  call xtabline#tab#update_git_files(s:T())
   call xtabline#update(1)
   redraw
   call self.msg ([[ "Working directory: ", 'Label' ], [ a:cwd, 'None' ]])

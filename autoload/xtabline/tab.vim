@@ -30,6 +30,7 @@ fun s:template()
         \ 'vimrc':   get(s:Sets, 'use_tab_vimrc', 0) ? xtabline#vimrc#init() : {},
         \ 'rpaths':  0,
         \ 'icon':    '',
+        \ 'files':   [],
         \ 'index':   tabpagenr()-1,
         \ 'buffers': {'valid': [], 'order': [], 'extra': []},
         \}
@@ -40,16 +41,9 @@ fun! xtabline#tab#new(...)
   "tab_properties can be set by a command, before this function is called.
 
   let tab = extend(s:template(), s:v.tab_properties)
-
-  "tab.files will be used for filtering, if not empty
-  "it defaults to [], or git files if tab is using git
-  "a list, passed through s:v.tab_properties or arguments, will override this list
-  "tab.is_git can also be overwritten with properties or arguments
-  let tab.is_git = get(tab, 'is_git', s:Sets.use_git && s:F.is_repo(tab))
-  let tab.files  = get(tab, 'files', tab.is_git ? systemlist('git ls-files') : [])
-
   call extend(tab, a:0 ? a:1 : {})
   let s:v.tab_properties = {} "reset tab_properties
+  call xtabline#tab#update_git_files(tab)
   return tab
 endfun
 
@@ -65,14 +59,24 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! xtabline#tab#update_git_files()
+fun! xtabline#tab#update_git_files(tab)
   """Update tracked files if tab cwd is a repo, or disable tracking.
-  let T = s:T()
+  let T = a:tab
+  if T.locked | return | endif
+
+  " initialize T.is_git if not present, based on use_git setting
+  let T.is_git = get(T, 'is_git', s:Sets.use_git && s:F.is_repo(T))
+
+  " reset git files, if cwd is a repo, the list will be fetched again
+  let T.git_files = []
+
   if T.is_git && s:F.is_repo(T)
-    let T.files = systemlist('git ls-files')
+    " it's a repo, so fetch the tracked files list
+    let T.git_files = systemlist('git --git-dir='. T.cwd . s:v.slash .'/.git ls-files')
+
   elseif T.is_git
+    " not a repo and is_git is set, reset it
     let T.is_git = 0
-    let T.files = []
   endif
 endfun
 

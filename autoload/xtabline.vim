@@ -74,6 +74,9 @@ endfun
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! xtabline#session_loaded() abort
+  for T in s:X.Tabs
+    let T = extend(xtabline#tab#new(), T)
+  endfor
   call s:check_tabs()
   for buf in s:X.pinned_buffers
     let i = index(s:X.pinned_buffers, buf)
@@ -91,7 +94,6 @@ fun! xtabline#session_loaded() abort
       let t.dirs = [t.use_dir]
       unlet t.use_dir
     endif
-    call extend(t, xtabline#tab#new(t))
   endfor
   cd `=s:X.Tabs[tabpagenr()-1].cwd`
   let s:v.force_update = 1
@@ -135,7 +137,6 @@ fun! xtabline#filter_buffers() abort
   endif
 
   let T.buffers.valid = T.locked? T.buffers.valid : []
-  let Files = get(T, 'files', [])
 
   " /////////////////// ITERATE BUFFERS //////////////////////
 
@@ -151,12 +152,15 @@ fun! xtabline#filter_buffers() abort
     elseif !s:v.filtering  | call add(T.buffers.valid, buf)
     elseif !T.locked
 
-      if !empty(Files)
-        " to be accepted, buffer's path must be among valid files
+      if T.is_git && !empty(get(T, 'git_files', []))
         " when using git paths, they'll be relative
-        if T.is_git && index(Files, bufname(buf)) >= 0
+        if index(T.git_files, bufname(buf)) >= 0
           call add(T.buffers.valid, buf)
-        elseif index(Files, B.path) >= 0
+        endif
+
+      elseif !empty(get(T, 'files', []))
+        " to be accepted, buffer's path must be among valid files
+        if index(T.files, B.path) >= 0
           call add(T.buffers.valid, buf)
         endif
 
@@ -295,6 +299,6 @@ augroup plugin-xtabline
 
   autocmd BufWinEnter   * call xtabline#filter_buffers()
   autocmd BufNewFile    * call xtabline#automkdir#ensure_dir_exists()
-  autocmd BufWritePost  * call xtabline#tab#update_git_files()
+  autocmd BufWritePost  * call xtabline#tab#update_git_files(g:xtabline.Tabs[tabpagenr()-1])
 augroup END
 

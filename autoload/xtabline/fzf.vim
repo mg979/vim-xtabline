@@ -161,14 +161,12 @@ fun! xtabline#fzf#tab_load(...)
     cd `=cwd`
 
     "add buffers
-    if T.locked
-      for buf in saved['buffers']
-        execute "edit ".buf
+    for buf in saved['buffers']
+      execute "badd ".buf
+      if get(T, 'locked', 0)
         call add(T.buffers.valid, bufnr("%"))
-      endfor
-    else
-      for buf in saved['buffers'] | execute "badd ".buf | endfor
-    endif
+      endif
+    endfor
 
     "load the first buffer
     execute "edit ".saved['buffers'][0]

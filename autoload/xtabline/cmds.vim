@@ -10,7 +10,6 @@ let s:T    =  { -> s:X.Tabs[tabpagenr()-1] }       "current tab
 let s:B    =  { -> s:X.Buffers             }       "customized buffers
 let s:vB   =  { -> s:T().buffers.valid     }       "valid buffers for tab
 let s:eB   =  { -> s:T().buffers.extra     }       "extra buffers for tab
-let s:fB   =  { -> s:T().buffers.front     }       "front buffers for tab
 let s:oB   =  { -> s:F.buffers_order()     }       "ordered buffers for tab
 
 let s:scratch =  { nr -> index(['nofile','acwrite','help'], getbufvar(nr, '&buftype')) >= 0 }
@@ -181,7 +180,7 @@ fun! s:purge_buffers()
 
   if !s:v.filtering | echo "Buffer filtering is turned off." | return | endif
   let bcnt = 0 | let bufs = [] | let purged = []
-  let verify = s:oB() + s:eB() + s:fB()
+  let verify = s:oB() + s:eB()
 
   " include open buffers if not showing in tabline
   for buf in tabpagebuflist(tabpagenr())
@@ -218,8 +217,6 @@ fun! s:purge_buffers()
 
   for buf in purged
     execute "silent! bwipe ".buf
-    let i = index(s:fB(), buf)
-    if i >= 0 | call remove(s:fB(), i) | endif
   endfor
 
   call xtabline#update(1)
@@ -634,7 +631,7 @@ fun! s:toggle_git()
     call s:F.msg('Tab has left git mode')
   elseif s:F.is_repo(T)
     let T.is_git = 1
-    call xtabline#tab#update_git_files()
+    call xtabline#tab#update_git_files(T)
     call s:F.msg('Tab is now in git mode')
   else
     call s:F.msg('Not a git repository', 1)
