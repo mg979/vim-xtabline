@@ -5,6 +5,7 @@ fun! xtabline#funcs#init()
 
   let s:T =  { -> s:X.Tabs[tabpagenr()-1] }       "current tab
   let s:vB = { -> s:T().buffers.valid     }       "valid buffers for tab
+  let s:oB = { -> s:T().buffers.order     }       "ordered buffers for tab
   return s:Funcs
 endfun
 
@@ -12,13 +13,6 @@ let s:Funcs = {}
 let s:Funcs.wins    = {   -> tabpagebuflist(tabpagenr()) }
 let s:Funcs.has_win = { b -> index(s:Funcs.wins(), b) >= 0 }
 let s:Funcs.is_repo = { t -> isdirectory(t.cwd . s:v.slash . '.git') }
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! s:Funcs.buffers_order()
-  """Current ordered list of valid buffers."""
-  return s:T().buffers.order
-endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
@@ -198,7 +192,7 @@ endfun
 
 fun! s:Funcs.not_enough_buffers(pinned)
   """Just return if there aren't enough buffers."""
-  let bufs = a:pinned ? s:v.pinned_buffers : self.buffers_order()
+  let bufs = a:pinned ? s:v.pinned_buffers : s:oB()
   let pin  = a:pinned ? ' pinned ' : ' '
 
   if len(bufs) < 2

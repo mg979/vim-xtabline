@@ -7,7 +7,7 @@ let s:T =  { -> s:X.Tabs[tabpagenr()-1] }       "current tab
 let s:B =  { -> s:X.Buffers             }       "customized buffers
 let s:vB = { -> s:T().buffers.valid     }       "valid buffers for tab
 let s:eB = { -> s:T().buffers.extra     }       "extra buffers for tab
-let s:oB = { -> s:F.buffers_order()     }       "ordered buffers for tab
+let s:oB = { -> s:T().buffers.order     }       "ordered buffers for tab
 
 let s:special = { nr -> has_key(s:B(), nr) && s:B()[nr].special }
 let s:refilter = 0
@@ -46,7 +46,7 @@ let s:specialHi         = { b -> s:B()[b].special                               
 " BufTabLine main function {{{1
 " =============================================================================
 
-fun! xtabline#render#buffers()
+fun! xtabline#render#buffers() abort
   call xtabline#filter_buffers()
   let show_num = s:Sets.bufline_numbers
 
@@ -304,7 +304,7 @@ endfun
 " =============================================================================
 
 " To construct the tabline string for terminal vim.
-fun! xtabline#render#tabs()
+fun! xtabline#render#tabs() abort
   let tabline = ''
   let fmt_unnamed = s:fmt_chars(s:Sets.tab_format)
   let fmt_renamed = s:fmt_chars(s:Sets.named_tab_format)

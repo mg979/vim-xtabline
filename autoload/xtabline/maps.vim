@@ -133,14 +133,10 @@ endfunction
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:select_buffer(cnt)
-  let bufs = s:tab_buffers()
+  let bufs = g:xtabline.Tabs[tabpagenr()-1].buffers.order
   let n = min([a:cnt, len(bufs)-1])
   let b = bufs[n]
   return ":\<C-U>silent! exe 'b'.".b."\<cr>"
-endfun
-
-fun! s:tab_buffers()
-  return g:xtabline.Funcs.buffers_order()
 endfun
 
 fun! s:cd(count)

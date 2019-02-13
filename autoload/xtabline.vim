@@ -20,7 +20,7 @@ let s:B  = { -> s:X.Buffers             }       "customized buffers
 let s:vB = { -> s:T().buffers.valid     }       "valid buffers for tab
 let s:eB = { -> s:T().buffers.extra     }       "extra buffers for tab
 let s:pB = { -> s:X.pinned_buffers      }       "pinned buffers list
-let s:oB = { -> s:F.buffers_order()     }       "ordered buffers for tab
+let s:oB = { -> s:T().buffers.order     }       "ordered buffers for tab
 
 let s:invalid    = { b -> !buflisted(b) || getbufvar(b, "&buftype") == 'quickfix' }
 let s:is_special = { b -> s:F.has_win(b) && s:B()[b].special }
