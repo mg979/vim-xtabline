@@ -155,11 +155,11 @@ fun! s:Funcs.bdelete(buf)
 
   elseif getbufvar(a:buf, '&ft') == 'nofile'
     exe "silent! bwipe ".a:buf
-    call xtabline#filter_buffers()
+    call xtabline#update()
 
   elseif !getbufvar(a:buf, '&modified')
     exe "silent! bdelete ".a:buf
-    call xtabline#filter_buffers()
+    call xtabline#update()
   endif
 endfun
 
@@ -189,7 +189,7 @@ fun! s:Funcs.change_wd(cwd)
   call extend(s:T(), { 'cwd': a:cwd, 'dirs': [a:cwd] })
   cd `=a:cwd`
   call xtabline#tab#update_git_files(s:T())
-  call xtabline#update(1)
+  call xtabline#update()
   redraw
   call self.msg ([[ "Working directory: ", 'Label' ], [ a:cwd, 'None' ]])
 endfun

@@ -48,7 +48,7 @@ fun! xtabline#init()
   endif
 
   call s:check_tabs()
-  call xtabline#update(1)
+  call xtabline#update()
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -97,15 +97,12 @@ fun! xtabline#session_loaded() abort
   endfor
   cd `=s:X.Tabs[tabpagenr()-1].cwd`
   let s:v.force_update = 1
-  call xtabline#update(1)
+  call xtabline#update()
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! xtabline#update(...) abort
-  if a:0
-    call xtabline#filter_buffers()
-  endif
   if s:v.showing_tabs
     set tabline=%!xtabline#render#tabs()
   else
@@ -220,7 +217,7 @@ fun! s:set_new_tab_cwd(N)
     let T.cwd = s:F.find_suitable_cwd()
   endif
   cd `=T.cwd`
-  call xtabline#filter_buffers()
+  call xtabline#update()
   call s:F.delay(200, 'g:xtabline.Funcs.msg([[ "CWD set to ", "Label" ], [ "'.T.cwd.'", "Directory" ]])')
 endfun
 
@@ -297,7 +294,6 @@ augroup plugin-xtabline
   autocmd BufEnter      * call s:Do('bufenter')
   autocmd ColorScheme   * if s:ready() | call xtabline#hi#update_theme() | endif
 
-  autocmd BufWinEnter   * call xtabline#filter_buffers()
   autocmd BufNewFile    * call xtabline#automkdir#ensure_dir_exists()
   autocmd BufWritePost  * call xtabline#tab#update_git_files(g:xtabline.Tabs[tabpagenr()-1])
 augroup END

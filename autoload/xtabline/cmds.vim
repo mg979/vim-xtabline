@@ -151,7 +151,7 @@ fun! s:depth(cnt)
   let T.depth           = cnt ? cnt : current_dir_only ? 0 : -1
   let T.dirs[0]         = T.depth == 0 ? s:F.fullpath(bufname("%"), ":p:h") : T.cwd
 
-  call xtabline#filter_buffers()
+  call xtabline#update()
 
   let tree = !cnt || !executable('tree') || s:v.winOS ? ['', 'None'] : s:tree(cnt)
 
@@ -219,7 +219,7 @@ fun! s:purge_buffers()
     execute "silent! bwipe ".buf
   endfor
 
-  call xtabline#update(1)
+  call xtabline#update()
   redraw!
   let s = "Purged ".bcnt." buffer" | let s .= bcnt!=1 ? "s." : "." | echo s
 endfun
@@ -289,7 +289,7 @@ fun! s:reopen_last_tab()
 
   cd `=cwd`
   let s:v.halt = 0
-  call xtabline#update(1)
+  call xtabline#update()
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -376,7 +376,7 @@ fun! s:move_buffer(cnt, ...)
   else
     call add(oB, b)
   endif
-  if !a:0 | call xtabline#filter_buffers() | endif
+  if !a:0 | call xtabline#update() | endif
 endfun
 
 fun! s:hide_buffer(new)
@@ -391,14 +391,14 @@ fun! s:hide_buffer(new)
   let then_select = new >= 0 ?  oB[new] : oB[0]
 
   silent! exe 'b'.then_select
-  call xtabline#update(1)
+  call xtabline#update()
 endfun
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:rename_tab(label)
   """Rename the current tab.
   let s:X.Tabs[tabpagenr()-1].name = a:label
-  call xtabline#update(1)
+  call xtabline#update()
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -407,7 +407,7 @@ fun! s:rename_buffer(label)
   """Rename the current buffer.
   let B = s:F.set_buffer_var('name', a:label)
   if empty(B) | return | endif
-  call xtabline#update(1)
+  call xtabline#update()
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -493,7 +493,7 @@ fun! s:new_tab(...)
     let s:v.tab_properties = {'name': args[1], 'cwd': expand("~")}
   endif
   exe n . "tabnew"
-  call xtabline#update(1)
+  call xtabline#update()
   let s:v.auto_set_cwd = 0
 endfun
 
@@ -515,7 +515,7 @@ fun! s:edit_tab(...)
     let s:v.tab_properties = {'cwd': s:F.find_suitable_cwd(args[2])}
     exe n . "tabedit" args[2]
   endif
-  call xtabline#update(1)
+  call xtabline#update()
   let s:v.auto_set_cwd = 0
   if bang
     call feedkeys("\<Plug>(XT-Rename-Tab)")
@@ -556,7 +556,7 @@ fun! s:move_tab(...)
               \ bottom? '$' : '0'
 
   exe dest . "tabmove"
-  call xtabline#update(1)
+  call xtabline#update()
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -579,7 +579,7 @@ fun! s:format_buffer()
     endif
 
     let &ch = och
-    call xtabline#update(1)
+    call xtabline#update()
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -618,7 +618,7 @@ fun! s:reset_buffer(...)
   """Reset the buffer to a pristine state.
   let B = s:B() | let n = bufnr("%")
   if has_key(B, n) | unlet B[n] | endif
-  call xtabline#update(1)
+  call xtabline#update()
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -636,7 +636,7 @@ fun! s:toggle_git()
   else
     call s:F.msg('Not a git repository', 1)
   endif
-  call xtabline#update(1)
+  call xtabline#update()
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -644,7 +644,7 @@ endfun
 fun! s:toggle_tab_names()
     """Toggle between custom icon/name and short path/folder icons."""
     let s:v.custom_tabs = !s:v.custom_tabs
-    call xtabline#update(1)
+    call xtabline#update()
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

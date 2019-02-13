@@ -47,6 +47,7 @@ let s:specialHi         = { b -> s:B()[b].special                               
 " =============================================================================
 
 fun! xtabline#render#buffers()
+  call xtabline#filter_buffers()
   let show_num = s:Sets.bufline_numbers
 
   let centerbuf = s:centerbuf " prevent tabline jumping around when non-user buffer current (e.g. help)
