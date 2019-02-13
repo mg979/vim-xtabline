@@ -46,7 +46,28 @@ let s:specialHi         = { b -> s:B()[b].special                               
 " BufTabLine main function {{{1
 " =============================================================================
 
+let s:last_tabline = ''
+let s:v.time_to_update = 1
+let s:last_modified_state = { winbufnr(0): &modified }
+
+" The tabline is refreshed rather often by vim (TextChanged, InsertEnter, etc)
+" We want to update it less often, mostly on buffer enter/write and when
+" a buffer has been modified. We store the last rendered tabline, and if
+" there's no need to reprocess it, just return the string
+
 fun! xtabline#render#buffers() abort
+  let currentbuf = winbufnr(0)
+
+  if !has_key(s:last_modified_state, currentbuf)
+    let s:last_modified_state[currentbuf] = &modified
+  elseif &modified != s:last_modified_state[currentbuf]
+    let s:last_modified_state[currentbuf] = &modified
+  elseif exists('s:v.time_to_update')
+    unlet s:v.time_to_update
+  else
+    return s:last_tabline
+  endif
+
   call xtabline#filter_buffers()
   let show_num = s:Sets.bufline_numbers
 
@@ -56,7 +77,6 @@ fun! xtabline#render#buffers() abort
   let tabs = []
   let path_tabs = []
   let tabs_per_tail = {}
-  let currentbuf = winbufnr(0)
   let bufs = s:oB()
 
   "put current buffer first
@@ -83,6 +103,15 @@ fun! xtabline#render#buffers() abort
     call s:put_first(b)
   endfor
 
+  "no need to render more than 20 buffers at a time, since they'll be offscreen
+  let begin = 0
+  if len(bufs) > 20
+    let curr  = index(bufs, currentbuf)
+    let begin = curr > 10 ? (curr - 10) : 0
+    let end   = curr > 10 ? max([len(bufs), curr + 10]) : 19
+    let bufs  = bufs[begin:end]
+  endif
+
   " make buftabline string
   for bnr in bufs
     let special = s:specialHi(bnr)
@@ -92,7 +121,7 @@ fun! xtabline#render#buffers() abort
     if special && !s:F.has_win(bnr) | continue
     elseif scratch && !special      | continue | endif
 
-    let n = index(bufs, bnr) + 1       "tab buffer index
+    let n = index(bufs, bnr) + 1 + begin       "tab buffer index
     let is_currentbuf = currentbuf == bnr
 
     let tab = { 'nr': bnr,
@@ -180,15 +209,16 @@ fun! xtabline#render#buffers() abort
   let left = swallowclicks . join(map(tabs,'printf("%%#XT%s#%s",v:val.hilite,strtrans(v:val.label))'),'')
   let right = active_tab . '%#XTFill#'
   let l_r =  lft.width + rgt.width
-  return left . s:extra_padding(l_r) . right
+  let s:last_tabline = left . s:extra_padding(l_r) . right
+  return s:last_tabline
 endfun
 
 " Buffer label formatting {{{1
 " =============================================================================
 
 fun! s:format_buffer(buf)
-  let fmt = s:buffer_has_format(a:buf)? s:B()[a:buf.nr].format : s:Sets.bufline_format
-  let chars = s:fmt_chars(fmt)
+  let chars = s:buffer_has_format(a:buf) ?
+        \ s:fmt_chars(s:B()[a:buf.nr].format) : s:default_buffer_format
 
   let out = []
   for c in chars

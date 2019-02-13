@@ -103,6 +103,7 @@ endfun
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! xtabline#update(...) abort
+  let s:v.time_to_update = 1
   if s:v.showing_tabs
     set tabline=%!xtabline#render#tabs()
   else
@@ -296,5 +297,7 @@ augroup plugin-xtabline
 
   autocmd BufNewFile    * call xtabline#automkdir#ensure_dir_exists()
   autocmd BufWritePost  * call xtabline#tab#update_git_files(g:xtabline.Tabs[tabpagenr()-1])
+
+  autocmd BufEnter,BufWritePost * call xtabline#update()
 augroup END
 
