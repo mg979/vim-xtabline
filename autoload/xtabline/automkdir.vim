@@ -15,7 +15,7 @@ function! s:quit (msg, options, quit_option)
 endfunction
 
 function! xtabline#automkdir#ensure_dir_exists ()
-  if exists("loaded_AutoMkdir") || !get(g:xtabline_settings, 'automkdir', 1)
+  if exists('g:SessionLoad') || exists("loaded_AutoMkdir") || !get(g:xtabline_settings, 'automkdir', 1)
     return
   endif
   let required_dir = resolve(expand("%:p:h"))

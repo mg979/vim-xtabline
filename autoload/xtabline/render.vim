@@ -58,7 +58,6 @@ fun! xtabline#render#buffers() abort
   let tabs_per_tail = {}
   let currentbuf = winbufnr(0)
   let bufs = s:oB()
-  let was_locked = s:T().locked
 
   "put current buffer first
   if s:Sets.sort_buffers_by_last_open
@@ -72,19 +71,12 @@ fun! xtabline#render#buffers() abort
   "include special buffers (upfront)
   let front = [] | let specials = []
   for b in s:F.wins()
-    let B = xtabline#buffer#get(b)
-    if B.special
+    if s:B()[b].special
       call add(specials, b)
     elseif s:is_open(b)
       call add(front, b)
     endif
   endfor
-
-  " if the tab has been locked by an open buffer, must refilter
-  if !was_locked && s:T().locked
-    call xtabline#filter_buffers()
-    return xtabline#render#buffers()
-  endif
 
   "put upfront: special > pinned > open > extra buffers
   for b in ( s:eB() + front + s:pinned() + specials )
@@ -93,8 +85,6 @@ fun! xtabline#render#buffers() abort
 
   " make buftabline string
   for bnr in bufs
-    if !s:clean_buf(bnr) | continue | endif
-
     let special = s:specialHi(bnr)
     let scratch = s:scratch(bnr)
 
@@ -562,19 +552,4 @@ fun! s:extra_padding(l_r)
     let s .= ' '
   endfor
   return '%#XTFill#'.s
-endfun
-
-fun! s:clean_buf(b)
-  if bufexists(a:b) && has_key(s:B(), a:b)
-    return 1
-  endif
-  let iv = index(s:vB(), a:b)
-  let io = index(s:oB(), a:b)
-  if iv >= 0
-    call remove(s:vB(), iv)
-  endif
-  if io >= 0
-    call remove(s:oB(), io)
-  endif
-  silent! unlet! s:X.Buffers[a:b]
 endfun
