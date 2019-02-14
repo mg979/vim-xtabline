@@ -78,6 +78,7 @@ fun! xtabline#render#buffers() abort
   let path_tabs = []
   let tabs_per_tail = {}
   let bufs = s:oB()
+  call filter(bufs, 'bufexists(v:val)')
 
   "put current buffer first
   if s:Sets.sort_buffers_by_last_open
@@ -148,6 +149,9 @@ fun! xtabline#render#buffers() abort
     let tabs += [tab]
   endfor
 
+  " get the default buffer format, and set its type
+  let s:default_buffer_format = s:get_default_buffer_format()
+
   " now keep the current buffer center-screen as much as possible:
 
   " 1. setup
@@ -155,8 +159,6 @@ fun! xtabline#render#buffers() abort
   let rgt = { 'lasttab': -1, 'cut': '.$', 'indicator': '>', 'width': 0, 'half': &columns - lft.half }
 
   " 2. sum the string lengths for the left and right halves
-  let s:default_buffer_format = s:fmt_chars(s:Sets.bufline_format)
-
   let currentside = lft
   for tab in tabs
     let tab.label = s:format_buffer(tab)
@@ -217,8 +219,13 @@ endfun
 " =============================================================================
 
 fun! s:format_buffer(buf)
-  let chars = s:buffer_has_format(a:buf) ?
-        \ s:fmt_chars(s:B()[a:buf.nr].format) : s:default_buffer_format
+  if s:buffer_has_format(a:buf)
+    let chars = s:fmt_chars(s:B()[a:buf.nr].format)
+  elseif s:default_buffer_format.is_func
+    return s:default_buffer_format.content(a:buf.nr)
+  else
+    let chars = s:default_buffer_format.content
+  endif
 
   let out = []
   for c in chars
@@ -511,6 +518,8 @@ let s:tabcwd = { n -> s:X.Tabs[n-1].cwd }
 let s:windows = { n -> range(1, tabpagewinnr(n, '$')) }
 let s:basename = { f -> fnamemodify(f, ':p:t') }
 
+"------------------------------------------------------------------------------
+
 fun! s:put_first(b)
   """Ensure a buffer goes first in the bufline.
   let bufs = s:oB()
@@ -518,6 +527,8 @@ fun! s:put_first(b)
   if i >= 0 | call remove(bufs, i) | endif
   call insert(bufs, a:b, 0)
 endfun
+
+"------------------------------------------------------------------------------
 
 fun! s:tabname(tabnr)
   if s:v.custom_tabs
@@ -527,6 +538,8 @@ fun! s:tabname(tabnr)
   endif
 endfun
 
+"------------------------------------------------------------------------------
+
 fun! s:first_normal_buffer(buffers)
   for buf in a:buffers
     if buflisted(buf) && getbufvar(buf, "&bt") != 'nofile'
@@ -535,6 +548,23 @@ fun! s:first_normal_buffer(buffers)
   endfor
   return -1
 endfun
+
+"------------------------------------------------------------------------------
+
+fun! s:get_default_buffer_format()
+  " get the default buffer format, and set its type
+  let fmt = {}
+  if type(s:Sets.bufline_format) == v:t_func
+    let fmt.is_func = 1
+    let fmt.content = s:Sets.bufline_format
+  else
+    let fmt.is_func = 0
+    let fmt.content = s:fmt_chars(s:Sets.bufline_format)
+  endif
+  return fmt
+endfun
+
+"------------------------------------------------------------------------------
 
 let s:unr1 = {1: '₁', 2: '₂', 3: '₃', 4: '₄', 5: '₅', 6: '₆', 7: '₇', 8: '₈', 9: '₉', 10: '₁₀',
       \11: '₁₁', 12: '₁₂', 13: '₁₃', 14: '₁₄', 15: '₁₅', 16: '₁₆', 17: '₁₇', 18: '₁₈', 19: '₁₉', 20: '₂₀'}
@@ -564,6 +594,7 @@ fun! s:unicode_nrs(nr)
   return u_nr
 endfun
 
+"------------------------------------------------------------------------------
 
 fun! s:get_tab_for_bufline()
   """Build string with tab label and icon for the bufline."""
@@ -577,6 +608,8 @@ fun! s:get_tab_for_bufline()
   let active_tab = '%#XTFill#%#XTSelect#'.fmt_tab          "use LineFill until label
   return [active_tab, active_tab_label]
 endfun
+
+"------------------------------------------------------------------------------
 
 fun! s:extra_padding(l_r)
   if !s:Sets.show_current_tab | return '' | endif
