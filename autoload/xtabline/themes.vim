@@ -101,17 +101,17 @@ let s:Themes.dracula = { -> {
 
 
 let s:Themes.molokai = { -> {
-      \"XTSelect":      [ 234, 61,  '#f8f8f2', '#ef5939', 1 ],
-      \"XTSelectMod":   [ 160, 61,  '#ff0000', '#ef5939', 1 ],
+      \"XTSelect":      [ 234, 61,  '#232526', '#e6db74', 1 ],
+      \"XTSelectMod":   [ 160, 61,  '#ff0000', '#e6db74', 1 ],
       \"XTVisible":     [ 81,  233, '#e6db74', '#232526', 1 ],
       \"XTVisibleMod":  [ 160, 61,  '#ff0000', '#232526', 1 ],
-      \"XTHidden":      [ 248, 17,  s:lgry3,   s:dblu1,   0 ],
-      \"XTHiddenMod":   [ 160, 244, '#ff0000', '#808080', 0 ],
+      \"XTHidden":      [ 248, 17,  s:lgry3,   '#333333',   0 ],
+      \"XTHiddenMod":   [ 160, 244, '#ff0000', '#333333', 0 ],
       \"XTExtra":       [ 161, 17,  '#f92672', '#232526', 1 ],
       \"XTExtraMod":    [ 160, 17,  '#ff0000', '#232526', 1 ],
       \"XTSpecial":     [ 244, 84,  '#808080', s:green,   0 ],
-      \"XTTabActive":   [ 234, 61,  '#f8f8f2', '#ef5939', 1 ],
-      \"XTTabInactive": [ 248, 17,  s:lgry3,   s:dblu1,   0 ],
+      \"XTTabActive":   [ 234, 61,  '#f8f8f2', '#232526', 1 ],
+      \"XTTabInactive": [ 248, 17,  s:lgry3,   '#333333',   0 ],
       \"XTNumSel":      [ 244, 84,  '#232526', '#e6db74', 0 ],
       \"XTNum":         [ 229, 233, '#e6db74', '#232526', 0 ],
       \"XTFill":        s:bg(s:fill_lite, [ 248, 233, s:lgry3, '#232526', 0 ]),

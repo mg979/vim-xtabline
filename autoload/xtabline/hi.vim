@@ -18,24 +18,31 @@ fun! xtabline#hi#apply_theme(theme, ...)
   call xtabline#themes#init()
 
   if !empty(a:theme) && !has_key(s:Hi.themes, a:theme)
-    echohl WarningMsg | echo "Wrong theme." | echohl None | return | endif
+    echohl WarningMsg | echo "Wrong theme." | echohl None | return
+  elseif empty(a:theme)
+    let theme = 'default'
+  else
+    let theme = a:theme
+  endif
 
-  let d = a:0? "default" : ""
+  if theme == 'default'
+    call s:Hi.themes.default()
+    let s:Sets.theme = 'default'
+    return
+  endif
+
   let theme = s:Hi.themes[a:theme]
 
   for group in keys(theme)
     if theme[group][1]
-      exe "hi ".d." link ".group." ".theme[group][0]
+      exe "hi link ".group." ".theme[group][0]
     else
-      exe "hi ".d." ".group." ".theme[group][0]
+      exe "hi ".group." ".theme[group][0]
     endif
   endfor
 
-  if !exists('s:last_theme') || s:Sets.theme != s:last_theme
-    let s:last_theme = s:Sets.theme
-  endif
   let s:Sets.theme = a:theme
-  let g:xtabline.Vars.has_reloaded_scheme = 0
+  let s:last_theme = a:theme
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -44,22 +51,31 @@ fun! xtabline#hi#load_theme(bang, theme)
   """Load a theme."""
   if a:bang
     call xtabline#hi#apply_theme(s:last_theme)
-    echohl Special | echo "Theme switched to" s:last_theme | echohl None
+    echo "[xtabline] " | echohl Special | echon "Theme reloaded: " s:last_theme | echohl None
   elseif !empty(a:theme)
     call xtabline#hi#apply_theme(a:theme)
-    echohl Special | echo "Theme switched to" a:theme | echohl None
+    echo "[xtabline] " | echohl Special | echon "Theme switched to " a:theme | echohl None
   else
-    echohl WarningMsg | echo "No theme specified." | echohl None
+    echo "[xtabline] " | echohl WarningMsg | echon "No theme specified." | echohl None
   endif
 endfun
 
 fun! s:clear_groups()
   """Clear highlight before applying a theme."""
-  let xbuf = ['Current', 'Visible', 'Hidden', 'Fill', 'Special', 'Mod', 'Pinned']
-  let xtab = ['SelMod', 'Sel', 'Mod', 'Fill', 'NumSel', 'Num', '']
-
-  for h in xbuf | exe "silent! hi clear XBufLine".h | endfor
-  for h in xtab | exe "silent! hi clear XTabLine".h | endfor
+  silent! hi clear XTSelect
+  silent! hi clear XTSelectMod
+  silent! hi clear XTVisible
+  silent! hi clear XTVisibleMod
+  silent! hi clear XTHidden
+  silent! hi clear XTHiddenMod
+  silent! hi clear XTExtra
+  silent! hi clear XTExtramod
+  silent! hi clear XTSpecial
+  silent! hi clear XTTabActive
+  silent! hi clear XTTabInactive
+  silent! hi clear XTNumSel
+  silent! hi clear XTNum
+  silent! hi clear XTFill
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -83,30 +99,29 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-let g:xtabline.Vars.has_reloaded_scheme = 0
-
 fun! xtabline#hi#update_theme()
   """Reload theme on colorscheme switch."""
-  if g:xtabline.Vars.has_reloaded_scheme | return | endif
-  call xtabline#hi#apply_theme(g:xtabline_settings.theme)
+  if g:xtabline_settings.theme == 's:last_theme'
+    call xtabline#hi#apply_theme(g:xtabline_settings.theme)
+  endif
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Default theme
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-let s:Hi.themes.default = {
-      \"XTSelect":     ["TabLineSel",  1],
-      \"XTVisible":    ["Special",     1],
-      \"XTHidden":     ["TabLine",     1],
-      \"XTSelectMod":  ["TabLineSel",  1],
-      \"XTVisibleMod": ["Special",     1],
-      \"XTHiddenMod":  ["WarningMsg",  1],
-      \"XTExtra":      ["PmenuSel",    1],
-      \"XTSpecial":    ["DiffAdd",     1],
-      \"XTFill":       ["TabLineFill", 1],
-      \"XTVisibleTab": ["TabLineSel",  1],
-      \"XTNumSel":     ["DiffAdd",     1],
-      \"XTNum":        ["Special",     1],
-      \}
+fun! s:Hi.themes.default()
+  hi! link XTSelect     TabLineSel
+  hi! link XTVisible    Special
+  hi! link XTHidden     TabLine
+  hi! link XTSelectMod  TabLineSel
+  hi! link XTVisibleMod Special
+  hi! link XTHiddenMod  WarningMsg
+  hi! link XTExtra      PmenuSel
+  hi! link XTSpecial    DiffAdd
+  hi! link XTFill       TabLineFill
+  hi! link XTVisibleTab TabLineSel
+  hi! link XTNumSel     DiffAdd
+  hi! link XTNum        Special
+endfun
 
