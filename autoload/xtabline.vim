@@ -89,12 +89,17 @@ fun! xtabline#session_loaded() abort
       unlet s:X.Buffers[buf]
     endif
   endfor
-  for t in s:X.Tabs " backwards compatibility
-    if has_key(t, 'use_dir')
-      let t.dirs = [t.use_dir]
-      unlet t.use_dir
-    endif
-  endfor
+
+  if get(g:xtabline, 'version', 0) < 0.1  " version checking
+    let s:X.version = 0.1
+    for t in s:X.Tabs
+      if has_key(t, 'use_dir')
+        let t.dirs = [t.use_dir]
+        unlet t.use_dir
+      endif
+    endfor
+  endif
+
   cd `=s:X.Tabs[tabpagenr()-1].cwd`
   let s:v.force_update = 1
   call xtabline#update()
@@ -115,10 +120,13 @@ endfun
 " Filter buffers
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! xtabline#filter_buffers() abort
+fun! xtabline#filter_buffers(...) abort
   """Filter buffers so that only valid buffers for this tab will be shown.
   if exists('s:v.force_update') | unlet s:v.force_update
-  elseif !s:ready() | return  | endif
+  elseif !s:ready() | return
+  elseif get(g:xtabline, 'version', 0) < 0.1
+    call xtabline#session_loaded()
+  endif
 
   " 'accepted' is a list of buffer numbers that belong to the tab, either because:
   "     - their path is valid for this tab
@@ -135,6 +143,7 @@ fun! xtabline#filter_buffers() abort
   endif
 
   let T.buffers.valid = T.locked? T.buffers.valid : []
+  let T.is_git = get(T, 'is_git', 0)
 
   " /////////////////// ITERATE BUFFERS //////////////////////
 
@@ -152,7 +161,8 @@ fun! xtabline#filter_buffers() abort
 
       if T.is_git && !empty(get(T, 'git_files', []))
         " when using git paths, they'll be relative
-        if index(T.git_files, bufname(buf)) >= 0
+        let bname = s:v.winOS ? tr(bufname(buf), '/', '\') : bufname(buf)
+        if index(T.git_files, bname) >= 0
           call add(T.buffers.valid, buf)
         endif
 
@@ -262,6 +272,7 @@ function! s:Do(action, ...)
     cd `=T.cwd`
 
     call xtabline#vimrc#exe(T)
+    call xtabline#update()
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
