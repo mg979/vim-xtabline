@@ -14,12 +14,25 @@ function! s:quit (msg, options, quit_option)
   endif
 endfunction
 
+"------------------------------------------------------------------------------
+
+fun! s:valid_dirs_up() abort
+  let h = ':h:h'
+  for i in range(5)
+  let dir = resolve(expand("%:p".h))
+    if isdirectory(dir)
+      return 1
+    endif
+    let h .= ':h'
+  endfor
+endfun
+
 function! xtabline#automkdir#ensure_dir_exists ()
   if exists('g:SessionLoad') || exists("loaded_AutoMkdir") || !get(g:xtabline_settings, 'automkdir', 0)
     return
   endif
   let required_dir = resolve(expand("%:p:h"))
-  if !isdirectory(required_dir)
+  if !isdirectory(required_dir) && s:valid_dirs_up()
     if !s:quit("Parent directory '" . required_dir . "' doesn't exist.",
           \       "&Create it\nor &Abort?", 2)
 

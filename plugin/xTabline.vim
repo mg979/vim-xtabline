@@ -118,7 +118,6 @@ let g:xtabline_highlight = get(g:, 'xtabline_highlight', {'themes': {}})
 
 let s:S = {}
 
-let s:S.sessions_path              = expand(s:vimdir . '/session')
 let s:S.map_prefix                 = '<leader>x'
 let s:S.close_buffer_can_close_tab = 0
 let s:S.close_buffer_can_quit_vim  = 0
@@ -126,8 +125,6 @@ let s:S.depth_tree_size            = 20
 
 let s:S.select_buffer_alt_action   = "buffer #"
 let s:S.hide_buffer_alt_action     = "buffer #"
-let s:S.bookmarks_file             = expand(s:vimdir . '/.XTablineBookmarks')
-let s:S.sessions_data              = expand(s:vimdir . '/.XTablineSessions')
 let s:S.use_git                    = 0
 let s:S.superscript_unicode_nrs    = 0
 let s:S.show_current_tab           = 1
@@ -166,6 +163,11 @@ let s:S.named_tab_icon            = ["📂", "📁"]
 
 let s:S.devicon_for_all_filetypes = 0
 let s:S.devicon_for_extensions    = ['md', 'txt']
+
+let s:S.sessions_path  = !has('nvim') ? expand(s:vimdir . '/session') :
+      \                                 expand(stdpath('data') . '/session')
+let s:S.sessions_data  = expand(s:vimdir . '/.XTablineSessions')
+let s:S.bookmarks_file = expand(s:vimdir . '/.XTablineBookmarks')
 
 let g:xtabline_settings  = extend(s:S, get(g:, 'xtabline_settings', {}))
 
