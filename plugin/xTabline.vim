@@ -110,7 +110,11 @@ endfun
 let g:xtabline = {'Tabs': [], 'Vars': {}, 'Buffers': {}, 'Funcs': {},
                  \'pinned_buffers': [], 'closed_tabs': [], 'closed_cwds': []}
 
-let g:xtabline.Vars.winOS = has("win16") || has("win32") || has("win64")
+let g:xtabline.Vars = {
+      \'refresh_buffers_path' : 0,
+      \'winOS': has("win16") || has("win32") || has("win64"),
+      \}
+
 let s:vimdir = ( has('win32unix') || g:xtabline.Vars.winOS ) &&
       \        isdirectory(expand('$HOME/vimfiles')) ? '$HOME/vimfiles' : '$HOME/.vim'
 

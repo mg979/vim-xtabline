@@ -257,10 +257,21 @@ function! s:Do(action, ...)
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
   elseif a:action == 'bufenter'
+
     call xtabline#buffer#add(bufnr("%"))
     if s:new_tab_created
       call s:set_new_tab_cwd(N)
     endif
+    call xtabline#update()
+
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+  elseif a:action == 'bufwrite'
+
+    let V.refresh_buffers_path = 1
+    call xtabline#tab#update_git_files(X.Tabs[N])
+    call xtabline#update()
+    let V.refresh_buffers_path = 0
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
@@ -304,11 +315,9 @@ augroup plugin-xtabline
   autocmd TabLeave      * call s:Do('leave')
   autocmd TabClosed     * call s:Do('close')
   autocmd BufEnter      * call s:Do('bufenter')
-  autocmd ColorScheme   * if s:ready() | call xtabline#hi#update_theme() | endif
+  autocmd BufWritePost  * call s:Do('bufwrite')
 
   autocmd BufNewFile    * call xtabline#automkdir#ensure_dir_exists()
-  autocmd BufWritePost  * call xtabline#tab#update_git_files(g:xtabline.Tabs[tabpagenr()-1])
-
-  autocmd BufEnter,BufWritePost * call xtabline#update()
+  autocmd ColorScheme   * if s:ready() | call xtabline#hi#update_theme() | endif
 augroup END
 

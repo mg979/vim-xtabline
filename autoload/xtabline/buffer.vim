@@ -28,8 +28,12 @@ endfun
 "------------------------------------------------------------------------------
 
 fun! s:update(nr)
-  if !s:X.Buffers[a:nr].special
-    call extend(s:X.Buffers[a:nr], s:is_special(a:nr))
+  let B = s:X.Buffers[a:nr]
+  if !B.special
+    call extend(B, s:is_special(a:nr))
+  endif
+  if !B.special && s:v.refresh_buffers_path
+    let B.path = s:bufpath(bufname(a:nr))
   endif
 endfun
 
