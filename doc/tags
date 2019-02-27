@@ -1,11 +1,5 @@
 :bnext	xTabline.txt	/*:bnext*
-command	xTabline.txt	/*command*
-file	xTabline.txt	/*file*
 fzf-vim	xTabline.txt	/*fzf-vim*
-prefix	xTabline.txt	/*prefix*
-size	xTabline.txt	/*size*
-syntax	xTabline.txt	/*syntax*
-xtabline-airline	xTabline.txt	/*xtabline-airline*
 xtabline-buffers-formatting	xTabline.txt	/*xtabline-buffers-formatting*
 xtabline-clean-up	xTabline.txt	/*xtabline-clean-up*
 xtabline-credits	xTabline.txt	/*xtabline-credits*
@@ -19,10 +13,10 @@ xtabline-license	xTabline.txt	/*xtabline-license*
 xtabline-managing-buffers	xTabline.txt	/*xtabline-managing-buffers*
 xtabline-navigation	xTabline.txt	/*xtabline-navigation*
 xtabline-opening-tabs	xTabline.txt	/*xtabline-opening-tabs*
-xtabline-other-commands	xTabline.txt	/*xtabline-other-commands*
+xtabline-other	xTabline.txt	/*xtabline-other*
 xtabline-rearranging-buffers	xTabline.txt	/*xtabline-rearranging-buffers*
 xtabline-rearranging-tabs	xTabline.txt	/*xtabline-rearranging-tabs*
-xtabline-remapping-commands	xTabline.txt	/*xtabline-remapping-commands*
+xtabline-remapping	xTabline.txt	/*xtabline-remapping*
 xtabline-requirements	xTabline.txt	/*xtabline-requirements*
 xtabline-saving-and-loading-tabs	xTabline.txt	/*xtabline-saving-and-loading-tabs*
 xtabline-sessions	xTabline.txt	/*xtabline-sessions*

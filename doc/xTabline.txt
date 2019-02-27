@@ -18,7 +18,7 @@ XTABLINE - TABLE OF CONTENTS                        *xtabline-vim* *xtabline-toc
       Rearranging buffers                 |xtabline-rearranging-buffers|
       Customizing tabs and buffers        |xtabline-customizing-tabs-and-buffers|
     Sessions management                   |xtabline-sessions|
-    Other commands, plugs and mappings    |xtabline-other-commands|
+    Other commands, plugs and mappings    |xtabline-other|
       Buffers clean-up                    |xtabline-clean-up|
       Tab-Todo                            |xtabline-tab-todo|
       Cwd selection                       |xtabline-cwd|
@@ -26,7 +26,7 @@ XTABLINE - TABLE OF CONTENTS                        *xtabline-vim* *xtabline-toc
       Formatting                          |xtabline-formatting|
       Buffers formatting                  |xtabline-buffers-formatting|
       Tab formatting                      |xtabline-tab-formatting|
-      Remapping commands                  |xtabline-remapping-commands|
+      Remapping commands                  |xtabline-remapping|
     Credits                               |xtabline-credits|
     License                               |xtabline-license|
 
@@ -346,7 +346,7 @@ the description and the symbol `[%]` that marks the active session (if any).
 
 
 
-OTHER COMMANDS                                         *xtabline-other-commands*
+OTHER COMMANDS                                                  *xtabline-other*
 ==============================================================================
 
 -----------------------+---------+------------------------------------------
@@ -540,7 +540,7 @@ Option | Description                  ~
   2    | short cwd, truncated at 2 directory separators
 
 
-REMAPPING COMMANDS                             *xtabline-remapping-commands*
+REMAPPING COMMANDS                                          *xtabline-remapping*
 
 You can remap commands individually. These are some easier mappings I use:
 
