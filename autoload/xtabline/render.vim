@@ -566,26 +566,28 @@ endfun
 
 "------------------------------------------------------------------------------
 
-let s:unr1 = {1: '₁', 2: '₂', 3: '₃', 4: '₄', 5: '₅', 6: '₆', 7: '₇', 8: '₈', 9: '₉', 10: '₁₀',
-      \11: '₁₁', 12: '₁₂', 13: '₁₃', 14: '₁₄', 15: '₁₅', 16: '₁₆', 17: '₁₇', 18: '₁₈', 19: '₁₉', 20: '₂₀'}
+let s:unr1 = [ '₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉', '₁₀',
+      \'₁₁', '₁₂', '₁₃', '₁₄', '₁₅', '₁₆', '₁₇', '₁₈', '₁₉', '₂₀',
+      \'₂₁', '₂₂', '₂₃', '₂₄', '₂₅', '₂₆', '₂₇', '₂₈', '₂₉', '₃₀' ]
 
-let s:unr2 = {1: '¹', 2: '²', 3: '³', 4: '⁴', 5: '⁵', 6: '⁶', 7: '⁷', 8: '⁸', 9: '⁹', 10: '¹⁰',
-      \11: '¹¹', 12: '¹²', 13: '¹³', 14: '¹⁴', 15: '¹⁵', 16: '¹⁶', 17: '¹⁷', 18: '¹⁸', 19: '¹⁹', 20: '²⁰'}
+let s:unr2 = [ '¹', '²', '³', '⁴', '⁵', '⁶', '⁷', '⁸', '⁹', '¹⁰',
+      \'¹¹', '¹²', '¹³', '¹⁴', '¹⁵', '¹⁶', '¹⁷', '¹⁸', '¹⁹', '²⁰',
+      \'²¹', '²²', '²³', '²⁴', '²⁵', '²⁶', '²⁷', '²⁸', '²⁹', '³⁰' ]
 
 fun! s:unicode_nrs(nr)
   """Adapted from Vim-CtrlSpace (https://github.com/szw/vim-ctrlspace)
   let u_nr = ""
 
-  if !s:Sets.superscript_unicode_nrs && a:nr < 21
-    return s:unr1[a:nr]
-  elseif a:nr < 21
-    return s:unr2[a:nr]
+  if !s:Sets.superscript_unicode_nrs && a:nr < 31
+    return s:unr1[a:nr-1]
+  elseif a:nr < 31
+    return s:unr2[a:nr-1]
   elseif !s:Sets.superscript_unicode_nrs
     let small_numbers = ["₀", "₁", "₂", "₃", "₄", "₅", "₆", "₇", "₈", "₉"]
   else
     let small_numbers = ["⁰", "¹", "²", "³", "⁴", "⁵", "⁶", "⁷", "⁸", "⁹"]
   endif
-  let number_str    = string(a:nr)
+  let number_str = string(a:nr)
 
   for i in range(0, len(number_str) - 1)
     let u_nr .= small_numbers[str2nr(number_str[i])]
