@@ -136,8 +136,21 @@ let s:Themes.codedark = { -> {
       \}}
 
 
-fun! xtabline#themes#init()
-  for theme in keys(s:Themes)
-    call xtabline#hi#generate(s:Themes[theme](), theme)
+fun! xtabline#themes#init(theme) abort
+  if has_key(g:xtabline_highlight.themes, a:theme)
+    return 1
+  elseif has_key(s:Themes, a:theme)
+    call xtabline#hi#generate(a:theme, s:Themes[a:theme]())
+    return 1
+  endif
+endfun
+
+fun! xtabline#themes#list() abort
+  let themes = keys(g:xtabline_highlight.themes)
+  for t in keys(s:Themes)
+    if index(themes, t) < 0
+      call add(themes, t)
+    endif
   endfor
+  return themes
 endfun

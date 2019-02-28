@@ -120,12 +120,15 @@ endfun
 " Filter buffers
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
+" This function is called by xtabline#render#buffers(), every time the tabline
+" is updated. It won't always run, though: xtabline#update() will set the flag
+
 fun! xtabline#filter_buffers(...) abort
   """Filter buffers so that only valid buffers for this tab will be shown.
-  if exists('s:v.force_update') | unlet s:v.force_update
-  elseif !s:ready() | return
-  elseif get(g:xtabline, 'version', 0) < 0.1
-    call xtabline#session_loaded()
+
+  if      exists('s:v.force_update')          | unlet s:v.force_update
+  elseif  !s:ready()                          | return
+  elseif  get(g:xtabline, 'version', 0) < 0.1 | call xtabline#session_loaded()
   endif
 
   " 'accepted' is a list of buffer numbers that belong to the tab, either because:

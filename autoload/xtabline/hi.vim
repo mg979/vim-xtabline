@@ -5,30 +5,23 @@ let s:Hi   = g:xtabline_highlight
 let s:Sets = g:xtabline_settings
 
 fun! xtabline#hi#init()
-  let s:Sets.theme = get(s:Sets, 'theme', 'seoul')
-  call xtabline#hi#apply_theme(s:Sets.theme, 1)
+  let s:Sets.theme = get(s:Sets, 'theme', 'default')
+  call xtabline#hi#apply_theme(s:Sets.theme)
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! xtabline#hi#apply_theme(theme, ...)
+fun! xtabline#hi#apply_theme(theme)
   """Apply a theme."""
 
   call s:clear_groups()
-  call xtabline#themes#init()
 
-  if !empty(a:theme) && !has_key(s:Hi.themes, a:theme)
-    echohl WarningMsg | echo "Wrong theme." | echohl None | return
-  elseif empty(a:theme)
-    let theme = 'default'
-  else
-    let theme = a:theme
+  if a:theme == 'default'
+    return s:Hi.themes.default()
   endif
 
-  if theme == 'default'
-    call s:Hi.themes.default()
-    let s:Sets.theme = 'default'
-    return
+  if !xtabline#themes#init(a:theme)
+    echohl WarningMsg | echo "Wrong theme." | echohl None | return
   endif
 
   let theme = s:Hi.themes[a:theme]
@@ -85,7 +78,7 @@ fun! s:style(k)
   return ("term=".s." cterm=".s." gui=".s)
 endfun
 
-fun! xtabline#hi#generate(theme, name)
+fun! xtabline#hi#generate(name, theme)
   """Create an entry in g:xtabline_highlight.themes for the give theme."""
   let t = a:theme | let T = {}
 
@@ -101,7 +94,7 @@ endfun
 
 fun! xtabline#hi#update_theme()
   """Reload theme on colorscheme switch."""
-  if g:xtabline_settings.theme == 's:last_theme'
+  if g:xtabline_settings.theme == s:last_theme
     call xtabline#hi#apply_theme(g:xtabline_settings.theme)
   endif
 endfun

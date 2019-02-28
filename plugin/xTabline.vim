@@ -100,7 +100,7 @@ endfun
 
 fun! s:theme(A,L,P)
   """Theme names completion.
-  return keys(g:xtabline_highlight.themes)
+  return xtabline#themes#list()
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -120,27 +120,38 @@ let s:vimdir = ( has('win32unix') || g:xtabline.Vars.winOS ) &&
 
 let g:xtabline_highlight = get(g:, 'xtabline_highlight', {'themes': {}})
 
-let s:S = {}
+let s:S = {
+      \ 'map_prefix' :                '<leader>x',
+      \ 'close_buffer_can_close_tab': 0,
+      \ 'close_buffer_can_quit_vim':  0,
+      \ 'depth_tree_size':            20,
+      \ 'select_buffer_alt_action':   "buffer #",
+      \ 'hide_buffer_alt_action':     "buffer #",
+      \ 'use_git':                    0,
+      \ 'superscript_unicode_nrs':    0,
+      \ 'show_current_tab':           1,
+      \ 'enable_extra_highlight':     1,
+      \ 'sort_buffers_by_last_open':  0,
+      \ 'no_mappings':                1,
+      \ 'no_icons':                   0,
+      \ 'bufline_numbers':            1,
+      \ 'bufline_sep_or_icon':        0,
+      \ 'bufline_separators':         ['|', '|'],
+      \ 'bufline_format':             ' n I< l +',
+      \ 'bufline_unnamed':            '...',
+      \ 'tab_format':                 "N - 2+ ",
+      \ 'bufline_tab_format':         "N - 2+ ",
+      \ 'named_tab_format':           "N - l+ ",
+      \ 'bufline_named_tab_format':   "N - l+ ",
+      \ 'modified_tab_flag':          "*",
+      \ 'close_tabs_label':           "",
+      \ 'unnamed_tab_label':          "[no name]",
+      \ 'tab_icon':                   ["📂", "📁"],
+      \ 'named_tab_icon':             ["📂", "📁"],
+      \ 'devicon_for_all_filetypes':  0,
+      \ 'devicon_for_extensions':     ['md', 'txt'],
+      \}
 
-let s:S.map_prefix                 = '<leader>x'
-let s:S.close_buffer_can_close_tab = 0
-let s:S.close_buffer_can_quit_vim  = 0
-let s:S.depth_tree_size            = 20
-
-let s:S.select_buffer_alt_action   = "buffer #"
-let s:S.hide_buffer_alt_action     = "buffer #"
-let s:S.use_git                    = 0
-let s:S.superscript_unicode_nrs    = 0
-let s:S.show_current_tab           = 1
-let s:S.enable_extra_highlight     = 1
-let s:S.sort_buffers_by_last_open  = 0
-let s:S.no_mappings                = 1
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Bufline/Tabline settings
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-let s:S.no_icons = 0
 
 let s:S.bufline_indicators = {
       \ 'modified': s:S.no_icons ? '[+]'  : '✛ ',
@@ -149,24 +160,6 @@ let s:S.bufline_indicators = {
       \ 'pinned': s:S.no_icons ?   '[^]'  : '[📌]',
       \}
 
-let s:S.bufline_numbers           = 1
-let s:S.bufline_sep_or_icon       = 0
-let s:S.bufline_separators        = ['|', '|']
-let s:S.bufline_format            =  ' n I< l +'
-let s:S.bufline_unnamed           =  '...'
-
-let s:S.tab_format                = "N - 2+ "
-let s:S.named_tab_format          = "N - l+ "
-let s:S.bufline_named_tab_format  = s:S.named_tab_format
-let s:S.bufline_tab_format        = s:S.tab_format
-let s:S.modified_tab_flag         = "*"
-let s:S.close_tabs_label          = ""
-let s:S.unnamed_tab_label         = "[no name]"
-let s:S.tab_icon                  = ["📂", "📁"]
-let s:S.named_tab_icon            = ["📂", "📁"]
-
-let s:S.devicon_for_all_filetypes = 0
-let s:S.devicon_for_extensions    = ['md', 'txt']
 
 let s:S.sessions_path  = !has('nvim') ? expand(s:vimdir . '/session') :
       \                                 expand(stdpath('data') . '/session')
