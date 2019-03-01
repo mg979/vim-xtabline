@@ -56,6 +56,7 @@ let s:last_modified_state = { winbufnr(0): &modified }
 " there's no need to reprocess it, just return the string
 
 fun! xtabline#render#buffers() abort
+  call xtabline#tab#check_index()
   let currentbuf = winbufnr(0)
 
   if !has_key(s:last_modified_state, currentbuf)

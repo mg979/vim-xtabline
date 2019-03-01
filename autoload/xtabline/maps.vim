@@ -61,11 +61,6 @@ fun! s:do_map()
   call s:mapkeys(X.'br',  'Reset-Buffer')
   call s:mapkeys(X.'tv',  'Tab-Vimrc')
 
-  call s:mapkeys('+t',    'Move-Tab+')
-  call s:mapkeys('-t',    'Move-Tab-')
-  call s:mapkeys('+T',    'Move-Tab0')
-  call s:mapkeys('-T',    'Move-Tab$')
-
   if maparg(toupper(X)) == '' && !hasmapto('<Plug>(XT-Menu)')
     silent! execute 'nmap <unique><nowait>' toupper(X) '<Plug>(XT-Menu)'
   endif
@@ -73,10 +68,6 @@ endfun
 
 function! xtabline#maps#init()
 
-  nnoremap <unique> <silent>        <Plug>(XT-Move-Tab+)             :XTabMove +<cr>
-  nnoremap <unique> <silent>        <Plug>(XT-Move-Tab-)             :XTabMove -<cr>
-  nnoremap <unique> <silent>        <Plug>(XT-Move-Tab0)             :<c-u>XTabMove 0<cr>
-  nnoremap <unique> <silent>        <Plug>(XT-Move-Tab$)             :<c-u>XTabMove $<cr>
   nnoremap <unique>                 <Plug>(XT-Tab-New)               :<c-u>XTabNew<space>
   nnoremap <unique>                 <Plug>(XT-Tab-Edit)              :<c-u>XTabEdit<space>
   nnoremap <unique>                 <Plug>(XT-Edit)                  :<c-u>XEdit<space>

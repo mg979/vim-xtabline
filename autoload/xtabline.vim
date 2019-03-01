@@ -47,7 +47,7 @@ fun! xtabline#init()
     let s:X.devicons = {'extensions': extensions, 'exact': exact, 'patterns': patterns}
   endif
 
-  call s:check_tabs()
+  call xtabline#tab#check_all()
   call xtabline#update()
 endfun
 
@@ -74,10 +74,10 @@ endfun
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! xtabline#session_loaded() abort
-  for T in s:X.Tabs
-    let T = extend(xtabline#tab#new(), T)
+  for i in range(len(s:X.Tabs))
+    let s:X.Tabs[i] = extend(xtabline#tab#new(), s:X.Tabs[i])
   endfor
-  call s:check_tabs()
+  call xtabline#tab#check_all()
   for buf in s:X.pinned_buffers
     let i = index(s:X.pinned_buffers, buf)
     if s:invalid(buf)
@@ -215,15 +215,6 @@ fun! s:ordered_buffers()
   endfor
 endfun
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! s:check_tabs()
-  """Create or remove tab dicts if necessary.
-  let Tabs = s:X.Tabs
-  while len(Tabs) < tabpagenr("$") | call add(Tabs, xtabline#tab#new()) | endwhile
-  while len(Tabs) > tabpagenr('$') | call remove(Tabs, -1)              | endwhile
-endfun
-
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:set_new_tab_cwd(N)
@@ -286,7 +277,7 @@ function! s:Do(action, ...)
 
   elseif a:action == 'enter'
 
-    call s:check_tabs()
+    call xtabline#tab#check_all()
     let T = X.Tabs[N]
 
     cd `=T.cwd`

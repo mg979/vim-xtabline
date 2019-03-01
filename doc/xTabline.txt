@@ -11,7 +11,6 @@ XTABLINE - TABLE OF CONTENTS                        *xtabline-vim* *xtabline-toc
     Closing buffers                       |xtabline-closing-buffers|
     Tabs and Buffers                      |xtabline-tabs-and-buffers|
       Opening tabs                        |xtabline-opening-tabs|
-      Rearranging tabs                    |xtabline-rearranging-tabs|
       Saving and loading tabs             |xtabline-saving-and-loading-tabs|
       Managing buffers                    |xtabline-managing-buffers|
       Tuning buffer filtering             |xtabline-tuning-buffer-filtering|
@@ -180,26 +179,6 @@ XEdit         | *rt      | <Plug>(XT-Edit)
 `XTabEdit`    accepts a path, triggers rename if called with bang
 `XTabReopen`  lets you reopen a previosly closed tab, and is repeatable
 `XEdit`       like :edit, but prompts for directory creation, if not existant.
-
-
-REARRANGING TABS                                 *xtabline-rearranging-tabs*
-
-`XTabMove` should be used to rearrange tabs, and not the regular `tabmove`
-command. It can be called with arguments:
-
---------------+----------+----------------------
-Command       | Mapping  | Plug                ~
---------------+----------+----------------------
-XTabMove +    | +t       | <Plug>(XT-Move-Tab+)
-XTabMove -    | -t       | <Plug>(XT-Move-Tab-)
-XTabMove 0    | +T       | <Plug>(XT-Move-Tab0)
-XTabMove $    | -T       | <Plug>(XT-Move-Tab$)
-
-`XTabMove +`   move forward by 1
-`XTabMove -`   move backwards by 1
-`XTabMove 0`   make it the first tab
-`XTabMove $`   move at end
-
 
 
 SAVING AND LOADING TABS                     *xtabline-saving-and-loading-tabs*
