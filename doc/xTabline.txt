@@ -108,7 +108,7 @@ Most mappings presented are meant prefixed by <prefix>, when preceded by *.
 
 Mappings are disabled by default. To enable them:
 >
-    let g:xtabline_settings.no_mappings = 0
+    let g:xtabline_settings.enable_mappings = 1
 
 
 
@@ -405,7 +405,7 @@ configurator.
 ---------------------------+----------------------------------+----------
 Option                     | Description                      | Default ~
 ---------------------------+----------------------------------+----------
-no_mappings                | only `<Plug>`s will be defined     | 1
+enable_mappings            | `<Plug>`s are always defined       | 0
 select_buffer_alt_action   | SelectBuffer alternative command | `buffer #`
 hide_buffer_alt_action     | HideBuffer alternative command   | `buffer #`
 sessions_path              | sessions directory               | `~/.vim/session`
@@ -428,7 +428,7 @@ Option                     | Description                   | Default ~
 ---------------------------+-------------------------------+----------
 bufline_numbers            |                              | 1
 bufline_sep_or_icon        | icon suppresses separator    | 0
-bufline_separators         |                              | ['', '']
+bufline_separators         | alternative: ['', '']      | ['|', '|']
 devicon_for_all_filetypes  |                              | 0
 devicon_for_extensions     |                              | ['md', 'txt']
 bufline_format             |                              | " n I< l +"

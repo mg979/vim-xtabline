@@ -118,7 +118,7 @@ function! xtabline#maps#init()
   nnoremap <unique> <silent>        <Plug>(XT-Relative-Paths)        :<c-u>XTabRelativePaths<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Menu)                  :<c-u>XTabMenu<cr>
 
-  if !g:xtabline_settings.no_mappings | call s:do_map() | endif
+  if g:xtabline_settings.enable_mappings | call s:do_map() | endif
 endfunction
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
