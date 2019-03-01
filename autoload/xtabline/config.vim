@@ -6,7 +6,6 @@ fun! xtabline#config#start()
   let opt = [
             \['Sort buffers by last open',   "sort_buffers_by_last_open"],
             \['Show current tab',            "show_current_tab"],
-            \['Enable extra highlight',      "enable_extra_highlight"],
             \['Superscript unicode nrs',     "superscript_unicode_nrs"],
             \['Close buffer can close tab',  "close_buffer_can_close_tab"],
             \['Close buffer can quit vim',   "close_buffer_can_quit_vim"],
@@ -36,10 +35,10 @@ fun! xtabline#config#start()
   elseif o == '?'       | call xtabline#config#help() | return
   elseif match(o, "\D") >= 0
     echohl WarningMsg | redraw! | echo "Wrong input." | echohl None | return
-  elseif o == 7
+  elseif o == 6
     let new = input("\nEnter a new value for depth_tree_size (0 disables it) > ")
     if !empty(new) | let g:xtabline_settings.depth_tree_size = new | endif
-  elseif o == 8
+  elseif o == 7
     call feedkeys("\<Plug>(XT-Apply-Theme)")
     return
   else
@@ -62,7 +61,6 @@ fun! xtabline#config#generate()
         \'let g:xtabline_settings = {}',
         \'let g:xtabline_settings.sort_buffers_by_last_open  = '.g:xtabline_settings.sort_buffers_by_last_open,
         \'let g:xtabline_settings.show_current_tab           = '.g:xtabline_settings.show_current_tab,
-        \'let g:xtabline_settings.enable_extra_highlight     = '.g:xtabline_settings.enable_extra_highlight,
         \'let g:xtabline_settings.superscript_unicode_nrs    = '.g:xtabline_settings.superscript_unicode_nrs,
         \'let g:xtabline_settings.close_buffer_can_close_tab = '.g:xtabline_settings.close_buffer_can_close_tab,
         \'let g:xtabline_settings.close_buffer_can_quit_vim  = '.g:xtabline_settings.close_buffer_can_quit_vim,
@@ -89,7 +87,6 @@ fun! xtabline#config#help()
 
   echohl Special | echo "sort_buffers_by_last_open\t\t"   | echohl None | echon "keep the last open buffers first in the bufferline"
   echohl Special | echo "show_current_tab\t\t\t"          | echohl None | echon "in the right corner of the bufferline"
-  echohl Special | echo "enable_extra_highlight\t\t\t"    | echohl None | echon "extra highlight for pinned/special buffers"
   echohl Special | echo "superscript_unicode_nrs\t\t\t"   | echohl None | echon "when using small unicode numbers, use superscript or subscript"
   echohl Special | echo "close_buffer_can_close_tab\t\t"  | echohl None | echon "close buffer command can close a tab, if only one buffer left"
   echohl Special | echo "close_buffer_can_quit_vim\t\t"   | echohl None | echon "close buffer command can also quit vim"

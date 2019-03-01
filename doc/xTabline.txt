@@ -46,7 +46,7 @@ This plugin tries to give you full control on the tabline. I wanted ways to:
 
 Additionally, it provides:
 
-* buffers quick navigation (next, previous, with *[count]*)
+* buffers quick navigation (next, previous, with [count])
 * commands to rearrange tabs and buffers positions
 * commands to clean up buffers across all tabs
 * session management: load/save/delete sessions, with timestamping and descriptions
@@ -56,7 +56,7 @@ Integrated with:
 
 * |fzf-vim| (load saved tabs, sessio management)
 * |vim-obsession| for automatic CWDs persistance across sessions
-* additional support for |vim-airine| and |vim-devicons|
+* additional support for |vim-devicons|
 
 Reuses code from:
 
@@ -107,6 +107,9 @@ This means that most commands will be mapped to `<leader>x` + a modifier.
 You can change the prefix and all mappings will be changed accordingly.
 Most mappings presented are meant prefixed by <prefix>, when preceded by *.
 
+Mappings are disabled by default. To enable them:
+>
+    let g:xtabline_settings.no_mappings = 0
 
 
 
@@ -208,9 +211,10 @@ multiple items by pressing <Tab>.
 --------------+----------+-----------------------
 Command       | Mapping  | Plug                 ~
 --------------+----------+-----------------------
-XTabLoadTab   | *lt      |<Plug>(XT-Load-Tab)
-XTabSaveTab   | *st      |<Plug>(XT-Save-Tab)
-XTabDeleteTab | *dt      |<Plug>(XT-Delete-Tab)
+XTabListTabs  | *tl      | <Plug>(XT-List-Tabs)
+XTabLoadTab   | *lt      | <Plug>(XT-Load-Tab)
+XTabSaveTab   | *st      | <Plug>(XT-Save-Tab)
+XTabDeleteTab | *dt      | <Plug>(XT-Delete-Tab)
 
 Saved tabs are stored in `$HOME/.vim/.XTablineTabs`.
 
@@ -224,7 +228,7 @@ _fzf-vim_ is required.
 --------------------------+----------+----------------------------------
 Command                   | Mapping  | Plug                            ~
 --------------------------+----------+----------------------------------
-XTabListBuffers           | *b       | <Plug>(XT-List-Buffers)
+XTabListBuffers           | *bl      | <Plug>(XT-List-Buffers)
 XTabDeleteBuffers         | *db      | <Plug>(XT-Delete-Buffers)
 XTabDeleteGlobalBuffers   | *dgb     | <Plug>(XT-Delete-Global-Buffers)
 
@@ -365,11 +369,7 @@ BUFFERS CLEAN-UP                                         *xtabline-clean-up*
 `XTabPurge`
 
 This command is handy to close all buffers that aren't bound to a physical
-file (such `vim-fugitive` logs, `vim-gitgutter` previews, quickfix windows
-etc).
-
-If the only window in the tab is going to be closed, the buffer switches to
-the first tab buffer, so that you won't lose the tab.
+file (eg. git logs, previews, quickfix windows etc). The tab won't be closed.
 
 `XTabCleanUp`, `XTabCleanUp!`
 
@@ -393,10 +393,8 @@ You can define the filename and other options:
     \'command': 'sp', 'size': 20, 'syntax': 'markdown'}
 
 `file`    : the filename that will be used
-`prefix`  : check `opening-window` for help
-`command` : can be `sp`, `vs`, `edit`, etc.
-`size`    : the height/width of the window
-`syntax`  : the syntax that will be loaded
+`command` : eg. `below 20sp`, `vs`, `edit`, etc, check |opening-window|
+`syntax`  : the filetype that will be assigned
 
 
 CWD SELECTION                                                *xtabline-cwd*
@@ -428,7 +426,7 @@ configurator.
 ---------------------------+----------------------------------+----------
 Option                     | Description                      | Default ~
 ---------------------------+----------------------------------+----------
-no_mappings                | only `<Plug>`s will be defined   | 1
+no_mappings                | only `<Plug>`s will be defined     | 1
 select_buffer_alt_action   | SelectBuffer alternative command | `buffer #`
 hide_buffer_alt_action     | HideBuffer alternative command   | `buffer #`
 sessions_path              | sessions directory               | `~/.vim/session`
@@ -441,7 +439,6 @@ bookmarks_file             |                                  | `~/.vim/.XTablin
 sessions_data              |                                  | `~/.vim/.XTablineSessions`
 superscript_unicode_nrs    | use superscript or subscript nrs | 0
 show_current_tab           |                                  | 1
-enable_extra_highlight     |                                  | 1
 sort_buffers_by_last_open  |                                  | 0
 
 
@@ -547,7 +544,7 @@ You can remap commands individually. These are some easier mappings I use:
 >
   nmap <space>x          <Plug>(XT-Purge)
   nmap <space>b          <Plug>(XT-List-Buffers)
-  nmap <space>t          <Plug>(XT-Tab-Todo)
+  nmap <space>t          <Plug>(XT-List-Tabs)
   nmap <M-q>             <Plug>(XT-Close-Buffer)
 
 
@@ -570,5 +567,5 @@ LICENSE                                                       *xtabline-license*
 MIT
 
 
-vim:tw=78:sw=2:ts=2:ft=help:norl:nowrap:
+vim:tw=79:noet:sw=2:ts=2:ft=help:norl:nowrap:
 

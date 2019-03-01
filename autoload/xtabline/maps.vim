@@ -22,7 +22,8 @@ fun! s:do_map()
   call s:mapkeys(']B',    'Next-Pinned')
   call s:mapkeys(X.'q',   'Close-Buffer')
   call s:mapkeys(X.'e',   'Edit')
-  call s:mapkeys(X.'lb',  'List-Buffers')
+  call s:mapkeys(X.'bl',  'List-Buffers')
+  call s:mapkeys(X.'tl',  'List-Tabs')
   call s:mapkeys(X.'db',  'Delete-Buffers')
   call s:mapkeys(X.'dgb', 'Delete-Global-Buffers')
   call s:mapkeys(X.'lt',  'Load-Tab')
@@ -89,6 +90,7 @@ function! xtabline#maps#init()
   nnoremap <unique> <silent> <expr> <Plug>(XT-Prev-Pinned)           xtabline#cmds#prev_buffer(v:count1, 1)
   nnoremap <unique> <silent>        <Plug>(XT-Close-Buffer)          :<c-u>XTabCloseBuffer<cr>
   nnoremap <unique> <silent>        <Plug>(XT-List-Buffers)          :<c-u>XTabListBuffers<cr>
+  nnoremap <unique> <silent>        <Plug>(XT-List-Tabs)             :<c-u>XTabListTabs<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Delete-Buffers)        :<c-u>XTabDeleteBuffers<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Delete-Global-Buffers) :<c-u>XTabDeleteGlobalBuffers<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Load-Tab)              :<c-u>XTabLoadTab<cr>

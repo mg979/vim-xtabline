@@ -130,7 +130,6 @@ let s:S = {
       \ 'use_git':                    0,
       \ 'superscript_unicode_nrs':    0,
       \ 'show_current_tab':           1,
-      \ 'enable_extra_highlight':     1,
       \ 'sort_buffers_by_last_open':  0,
       \ 'no_mappings':                1,
       \ 'no_icons':                   0,
