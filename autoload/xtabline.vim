@@ -278,6 +278,7 @@ function! s:Do(action, ...)
   elseif a:action == 'enter'
 
     call xtabline#tab#check_all()
+    call xtabline#tab#check()
     let T = X.Tabs[N]
 
     cd `=T.cwd`

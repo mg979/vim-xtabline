@@ -1,7 +1,6 @@
 ## xtabline
 
 ![Imgur](https://i.imgur.com/yU6qbU5.gif)
-![pic](https://i.imgur.com/SN6FNnA.gif)
 
 ----------------------------------------------------------------------------
 
@@ -42,7 +41,7 @@ Integrated with:
 
 * *fzf-vim* (load saved tabs, sessio management)
 * *vim-obsession* for automatic CWDs persistance across sessions
-* additional support for *vim-airine* and *vim-devicons*
+* additional support for *vim-devicons*
 
 Reuses code from:
 
@@ -77,7 +76,7 @@ With vim-plug:
 
 ### Credits
 
-Braam Moolenaar for Vim  
+Bram Moolenaar for Vim  
 [Buftabline](https://github.com/ap/vim-buftabline) for the bufferline rendering  
 [Taboo](https://github.com/gcmt/taboo.vim) for the tabline rendering  
 Junegunn Choi for [fzf-vim](https://github.com/junegunn/fzf.vim)  

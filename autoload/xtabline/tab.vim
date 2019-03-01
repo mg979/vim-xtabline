@@ -58,6 +58,16 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
+fun! xtabline#tab#check() abort
+  """Ensure all tab dict keys are present.
+  call extend(s:T(), s:template(), 'keep')
+  if !has_key(t:, 'xtab')
+    let t:xtab = s:T()
+  endif
+endfun
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
 fun! xtabline#tab#check_index() abort
   """Ensure g:xtabline.Tabs[tabpagenr()-1] matches t:xtab.
   if !has_key(t:, 'xtab') | return | endif
