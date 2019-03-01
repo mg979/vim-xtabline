@@ -17,6 +17,7 @@ fun! xtabline#hi#apply_theme(theme)
   call s:clear_groups()
 
   if a:theme == 'default'
+    let s:last_theme = a:theme
     return s:Hi.themes.default()
   endif
 

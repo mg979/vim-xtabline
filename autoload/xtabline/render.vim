@@ -9,7 +9,7 @@ let s:vB = { -> s:T().buffers.valid     }       "valid buffers for tab
 let s:eB = { -> s:T().buffers.extra     }       "extra buffers for tab
 let s:oB = { -> s:T().buffers.order     }       "ordered buffers for tab
 
-let s:special = { nr -> has_key(s:B(), nr) && s:B()[nr].special }
+let s:special = { nr -> s:B()[nr].special }
 let s:refilter = 0
 let s:mod_width = 0
 
@@ -34,14 +34,14 @@ let s:is_extra  = { n -> index(s:eB(), n) >= 0 }
 
 let s:dirsep            = fnamemodify(getcwd(),':p')[-1:]
 let s:centerbuf         = winbufnr(0)
-let s:is_current_buf    = { nr -> nr == winbufnr(0)                                                }
-let s:scratch           = { nr -> index(['nofile','acwrite'], getbufvar(nr, '&buftype')) >= 0      }
-let s:nowrite           = { nr -> !getbufvar(nr, '&modifiable')                                    }
-let s:pinned            = { -> s:X.pinned_buffers                                                  }
-let s:buffer_has_format = { buf -> has_key(s:B(), buf.nr) && has_key(s:B()[buf.nr], 'format')      }
-let s:has_buf_icon      = { nr -> has_key(s:B(), string(nr)) && !empty(get(s:B()[nr], 'icon', '')) }
-let s:extraHi           = { b -> s:is_extra(b) || s:is_open(b) || index(s:pinned(), b) >= 0        }
-let s:specialHi         = { b -> s:B()[b].special                                                  }
+let s:is_current_buf    = { nr -> nr == winbufnr(0)                                           }
+let s:scratch           = { nr -> index(['nofile','acwrite'], getbufvar(nr, '&buftype')) >= 0 }
+let s:nowrite           = { nr -> !getbufvar(nr, '&modifiable')                               }
+let s:pinned            = { -> s:X.pinned_buffers                                             }
+let s:buffer_has_format = { buf -> has_key(s:B()[buf.nr], 'format')                           }
+let s:has_buf_icon      = { nr -> !empty(get(s:B()[nr], 'icon', ''))                          }
+let s:extraHi           = { b -> s:is_extra(b) || s:is_open(b) || index(s:pinned(), b) >= 0   }
+let s:specialHi         = { b -> s:B()[b].special                                             }
 
 " BufTabLine main function {{{1
 " =============================================================================
@@ -273,19 +273,17 @@ endfun
 
 fun! s:buf_separators(nr)
   """Use custom separators if defined in buffer entry."""
-  let bufs = s:B()
-  return has_key(bufs[a:nr], 'separators') ?
-        \       bufs[a:nr].separators : s:Sets.bufline_separators
+  let B = s:B()[a:nr]
+  return has_key(B, 'separators') ? B.separators : s:Sets.bufline_separators
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:get_buf_name(buf)
   """Return custom buffer name, if it has been set, otherwise the filename."""
-  let bufs = s:B() | let nr = a:buf.nr
-  let has_name = has_key(bufs, nr) && has_key(bufs[nr], 'name') && !empty(bufs[nr].name)
-
-  return has_name ? bufs[nr].name : empty( a:buf.path ) ? s:Sets.bufline_unnamed : a:buf.path
+  let B = s:B()[a:buf.nr]
+  return !empty(B.name)       ? B.name :
+        \ empty( a:buf.path ) ? s:Sets.bufline_unnamed : a:buf.path
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
