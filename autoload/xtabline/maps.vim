@@ -65,7 +65,7 @@ fun! s:do_map()
   call s:mapkeys('+T',    'Move-Tab0')
   call s:mapkeys('-T',    'Move-Tab$')
 
-  if exists('g:loaded_fzf') && maparg(toupper(X)) == '' && !hasmapto('<Plug>(XT-Menu)')
+  if maparg(toupper(X)) == '' && !hasmapto('<Plug>(XT-Menu)')
     silent! execute 'nmap <unique><nowait>' toupper(X) '<Plug>(XT-Menu)'
   endif
 endfun

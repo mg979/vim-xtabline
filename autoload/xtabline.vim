@@ -146,7 +146,13 @@ fun! xtabline#filter_buffers(...) abort
   endif
 
   let T.buffers.valid = T.locked? T.buffers.valid : []
-  let T.is_git = get(T, 'is_git', 0)
+
+  if T.depth < 0
+    let use_git   = get(T, 'is_git', 0) && !empty(get(T, 'git_files', []))
+    let use_files = !empty(get(T, 'files', []))
+  else
+    let [ use_git, use_files ] = [ 0, 0 ]
+  endif
 
   " /////////////////// ITERATE BUFFERS //////////////////////
 
@@ -162,14 +168,14 @@ fun! xtabline#filter_buffers(...) abort
     elseif !s:v.filtering  | call add(T.buffers.valid, buf)
     elseif !T.locked
 
-      if T.is_git && !empty(get(T, 'git_files', []))
+      if use_git
         " when using git paths, they'll be relative
         let bname = s:v.winOS ? tr(bufname(buf), '/', '\') : bufname(buf)
         if index(T.git_files, bname) >= 0
           call add(T.buffers.valid, buf)
         endif
 
-      elseif !empty(get(T, 'files', []))
+      elseif use_files
         " to be accepted, buffer's path must be among valid files
         if index(T.files, B.path) >= 0
           call add(T.buffers.valid, buf)

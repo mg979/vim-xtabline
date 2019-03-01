@@ -179,35 +179,34 @@ fun! s:purge_buffers()
   """Remove unmodified buffers with invalid paths."""
 
   if !s:v.filtering | echo "Buffer filtering is turned off." | return | endif
-  let bcnt = 0 | let bufs = [] | let purged = []
-  let verify = s:oB() + s:eB()
+  let bufs = s:oB() + s:eB() | let bcnt = 0 | let purged = []
 
   " include open buffers if not showing in tabline
   for buf in tabpagebuflist(tabpagenr())
-    if index(verify, buf) < 0 | call add(bufs, buf) | endif
+    if index(bufs, buf) < 0 | call add(bufs, buf) | endif
   endfor
 
-  for buf in (verify + bufs)
+  for buf in bufs
     let bufpath = s:F.fullpath(bufname(buf))
 
     let purge =  !buflisted(buf) || !getbufvar(buf, "&modifiable") ||
-          \     !filereadable(bufpath) && !getbufvar(buf, "&modified") ||
-          \     bufpath !~ "^".s:T().cwd
+          \     !filereadable(bufpath) && !getbufvar(buf, "&modified")
 
     if purge
-      let bcnt += 1   | let ix = index(verify, buf)
-      if ix >= 0      | call add(purged, remove(verify, ix))
+      let bcnt += 1
+      let ix = index(bufs, buf)
+      if ix >= 0      | call add(purged, remove(bufs, ix))
       else            | call add(purged, buf) | endif
     endif
   endfor
 
   " the tab may be closed if there is one window, and it's going to be purged
-  if len(tabpagebuflist()) == 1 && !empty(verify) && index(purged, bufnr("%")) >= 0
-    for b in s:vB()
+  if len(tabpagebuflist()) == 1 && index(purged, bufnr("%")) >= 0
+    for b in bufs
       if ( index(purged, b) < 0 )
         execute "buffer ".b
         break
-      else
+      elseif b != bufs[-1]
         continue
       endif
       let s = "Not executing because no other valid buffers for this tab"
@@ -322,9 +321,11 @@ fun! s:close_buffer()
     call s:F.msg("Not closing because of unsaved changes", 1)
 
   elseif tabpagenr() > 1 || tabpagenr("$") != tabpagenr()
-    tabnext | silent call s:F.bdelete(current)
+    call s:F.bdelete(current)
+
   elseif s:Sets.close_buffer_can_quit_vim
     quit
+
   else
     call s:F.msg ("There is only one tab.", 1)
   endif

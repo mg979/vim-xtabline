@@ -140,7 +140,7 @@ endfun
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:Funcs.bdelete(buf)
-  """Delete buffer if unmodified."""
+  """Delete buffer if unmodified and not pinned."""
   if index(s:X.pinned_buffers, a:buf) >= 0
     call self.msg("Pinned buffer has not been deleted.", 1)
 
