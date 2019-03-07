@@ -117,6 +117,8 @@ function! xtabline#maps#init()
   nnoremap <unique> <silent>        <Plug>(XT-Reset-Buffer)          :<c-u>XTabResetBuffer<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Relative-Paths)        :<c-u>XTabRelativePaths<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Menu)                  :<c-u>XTabMenu<cr>
+  nnoremap <unique> <silent>        <Plug>(XT-Update)                :<c-u>call xtabline#update()<cr>
+
 
   if g:xtabline_settings.enable_mappings | call s:do_map() | endif
 endfunction
