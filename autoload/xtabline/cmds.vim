@@ -628,7 +628,7 @@ fun! s:toggle_git()
     call s:F.msg('Tab has left git mode')
   elseif s:F.is_repo(T)
     let T.is_git = 1
-    call xtabline#tab#update_git_files(T)
+    call xtabline#tab#git_files(T)
     call s:F.msg('Tab is now in git mode')
   else
     call s:F.msg('Not a git repository', 1)

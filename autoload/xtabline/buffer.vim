@@ -59,8 +59,8 @@ fun! xtabline#buffer#add(nr)
   endif
 endfun
 
-fun! xtabline#buffer#update_path(nr)
-  if has_key(s:X.Buffers, a:nr)
+fun! xtabline#buffer#update(nr)
+  if has_key(s:X.Buffers, a:nr) && !s:X.Buffers[a:nr].special
     let s:X.Buffers[a:nr].path = s:bufpath(bufname(a:nr))
   endif
 endfun

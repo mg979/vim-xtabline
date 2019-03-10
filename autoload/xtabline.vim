@@ -105,6 +105,18 @@ fun! xtabline#session_loaded() abort
   call xtabline#update()
 endfun
 
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! xtabline#refresh() abort
+  """Perform a full tabline refresh. This should only be called manually.
+  for buf in range(1, bufnr("$"))
+    if s:existing(buf) | continue | endif
+    call xtabline#buffer#update(buf)
+  endfor
+  call xtabline#update()
+endfun
+
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! xtabline#update(...) abort
@@ -157,10 +169,7 @@ fun! xtabline#filter_buffers(...) abort
   " /////////////////// ITERATE BUFFERS //////////////////////
 
   for buf in range(1, bufnr("$"))
-    if !bufexists(buf)
-      if has_key(T.buffers, buf) | unlet T.buffers[buf] | endif
-      continue
-    endif
+    if !bufexists(buf) | continue | endif
     let B = xtabline#buffer#get(buf)
 
     if s:is_special(buf)   | call add(T.buffers.valid, buf)
@@ -232,6 +241,14 @@ fun! s:set_new_tab_cwd(N)
   call s:F.delay(200, 'g:xtabline.Funcs.msg([[ "CWD set to ", "Label" ], [ "'.T.cwd.'", "Directory" ]])')
 endfun
 
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:existing(buf) abort
+  """Check if buffer exists, clean up the buffers dict if not.
+  if bufexists(a:buf)            | return 1                 | endif
+  if has_key(s:X.Buffers, a:buf) | unlet s:X.Buffers[a:buf] | endif
+endfun
+
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Autocommand Functions
 " Inspired by TabPageCd
@@ -268,8 +285,8 @@ function! s:Do(action, ...)
 
   elseif a:action == 'bufwrite'
 
-    call xtabline#buffer#update_path( bufnr(str2nr(expand('<abuf>'))) )
-    call xtabline#tab#update_git_files(X.Tabs[N])
+    call xtabline#buffer#update( bufnr(str2nr(expand('<abuf>'))) )
+    call xtabline#tab#git_files(X.Tabs[N])
     call xtabline#update()
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""

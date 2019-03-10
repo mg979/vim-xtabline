@@ -42,7 +42,7 @@ fun! xtabline#tab#new(...)
   let tab = extend(s:template(), s:v.tab_properties)
   call extend(tab, a:0 ? a:1 : {})
   let s:v.tab_properties = {} "reset tab_properties
-  call xtabline#tab#update_git_files(tab)
+  call xtabline#tab#git_files(tab)
   return tab
 endfun
 
@@ -96,7 +96,7 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! xtabline#tab#update_git_files(tab)
+fun! xtabline#tab#git_files(tab)
   """Update tracked files if tab cwd is a repo, or disable tracking.
   let T = a:tab
   if T.locked | return | endif
