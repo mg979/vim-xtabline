@@ -619,6 +619,8 @@ let s:cmds = [
       \['Git mode',                      "XTabGit"],
       \['Hide buffer',                   "normal \<Plug>(XT-Hide-Buffer)"],
       \['Toggle tabs',                   "normal \<Plug>(XT-Toggle-Tabs)"],
+      \['Go to last tab',                "normal \<Plug>(XT-Last-Tab)"],
+      \['Refresh tabline',               "normal \<Plug>(XT-Refresh)"],
       \['Toggle filtering',              "normal \<Plug>(XT-Toggle-Filtering)"],
       \['Working directory',             "normal \<Plug>(XT-Working-Directory)"],
       \['Toggle only current dir',       "normal \<Plug>(XT-Set-Depth)"],

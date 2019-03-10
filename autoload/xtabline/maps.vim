@@ -118,6 +118,8 @@ function! xtabline#maps#init()
   nnoremap <unique> <silent>        <Plug>(XT-Relative-Paths)        :<c-u>XTabRelativePaths<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Menu)                  :<c-u>XTabMenu<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Update)                :<c-u>call xtabline#update()<cr>
+  nnoremap <unique> <silent>        <Plug>(XT-Refresh)               :<c-u>call xtabline#refresh()<cr>
+  nnoremap <unique> <silent>        <Plug>(XT-Last-Tab)              :<c-u>call xtabline#cmds#run('goto_last_tab')<cr>
 
 
   if g:xtabline_settings.enable_mappings | call s:do_map() | endif

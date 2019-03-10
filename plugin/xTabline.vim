@@ -86,6 +86,7 @@ com! -nargs=? -count    XTabNew             call xtabline#cmds#run("new_tab", <c
 com! -nargs=?           XTabMove            call xtabline#cmds#run("move_tab", <q-args>)
 com!                    XTabMenu            call xtabline#fzf#cmds()
 com!                    XTabVimrc           call xtabline#vimrc#open()
+com!                    XTabLast            call xtabline#cmds#run('goto_last_tab')
 
 com! -nargs=? -count -complete=file -bang            XTabEdit            call xtabline#cmds#run("edit_tab", <count>, <bang>0, <q-args>)
 com! -nargs=? -bang  -complete=file                  XTabWD              call xtabline#cmds#run("set_cwd", [<bang>0, <q-args>])
@@ -111,7 +112,7 @@ let g:xtabline = {'Tabs': [], 'Vars': {}, 'Buffers': {}, 'Funcs': {},
                  \'pinned_buffers': [], 'closed_tabs': [], 'closed_cwds': []}
 
 let g:xtabline.Vars = {
-      \'winOS': has("win16") || has("win32") || has("win64"),
+      \'winOS': has("win16") || has("win32") || has("win64"), 'last_tab': 0,
       \}
 
 let s:vimdir = ( has('win32unix') || g:xtabline.Vars.winOS ) &&
