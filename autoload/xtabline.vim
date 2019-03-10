@@ -258,7 +258,7 @@ function! s:Do(action, ...)
 
   elseif a:action == 'bufenter'
 
-    call xtabline#buffer#add(bufnr("%"))
+    call xtabline#buffer#add(bufnr(str2nr(expand('<abuf>'))))
     if s:new_tab_created
       call s:set_new_tab_cwd(N)
     endif
@@ -268,10 +268,9 @@ function! s:Do(action, ...)
 
   elseif a:action == 'bufwrite'
 
-    let V.refresh_buffers_path = 1
+    call xtabline#buffer#update_path( bufnr(str2nr(expand('<abuf>'))) )
     call xtabline#tab#update_git_files(X.Tabs[N])
     call xtabline#update()
-    let V.refresh_buffers_path = 0
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 

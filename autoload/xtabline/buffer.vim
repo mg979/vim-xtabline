@@ -32,9 +32,6 @@ fun! s:update(nr)
   if !B.special
     call extend(B, s:is_special(a:nr))
   endif
-  if !B.special && s:v.refresh_buffers_path
-    let B.path = s:bufpath(bufname(a:nr))
-  endif
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -59,6 +56,12 @@ fun! xtabline#buffer#add(nr)
       call extend(s:X.Buffers[a:nr], s:v.buffer_properties)
       let s:v.buffer_properties = {}
     endif
+  endif
+endfun
+
+fun! xtabline#buffer#update_path(nr)
+  if has_key(s:X.Buffers, a:nr)
+    let s:X.Buffers[a:nr].path = s:bufpath(bufname(a:nr))
   endif
 endfun
 

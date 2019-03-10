@@ -111,7 +111,6 @@ let g:xtabline = {'Tabs': [], 'Vars': {}, 'Buffers': {}, 'Funcs': {},
                  \'pinned_buffers': [], 'closed_tabs': [], 'closed_cwds': []}
 
 let g:xtabline.Vars = {
-      \'refresh_buffers_path' : 0,
       \'winOS': has("win16") || has("win32") || has("win64"),
       \}
 
