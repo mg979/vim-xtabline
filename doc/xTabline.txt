@@ -1,6 +1,6 @@
 *xtabline.txt*    xTabline     Version 0.8.0    Last change: August 10 2018
 
-XTABLINE - TABLE OF CONTENTS                        *xtabline-vim* *xtabline-toc*
+XTABLINE - TABLE OF CONTENTS                                      *xtabline-toc*
 ==============================================================================
 
     Features list                         |xtabline-features|
@@ -109,6 +109,12 @@ Most mappings presented are meant prefixed by <prefix>, when preceded by *.
 Mappings are disabled by default. To enable them:
 >
     let g:xtabline_settings.enable_mappings = 1
+
+You can lazy load the plugin:
+>
+    let g:xtabline_lazy = 1		( will load on TabNew, SessionLoadPost )
+    let g:xtabline_lazy = 2		( will load manually with XTablineInit )
+
 
 
 
@@ -547,4 +553,3 @@ MIT
 
 
 vim:tw=79:noet:sw=2:ts=2:ft=help:norl:nowrap:
-

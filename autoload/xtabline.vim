@@ -54,10 +54,12 @@ endfun
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! xtabline#update_obsession()
-  let string = 'let g:xtabline.Tabs = '.string(s:X.Tabs).
+  let string = 'let g:xtabline = get(g:, "xtabline", {})'.
+        \' | try | if empty(g:xtabline) | call xtabline#init#start() | endif'.
+        \' | let g:xtabline.Tabs = '.string(s:X.Tabs).
         \' | let g:xtabline.Buffers = '.string(s:X.Buffers).
         \' | let g:xtabline.pinned_buffers = '.string(s:X.pinned_buffers).
-        \' | call xtabline#session_loaded()'
+        \' | call xtabline#session_loaded() | catch | endtry'
   if !exists('g:obsession_append')
     let g:obsession_append = [string]
   else
