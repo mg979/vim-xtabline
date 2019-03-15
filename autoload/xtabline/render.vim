@@ -126,27 +126,37 @@ fun! xtabline#render#buffers() abort
     let n = index(bufs, bnr) + 1 + begin       "tab buffer index
     let is_currentbuf = currentbuf == bnr
 
-    let tab = { 'nr': bnr,
-              \ 'n': n,
-              \ 'tried_devicon': 0,
-              \ 'tried_icon': 0,
-              \ 'has_icon': 0,
-              \ 'separators': s:buf_separators(bnr),
-              \ 'path': bufname(bnr),
-              \ 'indicator': s:buf_indicator(bnr),
-              \ 'hilite':   is_currentbuf && special  ? 'Special' :
-                          \ is_currentbuf             ? 'Select' :
-                          \ special || s:extraHi(bnr) ? 'Extra' :
-                          \ s:F.has_win(bnr)          ? 'Visible' : 'Hidden'
-              \}
 
+    if empty(s:Sets.bufline_format)
+      let tab = { 'nr': bnr,
+            \ 'n': n,
+            \ 'tried_devicon': 0,
+            \ 'tried_icon': 0,
+            \ 'has_icon': 0,
+            \ 'path': fnamemodify(bufname(bnr), (s:T().rpaths ? ':p:~:.' : ':t')),
+            \ 'hilite':   is_currentbuf && special  ? 'Special' :
+            \             is_currentbuf             ? 'Visible' :
+            \             special || s:extraHi(bnr) ? 'Extra' :
+            \             s:F.has_win(bnr)          ? 'Visible' : 'Hidden'
+            \}
+      let tab.path = s:get_buf_name(tab)
+    else
+      let tab = { 'nr': bnr,
+            \ 'n': n,
+            \ 'tried_devicon': 0,
+            \ 'tried_icon': 0,
+            \ 'has_icon': 0,
+            \ 'separators': s:buf_separators(bnr),
+            \ 'path': fnamemodify(bufname(bnr), (s:T().rpaths ? ':p:~:.' : ':t')),
+            \ 'indicator': s:buf_indicator(bnr),
+            \ 'hilite':   is_currentbuf && special  ? 'Special' :
+            \             is_currentbuf             ? 'Select' :
+            \             special || s:extraHi(bnr) ? 'Extra' :
+            \             s:F.has_win(bnr)          ? 'Visible' : 'Hidden'
+            \}
+    endif
     if is_currentbuf | let [centerbuf, s:centerbuf] = [bnr, bnr] | endif
 
-    if s:T().rpaths
-      let tab.path  = fnamemodify(tab.path, ':p:~:.')
-    else
-      let tab.path  = fnamemodify(tab.path, ':t')
-    endif
     let tabs += [tab]
   endfor
 
@@ -162,8 +172,7 @@ fun! xtabline#render#buffers() abort
   " 2. sum the string lengths for the left and right halves
   let currentside = lft
   for tab in tabs
-    let tab.label = s:format_buffer(tab)
-    let tab.width = strwidth(strtrans(tab.label))
+    let [ tab.label, tab.width ] = s:format_buffer(tab)
     if centerbuf == tab.nr
       let halfwidth = tab.width / 2
       let lft.width += halfwidth
@@ -173,8 +182,10 @@ fun! xtabline#render#buffers() abort
     endif
     let currentside.width += tab.width
   endfor
-  let lft.width -= s:mod_width
-  let s:mod_width = 0
+  if !empty(s:Sets.bufline_format)
+    let lft.width -= s:mod_width
+    let s:mod_width = 0
+  endif
   if currentside is lft " centered buffer not seen?
     " then blame any overflow on the right side, to protect the left
     let [lft.width, rgt.width] = [0, lft.width]
@@ -222,6 +233,16 @@ endfun
 fun! s:format_buffer(buf)
   if s:buffer_has_format(a:buf)
     let chars = s:fmt_chars(s:B()[a:buf.nr].format)
+  elseif empty(s:default_buffer_format)
+    let B = a:buf
+    let mod = index(s:pinned(), B.nr) >= 0 ? ' '.s:Sets.bufline_indicators.pinned : ''
+    let mod .= (getbufvar(B.nr, "&modified") ? " [+] " : " ")
+    let hi = printf(" %%#XT%s# ", B.hilite)
+    let ic = s:get_buf_icon(B)
+    let nu = winbufnr(0) == B.nr ? ("%#XTNumSel# " . B.n) : ("%#XTNum# " . B.n)
+    let st = nu . hi . ic . B.path . mod
+    let wi = strlen(B.n . B.path . ic . mod) + 3
+    return [ st, wi ]
   elseif s:default_buffer_format.is_func
     return s:default_buffer_format.content(a:buf.nr)
   else
@@ -244,7 +265,8 @@ fun! s:format_buffer(buf)
     endif
     call add(out, C)
   endfor
-  return join(out, '')
+  let st = join(out, '')
+  return [ st, strwidth(st) + s:mod_width ]
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -556,7 +578,7 @@ fun! s:get_default_buffer_format()
   if type(s:Sets.bufline_format) == v:t_func
     let fmt.is_func = 1
     let fmt.content = s:Sets.bufline_format
-  else
+  elseif !empty(s:Sets.bufline_format)
     let fmt.is_func = 0
     let fmt.content = s:fmt_chars(s:Sets.bufline_format)
   endif

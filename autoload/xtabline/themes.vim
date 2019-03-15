@@ -129,9 +129,9 @@ let s:Themes.codedark = { -> {
       \"XTExtraMod":    [ 203, 17,  '#DF8C8C',   '#073655', 0 ],
       \"XTSpecial":     [ 237, 150, '#3C4C55',   '#A8CE93', 0 ],
       \"XTTabActive":   [ 74,  237, '#83AFE5',   '#3C4C55', 1 ],
-      \"XTTabInactive": [ 248, 234, '#a9a9a9',   '#1e1e1e', 0 ],
+      \"XTTabInactive": [ 68,  234, '#569cd6',   '#1e1e1e', 1 ],
       \"XTNumSel":      [ 237, 150, '#3C4C55',   '#A8CE93', 0 ],
-      \"XTNum":         [ 180, 234, '#F2C38F',   '#1e1e1e', 0 ],
+      \"XTNum":         [ 237, 74,  '#3C4C55',   '#83AFE5', 1 ],
       \"XTFill":        s:bg(s:fill_lite, [ 248, 234, '#a9a9a9', '#1e1e1e', 0 ]),
       \}}
 

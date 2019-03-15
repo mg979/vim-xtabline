@@ -203,6 +203,7 @@ if get(g:, 'xtabline_lazy', 0)
   call xtabline#init()
   delfunction Xtabline
   doautocmd BufEnter
+  unlet g:xtabline_lazy
 endif
 
 "------------------------------------------------------------------------------
