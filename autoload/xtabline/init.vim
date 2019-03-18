@@ -7,6 +7,8 @@ if exists("g:loaded_xtabline")
   finish
 endif
 
+silent! call XtablineStarted()
+
 fun! xtabline#init#start()
   let g:loaded_xtabline = 1
 endfun

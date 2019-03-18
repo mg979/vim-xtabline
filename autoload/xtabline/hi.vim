@@ -105,17 +105,18 @@ endfun
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:Hi.themes.default()
-  hi! link XTSelect     TabLineSel
+  hi! link XTSelect     PmenuSel
   hi! link XTVisible    Special
   hi! link XTHidden     TabLine
   hi! link XTSelectMod  TabLineSel
   hi! link XTVisibleMod Special
   hi! link XTHiddenMod  WarningMsg
-  hi! link XTExtra      PmenuSel
-  hi! link XTSpecial    DiffAdd
+  hi! link XTExtra      Visual
+  hi! link XTExtraMod   Visual
+  hi! link XTSpecial    IncSearch
   hi! link XTFill       TabLineFill
   hi! link XTVisibleTab TabLineSel
-  hi! link XTNumSel     DiffAdd
-  hi! link XTNum        Special
+  hi! link XTNumSel     TabLineSel
+  hi! link XTNum        TabLineSel
 endfun
 

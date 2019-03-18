@@ -135,7 +135,7 @@ fun! xtabline#render#buffers() abort
             \ 'has_icon': 0,
             \ 'path': fnamemodify(bufname(bnr), (s:T().rpaths ? ':p:~:.' : ':t')),
             \ 'hilite':   is_currentbuf && special  ? 'Special' :
-            \             is_currentbuf             ? 'Visible' :
+            \             is_currentbuf             ? 'Select' :
             \             special || s:extraHi(bnr) ? 'Extra' :
             \             s:F.has_win(bnr)          ? 'Visible' : 'Hidden'
             \}
