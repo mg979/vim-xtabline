@@ -22,13 +22,13 @@ let s:pinned  =  { b  -> index(s:X.pinned_buffers, b) }
 
 let s:most_recent = -1
 
-fun! xtabline#cmds#next_buffer(nr, pinned)
+fun! xtabline#cmds#next_buffer(nr, last)
   """Switch to next visible/pinned buffer."""
 
-  if s:F.not_enough_buffers(a:pinned) | return | endif
-  let accepted = a:pinned? s:pB() : s:oB()
+  if s:F.not_enough_buffers(0) | return | endif
+  let accepted = s:oB()
 
-  let ix = index(accepted, bufnr("%"))
+  let ix = a:last ? (len(accepted) - 2) : index(accepted, bufnr("%"))
   let target = ix + a:nr
   let total = len(accepted)
 
@@ -50,13 +50,13 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! xtabline#cmds#prev_buffer(nr, pinned)
+fun! xtabline#cmds#prev_buffer(nr, first)
   """Switch to previous visible/pinned buffer."""
 
-  if s:F.not_enough_buffers(a:pinned) | return | endif
-  let accepted = a:pinned? s:pB() : s:oB()
+  if s:F.not_enough_buffers(0) | return | endif
+  let accepted = s:oB()
 
-  let ix = index(accepted, bufnr("%"))
+  let ix = a:first ? 1 : index(accepted, bufnr("%"))
   let target = ix - a:nr
   let total = len(accepted)
 

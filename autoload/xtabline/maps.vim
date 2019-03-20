@@ -9,7 +9,7 @@ fun! s:do_map()
 
   fun! s:mapkeys(keys, plug)
     let plug = '<Plug>(XT-'.a:plug.')'
-    if !hasmapto(plug) && empty(maparg(a:keys, 'n'))
+    if !hasmapto(plug)
       silent! execute 'nmap <unique>' a:keys plug
     endif
   endfun
@@ -18,8 +18,8 @@ fun! s:do_map()
   call s:mapkeys('<BS>',  'Select-Buffer')
   call s:mapkeys(']b',    'Next-Buffer')
   call s:mapkeys('[b',    'Prev-Buffer')
-  call s:mapkeys('[B',    'Prev-Pinned')
-  call s:mapkeys(']B',    'Next-Pinned')
+  call s:mapkeys('[B',    'First-Buffer')
+  call s:mapkeys(']B',    'Last-Buffer')
   call s:mapkeys(X.'q',   'Close-Buffer')
   call s:mapkeys(X.'e',   'Edit')
   call s:mapkeys(X.'bl',  'List-Buffers')
@@ -77,8 +77,8 @@ function! xtabline#maps#init()
   nnoremap <unique> <silent> <expr> <Plug>(XT-Select-Buffer)         v:count? <sid>select_buffer(v:count-1) : ":\<C-U>".g:xtabline_settings.select_buffer_alt_action."\<cr>"
   nnoremap <unique> <silent> <expr> <Plug>(XT-Next-Buffer)           xtabline#cmds#next_buffer(v:count1, 0)
   nnoremap <unique> <silent> <expr> <Plug>(XT-Prev-Buffer)           xtabline#cmds#prev_buffer(v:count1, 0)
-  nnoremap <unique> <silent> <expr> <Plug>(XT-Next-Pinned)           xtabline#cmds#next_buffer(v:count1, 1)
-  nnoremap <unique> <silent> <expr> <Plug>(XT-Prev-Pinned)           xtabline#cmds#prev_buffer(v:count1, 1)
+  nnoremap <unique> <silent> <expr> <Plug>(XT-Last-Buffer)           xtabline#cmds#next_buffer(v:count1, 1)
+  nnoremap <unique> <silent> <expr> <Plug>(XT-First-Buffer)          xtabline#cmds#prev_buffer(v:count1, 1)
   nnoremap <unique> <silent>        <Plug>(XT-Close-Buffer)          :<c-u>XTabCloseBuffer<cr>
   nnoremap <unique> <silent>        <Plug>(XT-List-Buffers)          :<c-u>XTabListBuffers<cr>
   nnoremap <unique> <silent>        <Plug>(XT-List-Tabs)             :<c-u>XTabListTabs<cr>

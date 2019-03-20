@@ -56,6 +56,7 @@ let s:last_modified_state = { winbufnr(0): &modified }
 " there's no need to reprocess it, just return the string
 
 fun! xtabline#render#buffers() abort
+  if !s:ready() | return s:last_tabline | endif
   call xtabline#tab#check_index()
   let currentbuf = winbufnr(0)
 
@@ -643,3 +644,10 @@ fun! s:extra_padding(l_r)
   endfor
   return '%#XTFill#'.s
 endfun
+
+"------------------------------------------------------------------------------
+
+fun! s:ready() abort
+   return !exists('g:SessionLoad')
+endfun
+
