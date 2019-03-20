@@ -181,7 +181,7 @@ fun! xtabline#filter_buffers(...) abort
 
       if use_git
         " when using git paths, they'll be relative
-        let bname = s:v.winOS ? tr(bufname(buf), '/', '\') : bufname(buf)
+        let bname = s:v.winOS ? tr(bufname(buf), '\', '/') : bufname(buf)
         if index(T.git_files, bname) >= 0
           call add(T.buffers.valid, buf)
         endif
@@ -309,7 +309,9 @@ function! s:Do(action, ...)
   elseif a:action == 'leave'
 
     let V.last_tab = N
-    let X.Tabs[N].cwd = F.fullpath(getcwd())
+    if !haslocaldir()
+      let X.Tabs[N].cwd = F.fullpath(getcwd())
+    endif
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
