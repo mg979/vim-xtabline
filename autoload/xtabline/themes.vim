@@ -130,9 +130,27 @@ let s:Themes.codedark = { -> {
       \"XTSpecial":     [ 237, 150, '#3C4C55',   '#A8CE93', 0 ],
       \"XTTabActive":   [ 74,  237, '#83AFE5',   '#3C4C55', 1 ],
       \"XTTabInactive": [ 68,  234, '#569cd6',   '#1e1e1e', 1 ],
-      \"XTNumSel":      [ 237, 150, '#3C4C55',   '#A8CE93', 0 ],
-      \"XTNum":         [ 237, 74,  '#3C4C55',   '#83AFE5', 1 ],
-      \"XTFill":        s:bg(s:fill_lite, [ 248, 234, '#a9a9a9', '#1e1e1e', 0 ]),
+      \"XTNumSel":      [ 237, 150, '#1e1e1e',   '#569cd6', 1 ],
+      \"XTNum":         [ 237, 74,  '#569cd6',   '#333333', 1 ],
+      \"XTFill":        s:bg(s:fill_lite, [ 248, 234, '#a9a9a9', '#333333', 0 ]),
+      \}}
+
+
+let s:Themes.grey = { -> {
+      \"XTSelect":      [ 223, 234, '#f2c38f',   '#1e1e1e', 1 ],
+      \"XTSelectMod":   [ 160, 74,  '#cf0000',   '#1e1e1e', 1 ],
+      \"XTVisible":     [ 68,  234, '#569cd6',   '#1e1e1e', 1 ],
+      \"XTVisibleMod":  [ 160, 237, '#cf0000',   '#1e1e1e', 1 ],
+      \"XTHidden":      s:bg(s:fill_lite, [ 74,  237, '#83AFE5', '#333233', 0 ]),
+      \"XTHiddenMod":   s:bg(s:fill_lite, [ 203, 237, '#DF8C8C', '#333233', 0 ]),
+      \"XTExtra":       [ 251, 17,  '#C5D4DD',   '#073655', 0 ],
+      \"XTExtraMod":    [ 203, 17,  '#DF8C8C',   '#073655', 0 ],
+      \"XTSpecial":     [ 237, 150, '#3C4C55',   '#A8CE93', 0 ],
+      \"XTTabActive":   [ 74,  237, '#83AFE5',   '#3C4C55', 1 ],
+      \"XTTabInactive": [ 68,  234, '#569cd6',   '#1e1e1e', 1 ],
+      \"XTNumSel":      [ 237, 150, '#569cd6',   '#4c4e50', 1 ],
+      \"XTNum":         [ 237, 74,  '#569cd6',   '#4c4e50', 1 ],
+      \"XTFill":        s:bg(s:fill_lite, [ 248, 234, '#a9a9a9', '#333333', 0 ]),
       \}}
 
 
