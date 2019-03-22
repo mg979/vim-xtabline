@@ -4,16 +4,13 @@
 
 ----------------------------------------------------------------------------
 
-<!-- vim-markdown-toc GFM -->
-
 * [Features list](#features-list)
 * [Requirements](#requirements)
 * [Installation](#installation)
 * [Usage](#usage)
+* [Themes](#themes)
 * [Credits](#credits)
 * [License](#license)
-
-<!-- vim-markdown-toc -->
 
 ----------------------------------------------------------------------------
  
@@ -70,6 +67,50 @@ With vim-plug:
 ### Usage
 
 `:help xtabline.txt`
+
+----------------------------------------------------------------------------
+ 
+
+### Themes
+
+Some details may vary, depending on color schemes and plugin version.
+Here used with default bufferline formatter, and with empty formatter:
+
+#### codedark
+ 
+![Imgur](https://i.imgur.com/GY7Dxph.gif)
+ 
+----------------------------------------------------------------------------
+ 
+#### slate
+ 
+![Imgur](https://i.imgur.com/ph3pRE4.gif)
+ 
+----------------------------------------------------------------------------
+ 
+#### monokai
+ 
+![Imgur](https://i.imgur.com/9jEi0SH.gif)
+ 
+----------------------------------------------------------------------------
+ 
+#### seoul
+ 
+![Imgur](https://i.imgur.com/jlhZGNc.gif)
+ 
+----------------------------------------------------------------------------
+ 
+#### tomorrow
+ 
+![Imgur](https://i.imgur.com/zNAAPtT.gif)
+ 
+----------------------------------------------------------------------------
+ 
+#### dracula
+ 
+![Imgur](https://i.imgur.com/orsM1bK.gif)
+ 
+
 
 ----------------------------------------------------------------------------
  

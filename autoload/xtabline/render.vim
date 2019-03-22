@@ -164,16 +164,21 @@ fun! xtabline#render#buffers() abort
   " get the default buffer format, and set its type
   let s:default_buffer_format = s:get_default_buffer_format()
 
-  " now keep the current buffer center-screen as much as possible:
+  " add the current tab name/cwd to the right side
+  let [active_tab, tab_width] = s:get_tab_for_bufline()
 
-  " 1. setup
-  let lft = { 'lasttab':  0, 'cut':  '.', 'indicator': '<', 'width': 0, 'half': &columns / 2 }
-  let rgt = { 'lasttab': -1, 'cut': '.$', 'indicator': '>', 'width': 0, 'half': &columns - lft.half }
+  " limit is the max bufline length
+  let limit = &columns - tab_width - 1
 
-  " 2. sum the string lengths for the left and right halves
+  " now keep the current buffer center-screen as much as possible
+  let lft = { 'lasttab':  0, 'cut':  '.', 'indicator': '<', 'width': 0, 'half': limit / 2 }
+  let rgt = { 'lasttab': -1, 'cut': '.$', 'indicator': '>', 'width': 0, 'half': limit - lft.half }
+
+  " sum the string lengths for the left and right halves
   let currentside = lft
   for tab in tabs
-    let [ tab.label, tab.width ] = s:format_buffer(tab)
+    let tab.label = s:format_buffer(tab)
+    let tab.width = strwidth(substitute(tab.label, '%#X\w*#', '', 'g'))
     if centerbuf == tab.nr
       let halfwidth = tab.width / 2
       let lft.width += halfwidth
@@ -183,48 +188,40 @@ fun! xtabline#render#buffers() abort
     endif
     let currentside.width += tab.width
   endfor
-  if !empty(s:Sets.bufline_format)
-    let lft.width -= s:mod_width
-    let s:mod_width = 0
-  endif
   if currentside is lft " centered buffer not seen?
     " then blame any overflow on the right side, to protect the left
     let [lft.width, rgt.width] = [0, lft.width]
   endif
 
-  " 3. add the current tab name/cwd to the right side
-  let [active_tab, active_tab_label] = s:get_tab_for_bufline()
-  if !empty(active_tab_label)
-    let rgt.width += strwidth(strtrans(active_tab_label)) + 3
-  endif
+  " toss away tabs and pieces until all fits
 
-  " 4. toss away tabs and pieces until all fits:
+  let left_has_been_cut = 0
+  let right_has_been_cut = 0
 
-  if ( lft.width + rgt.width ) > &columns
-    let oversized
-          \ = lft.width < lft.half ? [ [ rgt, &columns - lft.width ] ]
-          \ : rgt.width < rgt.half ? [ [ lft, &columns - rgt.width ] ]
-          \ :                        [ [ lft, lft.half ], [ rgt, rgt.half ] ]
-    for [side, budget] in oversized
-      let delta = side.width - budget
-      " toss entire tabs to close the distance
-      while delta >= tabs[side.lasttab].width
-        let delta -= remove(tabs, side.lasttab).width
-      endwhile
-      " then snip at the last one to make it fit
-      let endtab = tabs[side.lasttab]
-      while delta > ( endtab.width - strwidth(strtrans(endtab.label)) )
-        let endtab.label = substitute(endtab.label, side.cut, '', '')
-      endwhile
-      let endtab.label = substitute(endtab.label, side.cut, side.indicator, '')
-    endfor
+  if ( lft.width + rgt.width ) > limit
+    while limit - ( lft.width + rgt.width ) < 0
+      " remove a tab from the biggest side
+      if lft.width <= rgt.width
+        let right_has_been_cut = 1
+        let rgt.width -= remove(tabs, -1).width
+      else
+        let left_has_been_cut = 1
+        let lft.width -= remove(tabs, 0).width
+      endif
+    endwhile
+    if left_has_been_cut
+      let lab = substitute(tabs[0].label, '%#X\w*#', '', 'g')
+      let tabs[0].label = printf('%%#DiffDelete# < %%#XT%s#%s', tabs[0].hilite, strcharpart(lab, 3))
+    endif
+    if right_has_been_cut
+      let tabs[-1].label = printf('%s%%#DiffDelete# > ', tabs[-1].label[:-4])
+    endif
   endif
 
   let swallowclicks = '%'.(1 + tabpagenr('$')).'X'
-  let left = swallowclicks . join(map(tabs,'printf("%%#XT%s#%s",v:val.hilite,strtrans(v:val.label))'),'')
-  let right = active_tab . '%#XTFill#'
-  let l_r =  lft.width + rgt.width
-  let s:last_tabline = left . s:extra_padding(l_r) . right
+  let buffers = swallowclicks . join(map(tabs,'v:val.label'),'')
+  let padding = s:extra_padding(lft.width + rgt.width, limit)
+  let s:last_tabline = buffers . padding . active_tab . '%999X'
   return s:last_tabline
 endfun
 
@@ -232,20 +229,19 @@ endfun
 " =============================================================================
 
 fun! s:format_buffer(buf)
-  if s:buffer_has_format(a:buf)
-    let chars = s:fmt_chars(s:B()[a:buf.nr].format)
+  let B = a:buf
+  if s:buffer_has_format(B)
+    let chars = s:fmt_chars(s:B()[B.nr].format)
   elseif empty(s:default_buffer_format)
-    let B = a:buf
     let mod = index(s:pinned(), B.nr) >= 0 ? ' '.s:Sets.bufline_indicators.pinned : ''
     let mod .= (getbufvar(B.nr, "&modified") ? " [+] " : " ")
     let hi = printf(" %%#XT%s# ", B.hilite)
     let ic = s:get_buf_icon(B)
     let nu = winbufnr(0) == B.nr ? ("%#XTNumSel# " . B.n) : ("%#XTNum# " . B.n)
     let st = nu . hi . ic . B.path . mod
-    let wi = strlen(B.n . B.path . ic . mod) + 3
-    return [ st, wi ]
+    return st
   elseif s:default_buffer_format.is_func
-    return s:default_buffer_format.content(a:buf.nr)
+    return s:default_buffer_format.content(B.nr)
   else
     let chars = s:default_buffer_format.content
   endif
@@ -254,20 +250,21 @@ fun! s:format_buffer(buf)
   for c in chars
     let C = nr2char(c)
     "custom tab icon, if tab has a name and/or icon has been defined
-    if     C ==# 'l' | let C = s:get_buf_name(a:buf)
-    elseif C ==# 'n' | let C = s:unicode_nrs(a:buf.n)
-    elseif C ==# 'N' | let C = a:buf.n
-    elseif C ==# '+' | let C = a:buf.indicator
-    elseif C ==# 'f' | let C = a:buf.path
-    elseif C ==# 'i' | let C = s:get_dev_icon(a:buf)
-    elseif C ==# 'I' | let C = s:get_buf_icon(a:buf)
-    elseif C ==# '<' | let C = s:needs_separator(a:buf)? a:buf.separators[0] : ''
-    elseif C ==# '>' | let C = a:buf.separators[1]
+    if     C ==# 'l' | let C = s:get_buf_name(B)
+    elseif C ==# 'n' | let C = s:unicode_nrs(B.n)
+    elseif C ==# 'N' | let C = B.n
+    elseif C ==# '+' | let C = B.indicator
+    elseif C ==# 'f' | let C = B.path
+    elseif C ==# 'i' | let C = s:get_dev_icon(B)
+    elseif C ==# 'I' | let C = s:get_buf_icon(B)
+    elseif C ==# '<' | let C = s:needs_separator(B)? B.separators[0] : ''
+    elseif C ==# '>' | let C = B.separators[1]
     endif
     call add(out, C)
   endfor
   let st = join(out, '')
-  return [ st, strwidth(st) + s:mod_width ]
+  let hi = '%#XT' . B.hilite . '#'
+  return hi.st
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -279,7 +276,6 @@ fun! s:buf_indicator(bnr)
         \     s:extraHi(nr)        ? "%#XTExtraMod#" :
         \     bufwinnr(nr) > 0     ? "%#XTVisibleMod#" : "%#XTHiddenMod#"
   if getbufvar(nr, '&mod')
-    let s:mod_width += len (modHi)
     return (mod . modHi . mods.modified)
   elseif s:special(nr)
     return ''
@@ -626,23 +622,16 @@ fun! s:get_tab_for_bufline()
   let N = tabpagenr()
   let fmt = empty(s:tabname(N)) ? s:Sets.bufline_tab_format : s:Sets.bufline_named_tab_format
 
-  let fmt_chars = s:fmt_chars(fmt)                                      "formatting options
-  let fmt_tab = s:format_tab(N, fmt_chars)                              "formatted string
-  let active_tab_label = substitute(fmt_tab, '%#X\w*#', '', 'g')        "text only, to find width
-  let active_tab = '%#XTFill#%#XTSelect#'.fmt_tab          "use LineFill until label
-  return [active_tab, active_tab_label]
+  let fmt_chars = s:fmt_chars(fmt)                           "formatting options
+  let fmt_tab = s:format_tab(N, fmt_chars)                   "formatted string
+  let label = substitute(fmt_tab, '%#X\w*#', '', 'g')        "text only, to find width
+  return [fmt_tab, strwidth(label)]
 endfun
 
 "------------------------------------------------------------------------------
 
-fun! s:extra_padding(l_r)
-  if !s:Sets.show_current_tab | return '' | endif
-  let spaces = a:l_r > &columns ? 0 : &columns - a:l_r
-  let s = '   '
-  for i in range(spaces)
-    let s .= ' '
-  endfor
-  return '%#XTFill#'.s
+fun! s:extra_padding(l_r, limit)
+  return a:l_r < a:limit ? '%#XTFill#'.repeat(' ', a:limit - a:l_r) : ''
 endfun
 
 "------------------------------------------------------------------------------
