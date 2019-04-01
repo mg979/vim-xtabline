@@ -23,6 +23,9 @@ if get(g:, 'xtabline_lazy', 0)
     augroup xtabline_lazy
       au!
       au TabNew,SessionLoadPost * call xtabline#init#start()
+      if get(g:, 'xtabline_init_on_bufadd', 1)
+        au BufAdd * call xtabline#init#start()
+      endif
     augroup END
 
     " setup a temporary tabline

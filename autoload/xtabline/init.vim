@@ -206,6 +206,7 @@ if get(g:, 'xtabline_lazy', 0)
   delfunction Xtabline
   doautocmd BufEnter
   unlet g:xtabline_lazy
+  silent! unlet g:xtabline_init_on_bufadd
 endif
 
 "------------------------------------------------------------------------------
