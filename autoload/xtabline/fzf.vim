@@ -255,8 +255,8 @@ endfun
 
 let s:lastmod = { f -> str2nr(system('date -r '.f.' +%s')) }
 
-fun! s:desc_string(s, n, sfile)
-  let active_mark = (a:s ==# v:this_session) ? s:green(" [%]  ") : '      '
+fun! s:desc_string(s, n, sfile, color)
+  let active_mark = (a:s ==# v:this_session) ? a:color ? s:green(" [%]  ") : " [%]  " : '      '
   let description = get(a:sfile, a:n, '')
   let spaces = 30 - len(a:n)
   let spaces = printf("%".spaces."s", "")
@@ -266,11 +266,15 @@ fun! s:desc_string(s, n, sfile)
   else
     let time = ''
   endif
-  return s:yellow(a:n).spaces."\t".s:cyan(time).pad.active_mark.description
+  if a:color
+    return s:yellow(a:n).spaces."\t".s:cyan(time).pad.active_mark.description
+  else
+    return a:n.spaces."\t".time.pad.active_mark.description
+  endif
 endfun
 
-fun! xtabline#fzf#sessions_list()
-  let data = ["Session\t\t\t\tTimestamp\tDescription"] | let sfile = {}
+fun! xtabline#fzf#sessions_list(...)
+  let data = a:0 ? [] : ["Session\t\t\t\tTimestamp\tDescription"] | let sfile = {}
   let sfile = json_decode(readfile(s:Sets.sessions_data)[0])
   let sessions = split(globpath(expand(s:Sets.sessions_path, ":p"), "*"), '\n')
 
@@ -301,7 +305,7 @@ fun! xtabline#fzf#sessions_list()
 
   for s in ordered
     let n = fnamemodify(expand(s), ':t:r')
-    let description = s:desc_string(s, n, sfile)
+    let description = s:desc_string(s, n, sfile, !a:0)
     call add(data, description)
   endfor
   return data

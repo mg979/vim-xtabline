@@ -84,3 +84,10 @@ fun! xtabline#finder#open(input, prompt, exe_cmdline) abort
   endwhile
 endf
 
+fun! xtabline#finder#sessions() abort
+  let sessions = xtabline#fzf#sessions_list(1)
+  let file = xtabline#finder#open(sessions, 'Load session ', 0)
+  if !empty(file)
+    call xtabline#fzf#session_load(file[0])
+  endif
+endfun
