@@ -81,7 +81,7 @@ endfun
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:Funcs.todo_path()
-  return getcwd().self.sep().s:Sets.todo.file
+  return shellescape(getcwd().self.sep().s:Sets.todo.file)
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
