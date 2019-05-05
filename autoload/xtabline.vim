@@ -165,6 +165,7 @@ fun! xtabline#filter_buffers(...) abort
     let use_git   = get(T, 'is_git', 0) && !empty(get(T, 'git_files', []))
     let use_files = !empty(get(T, 'files', []))
     let use_depth = 0
+    let T.dirs    = [T.cwd]
   else
     let [ use_git, use_files, use_depth ] = [ 0, 0, 1 ]
   endif
@@ -193,14 +194,16 @@ fun! xtabline#filter_buffers(...) abort
           call add(T.buffers.valid, buf)
         endif
 
-      else
-        " to be accepted, buffer's path must be valid for this tab
-        if !use_depth && B.path =~ '^'.T.cwd
-          call add(T.buffers.valid, buf)
-
-        elseif B.path =~ '^'.T.dirs[0] && s:F.within_depth(B.path, T.depth)
+      elseif use_depth
+        " to be accepted, buffer's path must be within defined depth
+        if B.path =~ '^'.T.dirs[0] && s:F.within_depth(B.path, T.depth)
           call add(T.buffers.valid, buf)
         endif
+
+      elseif B.path =~ '^'.T.cwd
+        " to be accepted, buffer's path must be valid for this tab
+          call add(T.buffers.valid, buf)
+
       endif
     endif
   endfor
