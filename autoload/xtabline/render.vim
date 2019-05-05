@@ -109,9 +109,17 @@ fun! xtabline#render#buffers() abort
   "no need to render more than 20 buffers at a time, since they'll be offscreen
   let begin = 0
   if len(bufs) > 20
-    let curr  = index(bufs, currentbuf)
-    let begin = curr > 10 ? (curr - 10) : 0
-    let end   = curr > 10 ? max([len(bufs), curr + 10]) : 19
+    let curr = index(bufs, currentbuf)
+    let max  = len(bufs) - 1
+    if curr < 10
+      let end   = 20
+    elseif curr < ( max - 10 )
+      let begin = curr - 10
+      let end   = begin + 20
+    else
+      let begin = max - 20
+      let end   = max
+    endif
     let bufs  = bufs[begin:end]
   endif
 

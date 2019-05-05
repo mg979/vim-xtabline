@@ -343,6 +343,7 @@ augroup plugin-xtabline
   autocmd TabClosed     * call s:Do('close')
   autocmd BufEnter      * call s:Do('bufenter')
   autocmd BufWritePost  * call s:Do('bufwrite')
+  autocmd BufDelete     * call xtabline#update()
 
   autocmd BufNewFile    * call xtabline#automkdir#ensure_dir_exists()
   autocmd ColorScheme   * if s:ready() | call xtabline#hi#update_theme() | endif
