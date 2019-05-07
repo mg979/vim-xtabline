@@ -348,12 +348,24 @@ fun! s:reopen_last_tab()
   """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
   fun! s:tab_todo()
-    """Open the Tab todo file.
+    """Open or close the Tab todo file.
+    for b in tabpagebuflist()
+      if getbufvar(b, 'xtab_todo', 0)
+        if getbufvar(b, '&modified')
+          let w = index(tabpagebuflist(), b) + 1
+          exe w.'wincmd w'
+          update
+        endif
+        execute b.'bw!'
+        return
+      endif
+    endfor
     let todo = s:Sets.todo
     let s:v.buffer_properties = { 'name': 'TODO', 'special': 1 }
     execute todo['command'].s:F.todo_path()
     execute "setf ".todo['syntax']
-    nnoremap <silent><nowait> <buffer> \q :if &mod<bar>w<bar>endif<bar>bwipeout<cr>
+    let b:xtab_todo = 1
+    nnoremap <silent><nowait> <buffer> \q :update<bar>bwipeout<cr>
   endfun
 
   """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
