@@ -196,7 +196,11 @@ let g:xtabline_settings.todo = extend({
 if !filereadable(g:xtabline_settings.bookmarks_file) | call writefile(['{}'], g:xtabline_settings.bookmarks_file) | endif
 if !filereadable(g:xtabline_settings.sessions_data) | call writefile(['{}'], g:xtabline_settings.sessions_data) | endif
 
-call xtabline#hi#init()
+if v:vim_did_enter
+  call xtabline#hi#init()
+else
+  au VimEnter * call xtabline#hi#init()
+endif
 
 if get(g:, 'xtabline_lazy', 0)
   silent! autocmd! xtabline_lazy
