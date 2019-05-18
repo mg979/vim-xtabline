@@ -32,6 +32,7 @@ fun! s:template()
         \ 'icon':    '',
         \ 'files':   [],
         \ 'buffers': {'valid': [], 'order': [], 'extra': []},
+        \ 'sort' :   s:Sets.sort_buffers_by_last_open ? 'last_open' : 'default',
         \}
 endfun
 

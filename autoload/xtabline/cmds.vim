@@ -304,7 +304,7 @@ fun! s:lock_tab()
     let T.buffers.valid = filter(T.buffers.order, 'buflisted(v:val) && filereadable(bufname(v:val))')
   endif
   redraw!
-  call s:F.msg('Tab has been locked', T.locked)
+  call s:F.msg('Tab has been '.un.'locked', T.locked)
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

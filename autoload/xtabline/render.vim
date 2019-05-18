@@ -53,7 +53,7 @@ let s:last_modified_state = { winbufnr(0): &modified }
 " The tabline is refreshed rather often by vim (TextChanged, InsertEnter, etc)
 " We want to update it less often, mostly on buffer enter/write and when
 " a buffer has been modified. We store the last rendered tabline, and if
-" there's no need to reprocess it, just return the string
+" there's no need to reprocess it, just return the old string
 
 fun! xtabline#render#buffers() abort
   if !s:ready() | return s:last_tabline | endif
@@ -77,13 +77,11 @@ fun! xtabline#render#buffers() abort
 
   " pick up data on all the buffers
   let tabs = []
-  let path_tabs = []
-  let tabs_per_tail = {}
   let bufs = s:oB()
   call filter(bufs, 'bufexists(v:val)')
 
   "put current buffer first
-  if s:Sets.sort_buffers_by_last_open
+  if s:T().sort == 'last_open'
     let i = index(bufs, currentbuf)
     if i >= 0
       call remove(bufs, i)
