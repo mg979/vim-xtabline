@@ -219,6 +219,21 @@ endfun
 " Helpers
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
+fun! s:uniq(list)
+  " make sure a buffer appears only once in the list
+  let [ i, max ] = [ 0, len(a:list)-2 ]
+  while i <= max
+    let extra = index(a:list, a:list[i], i+1)
+    if extra > 0
+      call remove(a:list, extra)
+      let max -= 1
+    else
+      let i += 1
+    endif
+  endwhile
+  return a:list
+endfun
+
 fun! s:ordered_buffers()
   let valid = s:vB()
   let order = s:oB()
@@ -226,6 +241,8 @@ fun! s:ordered_buffers()
 
   "clean up ordered buffers list
   call filter(order, 'index(valid, v:val) >= 0 || index(extra, v:val) >= 0')
+  call s:uniq(order)
+  call s:uniq(extra)
 
   " add missing entries in ordered list
   for buf in valid
