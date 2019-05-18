@@ -112,7 +112,7 @@ Mappings are disabled by default. To enable them:
 
 You can lazy load the plugin:
 >
-    let g:xtabline_lazy = 1		( will load on TabNew, SessionLoadPost )
+    let g:xtabline_lazy = 1		( will load on TabNew, SessionLoadPost, BufAdd )
     let g:xtabline_lazy = 2		( will load manually with XTablineInit )
 
 

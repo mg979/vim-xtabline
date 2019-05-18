@@ -34,7 +34,8 @@ fun! s:Funcs.msg(txt, ...)
   if type(a:txt) == v:t_string
     exe "echohl" a:0 && a:1? "WarningMsg" : "Label"
     echon a:txt | echohl None
-    return | endif
+    return
+  endif
 
   for txt in a:txt
     exe "echohl ".txt[1]

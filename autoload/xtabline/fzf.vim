@@ -65,7 +65,7 @@ fun! xtabline#fzf#tablist()
           \    s:green(s:pad(bufs, 5))."\t".
           \    s:green(s:pad(empty(T.vimrc) ? "no" : "yes", 5))."\t\t".
           \    s:cyan(s:pad(T.name, 20))."\t".
-          \    s:pad(s:short_cwd(T.cwd, 0), &columns/2)
+          \    s:pad(s:short_cwd(T.cwd, &columns<150), &columns/2)
     call add(lines, line)
   endfor
   call add(lines, "Tab\tBufs\tVimrc?\t\tName\t\t\tWorking Directory")
