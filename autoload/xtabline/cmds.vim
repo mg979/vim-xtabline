@@ -388,6 +388,26 @@ fun! s:reopen_last_tab()
     if !a:0 | call xtabline#update() | endif
   endfun
 
+  fun! s:move_buffer_next()
+    let b = bufnr("%") | let oB = s:oB() | let max = len(oB) - 1
+    let i = index(oB, b)
+    if i + 1 > max
+      call s:move_buffer(0)
+    else
+      call s:move_buffer(i + 1)
+    endif
+  endfun
+
+  fun! s:move_buffer_prev()
+    let b = bufnr("%") | let oB = s:oB() | let max = len(oB) - 1
+    let i = index(oB, b)
+    if i - 1 < 0
+      call s:move_buffer(max)
+    else
+      call s:move_buffer(i - 1)
+    endif
+  endfun
+
   fun! s:hide_buffer(new)
     """Move buffer to the last position, then select another one."""
     let b = bufnr("%") | let oB = s:oB() | let max = len(oB) - 1
