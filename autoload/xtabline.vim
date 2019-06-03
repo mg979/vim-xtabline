@@ -176,7 +176,10 @@ fun! xtabline#filter_buffers(...) abort
     if !bufexists(buf) | continue | endif
     let B = xtabline#buffer#get(buf)
 
-    if s:is_special(buf)   | call add(T.buffers.valid, buf)
+    " if special, buffer will be handled by the render script
+    " if tab is locked, there's no filtering to do
+
+    if s:is_special(buf)   | continue
     elseif s:invalid(buf)  | continue
     elseif !s:v.filtering  | call add(T.buffers.valid, buf)
     elseif !T.locked

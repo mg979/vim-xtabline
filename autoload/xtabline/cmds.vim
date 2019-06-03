@@ -81,17 +81,7 @@ endfun
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! xtabline#cmds#run(cmd, ...)
-  if a:0 == 1
-    let args = string(a:1)
-  elseif a:0
-    let args = []
-    for arg in a:000
-      call add(args, arg)
-    endfor
-    let args = string(args)
-  else
-    let args = ''
-  endif
+  let args = a:0 ? join(map(copy(a:000), 'string(v:val)'), ',') : ''
   exe "call s:".a:cmd."(".args.")"
 endfun
 
@@ -375,7 +365,26 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:move_buffer(cnt, ...)
+fun! s:move_buffer(next, cnt)
+  let b = bufnr("%") | let max = len(s:oB()) - 1
+
+  " cannot move a buffer that is not valid for this tab
+  if index(s:vB(), b) < 0
+    return s:F.msg("Not possible to move this buffer.", 1)
+  endif
+
+  let i = index(s:oB(), b)
+
+  if a:next
+    let new_index = (i + a:cnt) >= max ? max : i + a:cnt
+  else
+    let new_index = (i - a:cnt) < 0 ? 0 : i - a:cnt
+  endif
+  call insert(s:oB(), remove(s:oB(), i), new_index)
+  call xtabline#update()
+endfun
+
+fun! s:move_buffer_to(cnt, ...)
   """Move buffer in the bufferline to a new position."""
   let b = bufnr("%") | let oB = s:oB() | let max = len(oB) - 1
   let i = index(oB, b)

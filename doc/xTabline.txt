@@ -1,7 +1,7 @@
 *xtabline.txt*    xTabline     Version 0.8.0    Last change: August 10 2018
 
-XTABLINE - TABLE OF CONTENTS                                      *xtabline-toc*
-==============================================================================
+XTABLINE - TABLE OF CONTENTS																				   *xtabline*
+===============================================================================
 
     Features list                         |xtabline-features|
     Requirements                          |xtabline-requirements|
@@ -31,7 +31,7 @@ XTABLINE - TABLE OF CONTENTS                                      *xtabline-toc*
 
 
 FEATURES LIST                                                *xtabline-features*
-==============================================================================
+===============================================================================
 
 This plugin tries to give you full control on the tabline. I wanted ways to:
 
@@ -48,7 +48,7 @@ Additionally, it provides:
 * buffers quick navigation (next, previous, with [count])
 * commands to rearrange tabs and buffers positions
 * commands to clean up buffers across all tabs
-* session management: load/save/delete sessions, with timestamping and descriptions
+* session management: load/save/delete sessions, with timestamping/descriptions
 * Tab-todo: customizable command to open a todo file for that tab
 
 Integrated with:
@@ -67,18 +67,18 @@ Reuses code from:
 
 
 REQUIREMENTS                                             *xtabline-requirements*
-==============================================================================
+===============================================================================
 
 {vim-obsession}{1} is required for persistance and sessions commands.
 {fzf-vim}{2} is required for bookmarks and sessions commands.
 
-                                      {1} https://github.com/tpope/vim-obsession
-                                      {2} https://github.com/junegunn/fzf.vim
+																		 {1} https://github.com/tpope/vim-obsession
+                                     {2} https://github.com/junegunn/fzf.vim
 
 
 
 INSTALLATION                                             *xtabline-installation*
-==============================================================================
+===============================================================================
 
 Use {vim-plug}{3} or any other Vim plugin manager.
 
@@ -92,7 +92,7 @@ With vim-plug:
 
 
 SETTINGS AND MAPPINGS                                        *xtabline-settings*
-==============================================================================
+===============================================================================
 
 To change any setting, you have to initialize the settings dictionary:
 >
@@ -119,7 +119,7 @@ You can lazy load the plugin:
 
 
 TAB BUFFERS NAVIGATION                                    *xtabline-navigation*
-==============================================================================
+===============================================================================
 
 By default, in the bufferline will be shown buffers that belong to the tab's
 CWD, or any open buffer inside the window.  Using xtabline buffer navigation
@@ -148,8 +148,10 @@ Default is `buffer #`
 
 Examples:
 >
-    let g:xtabline_settings.select_buffer_alt_action = "buffer #"    (switch to alternative buffer)
-    let g:xtabline_settings.select_buffer_alt_action = "Buffers"     (call fzf-vim :Buffers command)
+		" switch to alternative buffer
+    let g:xtabline_settings.select_buffer_alt_action = "buffer #"
+		" call fzf-vim :Buffers command
+    let g:xtabline_settings.select_buffer_alt_action = "Buffers"
 
 
 `XTabCloseBuffer` will close and delete the current buffer, while keeping the
@@ -166,7 +168,7 @@ It will not try to close the tab page/quit vim, unless:
 
 
 TABS AND BUFFERS                                     *xtabline-tabs-and-buffers*
-==============================================================================
+===============================================================================
 
 
 OPENING TABS                                *xtabline-opening-tabs*
@@ -259,11 +261,17 @@ REARRANGING BUFFERS                         *xtabline-rearranging-buffers*
 ----------+------------------------------
  Mapping  | Plug                        ~
 ----------+------------------------------
-*mb       | <Plug>(XT-Move-Buffer)
+          | <Plug>(XT-Move-Buffer-Next)
+          | <Plug>(XT-Move-Buffer-Prev)
+*mb       | <Plug>(XT-Move-Buffer-To)
 *hb       | <Plug>(XT-Hide-Buffer)
           | <Plug>(XT-Hide-Buffer-n)
 
-{Move-Buffer} accepts a [count], and will move the current buffer after
+{Move-Buffer-Next} and {Move-Buffer-Prev} don't have a default mapping.
+They move the current buffer to the next/previous position in the tabline, but
+they only work for buffers that are considered valid for the current tab.
+
+{Move-Buffer-To} accepts a [count], and will move the current buffer after
 [count] position.
 
 {Hide-Buffer} puts the current buffer last, and then selects [count] buffer,
@@ -275,7 +283,8 @@ so you have to map it yourself.
 
 Alternative action for this command is defined by:
 >
-    let g:xtabline_settings.hide_buffer_alt_action = "buffer #"    (switch to alternative buffer)
+		" switch to alternative buffer
+    let g:xtabline_settings.hide_buffer_alt_action = "buffer #"
 
 
 
@@ -297,7 +306,7 @@ XTabCustomTabs    |  *ct      | <Plug>(XT-Custom-Tabs)
 
 `XTabFormatBuffer`   change the label formatting
 `XTabRelativePaths`  toggles between basename and relative path in the bufferline
-`XTabResetTab`       reset tab customizations, also try to find a suitable cwd for that tab
+`XTabResetTab`       reset tab customizations
 `XTabResetBuffer`    reset buffer customization
 `XTabCustomTabs`     toggle visibility of tab customizations (name, icon)
 
@@ -311,7 +320,7 @@ character. To expand the list of available icons for autocompletion, see
 
 
 SESSION MANAGEMENT                                           *xtabline-sessions*
-==============================================================================
+===============================================================================
 
 Both |vim-obsession| and |fzf-vim| are required.
 
@@ -336,7 +345,7 @@ the description and the symbol `[%]` that marks the active session (if any).
 
 
 OTHER COMMANDS                                                  *xtabline-other*
-==============================================================================
+===============================================================================
 
 -----------------------+---------+------------------------------------------
 Command                | Mapping | Plug  ~
@@ -395,11 +404,11 @@ tabline at the same time.
 
 
 CUSTOMIZATION                                           *xtabline-customization*
-==============================================================================
+===============================================================================
 
 Command       Plug              Mapping    ~
-XTabConfig    <Plug>(XT-Config)   *C       run the configurator
-XTabTheme     <Plug>(XT-Theme)    *T       select a theme (<tab> autocompletion)
+XTabConfig    <Plug>(XT-Config)   *C     run the configurator
+XTabTheme     <Plug>(XT-Theme)    *T     select a theme (<tab> autocompletion)
 
 You can add any of these to your *.vimrc*, after having initialized the
 `g:xtabline_settings` dictionary. Some of these options can be set in the
@@ -535,19 +544,19 @@ You can remap commands individually. These are some easier mappings I use:
 
 
 CREDITS                                                       *xtabline-credits*
-==============================================================================
+===============================================================================
 
 Bram Moolenaar for Vim
-Buftabline for the bufferline rendering    https://github.com/ap/vim-buftabline
-Taboo for the tabline rendering            https://github.com/gcmt/taboo.vim
-Junegunn Choi for [fzf-vim]                https://github.com/junegunn/fzf.vim
-Tim Pope for [vim-obsession]               https://github.com/tpope/vim-obsession
-Kana Natsuno for [tabpagecd]               https://github.com/kana/vim-tabpagecd
+Buftabline for the bufferline rendering  https://github.com/ap/vim-buftabline
+Taboo for the tabline rendering          https://github.com/gcmt/taboo.vim
+Junegunn Choi for [fzf-vim]              https://github.com/junegunn/fzf.vim
+Tim Pope for [vim-obsession]             https://github.com/tpope/vim-obsession
+Kana Natsuno for [tabpagecd]             https://github.com/kana/vim-tabpagecd
 
 
 
 LICENSE                                                       *xtabline-license*
-==============================================================================
+===============================================================================
 
 MIT
 

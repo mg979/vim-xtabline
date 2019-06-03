@@ -52,7 +52,7 @@ fun! s:do_map()
   call s:mapkeys(X.'pb',  'Pin-Buffer')
   call s:mapkeys(X.'C',   'Config')
   call s:mapkeys(X.'T',   'Theme')
-  call s:mapkeys(X.'mb',  'Move-Buffer')
+  call s:mapkeys(X.'mb',  'Move-Buffer-To')
   call s:mapkeys(X.'hb',  'Hide-Buffer')
   call s:mapkeys(X.'tf',  'Toggle-Filtering')
   call s:mapkeys(X.'cdc', 'Cd-Current')
@@ -98,7 +98,9 @@ function! xtabline#maps#init()
   nnoremap <unique> <silent>        <Plug>(XT-Reopen)                :<c-u>XTabReopen<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Working-Directory)     :<c-u>XTabWD!<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Set-Depth)             :<c-u>call xtabline#cmds#run('depth', v:count)<cr>
-  nnoremap <unique> <silent>        <Plug>(XT-Move-Buffer)           :<c-u>call xtabline#cmds#run('move_buffer', v:count)<cr>
+  nnoremap <unique> <silent>        <Plug>(XT-Move-Buffer-Next)      :<c-u>call xtabline#cmds#run('move_buffer', 1, v:count1)<cr>
+  nnoremap <unique> <silent>        <Plug>(XT-Move-Buffer-Prev)      :<c-u>call xtabline#cmds#run('move_buffer', 0, v:count1)<cr>
+  nnoremap <unique> <silent>        <Plug>(XT-Move-Buffer-To)        :<c-u>call xtabline#cmds#run('move_buffer_to', v:count)<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Hide-Buffer)           :<c-u>call xtabline#cmds#run('hide_buffer', v:count1)<cr>
   nnoremap <unique> <silent> <expr> <Plug>(XT-Hide-Buffer-n)         v:count? ":\<c-u>call xtabline#cmds#run('hide_buffer', v:count)\<cr>" : ":\<C-U>".g:xtabline_settings.hide_buffer_alt_action."\<cr>"
   nnoremap <unique> <silent>        <Plug>(XT-Tab-Todo)              :<c-u>XTabTodo<cr>
