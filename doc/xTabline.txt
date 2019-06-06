@@ -3,31 +3,31 @@
 XTABLINE - TABLE OF CONTENTS																				   *xtabline*
 ===============================================================================
 
-    Features list                         |xtabline-features|
-    Requirements                          |xtabline-requirements|
-    Installation                          |xtabline-installation|
-    Settings and mappings                 |xtabline-settings|
-    Tab buffers navigation                |xtabline-navigation|
-    Closing buffers                       |xtabline-closing-buffers|
-    Tabs and Buffers                      |xtabline-tabs-and-buffers|
-      Opening tabs                        |xtabline-opening-tabs|
-      Saving and loading tabs             |xtabline-saving-and-loading-tabs|
-      Managing buffers                    |xtabline-managing-buffers|
-      Tuning buffer filtering             |xtabline-tuning-buffer-filtering|
-      Rearranging buffers                 |xtabline-rearranging-buffers|
-      Customizing tabs and buffers        |xtabline-customizing-tabs-and-buffers|
-    Sessions management                   |xtabline-sessions|
-    Other commands, plugs and mappings    |xtabline-other|
-      Buffers clean-up                    |xtabline-clean-up|
-      Tab-Todo                            |xtabline-tab-todo|
-      Cwd selection                       |xtabline-cwd|
-    Customization                         |xtabline-customization|
-      Formatting                          |xtabline-formatting|
-      Buffers formatting                  |xtabline-buffers-formatting|
-      Tab formatting                      |xtabline-tab-formatting|
-      Remapping commands                  |xtabline-remapping|
-    Credits                               |xtabline-credits|
-    License                               |xtabline-license|
+	Features list                         |xtabline-features|
+	Requirements                          |xtabline-requirements|
+	Installation                          |xtabline-installation|
+	Settings and mappings                 |xtabline-settings|
+	Tab buffers navigation                |xtabline-navigation|
+	Closing buffers                       |xtabline-closing-buffers|
+	Tabs and Buffers                      |xtabline-tabs-and-buffers|
+		Opening tabs                        |xtabline-opening-tabs|
+		Saving and loading tabs             |xtabline-saving-and-loading-tabs|
+		Managing buffers                    |xtabline-managing-buffers|
+		Tuning buffer filtering             |xtabline-tuning-buffer-filtering|
+		Rearranging buffers                 |xtabline-rearranging-buffers|
+		Customizing tabs and buffers        |xtabline-customizing-tabs-and-buffers|
+	Sessions management                   |xtabline-sessions|
+	Other commands, plugs and mappings    |xtabline-other|
+		Buffers clean-up                    |xtabline-clean-up|
+		Tab-Todo                            |xtabline-tab-todo|
+		Cwd selection                       |xtabline-cwd|
+	Customization                         |xtabline-customization|
+		Formatting                          |xtabline-formatting|
+		Buffers formatting                  |xtabline-buffers-formatting|
+		Tab formatting                      |xtabline-tab-formatting|
+		Remapping commands                  |xtabline-remapping|
+	Credits                               |xtabline-credits|
+	License                               |xtabline-license|
 
 
 FEATURES LIST                                                *xtabline-features*
@@ -36,7 +36,8 @@ FEATURES LIST                                                *xtabline-features*
 This plugin tries to give you full control on the tabline. I wanted ways to:
 
 * switch between tabs and buffer mode
-* have buffers filtered on te base of the current CWD, or other criterias
+* have buffers filtered on the base of the current CWD, or other criterias
+* show only the most recently accessed buffers for the current tab (default 10)
 * rename tabs/buffers, and give them icons/separators
 * load/save customized tabs from/to disk
 * reopen closed tabs
@@ -125,6 +126,13 @@ By default, in the bufferline will be shown buffers that belong to the tab's
 CWD, or any open buffer inside the window.  Using xtabline buffer navigation
 commands you can switch among them, while using the normal *:bnext* command,
 you still cycle among the default (global) buffer list.
+
+																								 *xtabline-most-recent-buffers*
+The number of buffers that can be shown in the tabline is limited (by default)
+to the 10 most recently accessed buffers. This is done to avoid tabline
+overcrowding. To change the limit of buffers that can be shown, you can set the
+|most_recent_buffers| option to a different value.
+See |xtabline-customization| for options descriptions.
 
 ---------------------------------+------------------------------------------
 Mapping                          | Default                              ~
@@ -421,6 +429,7 @@ configurator.
 Option                     | Description                      | Default ~
 ---------------------------+----------------------------------+----------
 enable_mappings            | `<Plug>`s are always defined       | 0
+most_recent_buffers        | max buffers that will be shown   | 10
 select_buffer_alt_action   | SelectBuffer alternative command | `buffer #`
 hide_buffer_alt_action     | HideBuffer alternative command   | `buffer #`
 sessions_path              | sessions directory               | `~/.vim/session`

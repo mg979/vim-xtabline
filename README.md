@@ -19,7 +19,8 @@
 This plugin tries to give you full control on the tabline. I wanted ways to:
 
 * switch between tabs and buffer mode
-* have buffers filtered on te base of the current CWD, or other criterias
+* have buffers filtered on the base of the current CWD, or other criterias
+* show only the most recently accessed buffers for the current tab (default 10)
 * rename tabs/buffers, and give them icons/separators
 * load/save customized tabs from/to disk
 * reopen closed tabs
@@ -31,7 +32,7 @@ Additionally, it provides:
 * buffers quick navigation (next, previous, with *[count]*)
 * commands to rearrange tabs and buffers positions
 * commands to clean up buffers across all tabs
-* session management: load/save/delete sessions, with timestamping and descriptions
+* session management: load/save/delete sessions, with timestamping/descriptions
 * Tab-todo: customizable command to open a todo file for that tab
 
 Integrated with:

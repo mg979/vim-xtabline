@@ -21,6 +21,7 @@ let s:vB = { -> s:T().buffers.valid     }       "valid buffers for tab
 let s:eB = { -> s:T().buffers.extra     }       "extra buffers for tab
 let s:pB = { -> s:X.pinned_buffers      }       "pinned buffers list
 let s:oB = { -> s:T().buffers.order     }       "ordered buffers for tab
+let s:rB = { -> s:T().buffers.recent    }       "recent buffers for tab
 
 let s:invalid    = { b -> !buflisted(b) || getbufvar(b, "&buftype") == 'quickfix' }
 let s:is_special = { b -> s:F.has_win(b) && s:B()[b].special }
@@ -92,18 +93,9 @@ fun! xtabline#session_loaded() abort
     endif
   endfor
 
-  if get(g:xtabline, 'version', 0) < 0.1  " version checking
-    let s:X.version = 0.1
-    for t in s:X.Tabs
-      if has_key(t, 'use_dir')
-        let t.dirs = [t.use_dir]
-        unlet t.use_dir
-      endif
-    endfor
-  endif
-
   cd `=s:X.Tabs[tabpagenr()-1].cwd`
   let s:v.force_update = 1
+  call xtabline#tab#check()
   call xtabline#update()
 endfun
 
@@ -222,36 +214,18 @@ endfun
 " Helpers
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:uniq(list)
-  " make sure a buffer appears only once in the list
-  let [ i, max ] = [ 0, len(a:list)-2 ]
-  while i <= max
-    let extra = index(a:list, a:list[i], i+1)
-    if extra > 0
-      call remove(a:list, extra)
-      let max -= 1
-    else
-      let i += 1
-    endif
-  endwhile
-  return a:list
-endfun
-
 fun! s:ordered_buffers()
-  let valid = s:vB()
-  let order = s:oB()
-  let extra = s:eB()
+  let B = s:T().buffers
 
-  "clean up ordered buffers list
-  call filter(order, 'index(valid, v:val) >= 0 || index(extra, v:val) >= 0')
-  call s:uniq(order)
-  call s:uniq(extra)
+  "clean up ordered/recent buffers list
+  call filter(B.order, 'index(B.valid, v:val) >= 0 || index(B.extra, v:val) >= 0')
+  call filter(B.recent, 'index(B.valid, v:val) >= 0')
+  " call s:F.uniq(B.order)
+  call s:F.uniq(B.extra)
 
   " add missing entries in ordered list
-  for buf in valid
-    if index(order, buf) < 0
-      call add(order, buf)
-    endif
+  for buf in B.valid
+    call s:F.add_ordered(buf)
   endfor
 endfun
 
@@ -292,6 +266,7 @@ function! s:Do(action, ...)
 
   let X = g:xtabline | let F = X.Funcs | let V = X.Vars
   let N = tabpagenr() - 1
+  let B = bufnr(str2nr(expand('<abuf>')))
 
   """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
@@ -306,7 +281,8 @@ function! s:Do(action, ...)
 
   elseif a:action == 'bufenter'
 
-    call xtabline#buffer#add(bufnr(str2nr(expand('<abuf>'))))
+    call xtabline#buffer#add(B)
+    call xtabline#tab#recent_buffers(B)
     if s:new_tab_created
       call s:set_new_tab_cwd(N)
     endif
@@ -316,7 +292,7 @@ function! s:Do(action, ...)
 
   elseif a:action == 'bufwrite'
 
-    call xtabline#buffer#update( bufnr(str2nr(expand('<abuf>'))) )
+    call xtabline#buffer#update(B)
     call xtabline#tab#git_files(X.Tabs[N])
     call xtabline#update()
 

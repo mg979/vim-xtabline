@@ -107,6 +107,38 @@ fun! s:Funcs.tab_buffers()
   return map(copy(s:vB()), 'bufname(v:val)')
 endfun
 
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:Funcs.add_ordered(buf, ...) abort
+  """Add a buffer to the Tab.buffers.ordere list.
+  let [ b, bufs, first, i ] = [ a:buf, s:oB(), a:0, index(s:oB(), a:buf) ]
+
+  " if the buffer goes first, remove it from the list if present
+  if i >= 0 && first | call remove(bufs, i) | endif
+
+  " if the buffer doesn't go first, only add it if not present
+  if first      | call insert(bufs, b, 0)
+  elseif i < 0  | call add(bufs, b)
+  endif
+endfun
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:Funcs.uniq(list)
+  """Make sure an element appears only once in the list.
+  let [ i, max ] = [ 0, len(a:list)-2 ]
+  while i <= max
+    let extra = index(a:list, a:list[i], i+1)
+    if extra > 0
+      call remove(a:list, extra)
+      let max -= 1
+    else
+      let i += 1
+    endif
+  endwhile
+  return a:list
+endfun
+
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:Funcs.is_tab_buffer(...)

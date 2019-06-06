@@ -77,11 +77,20 @@ fun! xtabline#render#buffers() abort
 
   " pick up data on all the buffers
   let tabs = []
+  let Tab  = s:T()
   let bufs = s:oB()
   call filter(bufs, 'bufexists(v:val)')
 
+  "limiting to x most recent buffers, if option is set; here we consider only
+  "valid buffers, special/extra/etc will be added later
+  let max = get(s:Sets, 'most_recent_buffers', 10)
+  if max > 0
+    let recent = Tab.buffers.recent[:(max-1)]
+    call filter(bufs, 'index(recent, v:val) >= 0')
+  endif
+
   "put current buffer first
-  if s:T().sort == 'last_open'
+  if Tab.sort == 'last_open'
     let i = index(bufs, currentbuf)
     if i >= 0
       call remove(bufs, i)
@@ -101,7 +110,7 @@ fun! xtabline#render#buffers() abort
 
   "put upfront: special > pinned > open > extra buffers
   for b in ( s:eB() + front + s:pinned() + specials )
-    call s:put_first(b)
+    call s:F.add_ordered(b, 1)
   endfor
 
   "no need to render more than 20 buffers at a time, since they'll be offscreen
@@ -140,7 +149,7 @@ fun! xtabline#render#buffers() abort
             \ 'tried_devicon': 0,
             \ 'tried_icon': 0,
             \ 'has_icon': 0,
-            \ 'path': fnamemodify(bufname(bnr), (s:T().rpaths ? ':p:~:.' : ':t')),
+            \ 'path': fnamemodify(bufname(bnr), (Tab.rpaths ? ':p:~:.' : ':t')),
             \ 'hilite':   is_currentbuf && special  ? 'Special' :
             \             is_currentbuf             ? 'Select' :
             \             special || s:extraHi(bnr) ? 'Extra' :
@@ -154,7 +163,7 @@ fun! xtabline#render#buffers() abort
             \ 'tried_icon': 0,
             \ 'has_icon': 0,
             \ 'separators': s:buf_separators(bnr),
-            \ 'path': fnamemodify(bufname(bnr), (s:T().rpaths ? ':p:~:.' : ':t')),
+            \ 'path': fnamemodify(bufname(bnr), (Tab.rpaths ? ':p:~:.' : ':t')),
             \ 'indicator': s:buf_indicator(bnr),
             \ 'hilite':   is_currentbuf && special  ? 'Special' :
             \             is_currentbuf             ? 'Select' :
@@ -541,16 +550,6 @@ let s:tabs = { -> range(1, tabpagenr('$')) }
 let s:tabcwd = { n -> s:X.Tabs[n-1].cwd }
 let s:windows = { n -> range(1, tabpagewinnr(n, '$')) }
 let s:basename = { f -> fnamemodify(f, ':p:t') }
-
-"------------------------------------------------------------------------------
-
-fun! s:put_first(b)
-  """Ensure a buffer goes first in the bufline.
-  let bufs = s:oB()
-  let i = index(bufs, a:b)
-  if i >= 0 | call remove(bufs, i) | endif
-  call insert(bufs, a:b, 0)
-endfun
 
 "------------------------------------------------------------------------------
 

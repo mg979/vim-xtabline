@@ -31,7 +31,7 @@ fun! s:template()
         \ 'rpaths':  0,
         \ 'icon':    '',
         \ 'files':   [],
-        \ 'buffers': {'valid': [], 'order': [], 'extra': []},
+        \ 'buffers': {'valid': [], 'order': [], 'extra': [], 'recent': []},
         \ 'sort' :   s:Sets.sort_buffers_by_last_open ? 'last_open' : 'default',
         \}
 endfun
@@ -45,6 +45,20 @@ fun! xtabline#tab#new(...)
   let s:v.tab_properties = {} "reset tab_properties
   call xtabline#tab#git_files(tab)
   return tab
+endfun
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! xtabline#tab#recent_buffers(buf)
+  """Keep the valid buffers ordered by recency of access.
+  let bufs = s:T().buffers
+  let r = index(bufs.recent, a:buf)
+
+  if index(bufs.valid, a:buf) >= 0
+    call insert(bufs.recent, r >= 0 ? remove(bufs.recent, r) : a:buf)
+  elseif r >= 0
+    call remove(bufs.recent, r)
+  endif
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -64,6 +78,12 @@ fun! xtabline#tab#check() abort
   call extend(s:T(), s:template(), 'keep')
   if !has_key(t:, 'xtab')
     let t:xtab = s:T()
+  endif
+
+  " ensure 'recent' key is present, and initialize it to valid buffers
+  let bufs = extend(s:T().buffers, {'recent': []}, 'keep')
+  if empty(bufs.recent)
+    let bufs.recent = copy(bufs.valid)
   endif
 endfun
 
