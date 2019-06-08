@@ -80,11 +80,8 @@ fun! xtabline#tab#check() abort
     let t:xtab = s:T()
   endif
 
-  " ensure 'recent' key is present, and initialize it to valid buffers
+  " ensure 'recent' key is present
   let bufs = extend(s:T().buffers, {'recent': []}, 'keep')
-  if empty(bufs.recent)
-    let bufs.recent = copy(bufs.valid)
-  endif
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

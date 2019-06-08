@@ -217,6 +217,11 @@ endfun
 fun! s:ordered_buffers()
   let B = s:T().buffers
 
+  " if list of recent buffers is still empty, set it to current valid buffers
+  if empty(B.recent)
+    let B.recent = copy(B.valid)
+  endif
+
   "clean up ordered/recent buffers list
   call filter(B.order, 'index(B.valid, v:val) >= 0 || index(B.extra, v:val) >= 0')
   call filter(B.recent, 'index(B.valid, v:val) >= 0')
