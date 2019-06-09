@@ -446,9 +446,13 @@ endfun
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:tabnum(tabnr, all)
-  return a:tabnr == tabpagenr() ?
-        \        "%#XTNumSel# " . a:tabnr . " %#XTTabActive#" :
-        \a:all ? "%#XTNum# "    . a:tabnr . " %#XTTabInactive#" : ''
+  if a:all && !s:v.showing_tabs
+    return "%#XTNum# " . a:tabnr .'/' . tabpagenr('$') . " %#XTTabInactive#"
+  else
+    return a:tabnr == tabpagenr() ?
+          \   "%#XTNumSel# " . a:tabnr . " %#XTTabActive#"
+          \ : "%#XTNum# "    . a:tabnr . " %#XTTabInactive#"
+  endif
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

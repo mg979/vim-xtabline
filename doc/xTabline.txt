@@ -556,7 +556,7 @@ Option | Description                  ~
   f    | buffer filename
   a    | buffer path
   n    | tab number (current tab)
-  N    | tab number (all tabs)
+  N    | current tab / all tabs
   w    | windows count
   W    | windows count
   u    | windows count as small unicode
