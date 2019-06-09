@@ -54,6 +54,15 @@ fun! xtabline#tab#recent_buffers(buf)
   let bufs = s:T().buffers
   let r = index(bufs.recent, a:buf)
 
+  " update recent list
+  if len(bufs.recent) != len(bufs.valid)
+    for b in bufs.valid
+      if index(bufs.recent, b) < 0
+        call add(bufs.recent, b)
+      endif
+    endfor
+  endif
+
   if index(bufs.valid, a:buf) >= 0
     call insert(bufs.recent, r >= 0 ? remove(bufs.recent, r) : a:buf)
   elseif r >= 0
