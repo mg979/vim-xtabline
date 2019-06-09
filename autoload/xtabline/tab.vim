@@ -79,13 +79,15 @@ endfun
 
 fun! xtabline#tab#check() abort
   """Ensure all tab dict keys are present.
-  call extend(s:T(), s:template(), 'keep')
+  let Tab = s:T()
+  call extend(Tab, s:template(), 'keep')
   if !has_key(t:, 'xtab')
-    let t:xtab = s:T()
+    let t:xtab = Tab
   endif
 
   " ensure 'recent' key is present
-  let bufs = extend(s:T().buffers, {'recent': []}, 'keep')
+  let bufs = extend(Tab.buffers, {'recent': []}, 'keep')
+  return Tab
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

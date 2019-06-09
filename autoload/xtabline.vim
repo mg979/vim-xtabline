@@ -137,14 +137,14 @@ fun! xtabline#filter_buffers(...) abort
   elseif  get(g:xtabline, 'version', 0) < 0.1 | call xtabline#session_loaded()
   endif
 
-  " 'accepted' is a list of buffer numbers that belong to the tab, either because:
+  " 'valid' is a list of buffer numbers that belong to the tab, either because:
   "     - their path is valid for this tab
   "     - tab is locked and buffers are included
   " 'extra' are buffers that have been purposefully added by other means to the tab
   "     - not a dynamic list, elements are manually added or removed
   "     - they aren't handled here, they are handled at render time
 
-  let T = s:T()
+  let T = xtabline#tab#check()
 
   if s:v.showing_tabs && has_key(T, 'init')
     set tabline=%!xtabline#render#tabs()
@@ -309,7 +309,7 @@ function! s:Do(action, ...)
     call xtabline#tab#check()
     let T = X.Tabs[N]
 
-    cd `=T.cwd`
+    if F.cd(T.cwd) | return | endif
 
     call xtabline#vimrc#exe(T)
     call xtabline#update()

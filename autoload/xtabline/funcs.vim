@@ -170,6 +170,17 @@ fun! s:Funcs.all_open_buffers()
   return open
 endfun
 
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:Funcs.cd(dir)
+  """Try to change the current directory.
+  if isdirectory(a:dir)
+    cd `=a:dir`
+  else
+    return self.msg('[xtabline] directory doesn''t exists', 1)
+  endif
+endfun
+
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:Funcs.bdelete(buf)
