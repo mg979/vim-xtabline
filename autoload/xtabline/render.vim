@@ -143,7 +143,7 @@ fun! xtabline#render#buffers() abort
     let is_currentbuf = currentbuf == bnr
 
 
-    if empty(s:Sets.bufline_format)
+    if type(s:Sets.bufline_format) == v:t_number
       let tab = { 'nr': bnr,
             \ 'n': n,
             \ 'tried_devicon': 0,
@@ -193,7 +193,7 @@ fun! xtabline#render#buffers() abort
   let currentside = lft
   for tab in tabs
     let tab.label = s:format_buffer(tab)
-    let tab.width = strwidth(substitute(tab.label, '%#X\w*#', '', 'g'))
+    let tab.width = strwidth(substitute(tab.label, '%#\w*#', '', 'g'))
     if centerbuf == tab.nr
       let halfwidth = tab.width / 2
       let lft.width += halfwidth
@@ -244,21 +244,22 @@ endfun
 " =============================================================================
 
 fun! s:format_buffer(buf)
-  let B = a:buf
+  let [ B, fmt ] = [ a:buf, s:default_buffer_format ]
   if s:buffer_has_format(B)
     let chars = s:fmt_chars(s:B()[B.nr].format)
-  elseif empty(s:default_buffer_format)
+  elseif fmt.simple
     let mod = index(s:pinned(), B.nr) >= 0 ? ' '.s:Sets.bufline_indicators.pinned : ''
     let mod .= (getbufvar(B.nr, "&modified") ? " [+] " : " ")
     let hi = printf(" %%#XT%s# ", B.hilite)
     let ic = s:get_buf_icon(B)
-    let nu = winbufnr(0) == B.nr ? ("%#XTNumSel# " . B.n) : ("%#XTNum# " . B.n)
+    let bn = fmt.simple == 2 ? B.n : B.nr
+    let nu = winbufnr(0) == B.nr ? ("%#XTNumSel# " . bn) : ("%#XTNum# " . bn)
     let st = nu . hi . ic . B.path . mod
     return st
-  elseif s:default_buffer_format.is_func
-    return s:default_buffer_format.content(B.nr)
+  elseif fmt.is_func
+    return fmt.content(B.nr)
   else
-    let chars = s:default_buffer_format.content
+    let chars = fmt.content
   endif
 
   let out = []
@@ -575,14 +576,18 @@ endfun
 "------------------------------------------------------------------------------
 
 fun! s:get_default_buffer_format()
-  " get the default buffer format, and set its type
-  let fmt = {}
+  " get the default buffer format, and set its type, either:
+  " - funcref
+  " - format string
+  " - number (1 to show bufnr, 2 to show buffer order)
+  let fmt = { 'is_func': 0, 'simple': 0 }
   if type(s:Sets.bufline_format) == v:t_func
     let fmt.is_func = 1
     let fmt.content = s:Sets.bufline_format
-  elseif !empty(s:Sets.bufline_format)
-    let fmt.is_func = 0
+  elseif type(s:Sets.bufline_format) == v:t_string
     let fmt.content = s:fmt_chars(s:Sets.bufline_format)
+  elseif type(s:Sets.bufline_format) == v:t_number
+    let fmt.simple = s:Sets.bufline_format
   endif
   return fmt
 endfun

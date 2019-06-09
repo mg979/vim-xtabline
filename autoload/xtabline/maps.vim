@@ -132,6 +132,11 @@ endfunction
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:select_buffer(cnt)
+  let Fmt = g:xtabline_settings.bufline_format
+  if type(Fmt) == v:t_number && Fmt == 1
+    let cn = a:cnt + 1
+    return ":\<C-U>silent! exe 'b'.".cn."\<cr>"
+  endif
   let bufs = g:xtabline.Tabs[tabpagenr()-1].buffers.order
   let n = min([a:cnt, len(bufs)-1])
   let b = bufs[n]

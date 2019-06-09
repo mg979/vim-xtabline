@@ -592,8 +592,12 @@ fun! s:format_buffer()
   let n = bufnr("%")
   if s:invalid_buffer(n) | return | endif
 
+  let fmt = s:Sets.bufline_format
+  let default = type(fmt) == v:t_string ? fmt : ' n I< l +'
+
   let has_format = has_key(s:B(), n) && has_key(s:B()[n], 'format')
-  let current = has_format? s:B()[n].format : s:Sets.bufline_format
+  let current = has_format? s:B()[n].format : default
+
   echohl Label | echo "Current  │" | echohl Special | echon current | echohl Label
 
   let new = input("New      │", current) | echohl None
