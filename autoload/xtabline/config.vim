@@ -4,7 +4,7 @@ fun! xtabline#config#start()
 
   redraw!
   let opt = [
-            \['Sort buffers by last open',   "sort_buffers_by_last_open"],
+            \['Sort buffers by last open',   "last_open_first"],
             \['Show current tab',            "show_current_tab"],
             \['Superscript unicode nrs',     "superscript_unicode_nrs"],
             \['Close buffer can close tab',  "close_buffer_can_close_tab"],
@@ -59,7 +59,7 @@ fun! xtabline#config#generate()
         \'" xtabline configuration',
         \'',
         \'let g:xtabline_settings = {}',
-        \'let g:xtabline_settings.sort_buffers_by_last_open  = '.g:xtabline_settings.sort_buffers_by_last_open,
+        \'let g:xtabline_settings.last_open_first            = '.g:xtabline_settings.last_open_first,
         \'let g:xtabline_settings.show_current_tab           = '.g:xtabline_settings.show_current_tab,
         \'let g:xtabline_settings.superscript_unicode_nrs    = '.g:xtabline_settings.superscript_unicode_nrs,
         \'let g:xtabline_settings.close_buffer_can_close_tab = '.g:xtabline_settings.close_buffer_can_close_tab,
@@ -85,7 +85,7 @@ fun! xtabline#config#help()
   let _ = "-------------------------------------"
   echohl WarningMsg | echo _._._."\n" | echohl None
 
-  echohl Special | echo "sort_buffers_by_last_open\t\t"   | echohl None | echon "keep the last open buffers first in the bufferline"
+  echohl Special | echo "last_open_first\t\t"             | echohl None | echon "keep the last open buffers first in the bufferline"
   echohl Special | echo "show_current_tab\t\t\t"          | echohl None | echon "in the right corner of the bufferline"
   echohl Special | echo "superscript_unicode_nrs\t\t\t"   | echohl None | echon "when using small unicode numbers, use superscript or subscript"
   echohl Special | echo "close_buffer_can_close_tab\t\t"  | echohl None | echon "close buffer command can close a tab, if only one buffer left"

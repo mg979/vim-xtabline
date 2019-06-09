@@ -128,7 +128,7 @@ let s:S = {
       \ 'use_git':                    0,
       \ 'superscript_unicode_nrs':    0,
       \ 'show_current_tab':           1,
-      \ 'sort_buffers_by_last_open':  0,
+      \ 'last_open_first':            0,
       \ 'enable_mappings':            0,
       \ 'no_icons':                   0,
       \ 'bufline_numbers':            1,

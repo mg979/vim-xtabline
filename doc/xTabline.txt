@@ -429,7 +429,7 @@ configurator.
 Option                     | Description                      | Default ~
 ---------------------------+----------------------------------+----------
 enable_mappings            | `<Plug>`s are always defined       | 0
-most_recent_buffers        | max buffers that will be shown   | 10
+recent_buffers             | max number that will be shown    | 10
 select_buffer_alt_action   | SelectBuffer alternative command | `buffer #`
 hide_buffer_alt_action     | HideBuffer alternative command   | `buffer #`
 sessions_path              | sessions directory               | `~/.vim/session`
@@ -442,7 +442,7 @@ bookmarks_file             |                                  | `~/.vim/.XTablin
 sessions_data              |                                  | `~/.vim/.XTablineSessions`
 superscript_unicode_nrs    | use superscript or subscript nrs | 0
 show_current_tab           |                                  | 1
-sort_buffers_by_last_open  |                                  | 0
+last_open_first            |                                  | 0
 
 
 FORMATTING                                             *xtabline-formatting*

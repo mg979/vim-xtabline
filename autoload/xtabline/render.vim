@@ -83,14 +83,14 @@ fun! xtabline#render#buffers() abort
 
   "limiting to x most recent buffers, if option is set; here we consider only
   "valid buffers, special/extra/etc will be added later
-  let max = get(s:Sets, 'most_recent_buffers', 10)
+  let max = get(s:Sets, 'recent_buffers', 10)
   if max > 0
     let recent = Tab.buffers.recent[:(max-1)]
     call filter(bufs, 'index(recent, v:val) >= 0')
   endif
 
   "put current buffer first
-  if Tab.sort == 'last_open'
+  if s:Sets.last_open_first
     let i = index(bufs, currentbuf)
     if i >= 0
       call remove(bufs, i)
@@ -142,35 +142,26 @@ fun! xtabline#render#buffers() abort
     let n = index(bufs, bnr) + 1 + begin       "tab buffer index
     let is_currentbuf = currentbuf == bnr
 
+    let tab = { 'nr': bnr,
+          \ 'n': n,
+          \ 'tried_devicon': 0,
+          \ 'tried_icon': 0,
+          \ 'has_icon': 0,
+          \ 'path': fnamemodify(bufname(bnr), (Tab.rpaths ? ':p:~:.' : ':t')),
+          \ 'hilite':   is_currentbuf && special  ? 'Special' :
+          \             is_currentbuf             ? 'Select' :
+          \             special || s:extraHi(bnr) ? 'Extra' :
+          \             s:F.has_win(bnr)          ? 'Visible' : 'Hidden'
+          \}
 
     if type(s:Sets.bufline_format) == v:t_number
-      let tab = { 'nr': bnr,
-            \ 'n': n,
-            \ 'tried_devicon': 0,
-            \ 'tried_icon': 0,
-            \ 'has_icon': 0,
-            \ 'path': fnamemodify(bufname(bnr), (Tab.rpaths ? ':p:~:.' : ':t')),
-            \ 'hilite':   is_currentbuf && special  ? 'Special' :
-            \             is_currentbuf             ? 'Select' :
-            \             special || s:extraHi(bnr) ? 'Extra' :
-            \             s:F.has_win(bnr)          ? 'Visible' : 'Hidden'
-            \}
       let tab.path = s:get_buf_name(tab)
     else
-      let tab = { 'nr': bnr,
-            \ 'n': n,
-            \ 'tried_devicon': 0,
-            \ 'tried_icon': 0,
-            \ 'has_icon': 0,
-            \ 'separators': s:buf_separators(bnr),
-            \ 'path': fnamemodify(bufname(bnr), (Tab.rpaths ? ':p:~:.' : ':t')),
-            \ 'indicator': s:buf_indicator(bnr),
-            \ 'hilite':   is_currentbuf && special  ? 'Special' :
-            \             is_currentbuf             ? 'Select' :
-            \             special || s:extraHi(bnr) ? 'Extra' :
-            \             s:F.has_win(bnr)          ? 'Visible' : 'Hidden'
-            \}
+      let tab.path = fnamemodify(bufname(bnr), (Tab.rpaths ? ':p:~:.' : ':t'))
+      let tab.separators = s:buf_separators(bnr)
+      let tab.indicator = s:buf_indicator(bnr)
     endif
+
     if is_currentbuf | let [centerbuf, s:centerbuf] = [bnr, bnr] | endif
 
     let tabs += [tab]
