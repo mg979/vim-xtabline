@@ -1,36 +1,36 @@
 *xtabline.txt*    xTabline     Version 0.8.0    Last change: August 10 2018
 
-XTABLINE - TABLE OF CONTENTS																				   *xtabline*
+XTABLINE - TABLE OF CONTENTS                                           *xtabline*
 ===============================================================================
 
-	Features list                         |xtabline-features|
-	Requirements                          |xtabline-requirements|
-	Installation                          |xtabline-installation|
-	Settings and mappings                 |xtabline-settings|
-	Tab buffers navigation                |xtabline-navigation|
-	Closing buffers                       |xtabline-closing-buffers|
-	Tabs and Buffers                      |xtabline-tabs-and-buffers|
-		Opening tabs                        |xtabline-opening-tabs|
-		Saving and loading tabs             |xtabline-saving-and-loading-tabs|
-		Managing buffers                    |xtabline-managing-buffers|
-		Tuning buffer filtering             |xtabline-tuning-buffer-filtering|
-		Rearranging buffers                 |xtabline-rearranging-buffers|
-		Customizing tabs and buffers        |xtabline-customizing-tabs-and-buffers|
-	Sessions management                   |xtabline-sessions|
-	Other commands, plugs and mappings    |xtabline-other|
-		Buffers clean-up                    |xtabline-clean-up|
-		Tab-Todo                            |xtabline-tab-todo|
-		Cwd selection                       |xtabline-cwd|
-	Customization                         |xtabline-customization|
-		Formatting                          |xtabline-formatting|
-		Buffers formatting                  |xtabline-buffers-formatting|
-		Tab formatting                      |xtabline-tab-formatting|
-		Remapping commands                  |xtabline-remapping|
-	Credits                               |xtabline-credits|
-	License                               |xtabline-license|
+  Features list                                  |xtabline-features|
+  Requirements                                   |xtabline-requirements|
+  Settings and mappings                          |xtabline-settings|
+  Customizing look                               |xtabline-look|
+  Tab buffers navigation                         |xtabline-navigation|
+  Closing buffers                                |xtabline-closing-buffers|
+  Tabs and Buffers                               |xtabline-tabs-and-buffers|
+    Opening tabs                                 |xtabline-opening-tabs|
+    Saving and loading tabs                      |xtabline-saving-and-loading|
+    Managing buffers                             |xtabline-managing-buffers|
+    Tuning buffer filtering                      |xtabline-tuning-filtering|
+    Rearranging buffers                          |xtabline-rearranging|
+    Customizing tabs and buffers                 |xtabline-customizing|
+  Sessions management                            |xtabline-sessions|
+  Other commands, plugs and mappings             |xtabline-other|
+    Buffers clean-up                             |xtabline-clean-up|
+    Tab-Todo                                     |xtabline-tab-todo|
+    Cwd selection                                |xtabline-cwd|
+  Options summary                                |xtabline-options|
+    Formatting                                   |xtabline-formatting|
+    Buffers formatting                           |xtabline-buffers-formatting|
+    Tab formatting                               |xtabline-tab-formatting|
+    Remapping commands                           |xtabline-remapping|
+  Credits                                        |xtabline-credits|
+  License                                        |xtabline-license|
 
 
-FEATURES LIST                                                *xtabline-features*
+FEATURES LIST                                                 *xtabline-features*
 ===============================================================================
 
 This plugin tries to give you full control on the tabline. I wanted ways to:
@@ -73,21 +73,8 @@ REQUIREMENTS                                             *xtabline-requirements*
 {vim-obsession}{1} is required for persistance and sessions commands.
 {fzf-vim}{2} is required for bookmarks and sessions commands.
 
-																		 {1} https://github.com/tpope/vim-obsession
+                                     {1} https://github.com/tpope/vim-obsession
                                      {2} https://github.com/junegunn/fzf.vim
-
-
-
-INSTALLATION                                             *xtabline-installation*
-===============================================================================
-
-Use {vim-plug}{3} or any other Vim plugin manager.
-
-With vim-plug:
->
-    Plug 'mg979/vim-xtabline'
-<
-                                      {3} https://github.com/junegunn/vim-plug
 
 
 
@@ -95,27 +82,84 @@ With vim-plug:
 SETTINGS AND MAPPINGS                                        *xtabline-settings*
 ===============================================================================
 
-To change any setting, you have to initialize the settings dictionary:
+Here are described the most important settings, for the full list read
+|xtabline-options|.
+
+To change most settings, you have to initialize the settings dictionary:
 >
     let g:xtabline_settings = {}
 
-Most of xtabline mappings can be associated to a prefix. Default is:
->
+------------------------------------------------------------------------------
+                                                       *xtabline-map_prefix*  >
     let g:xtabline_settings.map_prefix = '<leader>x'
 
+Most of xtabline mappings can be associated to a prefix.
 This means that most commands will be mapped to `<leader>x` + a modifier.
 You can change the prefix and all mappings will be changed accordingly.
 Most mappings presented are meant prefixed by <prefix>, when preceded by *.
 
-Mappings are disabled by default. To enable them:
->
-    let g:xtabline_settings.enable_mappings = 1
+------------------------------------------------------------------------------
+                                                  *xtabline-enable_mappings*  >
+    let g:xtabline_settings.enable_mappings = 0
 
+Mappings are disabled by default.
+
+------------------------------------------------------------------------------
+                                                             *xtabline-lazy*  >
 You can lazy load the plugin:
 >
-    let g:xtabline_lazy = 1		( will load on TabNew, SessionLoadPost, BufAdd )
-    let g:xtabline_lazy = 2		( will load manually with XTablineInit )
+    let g:xtabline_lazy = 1   ( will load on TabNew, SessionLoadPost, BufAdd )
+    let g:xtabline_lazy = 2   ( will load manually with :XTablineInit )
 
+------------------------------------------------------------------------------
+                                                        *xtabline-filtering*  >
+    let g:xtabline_settings.filtering = 1
+
+By default, the plugin will build the tabline putting a list of valid buffers
+on the left side, and the current working directory (CWD) in the corner on the
+right. 'Valid' buffers are those whose path is within the CWD.
+Set this value to 0 to disabled buffer filtering.
+
+------------------------------------------------------------------------------
+                                                   *xtabline-recent_buffers*  >
+    let g:xtabline_settings.recent_buffers = 10
+
+The number of buffers that can be shown in the tabline is limited (by default)
+to the 10 most recently accessed buffers. This is done to avoid tabline
+overcrowding.
+
+------------------------------------------------------------------------------
+                                                   *xtabline-last_open_first*  >
+    let g:xtabline_settings.last_open_first = 0
+
+Valid buffers will be ordered by time of access. Note that special or extra
+buffers can still be listed before them, but they are also highlighted
+differently.
+
+------------------------------------------------------------------------------
+                                                   *xtabline-bufline_format*  >
+
+    let g:xtabline_settings.bufline_format = ' n I< l +'
+
+This setting controls how the buffers are formatted in the tabline. Valid
+values are:
+
+  `1`       the buffer number (as by bufnr('%')), and the buffer base name
+  `2`       the buffer position in the tabline, and the buffer base name
+  `string`  a formatting string, see |xtabline-buffers-formatting|
+  `func`    a funcref (the buffer number is passed as parameter)
+
+Function example:
+>
+    fun! MyBuflineFormat(bufnr)
+      let [ A, B, C ] = [ '%#TabLineSel#', '%#TabLine#', '%#PmenuSel#'  ]
+      let name = bufname(a:bufnr) != '' ? bufname(a:bufnr) : '...'
+      let hi = bufnr('%') == a:bufnr ? C : B
+      let name = hi . ' ' . name . ' '
+      return A . ' ' . a:bufnr . ' ' . name
+    endfun
+
+    let g:xtabline_settings.bufline_format = function('MyBuflineFormat')
 
 
 
@@ -127,13 +171,6 @@ CWD, or any open buffer inside the window.  Using xtabline buffer navigation
 commands you can switch among them, while using the normal *:bnext* command,
 you still cycle among the default (global) buffer list.
 
-																								 *xtabline-most-recent-buffers*
-The number of buffers that can be shown in the tabline is limited (by default)
-to the 10 most recently accessed buffers. This is done to avoid tabline
-overcrowding. To change the limit of buffers that can be shown, you can set the
-|most_recent_buffers| option to a different value.
-See |xtabline-customization| for options descriptions.
-
 ---------------------------------+------------------------------------------
 Mapping                          | Default                              ~
 ---------------------------------+------------------------------------------
@@ -142,11 +179,11 @@ Mapping                          | Default                              ~
 <Plug>(XT-Prev-Buffer)           | [count] [b
 <Plug>(XT-Close-Buffer)          | *q
 
-{Next-Buffer} and {Prev-Buffer} accept a [count], to move to ±[N] buffer, as
+`Next-Buffer` and `Prev-Buffer` accept a [count], to move to ±[N] buffer, as
 they are shown in the tabline.  If moving beyond the limit, it will start from
 the start (or the end).
 
-{Select-Buffer} works this way:
+`Select-Buffer` works this way:
 
 * it needs a [count] to work, eg. 2<BS> would bring you to buffer #2
 * when not using a [count], it will execute a command of your choice
@@ -156,9 +193,9 @@ Default is `buffer #`
 
 Examples:
 >
-		" switch to alternative buffer
+    " switch to alternative buffer
     let g:xtabline_settings.select_buffer_alt_action = "buffer #"
-		" call fzf-vim :Buffers command
+    " call fzf-vim :Buffers command
     let g:xtabline_settings.select_buffer_alt_action = "Buffers"
 
 
@@ -218,7 +255,7 @@ Saved tabs are stored in `$HOME/.vim/.XTablineTabs`.
 MANAGING BUFFERS                                  *xtabline-managing-buffers*
 
 
-_fzf-vim_ is required.
+|fzf-vim| is required.
 
 --------------------------+----------+----------------------------------
 Command                   | Mapping  | Plug                            ~
@@ -274,20 +311,20 @@ REARRANGING BUFFERS                         *xtabline-rearranging-buffers*
 *mb       | <Plug>(XT-Move-Buffer-To)
 *hb       | <Plug>(XT-Hide-Buffer)
 
-{Move-Buffer-Next} and {Move-Buffer-Prev} don't have a default mapping.
+`Move-Buffer-Next` and `Move-Buffer-Prev` don't have a default mapping.
 They move the current buffer to the next/previous position in the tabline, but
 they only work for buffers that are considered valid for the current tab.
 
-{Move-Buffer-To} accepts a [count], and will move the current buffer after
+`Move-Buffer-To` accepts a [count], and will move the current buffer after
 [count] position.
 
-{Hide-Buffer} puts the current buffer last, and then selects [count] buffer,
+`Hide-Buffer` puts the current buffer last, and then selects [count] buffer,
 as by *Select-Buffer*. Selects first if no [count] is given.
 
 
 
 
-CUSTOMIZING TABS AND BUFFERS                *xtabline-customizing-tabs-and-buffers*
+CUSTOMIZING TABS AND BUFFERS              *xtabline-customizing-tabs-and-buffers*
 
 
 ------------------+-----------+-------------------------------
@@ -402,7 +439,7 @@ tabline at the same time.
 
 
 
-CUSTOMIZATION                                           *xtabline-customization*
+OPTIONS SUMMARY                                               *xtabline-options*
 ===============================================================================
 
 Command       Plug              Mapping    ~
@@ -485,7 +522,7 @@ tab/buffer, and can be used in other contexts (special buffers icon).
       \}
 
 
-BUFFERS FORMATTING                         *xtabline-buffers-formatting*
+BUFFERS FORMATTING                                *xtabline-buffers-formatting*
 
 Default formatting is ` n I< l +`. In this notation, each character is
 replaced by something, while spaces are retained as they are. Possible
@@ -505,7 +542,7 @@ Option | Description                  ~
   >    | separator, can't be suppressed by icon
 
 
-TAB FORMATTING                                 *xtabline-tab-formatting*
+TAB FORMATTING                                        *xtabline-tab-formatting*
 
 Default formatting is `N - 2+ ` for unnamed tabs, `N - l+ ` for named tabs.
 Notation rules are the same, but character meaning can be different:
@@ -560,4 +597,4 @@ LICENSE                                                       *xtabline-license*
 MIT
 
 
-vim:tw=79:noet:sw=2:ts=2:ft=help:norl:nowrap:
+vim:tw=79:et:sw=2:ts=2:ft=help:norl:nowrap:
