@@ -124,7 +124,6 @@ let s:S = {
       \ 'close_buffer_can_quit_vim':  0,
       \ 'depth_tree_size':            20,
       \ 'select_buffer_alt_action':   "buffer #",
-      \ 'hide_buffer_alt_action':     "buffer #",
       \ 'use_git':                    0,
       \ 'superscript_unicode_nrs':    0,
       \ 'show_current_tab':           1,

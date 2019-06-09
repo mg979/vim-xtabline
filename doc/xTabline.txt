@@ -273,7 +273,6 @@ REARRANGING BUFFERS                         *xtabline-rearranging-buffers*
           | <Plug>(XT-Move-Buffer-Prev)
 *mb       | <Plug>(XT-Move-Buffer-To)
 *hb       | <Plug>(XT-Hide-Buffer)
-          | <Plug>(XT-Hide-Buffer-n)
 
 {Move-Buffer-Next} and {Move-Buffer-Prev} don't have a default mapping.
 They move the current buffer to the next/previous position in the tabline, but
@@ -285,14 +284,6 @@ they only work for buffers that are considered valid for the current tab.
 {Hide-Buffer} puts the current buffer last, and then selects [count] buffer,
 as by *Select-Buffer*. Selects first if no [count] is given.
 
-{Hide-Buffer-n} works like *Select-Buffer*, in that it needs a [count] and has
-an alternative action when no [count] is given. There is no default mapping,
-so you have to map it yourself.
-
-Alternative action for this command is defined by:
->
-		" switch to alternative buffer
-    let g:xtabline_settings.hide_buffer_alt_action = "buffer #"
 
 
 
@@ -431,7 +422,6 @@ Option                     | Description                      | Default ~
 enable_mappings            | `<Plug>`s are always defined       | 0
 recent_buffers             | max number that will be shown    | 10
 select_buffer_alt_action   | SelectBuffer alternative command | `buffer #`
-hide_buffer_alt_action     | HideBuffer alternative command   | `buffer #`
 sessions_path              | sessions directory               | `~/.vim/session`
 map_prefix                 |                                  | <leader>x
 close_buffer_can_close_tab |                                  | 0

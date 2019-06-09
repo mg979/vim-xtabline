@@ -399,14 +399,14 @@ fun! s:move_buffer_to(cnt, ...)
   else
     call add(oB, b)
   endif
-  if !a:0 | call xtabline#update() | endif
+  call xtabline#update()
 endfun
 
 fun! s:hide_buffer(new)
   """Move buffer to the last position, then select another one."""
   let b = bufnr("%") | let oB = s:oB() | let max = len(oB) - 1
   let i = index(oB, b)
-  call s:move_buffer(1000, 1)
+  call s:move_buffer_to(1000)
 
   "if hiding, the buffer that will be selected
   "new in this case is the wanted buffer
@@ -416,6 +416,7 @@ fun! s:hide_buffer(new)
   silent! exe 'b'.then_select
   call xtabline#update()
 endfun
+
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:rename_tab(label)
