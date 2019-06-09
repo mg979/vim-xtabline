@@ -49,23 +49,19 @@ endfun
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! xtabline#tab#recent_buffers(buf)
-  """Keep the valid buffers ordered by recency of access.
+  """Update the recent buffers list.
   let bufs = s:T().buffers
   let r = index(bufs.recent, a:buf)
 
-  " update recent list
-  if len(bufs.recent) != len(bufs.valid)
-    for b in bufs.valid
-      if index(bufs.recent, b) < 0
-        call add(bufs.recent, b)
-      endif
-    endfor
+  let [ is_recent, is_valid ] = [ r >= 0, index(bufs.valid, a:buf) >= 0 ]
+
+  " remove the current buffer if present, it will be inserted if valid
+  if is_recent
+    call remove(bufs.recent, r)
   endif
 
-  if index(bufs.valid, a:buf) >= 0
-    call insert(bufs.recent, r >= 0 ? remove(bufs.recent, r) : a:buf)
-  elseif r >= 0
-    call remove(bufs.recent, r)
+  if is_valid
+    call insert(bufs.recent, a:buf)
   endif
 endfun
 

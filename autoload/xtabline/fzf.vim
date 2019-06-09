@@ -20,6 +20,8 @@ let s:oB = { -> s:T().buffers.order     }       "ordered buffers for tab
 fun! xtabline#fzf#tab_buffers()
   """Open a list of buffers for this tab with fzf.vim."""
 
+  if empty(s:vB()) | return [] | endif
+
   let current = bufnr("%") | let alt = bufnr("#")
   let l = sort(map(copy(s:vB()), 's:format_buffer(v:val)'))
 

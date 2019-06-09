@@ -179,26 +179,26 @@ fun! xtabline#filter_buffers(...) abort
       if use_git
         " when using git paths, they'll be relative
         let bname = s:v.winOS ? tr(bufname(buf), '\', '/') : bufname(buf)
-        if index(T.git_files, bname) >= 0
-          call add(T.buffers.valid, buf)
-        endif
+        let valid = index(T.git_files, bname) >= 0
 
       elseif use_files
         " to be accepted, buffer's path must be among valid files
-        if index(T.files, B.path) >= 0
-          call add(T.buffers.valid, buf)
-        endif
+        let valid = index(T.files, B.path) >= 0
 
       elseif use_depth
         " to be accepted, buffer's path must be within defined depth
-        if B.path =~ '^'.T.dirs[0] && s:F.within_depth(B.path, T.depth)
-          call add(T.buffers.valid, buf)
-        endif
+        let valid = B.path =~ '^'.T.dirs[0] && s:F.within_depth(B.path, T.depth)
 
-      elseif B.path =~ '^'.T.cwd
+      else
         " to be accepted, buffer's path must be valid for this tab
-          call add(T.buffers.valid, buf)
+        let valid = B.path =~ '^'.T.cwd
+      endif
 
+      if valid
+        call add(T.buffers.valid, buf)
+        if index(T.buffers.recent, buf) < 0
+          call add(T.buffers.recent, buf)
+        endif
       endif
     endif
   endfor
