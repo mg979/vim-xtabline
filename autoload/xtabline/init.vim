@@ -130,6 +130,7 @@ let s:S = {
       \ 'last_open_first':            0,
       \ 'enable_mappings':            0,
       \ 'no_icons':                   0,
+      \ 'relative_paths':             0,
       \ 'bufline_numbers':            1,
       \ 'bufline_sep_or_icon':        0,
       \ 'bufline_separators':         ['|', '|'],

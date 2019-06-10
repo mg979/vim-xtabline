@@ -147,7 +147,8 @@ fun! xtabline#render#buffers() abort
           \ 'tried_devicon': 0,
           \ 'tried_icon': 0,
           \ 'has_icon': 0,
-          \ 'path': fnamemodify(bufname(bnr), (Tab.rpaths ? ':p:~:.' : ':t')),
+          \ 'path': Tab.rpaths ? s:F.short_path(bnr, Tab.rpaths)
+          \                    : fnamemodify(bufname(bnr), ':t'),
           \ 'hilite':   is_currentbuf && special  ? 'Special' :
           \             is_currentbuf             ? 'Select' :
           \             special || s:extraHi(bnr) ? 'Extra' :
@@ -417,30 +418,11 @@ fun! s:format_tab(tabnr, fmt)
     elseif C ==# 'f' | let C = s:bufname(a:tabnr)
     elseif C ==# 'a' | let C = s:bufpath(a:tabnr)
     elseif C ==# 'P' | let C = s:tabcwd(a:tabnr)
-    elseif C ==# '0' | let C = s:short_cwd(a:tabnr, 0)
-    elseif C ==# '1' | let C = s:short_cwd(a:tabnr, 1)
-    elseif C ==# '2' | let C = s:short_cwd(a:tabnr, 2)
+    elseif C =~ '\d' | let C = s:F.short_cwd(a:tabnr, C)
     endif
     call add(out, C)
   endfor
   return join(out, '')
-endfun
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! s:short_cwd(tabnr, h)
-  if !a:h
-    return fnamemodify(expand(s:X.Tabs[a:tabnr-1].cwd), ":t")
-  else
-    let H = fnamemodify(s:X.Tabs[a:tabnr-1].cwd, ":~")
-    if s:v.winOS
-      let H = tr(H, '\', '/')
-    endif
-    while len(split(H, '/')) > a:h+1
-      let H = substitute(H, '/\([^/]\)[^/]*', '°\1', "")
-    endwhile
-    return tr(H, '°', '/')
-  endif
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

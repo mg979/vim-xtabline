@@ -331,7 +331,13 @@ endfun
 fun! s:relative_paths()
   """Toggle between full relative path and tail only, in the bufline.
   let T = s:T()
-  let T.rpaths = !T.rpaths
+  if T.rpaths
+    let T.rpaths = 0
+  elseif s:Sets.relative_paths
+    let T.rpaths = s:Sets.relative_paths
+  else
+    let T.rpaths = 1
+  endif
   call xtabline#update()
   if T.rpaths
     call s:F.msg ([[ "Bufferline shows relative paths.", 'StorageClass']])

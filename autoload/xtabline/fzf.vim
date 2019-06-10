@@ -67,7 +67,7 @@ fun! xtabline#fzf#tablist()
           \    s:green(s:pad(bufs, 5))."\t".
           \    s:green(s:pad(empty(T.vimrc) ? "no" : "yes", 5))."\t\t".
           \    s:cyan(s:pad(T.name, 20))."\t".
-          \    s:pad(s:short_cwd(T.cwd, &columns<150), &columns/2)
+          \    s:pad(s:F.short_cwd(T.cwd, &columns<150), &columns/2)
     call add(lines, line)
   endfor
   call add(lines, "Tab\tBufs\tVimrc?\t\tName\t\t\tWorking Directory")
@@ -77,21 +77,6 @@ endfun
 fun! xtabline#fzf#tabopen(line)
   let tab = a:line[0:(match(a:line, '\s')-1)]
   exe "normal!" tab."gt"
-endfun
-
-fun! s:short_cwd(cwd, h)
-  if !a:h
-    return fnamemodify(a:cwd, ":~")
-  else
-    let H = fnamemodify(a:cwd, ":~")
-    if s:v.winOS
-      let H = tr(H, '\', '/')
-    endif
-    while len(split(H, '/')) > a:h+1
-      let H = substitute(H, '/\([^/]\)[^/]*', '°\1', "")
-    endwhile
-    return tr(H, '°', '/')
-  endif
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

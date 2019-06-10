@@ -129,6 +129,22 @@ to the 10 most recently accessed buffers. This is done to avoid tabline
 overcrowding.
 
 ------------------------------------------------------------------------------
+                                                   *xtabline-relative_paths*  >
+    let g:xtabline_settings.relative_paths = 0
+
+By default, only the file name is printed in the tabline. Set this to
+a positive number to show (shortened) relative paths for buffers in the
+tabline, e.g.:
+>
+    =1  ->  long/path/to/file.ext  ->   l/p/t/file.ext
+    =2  ->  long/path/to/file.ext  ->   l/p/to/file.ext
+
+Note that this setting is both global and specific to tabs. This means that
+when a tab is created, it inherits the global setting, but if you want to
+toggle it with the `XTabRelativePaths` command, the other tabs won't be
+affected.
+
+------------------------------------------------------------------------------
                                                    *xtabline-last_open_first*  >
     let g:xtabline_settings.last_open_first = 0
 
@@ -477,6 +493,7 @@ FORMATTING                                             *xtabline-formatting*
 ---------------------------+-------------------------------+----------
 Option                     | Description                   | Default ~
 ---------------------------+-------------------------------+----------
+relative_paths             |                              | 0
 bufline_numbers            |                              | 1
 bufline_sep_or_icon        | icon suppresses separator    | 0
 bufline_separators         | alternative: ['', '']      | ['|', '|']

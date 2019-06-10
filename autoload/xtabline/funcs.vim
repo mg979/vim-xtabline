@@ -181,7 +181,55 @@ fun! s:Funcs.cd(dir)
   endif
 endfun
 
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Shortened paths
+
+fun! s:Funcs.short_cwd(tabnr, h)
+  if !a:h
+    return fnamemodify(s:X.Tabs[a:tabnr-1].cwd, ":t")
+  else
+    let H = fnamemodify(s:X.Tabs[a:tabnr-1].cwd, ":~")
+    if s:v.winOS | let H = tr(H, '\', '/')
+  endif
+
+  let [ is_root, splits ] = [ H[:0] == '/', split(H, '/') ]
+  let [ head, tail ] = [splits[:-(a:h+1)], splits[-(a:h):]]
+  call map(head, "substitute(v:val, '\\(.\\).*', '\\1', '')")
+  let H = join(head + tail, '/')
+  if is_root
+    let H = '/' . H
+  elseif s:v.winOS
+    let H = tr(H, '/', '\')
+  endif
+  return H
+endfun
+
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:Funcs.short_path(bnr, h)
+  if empty(bufname(a:bnr))
+    return ''
+  endif
+  let H = fnamemodify(bufname(a:bnr), ":~:.")
+  if s:v.winOS
+    let H = tr(H, '\', '/')
+  endif
+  if match(H, '/') < 0
+    return H
+  endif
+  let [ is_root, splits ] = [ H[:0] == '/', split(H, '/') ]
+  let [ head, tail ] = [splits[:-(a:h+1)], splits[-(a:h):]]
+  call map(head, "substitute(v:val, '\\(.\\).*', '\\1', '')")
+  let H = join(head + tail, '/')
+  if is_root
+    let H = '/' . H
+  elseif s:v.winOS
+    let H = tr(H, '/', '\')
+  endif
+  return H
+endfun
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:Funcs.bdelete(buf)
   """Delete buffer if unmodified and not pinned."""

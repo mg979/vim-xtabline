@@ -28,7 +28,7 @@ fun! s:template()
         \ 'locked':  0,
         \ 'depth':   -1,
         \ 'vimrc':   get(s:Sets, 'use_tab_vimrc', 0) ? xtabline#vimrc#init() : {},
-        \ 'rpaths':  0,
+        \ 'rpaths':  s:Sets.relative_paths,
         \ 'icon':    '',
         \ 'files':   [],
         \ 'buffers': {'valid': [], 'order': [], 'extra': [], 'recent': []},
