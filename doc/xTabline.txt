@@ -154,8 +154,7 @@ differently.
 
 ------------------------------------------------------------------------------
                                                    *xtabline-bufline_format*  >
-
-    let g:xtabline_settings.bufline_format = ' n I< l +'
+    let g:xtabline_settings.bufline_format = 2
 
 This setting controls how the buffers are formatted in the tabline. Valid
 values are:
@@ -164,6 +163,10 @@ values are:
   `2`       the buffer position in the tabline, and the buffer base name
   `string`  a formatting string, see |xtabline-buffers-formatting|
   `func`    a funcref (the buffer number is passed as parameter)
+
+String example:
+>
+    let g:xtabline_settings.bufline_format = ' n I< l +'
 
 Function example:
 >
@@ -499,7 +502,7 @@ bufline_sep_or_icon        | icon suppresses separator    | 0
 bufline_separators         | alternative: ['', '']      | ['|', '|']
 devicon_for_all_filetypes  |                              | 0
 devicon_for_extensions     |                              | ['md', 'txt']
-bufline_format             |                              | " n I< l +"
+bufline_format             |                              | 2
 tab_format                 |                              | "N - 2+ "
 named_tab_format           |                              | "N - l+ "
 bufline_tab_format         | defaults to settings above   | "N - 2+ "

@@ -134,7 +134,7 @@ let s:S = {
       \ 'bufline_numbers':            1,
       \ 'bufline_sep_or_icon':        0,
       \ 'bufline_separators':         ['|', '|'],
-      \ 'bufline_format':             ' n I< l +',
+      \ 'bufline_format':             2,
       \ 'bufline_unnamed':            '...',
       \ 'tab_format':                 "N - 2+ ",
       \ 'bufline_tab_format':         "N - 2+ ",
