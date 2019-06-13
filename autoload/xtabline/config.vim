@@ -1,5 +1,5 @@
 
-fun! xtabline#config#start()
+fun! xtabline#config#start() abort
   """Call xtabline configurator."""
 
   redraw!
@@ -50,7 +50,7 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! xtabline#config#generate()
+fun! xtabline#config#generate() abort
   """Copy the current config to registers."""
   echohl WarningMsg | echo "\n\nYour configuration has been copied to the \" and + registers.\n"
 
@@ -78,7 +78,7 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! xtabline#config#help()
+fun! xtabline#config#help() abort
   """Options help."""
 
   redraw!

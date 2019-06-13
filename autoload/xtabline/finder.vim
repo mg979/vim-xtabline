@@ -1,7 +1,7 @@
 " http://vim.wikia.com/wiki/Implement_your_own_interactive_finder_without_plugins
 " functions by Lifepillar
 
-fun! s:close(bufnr)
+fun! s:close(bufnr) abort
   wincmd p
   execute "bwipe" a:bufnr
   redraw
@@ -11,7 +11,7 @@ endf
 
 "------------------------------------------------------------------------------
 
-fun! s:buffer(input, cline)
+fun! s:buffer(input, cline) abort
   """.
   botright 10new +setlocal\ buftype=nofile\ bufhidden=wipe\
         \ nobuflisted\ nonumber\ norelativenumber\ noswapfile\ nowrap\

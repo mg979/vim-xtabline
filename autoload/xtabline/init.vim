@@ -9,7 +9,7 @@ endif
 
 silent! call XtablineStarted()
 
-fun! xtabline#init#start()
+fun! xtabline#init#start() abort
   let g:loaded_xtabline = 1
 endfun
 
@@ -92,12 +92,12 @@ com! -nargs=? -bang  -complete=customlist,<sid>icons XTabIcon            call xt
 com! -nargs=? -bang  -complete=customlist,<sid>icons XTabBufferIcon      call xtabline#cmds#run("buffer_icon", [<bang>0, <q-args>])
 com! -nargs=? -bang  -complete=customlist,<sid>theme XTabTheme           call xtabline#hi#load_theme(<bang>0, <q-args>)
 
-fun! s:icons(A,L,P)
+fun! s:icons(A,L,P) abort
   """Icons completions for commands.
   return keys(g:xtabline_settings.icons)
 endfun
 
-fun! s:theme(A,L,P)
+fun! s:theme(A,L,P) abort
   """Theme names completion.
   return xtabline#themes#list()
 endfun

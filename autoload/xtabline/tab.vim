@@ -20,7 +20,7 @@ let s:T = { -> g:xtabline.Tabs[tabpagenr()-1] } "current tab
 "vimrc:   (dict)    settings to be sourced when entering/leaving the tab
 "is_git:  (bool)    if the tab must respect git tracked files when filtering
 
-fun! s:template()
+fun! s:template() abort
   return {
         \ 'name':    '',
         \ 'cwd':     s:F.fullpath(getcwd()),
@@ -35,7 +35,7 @@ fun! s:template()
         \}
 endfun
 
-fun! xtabline#tab#new(...)
+fun! xtabline#tab#new(...) abort
   """Create an entry in the Tabs list.
   " tab_properties can be set by a command, before this function is called.
 
@@ -48,7 +48,7 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! xtabline#tab#recent_buffers(buf)
+fun! xtabline#tab#recent_buffers(buf) abort
   """Update the recent buffers list.
   let bufs = s:T().buffers
   let r = index(bufs.recent, a:buf)
@@ -67,7 +67,7 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! xtabline#tab#lock(bufs, ...)
+fun! xtabline#tab#lock(bufs, ...) abort
   """Lock tab with predefined buffers and properties.
   let T = g:xtabline.Tabs[tabpagenr()-1]
   let T.locked = 1
@@ -111,7 +111,7 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! xtabline#tab#check_all()
+fun! xtabline#tab#check_all() abort
   """Create or remove tab dicts if necessary.
   let Tabs = g:xtabline.Tabs
   while len(Tabs) < tabpagenr("$") | call add(Tabs, xtabline#tab#new()) | endwhile
@@ -120,7 +120,7 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! xtabline#tab#git_files(tab)
+fun! xtabline#tab#git_files(tab) abort
   """Update tracked files if tab cwd is a repo, or disable tracking.
   let T = a:tab
   if T.locked | return | endif

@@ -12,7 +12,7 @@ let s:bufpath = { f -> filereadable(f) ? s:F.fullpath(f) : '' }
 " Template
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:template(nr)
+fun! s:template(nr) abort
   let buf = {
         \ 'name':    '',
         \ 'path':    s:bufpath(bufname(a:nr)),
@@ -27,7 +27,7 @@ endfun
 
 "------------------------------------------------------------------------------
 
-fun! s:update(nr)
+fun! s:update(nr) abort
   let B = s:X.Buffers[a:nr]
   if !B.special
     call extend(B, s:is_special(a:nr))
@@ -36,7 +36,7 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! xtabline#buffer#get(nr)
+fun! xtabline#buffer#get(nr) abort
   """Generate/update buffer properties while filtering.
   if !has_key(s:X.Buffers, a:nr)
     call xtabline#buffer#add(a:nr)
@@ -48,7 +48,7 @@ fun! xtabline#buffer#get(nr)
   return s:X.Buffers[a:nr]
 endfun
 
-fun! xtabline#buffer#add(nr)
+fun! xtabline#buffer#add(nr) abort
   """For new buffers, apply s:v.buffer_properties and update tabline.
   if !has_key(s:X.Buffers, a:nr)
     let s:X.Buffers[a:nr] = s:template(a:nr)
@@ -59,7 +59,7 @@ fun! xtabline#buffer#add(nr)
   endif
 endfun
 
-fun! xtabline#buffer#update(nr)
+fun! xtabline#buffer#update(nr) abort
   if has_key(s:X.Buffers, a:nr) && !s:X.Buffers[a:nr].special
     let s:X.Buffers[a:nr].path = s:bufpath(bufname(a:nr))
   endif
@@ -67,7 +67,7 @@ endfun
 
 "------------------------------------------------------------------------------
 
-fun! s:buf_var(nr)
+fun! s:buf_var(nr) abort
   """If b:XTbuf has been set, it will extend the buffer dict.
   if empty(getbufvar(a:nr, 'XTbuf'))
     return {}
@@ -86,7 +86,7 @@ let s:set_special = { name, dict -> extend({ 'name': name, 'special': 1 }, dict)
 let s:Is          = { n,s -> match(bufname(n), '\C'.s) == 0 }
 let s:Ft          = { n,s -> getbufvar(n, "&ft")  == s }
 
-fun! s:is_special(nr, ...)
+fun! s:is_special(nr, ...) abort
   """Customize special buffers, if visible in a window.
   let n = a:nr | if !s:F.has_win(n) | return { 'special': 0 } | endif
 

@@ -17,7 +17,7 @@ let s:oB = { -> s:T().buffers.order     }       "ordered buffers for tab
 " Tab buffers {{{1
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! xtabline#fzf#tab_buffers()
+fun! xtabline#fzf#tab_buffers() abort
   """Open a list of buffers for this tab with fzf.vim."""
 
   if empty(s:vB()) | return [] | endif
@@ -37,7 +37,7 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! xtabline#fzf#bufdelete(name)
+fun! xtabline#fzf#bufdelete(name) abort
   let current = bufnr('%')
   if len(a:name) < 2
     return
@@ -57,7 +57,7 @@ endfun
 " Tabs overview {{{1
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! xtabline#fzf#tablist()
+fun! xtabline#fzf#tablist() abort
   let lines = []
   for tab in range(tabpagenr("$"))
     let T = g:xtabline.Tabs[tab]
@@ -74,7 +74,7 @@ fun! xtabline#fzf#tablist()
   return reverse(lines)
 endfun
 
-fun! xtabline#fzf#tabopen(line)
+fun! xtabline#fzf#tabopen(line) abort
   let tab = a:line[0:(match(a:line, '\s')-1)]
   exe "normal!" tab."gt"
 endfun
@@ -83,7 +83,7 @@ endfun
 " Saved tabs {{{1
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! xtabline#fzf#tabs()
+fun! xtabline#fzf#tabs() abort
   let json = json_decode(readfile(s:Sets.bookmarks_file)[0])
 
   let bookmarks = &columns > 99 ?
@@ -107,7 +107,7 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:abort_load(name, fzf_line, error_type)
+fun! s:abort_load(name, fzf_line, error_type) abort
   let s:v.halt = 0
   if a:error_type == 'buffers'
     call s:F.msg ([[ a:name, 'Type' ],
@@ -121,7 +121,7 @@ fun! s:abort_load(name, fzf_line, error_type)
   endif
 endfun
 
-fun! xtabline#fzf#tab_load(...)
+fun! xtabline#fzf#tab_load(...) abort
   """Load a saved tab."""
   let json = json_decode(readfile(s:Sets.bookmarks_file)[0])
   let s:v.halt = 1
@@ -168,7 +168,7 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! xtabline#fzf#tab_delete(...)
+fun! xtabline#fzf#tab_delete(...) abort
   """Delete a saved tab."""
   let json = json_decode(readfile(s:Sets.bookmarks_file)[0])
 
@@ -186,7 +186,7 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! xtabline#fzf#tab_save()
+fun! xtabline#fzf#tab_save() abort
   """Create an entry and add it to the saved tabs file."""
 
   if !s:v.filtering
@@ -242,7 +242,7 @@ endfun
 
 let s:lastmod = { f -> str2nr(system('date -r '.f.' +%s')) }
 
-fun! s:desc_string(s, n, sfile, color)
+fun! s:desc_string(s, n, sfile, color) abort
   let active_mark = (a:s ==# v:this_session) ? a:color ? s:green(" [%]  ") : " [%]  " : '      '
   let description = get(a:sfile, a:n, '')
   let spaces = 30 - len(a:n)
@@ -260,7 +260,7 @@ fun! s:desc_string(s, n, sfile, color)
   endif
 endfun
 
-fun! xtabline#fzf#sessions_list(...)
+fun! xtabline#fzf#sessions_list(...) abort
   let data = a:0 ? [] : ["Session\t\t\t\tTimestamp\tDescription"] | let sfile = {}
   let sfile = json_decode(readfile(s:Sets.sessions_data)[0])
   let sessions = split(globpath(expand(s:Sets.sessions_path, ":p"), "*"), '\n')
@@ -300,7 +300,7 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! xtabline#fzf#session_load(file)
+fun! xtabline#fzf#session_load(file) abort
 
   " abort if there are unsaved changes
   for b in range(1, bufnr("$"))
@@ -346,7 +346,7 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! xtabline#fzf#session_delete(file)
+fun! xtabline#fzf#session_delete(file) abort
 
   let session = a:file
   if match(session, "\t")
@@ -377,7 +377,7 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! xtabline#fzf#session_save(...)
+fun! xtabline#fzf#session_save(...) abort
   let data = json_decode(readfile(s:Sets.sessions_data)[0])
 
   let defname = a:0 || empty(v:this_session)
@@ -409,7 +409,7 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! xtabline#fzf#update_sessions_file()
+fun! xtabline#fzf#update_sessions_file() abort
   let sfile = readfile(s:Sets.sessions_data)
   let json = {}
 
@@ -421,7 +421,7 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! xtabline#fzf#update_bookmarks_file()
+fun! xtabline#fzf#update_bookmarks_file() abort
   let bfile = readfile(s:Sets.bookmarks_file)
   let json = {}
 
@@ -441,7 +441,7 @@ endfun
 " Misc commands {{{1
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! xtabline#fzf#cmds()
+fun! xtabline#fzf#cmds() abort
   """Run any XTabline command with fzf or finder."""
   redraw!
   let input = map(copy(s:cmds), 'v:val[0]')
@@ -458,7 +458,7 @@ fun! xtabline#fzf#cmds()
         \ 'options': '--no-multi --no-preview --ansi --prompt "Command >>>  "'})
 endfun
 
-fun! xtabline#fzf#run(cmd)
+fun! xtabline#fzf#run(cmd) abort
   let i = 0
   for cmd in map(copy(s:cmds), 'v:val[0]')
     if a:cmd == cmd
@@ -471,7 +471,7 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! xtabline#fzf#tab_nerd_bookmarks()
+fun! xtabline#fzf#tab_nerd_bookmarks() abort
   let bfile = readfile(g:NERDTreeBookmarksFile)
   let bookmarks = []
   "skip last emty line
@@ -484,7 +484,7 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! xtabline#fzf#tab_nerd_bookmarks_load(...)
+fun! xtabline#fzf#tab_nerd_bookmarks_load(...) abort
   for bm in a:000
     let bm = expand(bm, ":p")
     if isdirectory(bm)
@@ -504,7 +504,7 @@ endfun
 " Helper functions {{{1
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:get_color(attr, ...)
+fun! s:get_color(attr, ...) abort
   let gui = has('termguicolors') && &termguicolors
   let fam = gui ? 'gui' : 'cterm'
   let pat = gui ? '^#[a-f0-9]\+' : '^[0-9]\+$'
@@ -517,7 +517,7 @@ fun! s:get_color(attr, ...)
   return ''
 endfun
 
-fun! s:csi(color, fg)
+fun! s:csi(color, fg) abort
   let prefix = a:fg ? '38;' : '48;'
   if a:color[0] == '#'
     return prefix.'2;'.join(map([a:color[1:2], a:color[3:4], a:color[5:6]], 'str2nr(v:val, 16)'), ';')
@@ -525,7 +525,7 @@ fun! s:csi(color, fg)
   return prefix.'5;'.a:color
 endfun
 
-fun! s:ansi(str, group, default, ...)
+fun! s:ansi(str, group, default, ...) abort
   let fg = s:get_color('fg', a:group)
   let bg = s:get_color('bg', a:group)
   let color = s:csi(empty(fg) ? s:ansi[a:default] : fg, 1) .
@@ -533,7 +533,7 @@ fun! s:ansi(str, group, default, ...)
   return printf("\x1b[%s%sm%s\x1b[m", color, a:0 ? ';1' : '', a:str)
 endfun
 
-fun! xtabline#fzf#colors()
+fun! xtabline#fzf#colors() abort
   if &t_Co == 256 && !empty(get(g:, 'xtabline_fzf_colors', {}))
     let s:ansi = s:Sets.fzf_colors
   elseif &t_Co == 256
@@ -554,11 +554,11 @@ call xtabline#fzf#colors()
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:strip(str)
+fun! s:strip(str) abort
   return substitute(a:str, '^\s*\|\s*$', '', 'g')
 endfun
 
-fun! s:format_buffer(b)
+fun! s:format_buffer(b) abort
   let name = bufname(a:b)
   let name = empty(name) ? '[No Name]' : fnamemodify(name, ":~:.")
   let flag = a:b == bufnr('')  ? s:blue('%', 'Conditional') :
@@ -571,7 +571,7 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:pad(t, n)
+fun! s:pad(t, n) abort
   if len(a:t) > a:n
     return a:t[:(a:n-1)]."…"
   else

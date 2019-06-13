@@ -235,7 +235,7 @@ endfun
 " Buffer label formatting {{{1
 " =============================================================================
 
-fun! s:format_buffer(buf)
+fun! s:format_buffer(buf) abort
   let [ B, fmt ] = [ a:buf, s:default_buffer_format ]
   if s:buffer_has_format(B)
     let chars = s:fmt_chars(s:B()[B.nr].format)
@@ -277,7 +277,7 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:buf_indicator(bnr)
+fun! s:buf_indicator(bnr) abort
   let mods = s:Sets.bufline_indicators | let nr = a:bnr
   let mod = index(s:pinned(), nr) >= 0 ? mods.pinned : ''
   let modHi = s:is_current_buf(nr) ? "%#XTSelectMod#" :
@@ -298,7 +298,7 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:buf_separators(nr)
+fun! s:buf_separators(nr) abort
   """Use custom separators if defined in buffer entry."""
   let B = s:B()[a:nr]
   return has_key(B, 'separators') ? B.separators : s:Sets.bufline_separators
@@ -306,7 +306,7 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:get_buf_name(buf)
+fun! s:get_buf_name(buf) abort
   """Return custom buffer name, if it has been set, otherwise the filename."""
   let B = s:B()[a:buf.nr]
   return !empty(B.name)       ? B.name :
@@ -315,7 +315,7 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:get_dev_icon(buf)
+fun! s:get_dev_icon(buf) abort
   """Return preferably devicon for buffer, or custom icon if present."""
   let a:buf.tried_devicon = 1
   if exists('g:loaded_webdevicons') &&
@@ -330,7 +330,7 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:get_buf_icon(buf)
+fun! s:get_buf_icon(buf) abort
   """Return preferably custom icon for buffer, or devicon if present."""
   let a:buf.tried_icon = 1
   let nr = a:buf.nr
@@ -344,7 +344,7 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:needs_separator(buf)
+fun! s:needs_separator(buf) abort
   """Verify if a separator must be inserted."""
   let either_or = s:Sets.bufline_sep_or_icon
   return (either_or && !a:buf.has_icon) || !either_or
@@ -388,7 +388,7 @@ endfun
 " Tab label formatting {{{1
 " =============================================================================
 
-fun! s:fmt_chars(fmt)
+fun! s:fmt_chars(fmt) abort
   """Return a split string with the formatting option in use.
   let chars = []
   for i in range(strchars(a:fmt))
@@ -399,7 +399,7 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:format_tab(tabnr, fmt)
+fun! s:format_tab(tabnr, fmt) abort
   let out = []
   for c in a:fmt
     let C = nr2char(c)
@@ -427,7 +427,7 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:tabnum(tabnr, all)
+fun! s:tabnum(tabnr, all) abort
   if a:all && !s:v.showing_tabs
     return "%#XTNum# " . a:tabnr .'/' . tabpagenr('$') . " %#XTTabInactive#"
   else
@@ -439,21 +439,21 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:wincount(tabnr, all)
+fun! s:wincount(tabnr, all) abort
   return a:all || a:tabnr == tabpagenr() ?
         \tabpagewinnr(a:tabnr, '$') : ''
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:wincountUnicode(tabnr, all)
+fun! s:wincountUnicode(tabnr, all) abort
   let buffers_number = s:unicode_nrs(tabpagewinnr(a:tabnr, '$'))
   return a:all || a:tabnr == tabpagenr() ? buffers_number : ''
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:modflag(tabnr)
+fun! s:modflag(tabnr) abort
   let flag = s:Sets.modified_tab_flag
   for buf in tabpagebuflist(a:tabnr)
     if getbufvar(buf, "&mod")
@@ -467,7 +467,7 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:bufname(tabnr)
+fun! s:bufname(tabnr) abort
   let buffers = tabpagebuflist(a:tabnr)
   let buf = s:first_normal_buffer(buffers)
   let bname = bufname(buf > -1 ? buf : buffers[0])
@@ -479,7 +479,7 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:bufpath(tabnr)
+fun! s:bufpath(tabnr) abort
   let buffers = tabpagebuflist(a:tabnr)
   let buf = s:first_normal_buffer(buffers)
   let bname = bufname(buf > -1 ? buf : buffers[0])
@@ -491,7 +491,7 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:get_tab_icon(tabnr)
+fun! s:get_tab_icon(tabnr) abort
   if !s:v.custom_tabs | return s:Sets.tab_icon | endif
 
   let T = s:X.Tabs[a:tabnr-1]
@@ -503,7 +503,7 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:has_tab_icon(T)
+fun! s:has_tab_icon(T) abort
   if !has_key(a:T, 'icon') | return | endif
   let I = a:T.icon
 
@@ -531,7 +531,7 @@ let s:basename = { f -> fnamemodify(f, ':p:t') }
 
 "------------------------------------------------------------------------------
 
-fun! s:tabname(tabnr)
+fun! s:tabname(tabnr) abort
   if s:v.custom_tabs
     return s:X.Tabs[a:tabnr-1].name
   else
@@ -541,7 +541,7 @@ endfun
 
 "------------------------------------------------------------------------------
 
-fun! s:first_normal_buffer(buffers)
+fun! s:first_normal_buffer(buffers) abort
   for buf in a:buffers
     if buflisted(buf) && getbufvar(buf, "&bt") != 'nofile'
       return buf
@@ -552,7 +552,7 @@ endfun
 
 "------------------------------------------------------------------------------
 
-fun! s:get_default_buffer_format()
+fun! s:get_default_buffer_format() abort
   " get the default buffer format, and set its type, either:
   " - funcref
   " - format string
@@ -579,7 +579,7 @@ let s:unr2 = [ '¹', '²', '³', '⁴', '⁵', '⁶', '⁷', '⁸', '⁹', '¹�
       \'¹¹', '¹²', '¹³', '¹⁴', '¹⁵', '¹⁶', '¹⁷', '¹⁸', '¹⁹', '²⁰',
       \'²¹', '²²', '²³', '²⁴', '²⁵', '²⁶', '²⁷', '²⁸', '²⁹', '³⁰' ]
 
-fun! s:unicode_nrs(nr)
+fun! s:unicode_nrs(nr) abort
   """Adapted from Vim-CtrlSpace (https://github.com/szw/vim-ctrlspace)
   let u_nr = ""
 
@@ -603,7 +603,7 @@ endfun
 
 "------------------------------------------------------------------------------
 
-fun! s:get_tab_for_bufline()
+fun! s:get_tab_for_bufline() abort
   """Build string with tab label and icon for the bufline."""
   if ! s:Sets.show_current_tab | return ['', ''] | endif
   let N = tabpagenr()
@@ -617,7 +617,7 @@ endfun
 
 "------------------------------------------------------------------------------
 
-fun! s:extra_padding(l_r, limit)
+fun! s:extra_padding(l_r, limit) abort
   return a:l_r < a:limit ? '%#XTFill#'.repeat(' ', a:limit - a:l_r) : ''
 endfun
 

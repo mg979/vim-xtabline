@@ -2,7 +2,7 @@
 let s:X = g:xtabline
 let s:T = { -> s:X.Tabs[tabpagenr()-1] } "current tab
 
-fun! xtabline#vimrc#open()
+fun! xtabline#vimrc#open() abort
   """Open buffer with tab vimrc."""
   let lead = get(g:, 'mapleader', '\')
 
@@ -44,7 +44,7 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! xtabline#vimrc#update()
+fun! xtabline#vimrc#update() abort
   """Update the tab vimrc."""
   let T = s:T()
   let T.vimrc.commands = filter(getline(3, "$"), "match(v:val, '\\w') >= 0")

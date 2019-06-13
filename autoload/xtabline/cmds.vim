@@ -22,7 +22,7 @@ let s:pinned  =  { b  -> index(s:X.pinned_buffers, b) }
 
 let s:most_recent = -1
 
-fun! xtabline#cmds#next_buffer(nr, last)
+fun! xtabline#cmds#next_buffer(nr, last) abort
   """Switch to next visible/pinned buffer."""
 
   if s:F.not_enough_buffers(0) | return | endif
@@ -50,7 +50,7 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! xtabline#cmds#prev_buffer(nr, first)
+fun! xtabline#cmds#prev_buffer(nr, first) abort
   """Switch to previous visible/pinned buffer."""
 
   if s:F.not_enough_buffers(0) | return | endif
@@ -80,14 +80,14 @@ endfun
 " Other commands
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! xtabline#cmds#run(cmd, ...)
+fun! xtabline#cmds#run(cmd, ...) abort
   let args = a:0 ? join(map(copy(a:000), 'string(v:val)'), ',') : ''
   exe "call s:".a:cmd."(".args.")"
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:toggle_tabs()
+fun! s:toggle_tabs() abort
   """Toggle between tabs/buffers tabline."""
 
   if tabpagenr("$") == 1
@@ -107,7 +107,7 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:toggle_buffers()
+fun! s:toggle_buffers() abort
   """Toggle buffer filtering in the tabline."""
 
   if s:v.filtering
@@ -122,7 +122,7 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:tree(cnt)
+fun! s:tree(cnt) abort
   let tree = systemlist('tree -d -L '.a:cnt.' '.getcwd())
 
   if !empty(tree) && len(tree) > s:Sets.depth_tree_size
@@ -132,7 +132,7 @@ fun! s:tree(cnt)
   return empty(tree) ? ['', 'None'] : ["\n\n".join(tree, "\n"), 'Type']
 endfun
 
-fun! s:depth(cnt)
+fun! s:depth(cnt) abort
   """Set tab filtering depth, toggle filtering with bang."""
   let cnt = a:cnt | let T = s:T()
 
@@ -165,7 +165,7 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:purge_buffers()
+fun! s:purge_buffers() abort
   """Remove unmodified buffers with invalid paths."""
 
   if !s:v.filtering | echo "Buffer filtering is turned off." | return | endif
@@ -215,7 +215,7 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:clean_up(bang)
+fun! s:clean_up(bang) abort
   """Remove all invalid/not open(!) buffers in all tabs.
   let valid  = s:F.all_valid_buffers()
   let active = s:F.all_open_buffers()
@@ -238,7 +238,7 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:reopen_last_tab()
+fun! s:reopen_last_tab() abort
   """Reopen the last closed tab."""
 
   if empty(s:X.closed_tabs)
@@ -285,7 +285,7 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:lock_tab()
+fun! s:lock_tab() abort
   """Lock a tab, including currently displayed buffers as valid buffers.
   let T = s:T()
   let T.locked = !T.locked
@@ -299,7 +299,7 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:close_buffer()
+fun! s:close_buffer() abort
   """Close and delete a buffer, without closing the tab."""
   let current = bufnr("%") | let alt = bufnr("#") | let tbufs = len(s:vB())
 
@@ -328,7 +328,7 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:relative_paths()
+fun! s:relative_paths() abort
   """Toggle between full relative path and tail only, in the bufline.
   let T = s:T()
   if T.rpaths
@@ -348,7 +348,7 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:tab_todo()
+fun! s:tab_todo() abort
   """Open or close the Tab todo file.
   for b in tabpagebuflist()
     if getbufvar(b, 'xtab_todo', 0)
@@ -363,15 +363,15 @@ fun! s:tab_todo()
   endfor
   let todo = s:Sets.todo
   let s:v.buffer_properties = { 'name': 'TODO', 'special': 1 }
-  execute todo['command'].s:F.todo_path()
-  execute "setf ".todo['syntax']
+  execute todo['command'] s:F.todo_path()
+  execute "setf" todo['syntax']
   let b:xtab_todo = 1
   nnoremap <silent><nowait> <buffer> \q :update<bar>bwipeout<cr>
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:move_buffer(next, cnt)
+fun! s:move_buffer(next, cnt) abort
   let b = bufnr("%") | let max = len(s:oB()) - 1
 
   " cannot move a buffer that is not valid for this tab
@@ -390,7 +390,7 @@ fun! s:move_buffer(next, cnt)
   call xtabline#update()
 endfun
 
-fun! s:move_buffer_to(cnt, ...)
+fun! s:move_buffer_to(cnt, ...) abort
   """Move buffer in the bufferline to a new position."""
   let b = bufnr("%") | let oB = s:oB() | let max = len(oB) - 1
   let i = index(oB, b)
@@ -408,7 +408,7 @@ fun! s:move_buffer_to(cnt, ...)
   call xtabline#update()
 endfun
 
-fun! s:hide_buffer(new)
+fun! s:hide_buffer(new) abort
   """Move buffer to the last position, then select another one."""
   let b = bufnr("%") | let oB = s:oB() | let max = len(oB) - 1
   let i = index(oB, b)
@@ -425,7 +425,7 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:rename_tab(label)
+fun! s:rename_tab(label) abort
   """Rename the current tab.
   let s:X.Tabs[tabpagenr()-1].name = a:label
   call xtabline#update()
@@ -433,7 +433,7 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:rename_buffer(label)
+fun! s:rename_buffer(label) abort
   """Rename the current buffer.
   let B = s:F.set_buffer_var('name', a:label)
   if empty(B) | return | endif
@@ -442,7 +442,7 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:get_icon(ico)
+fun! s:get_icon(ico) abort
   """Get current icon for this tab."""
   let I = get(s:Sets, 'icons', {})
   if index(keys(I), a:ico) >= 0
@@ -455,7 +455,7 @@ fun! s:get_icon(ico)
   endif
 endfun
 
-fun! s:tab_icon(...)
+fun! s:tab_icon(...) abort
   """Set an icon for this tab."""
   let [bang, icon] = a:1
   let T = s:T()
@@ -471,7 +471,7 @@ fun! s:tab_icon(...)
   call xtabline#update()
 endfun
 
-fun! s:buffer_icon(...)
+fun! s:buffer_icon(...) abort
   """Set an icon for this buffer."""
   let [bang, icon] = a:1
   let B = s:F.set_buffer_var('icon')
@@ -490,7 +490,7 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:toggle_pin_buffer(...)
+fun! s:toggle_pin_buffer(...) abort
   """Pin this buffer, so that it will be shown in all tabs. Optionally rename."""
   let B = bufnr('%') | let i = s:pinned(B)
 
@@ -508,7 +508,7 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:new_tab(...)
+fun! s:new_tab(...) abort
   """Open a new tab with optional name. CWD is $HOME.
   "args : 0 or 1 (tab name)
 
@@ -529,7 +529,7 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:edit_tab(...)
+fun! s:edit_tab(...) abort
   """Open a new tab with optional path. Bang triggers rename.
 
   let s:v.auto_set_cwd = 1
@@ -554,7 +554,7 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:move_tab(...)
+fun! s:move_tab(...) abort
   """Move a tab to a new position."""
   let max = tabpagenr("$") - 1 | let arg = a:1
 
@@ -591,7 +591,7 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:format_buffer()
+fun! s:format_buffer() abort
   """Specify a custom format for this buffer."""
   let och = &ch
   set ch=2
@@ -618,7 +618,7 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:set_cwd(...)
+fun! s:set_cwd(...) abort
   """Set new working directory."""
   let [bang, cwd] = a:1
   let cwd = s:F.fullpath(cwd)
@@ -639,7 +639,7 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:reset_tab(...)
+fun! s:reset_tab(...) abort
   """Reset the tab to a pristine state.
   let cwd = a:0? fnamemodify(expand(a:1), :p) : s:F.find_suitable_cwd()
   let s:X.Tabs[tabpagenr()-1] = xtabline#tab#new({'cwd': cwd})
@@ -648,7 +648,7 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:reset_buffer(...)
+fun! s:reset_buffer(...) abort
   """Reset the buffer to a pristine state.
   let B = s:B() | let n = bufnr("%")
   if has_key(B, n) | unlet B[n] | endif
@@ -657,7 +657,7 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:toggle_git()
+fun! s:toggle_git() abort
   let T = s:T()
   if T.is_git
     let T.is_git = 0
@@ -675,7 +675,7 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:toggle_tab_names()
+fun! s:toggle_tab_names() abort
   """Toggle between custom icon/name and short path/folder icons."""
   let s:v.custom_tabs = !s:v.custom_tabs
   call xtabline#update()
@@ -692,19 +692,19 @@ endfun
 " Adjustments for other plugins
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:plugins_toggle_tabs()
+fun! s:plugins_toggle_tabs() abort
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:plugins_toggle_buffers()
+fun! s:plugins_toggle_buffers() abort
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Helpers
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:invalid_buffer(b)
+fun! s:invalid_buffer(b) abort
   if !s:F.is_tab_buffer(a:b)
     call s:F.msg ([[ "Invalid buffer.", 'WarningMsg']]) | return 1
   endif

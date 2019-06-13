@@ -1,4 +1,4 @@
-fun! xtabline#funcs#init()
+fun! xtabline#funcs#init() abort
   let s:X = g:xtabline
   let s:v = s:X.Vars
   let s:Sets = g:xtabline_settings
@@ -16,20 +16,20 @@ let s:Funcs.is_repo = { t -> isdirectory(t.cwd . s:v.slash . '.git') }
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.delay(time, func)
+fun! s:Funcs.delay(time, func) abort
   """Call a function with a timer."""
   " if exists('g:SessionLoad') || s:v.halt | return | endif
   let s:delayed_func = a:func
   call timer_start(a:time, self._delay)
 endfun
 
-fun! s:Funcs._delay(timer)
+fun! s:Funcs._delay(timer) abort
   exe "call" s:delayed_func
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.msg(txt, ...)
+fun! s:Funcs.msg(txt, ...) abort
   """Print a message with highlighting."""
   if type(a:txt) == v:t_string
     exe "echohl" a:0 && a:1? "WarningMsg" : "Label"
@@ -46,7 +46,7 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.set_buffer_var(var, ...)
+fun! s:Funcs.set_buffer_var(var, ...) abort
   """Init buffer variable in Tabs dict to 0 or a given value.
   """Return buffer dict if successful."""
   let B = bufnr('%') | let bufs = s:X.Buffers | let val = a:0 ? a:1 : 0
@@ -62,7 +62,7 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.fullpath(path, ...)
+fun! s:Funcs.fullpath(path, ...) abort
   """OS-specific modified path."""
   let path = expand(a:path)
   let path = empty(path) ? a:path : path        "expand can fail
@@ -74,20 +74,20 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.sep()
+fun! s:Funcs.sep() abort
   """OS-specific directory separator."""
   return s:v.winOS ? '\' : '/'
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.todo_path()
+fun! s:Funcs.todo_path() abort
   return fnameescape(getcwd().self.sep().s:Sets.todo.file)
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.within_depth(path, depth)
+fun! s:Funcs.within_depth(path, depth) abort
   """If tab uses depth, verify if the path can be accepted."""
 
   if a:depth < 0 | return 1 | endif
@@ -102,7 +102,7 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.tab_buffers()
+fun! s:Funcs.tab_buffers() abort
   """Return a list of buffers names for this tab."""
   return map(copy(s:vB()), 'bufname(v:val)')
 endfun
@@ -124,7 +124,7 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.uniq(list)
+fun! s:Funcs.uniq(list) abort
   """Make sure an element appears only once in the list.
   let [ i, max ] = [ 0, len(a:list)-2 ]
   while i <= max
@@ -141,14 +141,14 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.is_tab_buffer(...)
+fun! s:Funcs.is_tab_buffer(...) abort
   """Verify that the buffer belongs to the tab."""
   return (index(s:vB(), a:1) != -1)
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.all_valid_buffers(...)
+fun! s:Funcs.all_valid_buffers(...) abort
     """Return all valid buffers for all tabs."""
   let valid = []
   for i in range(tabpagenr('$'))
@@ -163,7 +163,7 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.all_open_buffers()
+fun! s:Funcs.all_open_buffers() abort
     """Return all open buffers for all tabs."""
   let open = []
   for i in range(tabpagenr('$')) | call extend(open, tabpagebuflist(i + 1)) | endfor
@@ -172,7 +172,7 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.cd(dir)
+fun! s:Funcs.cd(dir) abort
   """Try to change the current directory.
   if isdirectory(a:dir)
     cd `=a:dir`
@@ -184,7 +184,7 @@ endfun
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Shortened paths
 
-fun! s:Funcs.short_cwd(tabnr, h)
+fun! s:Funcs.short_cwd(tabnr, h) abort
   if !a:h
     return fnamemodify(s:X.Tabs[a:tabnr-1].cwd, ":t")
   else
@@ -206,7 +206,7 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.short_path(bnr, h)
+fun! s:Funcs.short_path(bnr, h) abort
   if empty(bufname(a:bnr))
     return ''
   endif
@@ -231,7 +231,7 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.bdelete(buf)
+fun! s:Funcs.bdelete(buf) abort
   """Delete buffer if unmodified and not pinned."""
   if index(s:X.pinned_buffers, a:buf) >= 0
     call self.msg("Pinned buffer has not been deleted.", 1)
@@ -251,7 +251,7 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.find_suitable_cwd(...)
+fun! s:Funcs.find_suitable_cwd(...) abort
   """Look for a VCS dir below current directory."""
   let s = self.sep() | let l:Found = { d -> isdirectory(d.s.'.git') }
 
@@ -268,7 +268,7 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.change_wd(cwd)
+fun! s:Funcs.change_wd(cwd) abort
   if !isdirectory(a:cwd)
     return  self.msg("Invalid directory: ".a:cwd, 1)
   endif
@@ -282,7 +282,7 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.not_enough_buffers(pinned)
+fun! s:Funcs.not_enough_buffers(pinned) abort
   """Just return if there aren't enough buffers."""
   let bufs = a:pinned ? s:v.pinned_buffers : s:oB()
   let pin  = a:pinned ? ' pinned ' : ' '

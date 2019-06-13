@@ -2,12 +2,12 @@
 " Mappings
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:do_map()
+fun! s:do_map() abort
 
   let S = g:xtabline_settings
   let X = S.map_prefix
 
-  fun! s:mapkeys(keys, plug)
+  fun! s:mapkeys(keys, plug) abort
     let plug = '<Plug>(XT-'.a:plug.')'
     if !hasmapto(plug)
       silent! execute 'nmap <unique>' a:keys plug
@@ -130,7 +130,7 @@ endfunction
 " Helpers
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:select_buffer(cnt)
+fun! s:select_buffer(cnt) abort
   let Fmt = g:xtabline_settings.bufline_format
   if type(Fmt) == v:t_number && Fmt == 1
     let cn = a:cnt + 1
@@ -142,7 +142,7 @@ fun! s:select_buffer(cnt)
   return ":\<C-U>silent! exe 'b'.".b."\<cr>"
 endfun
 
-fun! s:cd(count)
+fun! s:cd(count) abort
   let path = ':p:h'
   for c in range(a:count)
     let path .= ':h'

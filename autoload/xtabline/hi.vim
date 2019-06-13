@@ -4,14 +4,14 @@
 let s:Hi   = g:xtabline_highlight
 let s:Sets = g:xtabline_settings
 
-fun! xtabline#hi#init()
+fun! xtabline#hi#init() abort
   let s:Sets.theme = get(s:Sets, 'theme', 'default')
   call xtabline#hi#apply_theme(s:Sets.theme)
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! xtabline#hi#apply_theme(theme)
+fun! xtabline#hi#apply_theme(theme) abort
   """Apply a theme."""
 
   call s:clear_groups()
@@ -41,7 +41,7 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! xtabline#hi#load_theme(bang, theme)
+fun! xtabline#hi#load_theme(bang, theme) abort
   """Load a theme."""
   if a:bang
     call xtabline#hi#apply_theme(s:last_theme)
@@ -54,7 +54,7 @@ fun! xtabline#hi#load_theme(bang, theme)
   endif
 endfun
 
-fun! s:clear_groups()
+fun! s:clear_groups() abort
   """Clear highlight before applying a theme."""
   silent! hi clear XTSelect
   silent! hi clear XTSelectMod
@@ -74,12 +74,12 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:style(k)
+fun! s:style(k) abort
   let s = !a:k ? "NONE" : a:k==1 ? "BOLD" : a:k==2 ? "ITALIC" : "UNDERLINE"
   return ("term=".s." cterm=".s." gui=".s)
 endfun
 
-fun! xtabline#hi#generate(name, theme)
+fun! xtabline#hi#generate(name, theme) abort
   """Create an entry in g:xtabline_highlight.themes for the give theme."""
   let t = a:theme | let T = {}
 
@@ -93,7 +93,7 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! xtabline#hi#update_theme()
+fun! xtabline#hi#update_theme() abort
   """Reload theme on colorscheme switch."""
   if g:xtabline_settings.theme == s:last_theme
     call xtabline#hi#apply_theme(g:xtabline_settings.theme)
@@ -104,7 +104,7 @@ endfun
 " Default theme
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Hi.themes.default()
+fun! s:Hi.themes.default() abort
   hi! link XTSelect     PmenuSel
   hi! link XTVisible    Special
   hi! link XTHidden     TabLine

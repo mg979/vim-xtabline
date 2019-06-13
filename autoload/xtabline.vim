@@ -35,7 +35,7 @@ let s:v.slash         = exists('+shellslash') && !&shellslash ? '\' : '/'
 " Init functions
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! xtabline#init()
+fun! xtabline#init() abort
   set showtabline=2
   let s:X.Funcs = xtabline#funcs#init()
   let s:F = s:X.Funcs
@@ -54,7 +54,7 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! xtabline#update_obsession()
+fun! xtabline#update_obsession() abort
   let string = 'let g:xtabline = get(g:, "xtabline", {})'.
         \' | try | if empty(g:xtabline) | call xtabline#init#start() | endif'.
         \' | let g:xtabline.Tabs = '.string(s:X.Tabs).
@@ -214,7 +214,7 @@ endfun
 " Helpers
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:ordered_buffers()
+fun! s:ordered_buffers() abort
   let B = s:T().buffers
 
   " if list of recent buffers is still empty, set it to current valid buffers
@@ -236,7 +236,7 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:set_new_tab_cwd(N)
+fun! s:set_new_tab_cwd(N) abort
   """Find suitable cwd for the new tab. Only runs after XT commands."""
   let s:new_tab_created = 0 | let T = s:X.Tabs[a:N]
 
