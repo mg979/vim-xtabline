@@ -66,7 +66,6 @@ com!                    XTabTodo            call xtabline#cmds#run('tab_todo')
 com!                    XTabPurge           call xtabline#cmds#run('purge_buffers')
 com!                    XTabReopen          call xtabline#cmds#run('reopen_last_tab')
 com!                    XTabCloseBuffer     call xtabline#cmds#run('close_buffer')
-com!       -count       XTabDepth           call xtabline#cmds#run('depth', <count>)
 com! -bang              XTabCleanUp         call xtabline#cmds#run('clean_up', <bang>0)
 com! -nargs=1           XTabRenameTab       call xtabline#cmds#run("rename_tab", <q-args>)
 com! -nargs=1           XTabRenameBuffer    call xtabline#cmds#run("rename_buffer", <q-args>)
@@ -121,7 +120,6 @@ let s:S = {
       \ 'map_prefix' :                '<leader>x',
       \ 'close_buffer_can_close_tab': 0,
       \ 'close_buffer_can_quit_vim':  0,
-      \ 'depth_tree_size':            20,
       \ 'select_buffer_alt_action':   "buffer #",
       \ 'superscript_unicode_nrs':    0,
       \ 'show_current_tab':           1,

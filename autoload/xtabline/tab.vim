@@ -9,23 +9,18 @@ let s:T = { -> g:xtabline.Tabs[tabpagenr()-1] } "current tab
 
 "name:    (string)  tab name
 "cwd:     (string)  working directory
-"dirs:    (list)    list of accepted directories (for filtering, default [cwd])
 "files:   (list)    restrict valid files to this list (for filtering, default [])
 "buffers: (dict)    with accepted and ordered buffer numbers lists
 "index:   (int)     tabpagenr() - 1, when tab is set
 "locked:  (bool)    when filtering is independent from cwd
 "rpaths:  (int)     whether the bufferline shows relative paths or filenames
-"depth:   (int)     filtering recursive depth (n. of directories below cwd)
-"                   -1 means full cwd, 0 means root dir only, >0 means up to n subdirs
 "vimrc:   (dict)    settings to be sourced when entering/leaving the tab
 
 fun! s:template() abort
   return {
         \ 'name':    '',
         \ 'cwd':     s:F.fullpath(getcwd()),
-        \ 'dirs':    [s:F.fullpath(getcwd())],
         \ 'locked':  0,
-        \ 'depth':   -1,
         \ 'vimrc':   get(s:Sets, 'use_tab_vimrc', 0) ? xtabline#vimrc#init() : {},
         \ 'rpaths':  s:Sets.relative_paths,
         \ 'icon':    '',

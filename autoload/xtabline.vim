@@ -152,14 +152,7 @@ fun! xtabline#filter_buffers(...) abort
   endif
 
   let T.buffers.valid = T.locked? T.buffers.valid : []
-
-  if T.depth < 0
-    let use_files = !empty(get(T, 'files', []))
-    let use_depth = 0
-    let T.dirs    = [T.cwd]
-  else
-    let [ use_files, use_depth ] = [ 0, 1 ]
-  endif
+  let use_files = !empty(get(T, 'files', []))
 
   " /////////////////// ITERATE BUFFERS //////////////////////
 
@@ -181,13 +174,9 @@ fun! xtabline#filter_buffers(...) abort
         " to be accepted, buffer's path must be among valid files
         let valid = index(T.files, B.path) >= 0
 
-      elseif use_depth
-        " to be accepted, buffer's path must be within defined depth
-        let valid = B.path =~ '^'.T.dirs[0] && s:F.within_depth(B.path, T.depth)
-
       else
         " to be accepted, buffer's path must be valid for this tab
-        let valid = B.path =~ '^'.T.cwd
+        let valid = B.path =~ '^' . ( has_key(T, 'dir') ? T.dir : T.cwd )
       endif
 
       if valid

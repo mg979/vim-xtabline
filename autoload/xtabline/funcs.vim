@@ -87,21 +87,6 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.within_depth(path, depth) abort
-  """If tab uses depth, verify if the path can be accepted."""
-
-  if a:depth < 0 | return 1 | endif
-
-  let basedir = self.fullpath(a:path, ":p:h")
-  let diff = substitute(basedir, s:T().dirs[0], '', '')
-
-  "the number of dir separators in (basedir - cwd) must be < depth
-  "but if depth == 0 (only root dir), only accept an empty diff
-  return !a:depth ? empty(diff) : count(diff, '/') < a:depth
-endfun
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
 fun! s:Funcs.tab_buffers() abort
   """Return a list of buffers names for this tab."""
   return map(copy(s:vB()), 'bufname(v:val)')
@@ -272,7 +257,7 @@ fun! s:Funcs.change_wd(cwd) abort
   if !isdirectory(a:cwd)
     return  self.msg("Invalid directory: ".a:cwd, 1)
   endif
-  call extend(s:T(), { 'cwd': a:cwd, 'dirs': [a:cwd] })
+  call extend(s:T(), { 'cwd': a:cwd })
   cd `=a:cwd`
   call xtabline#update()
   redraw

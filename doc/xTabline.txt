@@ -297,25 +297,16 @@ Command         | Mapping  | Plug                        ~
 ----------------+----------+------------------------------
 XTabWD!         |  *wd     | <Plug>(XT-Working-Directory)
 XTabPinBuffer   |  *pb     | <Plug>(XT-Pin-Buffer)
-XTabDepth       |  *sd     | <Plug>(XT-Set-Depth)
                 |  *tf     | <Plug>(XT-Toggle-Filtering)
 
 `XTabWD`         will let you set the `cwd` and updates the tabline. With a
                bang, you'll be prompted for a cwd
 `XTabPinBuffer`  a pinned buffer will be visible in all tabs
-`XTabDepth`      will let you set the filtering depth
 
 <Plug>(XT-Toggle-Filtering) toggles buffer filtering for all tabs.
 
 By default, in the bufferline will be shown buffers that belong to the tab's
 CWD, or any open buffer inside the window.
-
-With `XTabDepth` you can define how many directories below the current one
-will be valid for buffer filtering:
-
-* If no [count] is given, command toggles between depth -1 (all dirs below
-  cwd) and 0 (cwd root only)
-* If a [count] is given, filtering depth will be set to that number.
 
 
 
@@ -483,7 +474,6 @@ map_prefix                 |                                  | <leader>x
 close_buffer_can_close_tab |                                  | 0
 close_buffer_can_quit_vim  |                                  | 0
 unload_session_ask_confirm |                                  | 1
-depth_tree_size            |                                  | 20
 bookmarks_file             |                                  | `~/.vim/.XTablineBookmarks`
 sessions_data              |                                  | `~/.vim/.XTablineSessions`
 superscript_unicode_nrs    | use superscript or subscript nrs | 0

@@ -10,7 +10,6 @@ fun! xtabline#config#start() abort
             \['Close buffer can close tab',  "close_buffer_can_close_tab"],
             \['Close buffer can quit vim',   "close_buffer_can_quit_vim"],
             \['Unload session ask confirm',  "unload_session_ask_confirm"],
-            \['Depth tree size',             "depth_tree_size"],
             \['Current theme',               "theme"],
             \]
 
@@ -36,9 +35,6 @@ fun! xtabline#config#start() abort
   elseif match(o, "\D") >= 0
     echohl WarningMsg | redraw! | echo "Wrong input." | echohl None | return
   elseif o == 6
-    let new = input("\nEnter a new value for depth_tree_size (0 disables it) > ")
-    if !empty(new) | let g:xtabline_settings.depth_tree_size = new | endif
-  elseif o == 7
     call feedkeys("\<Plug>(XT-Apply-Theme)")
     return
   else
@@ -65,7 +61,6 @@ fun! xtabline#config#generate() abort
         \'let g:xtabline_settings.close_buffer_can_close_tab = '.g:xtabline_settings.close_buffer_can_close_tab,
         \'let g:xtabline_settings.close_buffer_can_quit_vim  = '.g:xtabline_settings.close_buffer_can_quit_vim,
         \'let g:xtabline_settings.unload_session_ask_confirm = '.g:xtabline_settings.unload_session_ask_confirm,
-        \'let g:xtabline_settings.depth_tree_size            = '.g:xtabline_settings.depth_tree_size,
         \'let g:xtabline_settings.theme                      = '.g:xtabline_settings.theme,
         \'',
         \'"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""',
@@ -91,8 +86,6 @@ fun! xtabline#config#help() abort
   echohl Special | echo "close_buffer_can_close_tab\t\t"  | echohl None | echon "close buffer command can close a tab, if only one buffer left"
   echohl Special | echo "close_buffer_can_quit_vim\t\t"   | echohl None | echon "close buffer command can also quit vim"
   echohl Special | echo "unload_session_ask_confirm\t\t"  | echohl None | echon "ask for confirmation before unloading a session"
-
-  echohl Special | echo "depth_tree_size\t\t\t\t"         | echohl None | echon "controls the output of the 'tree' command, when changing filtering depth"
   echohl Special | echo "theme\t\t\t\t\t"                 | echohl None | echon "theme in use\n"
 
   echohl WarningMsg | echo "\nPress a key to go back\n" | echohl None

@@ -122,49 +122,6 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:tree(cnt) abort
-  let tree = systemlist('tree -d -L '.a:cnt.' '.getcwd())
-
-  if !empty(tree) && len(tree) > s:Sets.depth_tree_size
-    let tree = tree[:s:Sets.depth_tree_size] + ['...'] + [tree[-1]]
-  endif
-
-  return empty(tree) ? ['', 'None'] : ["\n\n".join(tree, "\n"), 'Type']
-endfun
-
-fun! s:depth(cnt) abort
-  """Set tab filtering depth, toggle filtering with bang."""
-  let cnt = a:cnt | let T = s:T()
-
-  let current_dir_only  = !cnt && T.depth < 0
-  let full_cwd          = !cnt && !current_dir_only
-  let T.depth           = cnt ? cnt : current_dir_only ? 0 : -1
-  let T.dirs[0]         = T.depth == 0 ? s:F.fullpath(bufname("%"), ":p:h") : T.cwd
-
-  call xtabline#update()
-
-  let tree = !cnt || !executable('tree') || s:v.winOS ? ['', 'None'] : s:tree(cnt)
-
-  if current_dir_only
-    let show_dir = T.depth == 0 ? fnamemodify(bufname("%"), ":p:h") : getcwd()
-    call s:F.msg ([[ "Buffer filtering is now restricted to ", 'WarningMsg'],
-          \[ show_dir, 'None'],
-          \[ " alone", 'WarningMsg']])
-
-  elseif full_cwd
-    call s:F.msg ([[ "Buffer filtering is now restricted to ", 'Type'],
-          \[ getcwd(), 'None'],
-          \[ " and all subdirectories", 'Type']])
-  else
-    call s:F.msg ([[ "Buffer filtering is now restricted to ", 'WarningMsg'],
-          \[ cnt, 'None'],
-          \[ " directories below ", 'WarningMsg'],
-          \[ getcwd(), 'None' ], tree])
-  endif
-endfun
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
 fun! s:purge_buffers() abort
   """Remove unmodified buffers with invalid paths."""
 

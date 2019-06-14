@@ -97,7 +97,6 @@ function! xtabline#maps#init()
   nnoremap <unique> <silent>        <Plug>(XT-Wipe-All)              :<c-u>XTabCleanUp!<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Reopen)                :<c-u>XTabReopen<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Working-Directory)     :<c-u>XTabWD!<cr>
-  nnoremap <unique> <silent>        <Plug>(XT-Set-Depth)             :<c-u>call xtabline#cmds#run('depth', v:count)<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Move-Buffer-Next)      :<c-u>call xtabline#cmds#run('move_buffer', 1, v:count1)<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Move-Buffer-Prev)      :<c-u>call xtabline#cmds#run('move_buffer', 0, v:count1)<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Move-Buffer-To)        :<c-u>call xtabline#cmds#run('move_buffer_to', v:count)<cr>

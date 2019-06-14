@@ -137,7 +137,7 @@ fun! xtabline#fzf#tab_load(...) abort
     endif
 
     "tab properties defined here will be applied by new_tab(), run by autocommand
-    let s:v.tab_properties = {'cwd': cwd, 'dirs': [cwd]}
+    let s:v.tab_properties = {'cwd': cwd }
     let T = s:v.tab_properties
     for prop in keys(saved)
       if prop ==? 'buffers' || prop ==? 'description'   | continue | endif
@@ -209,7 +209,6 @@ fun! xtabline#fzf#tab_save() abort
   let json[name].name = T.name
   let json[name].locked = T.locked
   let json[name].vimrc = T.vimrc
-  let json[name].depth = T.depth
   if has_key(T, 'icon') | let json[name].icon = T.icon | endif
 
   if T.locked
