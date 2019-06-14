@@ -78,7 +78,6 @@ com!                    XTabCustomTabs      call xtabline#cmds#run("toggle_tab_n
 com!                    XTabLock            call xtabline#cmds#run("lock_tab")
 com! -nargs=?           XTabPinBuffer       call xtabline#cmds#run("toggle_pin_buffer", <q-args>)
 com!                    XTabConfig          call xtabline#config#start()
-com!                    XTabGit             call xtabline#cmds#run("toggle_git")
 
 com! -nargs=? -count    XTabNew             call xtabline#cmds#run("new_tab", <count>, <q-args>)
 com! -nargs=?           XTabMove            call xtabline#cmds#run("move_tab", <q-args>)
@@ -124,7 +123,6 @@ let s:S = {
       \ 'close_buffer_can_quit_vim':  0,
       \ 'depth_tree_size':            20,
       \ 'select_buffer_alt_action':   "buffer #",
-      \ 'use_git':                    0,
       \ 'superscript_unicode_nrs':    0,
       \ 'show_current_tab':           1,
       \ 'last_open_first':            0,

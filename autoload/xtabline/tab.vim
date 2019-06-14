@@ -18,7 +18,6 @@ let s:T = { -> g:xtabline.Tabs[tabpagenr()-1] } "current tab
 "depth:   (int)     filtering recursive depth (n. of directories below cwd)
 "                   -1 means full cwd, 0 means root dir only, >0 means up to n subdirs
 "vimrc:   (dict)    settings to be sourced when entering/leaving the tab
-"is_git:  (bool)    if the tab must respect git tracked files when filtering
 
 fun! s:template() abort
   return {
@@ -42,7 +41,6 @@ fun! xtabline#tab#new(...) abort
   let tab = extend(s:template(), s:v.tab_properties)
   call extend(tab, a:0 ? a:1 : {})
   let s:v.tab_properties = {} "reset tab_properties
-  call xtabline#tab#git_files(tab)
   return tab
 endfun
 
@@ -116,28 +114,5 @@ fun! xtabline#tab#check_all() abort
   let Tabs = g:xtabline.Tabs
   while len(Tabs) < tabpagenr("$") | call add(Tabs, xtabline#tab#new()) | endwhile
   while len(Tabs) > tabpagenr('$') | call remove(Tabs, -1)              | endwhile
-endfun
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! xtabline#tab#git_files(tab) abort
-  """Update tracked files if tab cwd is a repo, or disable tracking.
-  let T = a:tab
-  if T.locked | return | endif
-
-  " initialize T.is_git if not present, based on use_git setting
-  let T.is_git = get(T, 'is_git', s:Sets.use_git && s:F.is_repo(T))
-
-  " reset git files, if cwd is a repo, the list will be fetched again
-  let T.git_files = []
-
-  if T.is_git && s:F.is_repo(T)
-    " it's a repo, so fetch the tracked files list
-    let T.git_files = systemlist('git --git-dir='. T.cwd . s:v.slash .'/.git ls-files')
-
-  elseif T.is_git
-    " not a repo and is_git is set, reset it
-    let T.is_git = 0
-  endif
 endfun
 

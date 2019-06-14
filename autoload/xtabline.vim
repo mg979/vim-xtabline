@@ -154,12 +154,11 @@ fun! xtabline#filter_buffers(...) abort
   let T.buffers.valid = T.locked? T.buffers.valid : []
 
   if T.depth < 0
-    let use_git   = get(T, 'is_git', 0) && !empty(get(T, 'git_files', []))
     let use_files = !empty(get(T, 'files', []))
     let use_depth = 0
     let T.dirs    = [T.cwd]
   else
-    let [ use_git, use_files, use_depth ] = [ 0, 0, 1 ]
+    let [ use_files, use_depth ] = [ 0, 1 ]
   endif
 
   " /////////////////// ITERATE BUFFERS //////////////////////
@@ -177,11 +176,6 @@ fun! xtabline#filter_buffers(...) abort
 
       if !s:v.filtering
         let valid = 1
-
-      elseif use_git
-        " when using git paths, they'll be relative
-        let bname = s:v.winOS ? tr(bufname(buf), '\', '/') : bufname(buf)
-        let valid = index(T.git_files, bname) >= 0
 
       elseif use_files
         " to be accepted, buffer's path must be among valid files
@@ -300,7 +294,6 @@ function! s:Do(action, ...)
   elseif a:action == 'bufwrite'
 
     call xtabline#buffer#update(B)
-    call xtabline#tab#git_files(X.Tabs[N])
     call xtabline#update()
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""

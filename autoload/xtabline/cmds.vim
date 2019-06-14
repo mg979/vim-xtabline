@@ -657,24 +657,6 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:toggle_git() abort
-  let T = s:T()
-  if T.is_git
-    let T.is_git = 0
-    let T.files = []
-    call s:F.msg('Tab has left git mode')
-  elseif s:F.is_repo(T)
-    let T.is_git = 1
-    call xtabline#tab#git_files(T)
-    call s:F.msg('Tab is now in git mode')
-  else
-    call s:F.msg('Not a git repository', 1)
-  endif
-  call xtabline#update()
-endfun
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
 fun! s:toggle_tab_names() abort
   """Toggle between custom icon/name and short path/folder icons."""
   let s:v.custom_tabs = !s:v.custom_tabs
