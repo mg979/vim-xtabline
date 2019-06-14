@@ -62,12 +62,11 @@ fun! xtabline#fzf#tablist() abort
   for tab in range(tabpagenr("$"))
     let T = g:xtabline.Tabs[tab]
     let bufs = len(T.buffers.valid)
-    " let icon = empty(T.icon) ? s:Sets.tab_icon[0] : T.icon
     let line = s:yellow(s:pad(tab+1, 5))."\t".
           \    s:green(s:pad(bufs, 5))."\t".
           \    s:green(s:pad(empty(T.vimrc) ? "no" : "yes", 5))."\t\t".
           \    s:cyan(s:pad(T.name, 20))."\t".
-          \    s:pad(s:F.short_cwd(T.cwd, &columns<150), &columns/2)
+          \    (&columns<150 ? s:F.short_cwd(T.cwd, 1) : fnamemodify(T.cwd, ":~"))
     call add(lines, line)
   endfor
   call add(lines, "Tab\tBufs\tVimrc?\t\tName\t\t\tWorking Directory")
