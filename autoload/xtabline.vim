@@ -173,10 +173,12 @@ fun! xtabline#filter_buffers(...) abort
 
     if s:is_special(buf)   | continue
     elseif s:invalid(buf)  | continue
-    elseif !s:v.filtering  | call add(T.buffers.valid, buf)
     elseif !T.locked
 
-      if use_git
+      if !s:v.filtering
+        let valid = 1
+
+      elseif use_git
         " when using git paths, they'll be relative
         let bname = s:v.winOS ? tr(bufname(buf), '\', '/') : bufname(buf)
         let valid = index(T.git_files, bname) >= 0
