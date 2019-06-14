@@ -115,7 +115,7 @@ function! xtabline#maps#init()
   nnoremap <unique> <silent>        <Plug>(XT-Cd-Down)               :<c-u>call <sid>cd(v:count1)<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Reset-Tab)             :<c-u>XTabResetTab<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Reset-Buffer)          :<c-u>XTabResetBuffer<cr>
-  nnoremap <unique> <silent>        <Plug>(XT-Relative-Paths)        :<c-u>XTabRelativePaths<cr>
+  nnoremap <unique> <silent>        <Plug>(XT-Relative-Paths)        :<c-u>XTabRelativePaths <C-R>=(v:count)?(v:count):''<cr><cr>
   nnoremap <unique> <silent>        <Plug>(XT-Menu)                  :<c-u>XTabMenu<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Update)                :<c-u>call xtabline#update()<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Refresh)               :<c-u>call xtabline#refresh()<cr>

@@ -285,10 +285,12 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:relative_paths() abort
+fun! s:relative_paths(cnt) abort
   """Toggle between full relative path and tail only, in the bufline.
   let T = s:T()
-  if T.rpaths
+  if !empty(a:cnt)
+    let T.rpaths = str2nr(a:cnt)
+  elseif T.rpaths
     let T.rpaths = 0
   elseif s:Sets.relative_paths
     let T.rpaths = s:Sets.relative_paths
@@ -297,7 +299,8 @@ fun! s:relative_paths() abort
   endif
   call xtabline#update()
   if T.rpaths
-    call s:F.msg ([[ "Bufferline shows relative paths.", 'StorageClass']])
+    call s:F.msg ([[ "Bufferline shows relative paths [".T.rpaths."]",
+          \       'StorageClass']])
   else
     call s:F.msg ([[ "Bufferline shows filename only.", 'WarningMsg']])
   endif

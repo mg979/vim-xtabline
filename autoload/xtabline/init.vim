@@ -71,7 +71,7 @@ com! -nargs=1           XTabRenameTab       call xtabline#cmds#run("rename_tab",
 com! -nargs=1           XTabRenameBuffer    call xtabline#cmds#run("rename_buffer", <q-args>)
 com!                    XTabResetTab        call xtabline#cmds#run("reset_tab")
 com!                    XTabResetBuffer     call xtabline#cmds#run("reset_buffer")
-com!                    XTabRelativePaths   call xtabline#cmds#run("relative_paths")
+com! -nargs=*           XTabRelativePaths   call xtabline#cmds#run("relative_paths", <q-args>)
 com!                    XTabFormatBuffer    call xtabline#cmds#run("format_buffer")
 com!                    XTabCustomTabs      call xtabline#cmds#run("toggle_tab_names")
 com!                    XTabLock            call xtabline#cmds#run("lock_tab")

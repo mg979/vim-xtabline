@@ -136,12 +136,12 @@ By default, only the file name is printed in the tabline. Set this to
 a positive number to show (shortened) relative paths for buffers in the
 tabline, e.g.:
 >
-    =1  ->  long/path/to/file.ext  ->   l/p/t/file.ext
-    =2  ->  long/path/to/file.ext  ->   l/p/to/file.ext
+    = 1  ->  long/path/to/file.ext  ->   l/p/t/file.ext
+    = 2  ->  long/path/to/file.ext  ->   l/p/to/file.ext
 
 Note that this setting is both global and specific to tabs. This means that
 when a tab is created, it inherits the global setting, but if you want to
-toggle it with the `XTabRelativePaths` command, the other tabs won't be
+change it with the |XTabRelativePaths| command, the other tabs won't be
 affected.
 
 ------------------------------------------------------------------------------
@@ -351,7 +351,6 @@ XTabResetBuffer   |  *Rb      | <Plug>(XT-Reset-Buffer)
 XTabCustomTabs    |  *ct      | <Plug>(XT-Custom-Tabs)
 
 `XTabFormatBuffer`   change the label formatting
-`XTabRelativePaths`  toggles between basename and relative path in the bufferline
 `XTabResetTab`       reset tab customizations
 `XTabResetBuffer`    reset buffer customization
 `XTabCustomTabs`     toggle visibility of tab customizations (name, icon)
@@ -361,6 +360,12 @@ character. To expand the list of available icons for autocompletion, see
 |xtabline-customization|
 
 `XTabResetTab` will also try to find a suitable cwd for that tab.
+
+                                                            *XTabRelativePaths*
+`XTabRelativePaths`  toggles between basename and relative path in the
+bufferline. Both the command and the mapping accept a [count], if this is
+given, the last [count-1] directories won't be 'shortened'.
+See |xtabline-relative_paths| to know how this count works.
 
 
 
