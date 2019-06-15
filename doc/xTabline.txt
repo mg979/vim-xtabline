@@ -1,4 +1,4 @@
-*xtabline.txt*    xTabline     Version 0.8.0    Last change: August 10 2018
+*xtabline.txt*    xTabline     Version 0.8.0    Last change: June 15 2019
 
 XTABLINE - TABLE OF CONTENTS                                           *xtabline*
 ===============================================================================
@@ -7,16 +7,16 @@ XTABLINE - TABLE OF CONTENTS                                           *xtabline
   Requirements                                   |xtabline-requirements|
   Settings and mappings                          |xtabline-settings|
   Customizing look                               |xtabline-look|
-  Tab buffers navigation                         |xtabline-navigation|
-  Closing buffers                                |xtabline-closing-buffers|
-  Tabs and Buffers                               |xtabline-tabs-and-buffers|
+  Tab buffers                                    |xtabline-buffers|
+  Tab working and base directories               |xtabline-directories|
+  Managing tabs and buffers                      |xtabline-manage|
     Opening tabs                                 |xtabline-opening-tabs|
     Saving and loading tabs                      |xtabline-saving-and-loading|
     Managing buffers                             |xtabline-managing-buffers|
     Tuning buffer filtering                      |xtabline-tuning-filtering|
     Rearranging buffers                          |xtabline-rearranging|
     Customizing tabs and buffers                 |xtabline-customizing|
-  Sessions management                            |xtabline-sessions|
+  Session management                             |xtabline-sessions|
   Other commands, plugs and mappings             |xtabline-other|
     Buffers clean-up                             |xtabline-clean-up|
     Tab-Todo                                     |xtabline-tab-todo|
@@ -182,7 +182,7 @@ Function example:
 
 
 
-TAB BUFFERS NAVIGATION                                    *xtabline-navigation*
+TAB BUFFERS                                                  *xtabline-buffers*
 ===============================================================================
 
 By default, in the bufferline will be shown buffers that belong to the tab's
@@ -231,11 +231,66 @@ It will not try to close the tab page/quit vim, unless:
 
 
 
-TABS AND BUFFERS                                     *xtabline-tabs-and-buffers*
+
+TAB WORKING AND BASE DIRECTORIES                         *xtabline-directories*
+===============================================================================
+
+Mappings are provided to set a tab's working directory, and optionally a base
+directory. Setting a tab working directory means that every time you enter that
+tab, the CWD changes to that directory.
+
+Consider that if you set a tab WD, the old WD is restored when that tab is
+left: >
+  start Vim       ->  a WD is set
+  create tab      ->  assign a tab WD  -> WD changes and is set for tab
+  change tab      ->  the old WD is restored
+  go back to tab  ->  tab's WD is applied
+<                                                      *xtabline-base-directory*
+Sometimes you may want to show buffers from a different directory, or from
+a subdirectory of the CWD. Or you may not want to change the working directory
+at all, and still be able to show only buffers from a specific directory.
+
+In this cases you can set a base directory for buffer filtering, without
+changing the tab's CWD. The tab label in the upper right corner will keep
+showing the CWD (or the tab's name, if set), but it will be differently
+highlighted, to remind you that you have set a different base directory for
+buffer filtering.
+
+
+----------------------+----------+------------------------------
+Command               | Mapping  | Plug                        ~
+----------------------+----------+------------------------------
+XTabWD[!]             |  cdw     | <Plug>(XT-Working-Directory)
+XTabBD[!]             |  cdb     | <Plug>(XT-Base-Directory)
+                      |  cdc     | <Plug>(XT-Cd-Current)
+                      |  cdd     | <Plug>(XT-Cd-Down)
+XTabToggleFiltering   |  *tf     | <Plug>(XT-Toggle-Filtering)
+
+*XTabWD*    will let you set the `cwd` and updates the tabline.
+          With a bang, you'll be prompted for a cwd.
+
+*XTabBD*    will let you set the base filtering directory.
+          A bang will clear current base directory.
+
+*XTabToggleFiltering*  will disable filtering, based on either WD or BD.
+
+You can see that are 4 mappings that start with `cd`:
+
+* cdc   sets the CWD, relative to the currently open buffer (cd `current`)
+* cdd   sets the CWD, [count1] directories below current buffer (cd `down`)
+* cdw   you'll be prompted for a cwd
+* cdb   you'll be prompted for a base filtering directory
+
+
+
+
+
+
+MANAGING TABS AND BUFFERS                                     *xtabline-manage*
 ===============================================================================
 
 
-OPENING TABS                                *xtabline-opening-tabs*
+OPENING TABS                                            *xtabline-opening-tabs*
 
 You can toggle between buffers and tabs with <F5>
 
@@ -253,7 +308,7 @@ XEdit         | *rt      | <Plug>(XT-Edit)
 `XEdit`       like :edit, but prompts for directory creation, if not existant.
 
 
-SAVING AND LOADING TABS                     *xtabline-saving-and-loading-tabs*
+SAVING AND LOADING TABS                      *xtabline-saving-and-loading-tabs*
 
 
 `fzf-vim` is required. With most of the *fzf-vim* commands you can select
@@ -271,7 +326,7 @@ Saved tabs are stored in `$HOME/.vim/.XTablineTabs`.
 
 
 
-MANAGING BUFFERS                                  *xtabline-managing-buffers*
+MANAGING BUFFERS                                    *xtabline-managing-buffers*
 
 
 |fzf-vim| is required.
@@ -289,28 +344,7 @@ XTabDeleteGlobalBuffers   | *dgb     | <Plug>(XT-Delete-Global-Buffers)
 
 
 
-TUNING BUFFER FILTERING                     *xtabline-tuning-buffer-filtering*
-
-
-----------------+----------+------------------------------
-Command         | Mapping  | Plug                        ~
-----------------+----------+------------------------------
-XTabWD!         |  *wd     | <Plug>(XT-Working-Directory)
-XTabPinBuffer   |  *pb     | <Plug>(XT-Pin-Buffer)
-                |  *tf     | <Plug>(XT-Toggle-Filtering)
-
-`XTabWD`         will let you set the `cwd` and updates the tabline. With a
-               bang, you'll be prompted for a cwd
-`XTabPinBuffer`  a pinned buffer will be visible in all tabs
-
-<Plug>(XT-Toggle-Filtering) toggles buffer filtering for all tabs.
-
-By default, in the bufferline will be shown buffers that belong to the tab's
-CWD, or any open buffer inside the window.
-
-
-
-REARRANGING BUFFERS                         *xtabline-rearranging-buffers*
+REARRANGING BUFFERS                              *xtabline-rearranging-buffers*
 
 
 ----------+------------------------------
@@ -334,7 +368,7 @@ as by *Select-Buffer*. Selects first if no [count] is given.
 
 
 
-CUSTOMIZING TABS AND BUFFERS              *xtabline-customizing-tabs-and-buffers*
+CUSTOMIZING TABS AND BUFFERS             *xtabline-customizing-tabs-and-buffers*
 
 
 ------------------+-----------+-------------------------------
@@ -349,11 +383,13 @@ XTabRelativePaths |  *rp      | <Plug>(XT-Relative-Paths)
 XTabResetTab      |  *Rt      | <Plug>(XT-Reset-Tab)
 XTabResetBuffer   |  *Rb      | <Plug>(XT-Reset-Buffer)
 XTabCustomTabs    |  *ct      | <Plug>(XT-Custom-Tabs)
+XTabPinBuffer     |  *pb      | <Plug>(XT-Pin-Buffer)
 
-`XTabFormatBuffer`   change the label formatting
-`XTabResetTab`       reset tab customizations
-`XTabResetBuffer`    reset buffer customization
-`XTabCustomTabs`     toggle visibility of tab customizations (name, icon)
+`XTabFormatBuffer`    change the label formatting
+`XTabResetTab`        reset tab customizations
+`XTabResetBuffer`     reset buffer customization
+`XTabCustomTabs`      toggle visibility of tab customizations (name, icon)
+`XTabPinBuffer`       a pinned buffer will be visible in all tabs
 
 When assigning an icon, you can autocomplete the icon name, or insert a single
 character. To expand the list of available icons for autocompletion, see
@@ -406,7 +442,7 @@ XTabCleanUp!           |  *wa     | <Plug>(XT-Wipe-All)
 XTabCleanUp            |  *cu     | <Plug>(XT-Clean-Up)
 XTabTodo               |  *tt     | <Plug>(XT-Tab-Todo)
 
-XTabNERDBookmarks opens the list of `NERDTreeBookmarks`
+`XTabNERDBookmarks` opens the list of |NERDTreeBookmarks|.
 
 
 BUFFERS CLEAN-UP                                         *xtabline-clean-up*
@@ -440,16 +476,6 @@ You can define the filename and other options:
 `file`    : the filename that will be used
 `command` : eg. `below 20sp`, `vs`, `edit`, etc, check |opening-window|
 `syntax`  : the filetype that will be assigned
-
-
-CWD SELECTION                                                *xtabline-cwd*
-
-Plug                   Mapping    ~
-<Plug>(XT-Cd-Current)   *cdc    relative to the currently open buffer
-<Plug>(XT-Cd-Down)      *cdd    [count1] directories below current buffer
-
-These commands allow you to quickly change your tab CWD, and update the
-tabline at the same time.
 
 
 
@@ -612,4 +638,4 @@ LICENSE                                                       *xtabline-license*
 MIT
 
 
-vim:tw=79:et:sw=2:ts=2:ft=help:norl:nowrap:
+vim:tw=79:et:sw=2:ts=2:ft=help:nowrap:

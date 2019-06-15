@@ -429,7 +429,8 @@ endfun
 
 fun! s:tabnum(tabnr, all) abort
   if a:all && !s:v.showing_tabs
-    return "%#XTNum# " . a:tabnr .'/' . tabpagenr('$') . " %#XTTabInactive#"
+    let hi = has_key(s:T(), 'dir') ? " %#XTNumSel#" : " %#XTTabInactive#"
+    return "%#XTNum# " . a:tabnr .'/' . tabpagenr('$') . hi
   else
     return a:tabnr == tabpagenr() ?
           \   "%#XTNumSel# " . a:tabnr . " %#XTTabActive#"
@@ -611,7 +612,7 @@ fun! s:get_tab_for_bufline() abort
 
   let fmt_chars = s:fmt_chars(fmt)                           "formatting options
   let fmt_tab = s:format_tab(N, fmt_chars)                   "formatted string
-  let label = substitute(fmt_tab, '%#X\w*#', '', 'g')        "text only, to find width
+  let label = substitute(fmt_tab, '%#\w*#', '', 'g')         "text only, to find width
   return [fmt_tab, strwidth(label)]
 endfun
 

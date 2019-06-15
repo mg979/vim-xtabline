@@ -20,6 +20,10 @@ fun! s:do_map() abort
   call s:mapkeys('[b',    'Prev-Buffer')
   call s:mapkeys('[B',    'First-Buffer')
   call s:mapkeys(']B',    'Last-Buffer')
+  call s:mapkeys('cdc',   'Cd-Current')
+  call s:mapkeys('cdd',   'Cd-Down')
+  call s:mapkeys('cdw',   'Working-Directory')
+  call s:mapkeys('cdb',   'Base-Directory')
   call s:mapkeys(X.'q',   'Close-Buffer')
   call s:mapkeys(X.'e',   'Edit')
   call s:mapkeys(X.'bl',  'List-Buffers')
@@ -37,7 +41,6 @@ fun! s:do_map() abort
   call s:mapkeys(X.'tn',  'Tab-New')
   call s:mapkeys(X.'pt',  'Purge')
   call s:mapkeys(X.'wa',  'Wipe-All')
-  call s:mapkeys(X.'wd',  'Working-Directory')
   call s:mapkeys(X.'cu',  'Clean-Up')
   call s:mapkeys(X.'rt',  'Reopen')
   call s:mapkeys(X.'sd',  'Set-Depth')
@@ -55,8 +58,6 @@ fun! s:do_map() abort
   call s:mapkeys(X.'mb',  'Move-Buffer-To')
   call s:mapkeys(X.'hb',  'Hide-Buffer')
   call s:mapkeys(X.'tf',  'Toggle-Filtering')
-  call s:mapkeys(X.'cdc', 'Cd-Current')
-  call s:mapkeys(X.'cdd', 'Cd-Down')
   call s:mapkeys(X.'tr',  'Reset-Tab')
   call s:mapkeys(X.'br',  'Reset-Buffer')
   call s:mapkeys(X.'tv',  'Tab-Vimrc')
@@ -73,7 +74,7 @@ function! xtabline#maps#init()
   nnoremap <unique>                 <Plug>(XT-Edit)                  :<c-u>XEdit<space>
 
   nnoremap <unique> <silent>        <Plug>(XT-Toggle-Tabs)           :<c-u>call xtabline#cmds#run('toggle_tabs')<cr>
-  nnoremap <unique> <silent>        <Plug>(XT-Toggle-Filtering)      :<c-u>call xtabline#cmds#run('toggle_buffers')<cr>
+  nnoremap <unique> <silent>        <Plug>(XT-Toggle-Filtering)      :<c-u>call xtabline#cmds#run('toggle_filtering')<cr>
   nnoremap <unique> <silent> <expr> <Plug>(XT-Select-Buffer)         v:count? <sid>select_buffer(v:count-1) : ":\<C-U>".g:xtabline_settings.select_buffer_alt_action."\<cr>"
   nnoremap <unique> <silent> <expr> <Plug>(XT-Next-Buffer)           xtabline#cmds#next_buffer(v:count1, 0)
   nnoremap <unique> <silent> <expr> <Plug>(XT-Prev-Buffer)           xtabline#cmds#prev_buffer(v:count1, 0)
@@ -97,6 +98,7 @@ function! xtabline#maps#init()
   nnoremap <unique> <silent>        <Plug>(XT-Wipe-All)              :<c-u>XTabCleanUp!<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Reopen)                :<c-u>XTabReopen<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Working-Directory)     :<c-u>XTabWD!<cr>
+  nnoremap <unique> <silent>        <Plug>(XT-Base-Directory)        :<c-u>XTabBD<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Move-Buffer-Next)      :<c-u>call xtabline#cmds#run('move_buffer', 1, v:count1)<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Move-Buffer-Prev)      :<c-u>call xtabline#cmds#run('move_buffer', 0, v:count1)<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Move-Buffer-To)        :<c-u>call xtabline#cmds#run('move_buffer_to', v:count)<cr>

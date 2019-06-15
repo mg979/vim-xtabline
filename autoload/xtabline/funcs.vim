@@ -266,6 +266,30 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
+fun! s:Funcs.change_base_dir(dir) abort
+  """Set/unset the base filtering directory.
+  let T = s:T()
+
+  if empty(a:dir) && !has_key(T, 'dir')
+    return self.msg('No base directory has been set yet.', 1)
+
+  elseif empty(a:dir)
+    unlet T.dir
+    call self.msg('Base directory has been unset.', 0)
+    return xtabline#update()
+
+  elseif !isdirectory(a:dir)
+    return  self.msg("Invalid directory: ".a:dir, 1)
+  endif
+
+  let T.dir = a:dir
+  call xtabline#update()
+  redraw
+  call self.msg ([[ "Base directory: ", 'Label' ], [ a:dir, 'None' ]])
+endfun
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
 fun! s:Funcs.not_enough_buffers(pinned) abort
   """Just return if there aren't enough buffers."""
   let bufs = a:pinned ? s:v.pinned_buffers : s:oB()

@@ -76,6 +76,7 @@ com!                    XTabFormatBuffer    call xtabline#cmds#run("format_buffe
 com!                    XTabCustomTabs      call xtabline#cmds#run("toggle_tab_names")
 com!                    XTabLock            call xtabline#cmds#run("lock_tab")
 com! -nargs=?           XTabPinBuffer       call xtabline#cmds#run("toggle_pin_buffer", <q-args>)
+com!                    XTabToggleFiltering call xtabline#cmds#run("toggle_filtering")
 com!                    XTabConfig          call xtabline#config#start()
 
 com! -nargs=? -count    XTabNew             call xtabline#cmds#run("new_tab", <count>, <q-args>)
@@ -85,9 +86,10 @@ com!                    XTabVimrc           call xtabline#vimrc#open()
 com!                    XTabLast            call xtabline#cmds#run('goto_last_tab')
 
 com! -nargs=? -count -complete=file -bang            XTabEdit            call xtabline#cmds#run("edit_tab", <count>, <bang>0, <q-args>)
-com! -nargs=? -bang  -complete=file                  XTabWD              call xtabline#cmds#run("set_cwd", [<bang>0, <q-args>])
-com! -nargs=? -bang  -complete=customlist,<sid>icons XTabIcon            call xtabline#cmds#run("tab_icon", [<bang>0, <q-args>])
-com! -nargs=? -bang  -complete=customlist,<sid>icons XTabBufferIcon      call xtabline#cmds#run("buffer_icon", [<bang>0, <q-args>])
+com! -nargs=? -bang  -complete=file                  XTabWD              call xtabline#cmds#run("set_cwd", <bang>0, <q-args>)
+com! -nargs=? -bang  -complete=file                  XTabBD              call xtabline#cmds#run("set_cbd", <bang>0, <q-args>)
+com! -nargs=? -bang  -complete=customlist,<sid>icons XTabIcon            call xtabline#cmds#run("tab_icon", <bang>0, <q-args>)
+com! -nargs=? -bang  -complete=customlist,<sid>icons XTabBufferIcon      call xtabline#cmds#run("buffer_icon", <bang>0, <q-args>)
 com! -nargs=? -bang  -complete=customlist,<sid>theme XTabTheme           call xtabline#hi#load_theme(<bang>0, <q-args>)
 
 fun! s:icons(A,L,P) abort

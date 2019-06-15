@@ -107,7 +107,7 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:toggle_buffers() abort
+fun! s:toggle_filtering() abort
   """Toggle buffer filtering in the tabline."""
 
   if s:v.filtering
@@ -417,7 +417,7 @@ endfun
 
 fun! s:tab_icon(...) abort
   """Set an icon for this tab."""
-  let [bang, icon] = a:1
+  let [ bang, icon ] = [ a:1, a:2 ]
   let T = s:T()
   if bang
     let T.icon = ''
@@ -433,7 +433,7 @@ endfun
 
 fun! s:buffer_icon(...) abort
   """Set an icon for this buffer."""
-  let [bang, icon] = a:1
+  let [ bang, icon ] = [ a:1, a:2 ]
   let B = s:F.set_buffer_var('icon')
   if empty(B) | return | endif
 
@@ -579,13 +579,11 @@ endfun
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:set_cwd(...) abort
-  """Set new working directory."""
-  let [bang, cwd] = a:1
+  """Set new working directory.
+  let [ bang, cwd ] = [ a:1, a:2 ]
   let cwd = s:F.fullpath(cwd)
 
-  if !bang && empty(cwd)
-    call s:F.msg ([[ "Canceled.", 'WarningMsg' ]]) | return
-  elseif bang
+  if bang || empty(cwd)
     let base = s:F.find_suitable_cwd() | echohl Label
     let cwd = input("Enter a new working directory: ", base, "file") | echohl None
   endif
@@ -595,6 +593,30 @@ fun! s:set_cwd(...) abort
   else
     call s:F.change_wd(cwd)
   endif
+  call xtabline#update()
+endfun
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:set_cbd(...) abort
+  """Set new base directory for buffer filtering.
+  let [ bang, dir ] = [ a:1, a:2 ]
+
+  if bang
+    return s:F.change_base_dir('')
+  elseif empty(dir)
+    let base = s:F.find_suitable_cwd() | echohl Label
+    let dir = input("Enter a new base directory: ", base, "file") | echohl None
+  else
+    let dir = s:F.fullpath(dir)
+  endif
+
+  if empty(dir)
+    call s:F.msg ([[ "Canceled.", 'WarningMsg' ]])
+  else
+    call s:F.change_base_dir(dir)
+  endif
+  call xtabline#update()
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
