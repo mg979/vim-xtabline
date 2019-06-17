@@ -177,13 +177,13 @@ fun! s:Funcs.short_cwd(tabnr, h) abort
     if s:v.winOS | let H = tr(H, '\', '/')
   endif
 
-  let [ is_root, splits ] = [ H[:0] == '/', split(H, '/') ]
-  let [ head, tail ] = [splits[:-(a:h+1)], splits[-(a:h):]]
-  call map(head, "substitute(v:val, '\\(.\\).*', '\\1', '')")
-  let H = join(head + tail, '/')
-  if is_root
-    let H = '/' . H
-  elseif s:v.winOS
+  let splits = split(H, '/')
+  if len(splits) > a:h
+    let [ head, tail ] = [splits[:-(a:h+1)], splits[-(a:h):]]
+    call map(head, "substitute(v:val, '\\(.\\).*', '\\1', '')")
+    let H = join(head + tail, '/')
+  endif
+  if s:v.winOS
     let H = tr(H, '/', '\')
   endif
   return H

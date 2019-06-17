@@ -149,6 +149,9 @@ fun! s:cd(count) abort
     let path .= ':h'
   endfor
   let cwd = g:xtabline.Funcs.fullpath(expand("%"), path)
+  if !empty(expand("%")) && empty(cwd)
+    let cwd = '/'
+  endif
   call g:xtabline.Funcs.change_wd(cwd)
 endfun
 
