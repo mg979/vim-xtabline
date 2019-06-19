@@ -333,7 +333,6 @@ augroup plugin-xtabline
   autocmd BufWritePost  * call s:Do('bufwrite')
   autocmd BufDelete     * call xtabline#update()
 
-  autocmd BufNewFile    * call xtabline#automkdir#ensure_dir_exists()
   autocmd ColorScheme   * if s:ready() | call xtabline#hi#update_theme() | endif
 augroup END
 
