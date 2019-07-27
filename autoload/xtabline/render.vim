@@ -70,6 +70,7 @@ fun! xtabline#render#buffers() abort
     return s:last_tabline
   endif
 
+  if &columns < 40 | return s:get_tab_for_bufline()[0] | endif
   call xtabline#filter_buffers()
   let show_num = s:Sets.bufline_numbers
 
@@ -147,8 +148,8 @@ fun! xtabline#render#buffers() abort
           \ 'tried_devicon': 0,
           \ 'tried_icon': 0,
           \ 'has_icon': 0,
-          \ 'path': Tab.rpaths ? s:F.short_path(bnr, Tab.rpaths)
-          \                    : fnamemodify(bufname(bnr), ':t'),
+          \ 'path': &columns < 150 || !Tab.rpaths ? fnamemodify(bufname(bnr), ':t')
+          \                                       : s:F.short_path(bnr, Tab.rpaths),
           \ 'hilite':   is_currentbuf && special  ? 'Special' :
           \             is_currentbuf             ? 'Select' :
           \             special || s:extraHi(bnr) ? 'Extra' :
