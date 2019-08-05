@@ -14,14 +14,12 @@ let s:T = { -> g:xtabline.Tabs[tabpagenr()-1] } "current tab
 "index:   (int)     tabpagenr() - 1, when tab is set
 "locked:  (bool)    when filtering is independent from cwd
 "rpaths:  (int)     whether the bufferline shows relative paths or filenames
-"vimrc:   (dict)    settings to be sourced when entering/leaving the tab
 
 fun! s:template() abort
   return {
         \ 'name':    '',
         \ 'cwd':     s:F.fullpath(getcwd()),
         \ 'locked':  0,
-        \ 'vimrc':   get(s:Sets, 'use_tab_vimrc', 0) ? xtabline#vimrc#init() : {},
         \ 'rpaths':  s:Sets.relative_paths,
         \ 'icon':    '',
         \ 'files':   [],

@@ -118,12 +118,11 @@ fun! s:tablist() abort
     let bufs = len(T.buffers.valid)
     let line = s:yellow(s:pad(tab+1, 5))."\t".
           \    s:green(s:pad(bufs, 5))."\t".
-          \    s:green(s:pad(empty(T.vimrc) ? "no" : "yes", 5))."\t\t".
           \    s:cyan(s:pad(T.name, 20))."\t".
           \    (&columns<150 ? s:F.short_cwd(tab, 1) : fnamemodify(T.cwd, ":~"))
     call add(lines, line)
   endfor
-  call add(lines, "Tab\tBufs\tVimrc?\t\tName\t\t\tWorking Directory")
+  call add(lines, "Tab\tBufs\tName\t\t\tWorking Directory")
   return reverse(lines)
 endfun
 
@@ -262,7 +261,6 @@ fun! xtabline#fzf#tab_save() abort
   let json[name].cwd = T.cwd
   let json[name].name = T.name
   let json[name].locked = T.locked
-  let json[name].vimrc = T.vimrc
   if has_key(T, 'icon') | let json[name].icon = T.icon | endif
 
   if T.locked
@@ -658,7 +656,6 @@ let s:cmds = [
       \['Reset buffer',                  "XTabResetBuffer"],
       \['Buffer format',                 "XTabFormatBuffer"],
       \['Configure',                     "XTabConfig"],
-      \['Tab vimrc',                     "XTabVimrc"],
       \['Git mode',                      "XTabGit"],
       \['Hide buffer',                   "normal \<Plug>(XT-Hide-Buffer)"],
       \['Toggle tabs',                   "normal \<Plug>(XT-Toggle-Tabs)"],

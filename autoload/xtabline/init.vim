@@ -51,7 +51,6 @@ com!                           XTabConfig              call xtabline#config#star
 com! -nargs=? -count           XTabNew                 call xtabline#cmds#run("new_tab", <count>, <q-args>)
 com! -nargs=?                  XTabMove                call xtabline#cmds#run("move_tab", <q-args>)
 com!                           XTabMenu                call xtabline#fzf#cmds()
-com!                           XTabVimrc               call xtabline#vimrc#open()
 com!                           XTabLast                call xtabline#cmds#run('goto_last_tab')
 
 com! -nargs=? -count -complete=file -bang            XTabEdit            call xtabline#cmds#run("edit_tab", <count>, <bang>0, <q-args>)

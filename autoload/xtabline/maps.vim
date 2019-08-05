@@ -102,7 +102,6 @@ function! xtabline#maps#init()
   nnoremap <unique> <silent>        <Plug>(XT-Move-Buffer-To)        :<c-u>call xtabline#cmds#run('move_buffer_to', v:count)<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Hide-Buffer)           :<c-u>call xtabline#cmds#run('hide_buffer', v:count1)<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Tab-Todo)              :<c-u>XTabTodo<cr>
-  nnoremap <unique> <silent>        <Plug>(XT-Tab-Vimrc)             :<c-u>call xtabline#vimrc#open()<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Toggle-Custom-Tabs)    :<c-u>XTabCustomTabs<cr>
   nnoremap <unique>                 <Plug>(XT-Theme)                 :<c-u>XTabTheme<Space>
   nnoremap <unique>                 <Plug>(XT-Tab-Icon)              :<c-u>XTabIcon<Space>

@@ -295,7 +295,6 @@ function! s:Do(action, ...)
 
     if F.cd(T.cwd) | return | endif
 
-    call xtabline#vimrc#exe(T)
     call xtabline#update()
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
