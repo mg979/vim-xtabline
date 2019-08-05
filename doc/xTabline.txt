@@ -4,7 +4,7 @@ XTABLINE - TABLE OF CONTENTS                                           *xtabline
 ===============================================================================
 
   Features list                                  |xtabline-features|
-  Requirements                                   |xtabline-requirements|
+  Introduction                                   |xtabline-introduction|
   Settings and mappings                          |xtabline-settings|
   Customizing look                               |xtabline-look|
   Tab buffers                                    |xtabline-buffers|
@@ -39,7 +39,6 @@ This plugin tries to give you full control on the tabline. It gives ways to:
 * have buffers filtered on the base of the current CWD, or other criterias
 * show only the most recently accessed buffers for the current tab (default 10)
 * rename tabs/buffers, and give them icons/separators
-* load/save customized tabs from/to disk
 * reopen closed tabs
 * have any customization persist across sessions
 * have it look good, with easy formatting options
@@ -50,11 +49,12 @@ Additionally, it provides:
 * commands to rearrange tabs and buffers positions
 * commands to clean up buffers across all tabs
 * session management: load/save/delete sessions, with timestamping/descriptions
-* Tab-todo: customizable command to open a todo file for that tab
+* tabs bookmarks: load/save customized tabs from/to disk
+* tab-todo: customizable command to open a todo file for that tab
 
 Integrated with:
 
-* |fzf-vim| (load saved tabs, sessio management)
+* |fzf-vim| (load saved tabs, session management)
 * |vim-obsession| for automatic CWDs persistance across sessions
 * additional support for |vim-devicons|
 
@@ -67,11 +67,29 @@ Reuses code from:
 
 
 
-REQUIREMENTS                                             *xtabline-requirements*
+INTRODUCTION                                            *xtabline-introduction*
 ===============================================================================
 
-{vim-obsession}{1} is required for persistance and sessions commands.
-{fzf-vim}{2} is required for bookmarks and sessions commands.
+The main features, besides the tabline rendering, are:
+
+- per-tab CWD                 |xtabline-use_tab_cwd|
+- buffer filtering            |xtabline-buffer_filtering|
+- tabs management             |xtabline-saving-and-loading-tabs|
+- sessions management         |xtabline-sessions|
+
+The first one means that each tab can have its own CWD (set with |:cd|): when
+switching tabs, the tab's CWD is automatically restored.
+
+The second one means that in the tabline, only buffers that are valid for the
+tab's CWD will be listed. The number of listed buffers is limited (by default)
+to the 10 most recently accessed buffers, so that the tabline will not be 
+easily overcrowded.
+
+The last two are a series of commands that allow you to save/restore tabs and
+sessions.
+
+|vim-obsession| {1} is required for persistance and sessions commands.
+|fzf-vim| {2} is required for bookmarks and sessions commands.
 
                                      {1} https://github.com/tpope/vim-obsession
                                      {2} https://github.com/junegunn/fzf.vim
@@ -111,13 +129,39 @@ Most mappings presented are meant prefixed by <prefix>, when preceded by *.
 Mappings are disabled by default.
 
 ------------------------------------------------------------------------------
-                                                        *xtabline-filtering*  >
-    let g:xtabline_settings.filtering = 1
+                                                      *xtabline-use_tab_cwd*  >
+    let g:xtabline_settings.use_tab_cwd = exists(':tcd')
+<
+Set this value to 0 if you don't want the plugin to manage the CWD when
+switching tabs, and keep the default vim behaviour. Note that:
+
+1. the |:tcd| feature from neovim and recent vim is not supported. Versions of
+   vim that support this feature, have this setting disabled by default.
+   If you plan on using |:tcd| commands, you should keep this option at 0. As
+   long as the cwd reported by |getcwd()| reflects the directory given with
+   |:tcd| (I'm not sure of that), buffer filtering should work anyway.
+
+2. local working directories (set with |:lcd|) will be ignored.
+
+3. buffer filtering in the tabline is an independent feature and should be
+   disabled/enabled on its own: |xtabline-buffer_filtering|.
+
+------------------------------------------------------------------------------
 
 By default, the plugin will build the tabline putting a list of valid buffers
 on the left side, and the current working directory (CWD) in the corner on the
 right. 'Valid' buffers are those whose path is within the CWD.
-Set this value to 0 to disabled buffer filtering.
+
+                                                 *xtabline-buffer_filtering*  >
+    let g:xtabline_settings.buffer_filtering = 1
+<
+Set this value to 0 to disable buffer filtering.
+
+------------------------------------------------------------------------------
+                                                 *xtabline-show_current_tab*  >
+    let g:xtabline_settings.show_current_tab = 1
+<
+Set this value to 0 to remove the tab CWD from the tabline.
 
 ------------------------------------------------------------------------------
                                                    *xtabline-recent_buffers*  >
@@ -170,11 +214,10 @@ String example:
 Function example:
 >
     fun! MyBuflineFormat(bufnr)
-      let [ A, B, C ] = [ '%#TabLineSel#', '%#TabLine#', '%#PmenuSel#'  ]
+      let A = '%#TabLineSel#'
+      let B = bufnr('%') == a:bufnr ? '%#PmenuSel#' : '%#TabLine#'
       let name = bufname(a:bufnr) != '' ? bufname(a:bufnr) : '...'
-      let hi = bufnr('%') == a:bufnr ? C : B
-      let name = hi . ' ' . name . ' '
-      return A . ' ' . a:bufnr . ' ' . name
+      return printf('%s %s %s %s ', A, a:bufnr, B, name)
     endfun
 
     let g:xtabline_settings.bufline_format = function('MyBuflineFormat')
@@ -299,12 +342,10 @@ Command       | Mapping  | Plug               ~
 XTabNew       | *tn      | <Plug>(XT-Tab-New)
 XTabEdit      | *te      | <Plug>(XT-Tab-Edit)
 XTabReopen    | *rt      | <Plug>(XT-Reopen)
-XEdit         | *rt      | <Plug>(XT-Edit)
 
 `XTabNew`     accepts a parameter, that is the name of the new tab
 `XTabEdit`    accepts a path, triggers rename if called with bang
 `XTabReopen`  lets you reopen a previosly closed tab, and is repeatable
-`XEdit`       like :edit, but prompts for directory creation, if not existant.
 
 
 SAVING AND LOADING TABS                      *xtabline-saving-and-loading-tabs*
@@ -494,7 +535,7 @@ configurator.
 ---------------------------+----------------------------------+----------
 Option                     | Description                      | Default ~
 ---------------------------+----------------------------------+----------
-enable_mappings            | `<Plug>`s are always defined       | 0
+enable_mappings            | <Plug>s are always defined       | 0
 recent_buffers             | max number that will be shown    | 10
 select_buffer_alt_action   | SelectBuffer alternative command | `buffer #`
 sessions_path              | sessions directory               | `~/.vim/session`

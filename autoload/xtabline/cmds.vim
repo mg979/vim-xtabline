@@ -110,12 +110,12 @@ endfun
 fun! s:toggle_filtering() abort
   """Toggle buffer filtering in the tabline."""
 
-  if s:v.filtering
+  if s:Sets.buffer_filtering
     call s:F.msg ([[ "Buffer filtering turned off", 'WarningMsg' ]])
   else
     call s:F.msg ([[ "Buffer filtering turned on", 'StorageClass' ]])
   endif
-  let s:v.filtering = !s:v.filtering
+  let s:Sets.buffer_filtering = !s:Sets.buffer_filtering
   call s:plugins_toggle_buffers()
   call xtabline#update()
 endfun
@@ -125,7 +125,7 @@ endfun
 fun! s:purge_buffers() abort
   """Remove unmodified buffers with invalid paths."""
 
-  if !s:v.filtering | echo "Buffer filtering is turned off." | return | endif
+  if !s:Sets.buffer_filtering | echo "Buffer filtering is turned off." | return | endif
   let bufs = s:oB() + s:eB() | let bcnt = 0 | let purged = []
 
   " include open buffers if not showing in tabline

@@ -157,12 +157,24 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.cd(dir) abort
+fun! s:Funcs.set_tab_wd(tab) abort
+  if s:Sets.use_tab_cwd && !haslocaldir()
+    let a:tab.cwd = self.fullpath(getcwd())
+  endif
+endfun
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:Funcs.cd(tab) abort
   """Try to change the current directory.
-  if isdirectory(a:dir)
-    cd `=a:dir`
-  else
-    return self.msg('[xtabline] directory doesn''t exists', 1)
+  if s:Sets.use_tab_cwd
+    if isdirectory(a:tab.cwd)
+      cd `=a:tab.cwd`
+    else
+      return self.msg('[xtabline] directory doesn''t exists', 1)
+    endif
+  elseif a:tab.cwd != getcwd()
+    let a:tab.cwd = getcwd()
   endif
 endfun
 

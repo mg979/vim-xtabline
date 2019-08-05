@@ -92,6 +92,8 @@ let s:S = {
       \ 'close_buffer_can_quit_vim':  0,
       \ 'select_buffer_alt_action':   "buffer #",
       \ 'superscript_unicode_nrs':    0,
+      \ 'buffer_filtering':           1,
+      \ 'use_tab_cwd':                !exists(':tcd'),
       \ 'show_current_tab':           1,
       \ 'last_open_first':            0,
       \ 'enable_mappings':            0,

@@ -241,7 +241,7 @@ endfun
 fun! xtabline#fzf#tab_save() abort
   """Create an entry and add it to the saved tabs file."""
 
-  if !s:v.filtering
+  if !s:Sets.buffer_filtering
     call s:F.msg("Activate buffer filtering first.", 1) | return | endif
 
   let json = json_decode(readfile(s:Sets.bookmarks_file)[0])

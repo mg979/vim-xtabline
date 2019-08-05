@@ -9,7 +9,6 @@ let s:Sets = g:xtabline_settings
 
 let s:v.tab_properties = {}                     "if not empty, newly created tab will inherit them
 let s:v.buffer_properties = {}                  "if not empty, newly created tab will inherit them
-let s:v.filtering      = 1                      "whether bufline filtering is active
 let s:v.custom_tabs    = 1                      "tabline shows custom names/icons
 let s:v.showing_tabs   = 0                      "tabline or bufline?
 let s:v.halt           = 0                      "used to temporarily halt some functions
@@ -167,7 +166,7 @@ fun! xtabline#filter_buffers(...) abort
     elseif s:invalid(buf)  | continue
     elseif !T.locked
 
-      if !s:v.filtering
+      if !s:Sets.buffer_filtering
         let valid = 1
 
       elseif use_files
@@ -291,9 +290,8 @@ function! s:Do(action, ...)
 
     call xtabline#tab#check_all()
     call xtabline#tab#check()
-    let T = X.Tabs[N]
 
-    if F.cd(T.cwd) | return | endif
+    call F.cd(X.Tabs[N])
 
     call xtabline#update()
 
@@ -302,9 +300,7 @@ function! s:Do(action, ...)
   elseif a:action == 'leave'
 
     let V.last_tab = X.Tabs[N]
-    if !haslocaldir()
-      let X.Tabs[N].cwd = F.fullpath(getcwd())
-    endif
+    call F.set_tab_wd(X.Tabs[N])
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
