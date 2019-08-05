@@ -13,11 +13,65 @@ let s:vB = { -> s:T().buffers.valid     }       "valid buffers for tab
 let s:oB = { -> s:T().buffers.order     }       "ordered buffers for tab
 
 
+fun! xtabline#fzf#list_buffers(args)
+  call fzf#vim#buffers(a:args, {
+        \ 'source': s:tab_buffers(),
+        \ 'options': '--multi --prompt "Open Tab Buffer >>>  "'})
+endfun
+
+fun! xtabline#fzf#list_tabs(args)
+  call fzf#vim#files(a:args, {
+        \ 'source': s:tablist(), 'sink': function('s:tabopen'),
+        \ 'options': '--header-lines=1 --no-preview --ansi --prompt "Go to Tab >>>  "'})
+endfun
+
+fun! xtabline#fzf#delete_buffers(args)
+  call fzf#vim#files(a:args, {
+        \ 'source': s:tab_buffers(),
+        \ 'sink': function('s:bufdelete'), 'down': '30%',
+        \ 'options': '--multi --no-preview --ansi --prompt "Delete Tab Buffer >>>  "'})
+endfun
+
+fun! xtabline#fzf#load_session(args)
+  call fzf#vim#files(a:args, {
+        \ 'source': s:sessions_list(),
+        \ 'sink': function('s:session_load'), 'down': '30%',
+        \ 'options': '--header-lines=1 --no-preview --ansi --prompt "Load Session >>>  "'})
+endfun
+
+fun! xtabline#fzf#delete_session(args)
+  call fzf#vim#files(a:args, {
+        \ 'source': s:sessions_list(),
+        \ 'sink': function('s:session_delete'), 'down': '30%',
+        \ 'options': '--header-lines=1 --no-multi --no-preview --ansi --prompt "Delete Session >>>  "'})
+endfun
+
+fun! xtabline#fzf#load_tab(args)
+  call fzf#vim#files(a:args, {
+        \ 'source': s:tabs(),
+        \ 'sink': function('s:tab_load'), 'down': '30%',
+        \ 'options': '--header-lines=1 --multi --no-preview --ansi --prompt "Load Tab Bookmark >>>  "'})
+endfun
+
+fun! xtabline#fzf#delete_tab(args)
+  call fzf#vim#files(a:args, {
+        \ 'source': s:tabs(),
+        \ 'sink': function('s:tab_delete'), 'down': '30%',
+        \ 'options': '--header-lines=1 --multi --no-preview --ansi --prompt "Delete Tab Bookmark >>>  "'})
+endfun
+
+fun! xtabline#fzf#nerd_bookmarks(args)
+  call fzf#vim#files(a:args, {
+        \ 'source': s:tab_nerd_bookmarks(),
+        \ 'sink': function('s:tab_nerd_bookmarks_load'), 'down': '30%',
+        \ 'options': '--multi --no-preview --ansi --prompt "Load NERD Bookmark >>>  "'})
+endfun
+
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Tab buffers {{{1
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! xtabline#fzf#tab_buffers() abort
+fun! s:tab_buffers() abort
   """Open a list of buffers for this tab with fzf.vim."""
 
   if empty(s:vB()) | return [] | endif
@@ -37,7 +91,7 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! xtabline#fzf#bufdelete(name) abort
+fun! s:bufdelete(name) abort
   let current = bufnr('%')
   if len(a:name) < 2
     return
@@ -57,7 +111,7 @@ endfun
 " Tabs overview {{{1
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! xtabline#fzf#tablist() abort
+fun! s:tablist() abort
   let lines = []
   for tab in range(tabpagenr("$"))
     let T = g:xtabline.Tabs[tab]
@@ -73,7 +127,7 @@ fun! xtabline#fzf#tablist() abort
   return reverse(lines)
 endfun
 
-fun! xtabline#fzf#tabopen(line) abort
+fun! s:tabopen(line) abort
   let tab = a:line[0:(match(a:line, '\s')-1)]
   exe "normal!" tab."gt"
 endfun
@@ -82,7 +136,7 @@ endfun
 " Saved tabs {{{1
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! xtabline#fzf#tabs() abort
+fun! s:tabs() abort
   let json = json_decode(readfile(s:Sets.bookmarks_file)[0])
 
   let bookmarks = &columns > 99 ?
@@ -116,11 +170,11 @@ fun! s:abort_load(name, fzf_line, error_type) abort
           \[ ": invalid directory. Remove entry?\t", 'WarningMsg' ]])
   endif
   if nr2char(getchar()) == 'y'
-    call xtabline#fzf#tab_delete(a:fzf_line)
+    call s:tab_delete(a:fzf_line)
   endif
 endfun
 
-fun! xtabline#fzf#tab_load(...) abort
+fun! s:tab_load(...) abort
   """Load a saved tab."""
   let json = json_decode(readfile(s:Sets.bookmarks_file)[0])
   let s:v.halt = 1
@@ -167,7 +221,7 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! xtabline#fzf#tab_delete(...) abort
+fun! s:tab_delete(...) abort
   """Delete a saved tab."""
   let json = json_decode(readfile(s:Sets.bookmarks_file)[0])
 
@@ -258,7 +312,7 @@ fun! s:desc_string(s, n, sfile, color) abort
   endif
 endfun
 
-fun! xtabline#fzf#sessions_list(...) abort
+fun! s:sessions_list(...) abort
   let data = a:0 ? [] : ["Session\t\t\t\tTimestamp\tDescription"] | let sfile = {}
   let sfile = json_decode(readfile(s:Sets.sessions_data)[0])
   let sessions = split(globpath(expand(s:Sets.sessions_path, ":p"), "*"), '\n')
@@ -298,7 +352,7 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! xtabline#fzf#session_load(file) abort
+fun! s:session_load(file) abort
 
   " abort if there are unsaved changes
   for b in range(1, bufnr("$"))
@@ -344,7 +398,7 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! xtabline#fzf#session_delete(file) abort
+fun! s:session_delete(file) abort
 
   let session = a:file
   if match(session, "\t")
@@ -436,40 +490,10 @@ endfun
 
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Misc commands {{{1
+" NERD commands {{{1
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! xtabline#fzf#cmds() abort
-  """Run any XTabline command with fzf or finder."""
-  redraw!
-  let input = map(copy(s:cmds), 'v:val[0]')
-  if !exists('g:loaded_fzf') || !g:loaded_fzf
-    let res = xtabline#finder#open(input, 'Command ', 0)
-    if !empty(res)
-      call xtabline#fzf#run(res[0])
-    endif
-    return
-  endif
-  call fzf#vim#files('', {
-        \ 'source': input,
-        \ 'sink': function('xtabline#fzf#run'), 'down': '30%',
-        \ 'options': '--no-multi --no-preview --ansi --prompt "Command >>>  "'})
-endfun
-
-fun! xtabline#fzf#run(cmd) abort
-  let i = 0
-  for cmd in map(copy(s:cmds), 'v:val[0]')
-    if a:cmd == cmd
-      exe s:cmds[i][1]
-      break
-    endif
-    let i += 1
-  endfor
-endfun
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! xtabline#fzf#tab_nerd_bookmarks() abort
+fun! s:tab_nerd_bookmarks() abort
   let bfile = readfile(g:NERDTreeBookmarksFile)
   let bookmarks = []
   "skip last emty line
@@ -482,7 +506,7 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! xtabline#fzf#tab_nerd_bookmarks_load(...) abort
+fun! s:tab_nerd_bookmarks_load(...) abort
   for bm in a:000
     let bm = expand(bm, ":p")
     if isdirectory(bm)
@@ -557,6 +581,9 @@ fun! s:strip(str) abort
 endfun
 
 fun! s:format_buffer(b) abort
+  if !exists('g:loaded_fzf')
+    return bufname(a:b)
+  endif
   let name = bufname(a:b)
   let name = empty(name) ? '[No Name]' : fnamemodify(name, ":~:.")
   let flag = a:b == bufnr('')  ? s:blue('%', 'Conditional') :
@@ -579,25 +606,52 @@ fun! s:pad(t, n) abort
   endif
 endfun
 
+
+
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Menu {{{1
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:run(cmd) abort
+  let i = 0
+  for cmd in map(copy(s:cmds), 'v:val[0]')
+    if a:cmd == cmd
+      exe s:cmds[i][1]
+      break
+    endif
+    let i += 1
+  endfor
+endfun
+
+fun! s:finder(input, prompt, sink)
+  let res = xtabline#finder#open(a:input, a:prompt, 0)
+  if !empty(res)
+    call s:{a:sink}(res[0])
+  endif
+endfun
+
+fun! xtabline#fzf#cmds() abort
+  """Run any XTabline command with fzf or finder."""
+  redraw!
+  let input = map(copy(s:cmds), 'v:val[0]')
+  if !exists('g:loaded_fzf')
+    return s:finder(input, 'Command ', 'run')
+  endif
+  call fzf#vim#files('', {
+        \ 'source': input,
+        \ 'sink': function('s:run'), 'down': '30%',
+        \ 'options': '--no-multi --no-preview --ansi --prompt "Command >>>  "'})
+endfun
+
 let s:cmds = [
       \['Reopen last tab',               "XTabReopen"],
       \['Close buffer',                  "XTabCloseBuffer"],
       \['Pin buffer',                    "XTabPinBuffer"],
-      \['List tabs',                     "XTabListTabs"],
-      \['List buffers',                  "XTabListBuffers"],
-      \['Delete tab buffers',            "XTabDeleteBuffers"],
-      \['Delete global buffers',         "XTabDeleteGlobalBuffers"],
       \['Clean up buffers',              "XTabCleanUp"],
       \['Purge all hidden buffers',      "XTabCleanUp"],
       \['Tab todo',                      "XTabTodo"],
       \['Purge tab',                     "XTabPurge"],
-      \['Load tab',                      "XTabLoadTab"],
-      \['Save tab',                      "XTabSaveTab"],
-      \['Delete tab',                    "XTabDeleteTab"],
-      \['Load session',                  "XTabLoadSession"],
-      \['Save session',                  "XTabSaveSession"],
-      \['New session',                   "XTabNewSession"],
-      \['Delete session',                "XTabDeleteSession"],
       \['Toggle custom tabs',            "XTabCustomTabs"],
       \['Toggle buffer relative paths',  "XTabRelativePaths"],
       \['Reset tab',                     "XTabResetTab"],
@@ -621,3 +675,18 @@ let s:cmds = [
       \['Change buffer icon',            "call feedkeys(':XTabBufferIcon ', 'n')"],
       \['Select theme',                  "call feedkeys(':XTabTheme ', 'n')"],
       \]
+
+if exists('g:loaded_fzf')
+  call extend(s:cmds, [
+        \['List tabs',                     "XTabListTabs"],
+        \['List buffers',                  "XTabListBuffers"],
+        \['Delete tab buffers',            "XTabDeleteBuffers"],
+        \['Load tab',                      "XTabLoadTab"],
+        \['Save tab',                      "XTabSaveTab"],
+        \['Delete tab',                    "XTabDeleteTab"],
+        \['Load session',                  "XTabLoadSession"],
+        \['Save session',                  "XTabSaveSession"],
+        \['New session',                   "XTabNewSession"],
+        \['Delete session',                "XTabDeleteSession"],
+        \])
+endif

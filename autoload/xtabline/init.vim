@@ -17,73 +17,42 @@ endfun
 " Commands
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-com! -nargs=? -complete=buffer XTabListBuffers call fzf#vim#buffers(<q-args>, {
-      \ 'source': xtabline#fzf#tab_buffers(),
-      \ 'options': '--multi --prompt "Open Tab Buffer >>>  "'})
+if exists('g:loaded_fzf')
+  com! -nargs=? -complete=buffer XTabListBuffers       call xtabline#fzf#list_buffers(<q-args>)
+  com! -nargs=? -complete=buffer XTabListTabs          call xtabline#fzf#list_tabs(<q-args>)
+  com! -nargs=? -complete=buffer XTabDeleteBuffers     call xtabline#fzf#delete_buffers(<q-args>)
+  com! -nargs=?                  XTabLoadSession       call xtabline#fzf#load_session(<q-args>)
+  com! -nargs=?                  XTabDeleteSession     call xtabline#fzf#delete_session(<q-args>)
+  com! -nargs=?                  XTabLoadTab           call xtabline#fzf#load_tab(<q-args>)
+  com! -nargs=?                  XTabDeleteTab         call xtabline#fzf#delete_tab(<q-args>)
+  com! -nargs=?                  XTabNERDBookmarks     call xtabline#fzf#nerd_bookmarks(<q-args>)
+  com!                           XTabSaveTab           call xtabline#fzf#tab_save()
+  com!                           XTabSaveSession       call xtabline#fzf#session_save()
+  com! -nargs=?                  XTabNewSession        call xtabline#fzf#session_save(<q-args>)
+endif
 
-com! -nargs=? -complete=buffer XTabListTabs call fzf#vim#files(<q-args>, {
-      \ 'source': xtabline#fzf#tablist(), 'sink': function('xtabline#fzf#tabopen'),
-      \ 'options': '--header-lines=1 --no-preview --ansi --prompt "Go to Tab >>>  "'})
+com!                           XTabTodo                call xtabline#cmds#run('tab_todo')
+com!                           XTabPurge               call xtabline#cmds#run('purge_buffers')
+com!                           XTabReopen              call xtabline#cmds#run('reopen_last_tab')
+com!                           XTabCloseBuffer         call xtabline#cmds#run('close_buffer')
+com! -bang                     XTabCleanUp             call xtabline#cmds#run('clean_up', <bang>0)
+com! -nargs=1                  XTabRenameTab           call xtabline#cmds#run("rename_tab", <q-args>)
+com! -nargs=1                  XTabRenameBuffer        call xtabline#cmds#run("rename_buffer", <q-args>)
+com!                           XTabResetTab            call xtabline#cmds#run("reset_tab")
+com!                           XTabResetBuffer         call xtabline#cmds#run("reset_buffer")
+com! -nargs=*                  XTabRelativePaths       call xtabline#cmds#run("relative_paths", <q-args>)
+com!                           XTabFormatBuffer        call xtabline#cmds#run("format_buffer")
+com!                           XTabCustomTabs          call xtabline#cmds#run("toggle_tab_names")
+com!                           XTabLock                call xtabline#cmds#run("lock_tab")
+com! -nargs=?                  XTabPinBuffer           call xtabline#cmds#run("toggle_pin_buffer", <q-args>)
+com!                           XTabToggleFiltering     call xtabline#cmds#run("toggle_filtering")
+com!                           XTabConfig              call xtabline#config#start()
 
-com! -nargs=? -complete=buffer XTabDeleteBuffers call fzf#vim#files(<q-args>, {
-      \ 'source': xtabline#fzf#tab_buffers(),
-      \ 'sink': function('xtabline#fzf#bufdelete'), 'down': '30%',
-      \ 'options': '--multi --no-preview --ansi --prompt "Delete Tab Buffer >>>  "'})
-
-com! -nargs=? -complete=buffer XTabDeleteGlobalBuffers call fzf#vim#buffers(<q-args>, {
-      \ 'sink': function('xtabline#fzf#bufdelete'), 'down': '30%',
-      \ 'options': '--multi --no-preview --ansi --prompt "Delete Any Buffer >>>  "'})
-
-com! -nargs=? XTabLoadSession call fzf#vim#files(<q-args>, {
-      \ 'source': xtabline#fzf#sessions_list(),
-      \ 'sink': function('xtabline#fzf#session_load'), 'down': '30%',
-      \ 'options': '--header-lines=1 --no-preview --ansi --prompt "Load Session >>>  "'})
-
-com! -nargs=? XTabDeleteSession call fzf#vim#files(<q-args>, {
-      \ 'source': xtabline#fzf#sessions_list(),
-      \ 'sink': function('xtabline#fzf#session_delete'), 'down': '30%',
-      \ 'options': '--header-lines=1 --no-multi --no-preview --ansi --prompt "Delete Session >>>  "'})
-
-com! -nargs=? XTabLoadTab call fzf#vim#files(<q-args>, {
-      \ 'source': xtabline#fzf#tabs(),
-      \ 'sink': function('xtabline#fzf#tab_load'), 'down': '30%',
-      \ 'options': '--header-lines=1 --multi --no-preview --ansi --prompt "Load Tab Bookmark >>>  "'})
-
-com! -nargs=? XTabDeleteTab call fzf#vim#files(<q-args>, {
-      \ 'source': xtabline#fzf#tabs(),
-      \ 'sink': function('xtabline#fzf#tab_delete'), 'down': '30%',
-      \ 'options': '--header-lines=1 --multi --no-preview --ansi --prompt "Delete Tab Bookmark >>>  "'})
-
-com! -nargs=? XTabNERDBookmarks call fzf#vim#files(<q-args>, {
-      \ 'source': xtabline#fzf#tab_nerd_bookmarks(),
-      \ 'sink': function('xtabline#fzf#tab_nerd_bookmarks_load'), 'down': '30%',
-      \ 'options': '--multi --no-preview --ansi --prompt "Load NERD Bookmark >>>  "'})
-
-com!                    XTabSaveTab         call xtabline#fzf#tab_save()
-com!                    XTabSaveSession     call xtabline#fzf#session_save()
-com! -nargs=?           XTabNewSession      call xtabline#fzf#session_save(<q-args>)
-com!                    XTabTodo            call xtabline#cmds#run('tab_todo')
-com!                    XTabPurge           call xtabline#cmds#run('purge_buffers')
-com!                    XTabReopen          call xtabline#cmds#run('reopen_last_tab')
-com!                    XTabCloseBuffer     call xtabline#cmds#run('close_buffer')
-com! -bang              XTabCleanUp         call xtabline#cmds#run('clean_up', <bang>0)
-com! -nargs=1           XTabRenameTab       call xtabline#cmds#run("rename_tab", <q-args>)
-com! -nargs=1           XTabRenameBuffer    call xtabline#cmds#run("rename_buffer", <q-args>)
-com!                    XTabResetTab        call xtabline#cmds#run("reset_tab")
-com!                    XTabResetBuffer     call xtabline#cmds#run("reset_buffer")
-com! -nargs=*           XTabRelativePaths   call xtabline#cmds#run("relative_paths", <q-args>)
-com!                    XTabFormatBuffer    call xtabline#cmds#run("format_buffer")
-com!                    XTabCustomTabs      call xtabline#cmds#run("toggle_tab_names")
-com!                    XTabLock            call xtabline#cmds#run("lock_tab")
-com! -nargs=?           XTabPinBuffer       call xtabline#cmds#run("toggle_pin_buffer", <q-args>)
-com!                    XTabToggleFiltering call xtabline#cmds#run("toggle_filtering")
-com!                    XTabConfig          call xtabline#config#start()
-
-com! -nargs=? -count    XTabNew             call xtabline#cmds#run("new_tab", <count>, <q-args>)
-com! -nargs=?           XTabMove            call xtabline#cmds#run("move_tab", <q-args>)
-com!                    XTabMenu            call xtabline#fzf#cmds()
-com!                    XTabVimrc           call xtabline#vimrc#open()
-com!                    XTabLast            call xtabline#cmds#run('goto_last_tab')
+com! -nargs=? -count           XTabNew                 call xtabline#cmds#run("new_tab", <count>, <q-args>)
+com! -nargs=?                  XTabMove                call xtabline#cmds#run("move_tab", <q-args>)
+com!                           XTabMenu                call xtabline#fzf#cmds()
+com!                           XTabVimrc               call xtabline#vimrc#open()
+com!                           XTabLast                call xtabline#cmds#run('goto_last_tab')
 
 com! -nargs=? -count -complete=file -bang            XTabEdit            call xtabline#cmds#run("edit_tab", <count>, <bang>0, <q-args>)
 com! -nargs=? -bang  -complete=file                  XTabWD              call xtabline#cmds#run("set_cwd", <bang>0, <q-args>)

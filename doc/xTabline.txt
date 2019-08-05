@@ -335,11 +335,9 @@ Command                   | Mapping  | Plug                            ~
 --------------------------+----------+----------------------------------
 XTabListBuffers           | *bl      | <Plug>(XT-List-Buffers)
 XTabDeleteBuffers         | *db      | <Plug>(XT-Delete-Buffers)
-XTabDeleteGlobalBuffers   | *dgb     | <Plug>(XT-Delete-Global-Buffers)
 
 `XTabListBuffers`           list a list of `Tab Buffers` to choose from
 `XTabDeleteBuffers`         same list, but use `bdelete` command on them
-`XTabDeleteGlobalBuffers`   `bdelete`, but choose from the global buffers list
 
 
 

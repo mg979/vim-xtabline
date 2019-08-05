@@ -12,10 +12,10 @@ endf
 "------------------------------------------------------------------------------
 
 fun! s:buffer(input, cline) abort
-  """.
   botright 10new +setlocal\ buftype=nofile\ bufhidden=wipe\
         \ nobuflisted\ nonumber\ norelativenumber\ noswapfile\ nowrap\
         \ foldmethod=manual\ nofoldenable\ modifiable\ noreadonly
+  setlocal statusline=%#TabLine#Select\ an\ item
   call setline(1, a:input)
   if !a:cline
     setlocal cursorline
@@ -50,7 +50,7 @@ fun! xtabline#finder#open(input, prompt, exe_cmdline) abort
       let filter .= nr2char(ch)
       let seq_old = get(undotree(), 'seq_cur', 0)
       try " Ignore invalid regexps
-        execute 'silent keepp g!:\m' . escape(filter, '~\[:') . ':norm "_dd'
+        execute 'silent keepp g!:\m\c' . escape(filter, '~\[:') . ':norm "_dd'
       catch /^Vim\%((\a\+)\)\=:E/
         let error = 1
       endtry
