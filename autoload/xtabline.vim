@@ -301,7 +301,7 @@ function! s:Do(action, ...)
 
   elseif a:action == 'leave'
 
-    let V.last_tab = N
+    let V.last_tab = X.Tabs[N]
     if !haslocaldir()
       let X.Tabs[N].cwd = F.fullpath(getcwd())
     endif
@@ -310,11 +310,12 @@ function! s:Do(action, ...)
 
   elseif a:action == 'close'
 
-    if index(X.closed_cwds, X.Tabs[V.last_tab].cwd) < 0
-      call add(X.closed_tabs, copy(X.Tabs[V.last_tab]))
-      call add(X.closed_cwds, X.Tabs[V.last_tab].cwd)
+    if tabpagenr('$') == 1 || index(X.closed_cwds, V.last_tab.cwd) < 0
+      call add(X.closed_tabs, copy(V.last_tab))
+      call add(X.closed_cwds, V.last_tab.cwd)
     endif
-    call remove(X.Tabs, V.last_tab)
+    call remove(X.Tabs, index(X.Tabs, V.last_tab))
+    call xtabline#update()
 
   endif
 endfunction

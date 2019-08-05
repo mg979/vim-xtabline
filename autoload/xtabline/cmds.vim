@@ -649,7 +649,8 @@ endfun
 
 fun! s:goto_last_tab() abort
   """Go back to the previously opened tab.
-  exe "normal!" (s:v.last_tab + 1)."gt"
+  let n = index(s:X.Tabs, s:v.last_tab)
+  exe "normal!" (n + 1)."gt"
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

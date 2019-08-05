@@ -107,5 +107,8 @@ fun! xtabline#tab#check_all() abort
   let Tabs = g:xtabline.Tabs
   while len(Tabs) < tabpagenr("$") | call add(Tabs, xtabline#tab#new()) | endwhile
   while len(Tabs) > tabpagenr('$') | call remove(Tabs, -1)              | endwhile
+  if !has_key(s:v, 'last_tab')
+    let s:v.last_tab = s:T()
+  endif
 endfun
 

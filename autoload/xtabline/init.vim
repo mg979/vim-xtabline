@@ -78,7 +78,7 @@ let g:xtabline = {'Tabs': [], 'Vars': {}, 'Buffers': {}, 'Funcs': {},
                  \'pinned_buffers': [], 'closed_tabs': [], 'closed_cwds': []}
 
 let g:xtabline.Vars = {
-      \'winOS': has("win16") || has("win32") || has("win64"), 'last_tab': 0,
+      \'winOS': has("win16") || has("win32") || has("win64"),
       \}
 
 let s:vimdir = ( has('win32unix') || g:xtabline.Vars.winOS ) &&
