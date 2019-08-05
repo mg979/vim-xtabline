@@ -205,10 +205,9 @@ if get(g:, 'xtabline_lazy', 0)
   silent! augroup! xtabline_lazy
   delcommand XTablineInit
   call xtabline#init()
-  delfunction Xtabline
+  silent! delfunction XtablineStarted
   doautocmd BufEnter
   unlet g:xtabline_lazy
-  silent! unlet g:xtabline_init_on_bufadd
 endif
 
 "------------------------------------------------------------------------------

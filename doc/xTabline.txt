@@ -33,7 +33,7 @@ XTABLINE - TABLE OF CONTENTS                                           *xtabline
 FEATURES LIST                                                 *xtabline-features*
 ===============================================================================
 
-This plugin tries to give you full control on the tabline. I wanted ways to:
+This plugin tries to give you full control on the tabline. It gives ways to:
 
 * switch between tabs and buffer mode
 * have buffers filtered on the base of the current CWD, or other criterias
@@ -90,6 +90,12 @@ To change most settings, you have to initialize the settings dictionary:
     let g:xtabline_settings = {}
 
 ------------------------------------------------------------------------------
+                                                             *xtabline-lazy*  >
+You can lazy load the plugin (on |TabNew|, |SessionLoadPost|, |BufAdd|):
+>
+    let g:xtabline_lazy = 1
+
+------------------------------------------------------------------------------
                                                        *xtabline-map_prefix*  >
     let g:xtabline_settings.map_prefix = '<leader>x'
 
@@ -103,13 +109,6 @@ Most mappings presented are meant prefixed by <prefix>, when preceded by *.
     let g:xtabline_settings.enable_mappings = 0
 
 Mappings are disabled by default.
-
-------------------------------------------------------------------------------
-                                                             *xtabline-lazy*  >
-You can lazy load the plugin:
->
-    let g:xtabline_lazy = 1   ( will load on TabNew, SessionLoadPost, BufAdd )
-    let g:xtabline_lazy = 2   ( will load manually with :XTablineInit )
 
 ------------------------------------------------------------------------------
                                                         *xtabline-filtering*  >

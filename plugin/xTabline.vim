@@ -17,33 +17,28 @@ if exists("g:loaded_xtabline")
 endif
 
 if get(g:, 'xtabline_lazy', 0)
-
-  if g:xtabline_lazy == 1
-    " load on TabNew or SessionLoadPost
-    augroup xtabline_lazy
-      au!
-      au TabNew,SessionLoadPost * call xtabline#init#start()
-      if get(g:, 'xtabline_init_on_bufadd', 1)
-        au BufAdd * call xtabline#init#start()
-      endif
-    augroup END
-
-    " setup a temporary tabline
-    if empty(&tabline)
-      fun! Xtabline()
-        let bufs = filter(range(1, bufnr('$')), 'buflisted(v:val) && !empty(bufname(v:val))')
-        let bufline = join(map(bufs, '"%#TabLineSel# " . v:val . '.
-              \'(v:val == bufnr("%") ? " %#Special# " : " %#TabLine# ") . fnamemodify(bufname(v:val), ":t") . '.
-              \'(getbufvar(v:val, "&modified") ? " [+] " : " ")'))
-        return bufline."%#TabLineFill#%T%=%#TabLineSel# 📂 %#TabLine# %<% ".
-              \fnamemodify(getcwd(), ':~')."%999X"
-      endfun
-      set tabline=%!Xtabline()
-    endif
-  endif
-
-  " init command also if g:xtabline_lazy > 1
   command! XTablineInit call xtabline#init#start()
+
+  " load on TabNew, BufAdd or SessionLoadPost
+  augroup xtabline_lazy
+    au!
+    au TabNew,SessionLoadPost,BufAdd * call xtabline#init#start()
+  augroup END
+
+  " setup a temporary tabline
+  if empty(&tabline)
+    fun! Bufline()
+      let bufs    = filter(range(1, bufnr('$')), 'buflisted(v:val) && !empty(bufname(v:val))')
+      let num     = '"%#TabLineSel# " . v:val . '
+      let hi      = '(v:val           == bufnr("%") ? " %#Special# " : " %#TabLine# ") . '
+      let bufname = 'fnamemodify(bufname(v:val), ":t") . '
+      let mod     = '(getbufvar(v:val, "&modified") ? " [+] " : " ")'
+      let cwd     = "%#TabLineFill#%T%=%#TabLineSel# 📂 %#TabLine# %<% " . fnamemodify(getcwd(), ':~')
+      let bufline = join(map(bufs, num . hi . bufname . mod))
+      return bufline . cwd . "%999X"
+    endfun
+    set tabline=%!Bufline()
+  endif
 
 else
   call xtabline#init#start()
