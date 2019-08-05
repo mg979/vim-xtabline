@@ -60,12 +60,13 @@ fun! xtabline#render#buffers() abort
   call xtabline#tab#check_index()
   let currentbuf = winbufnr(0)
 
-  if !has_key(s:last_modified_state, currentbuf)
+  let changed_modified_state =
+        \ !has_key(s:last_modified_state, currentbuf) ||
+        \ &modified != s:last_modified_state[currentbuf]
+
+  if changed_modified_state || exists('s:v.time_to_update')
     let s:last_modified_state[currentbuf] = &modified
-  elseif &modified != s:last_modified_state[currentbuf]
-    let s:last_modified_state[currentbuf] = &modified
-  elseif exists('s:v.time_to_update')
-    unlet s:v.time_to_update
+    silent! unlet s:v.time_to_update
   else
     return s:last_tabline
   endif
@@ -607,12 +608,14 @@ endfun
 
 fun! s:get_tab_for_bufline() abort
   """Build string with tab label and icon for the bufline."""
-  if ! s:Sets.show_current_tab | return ['', ''] | endif
   let N = tabpagenr()
-  let fmt = empty(s:tabname(N)) ? s:Sets.bufline_tab_format : s:Sets.bufline_named_tab_format
-
-  let fmt_chars = s:fmt_chars(fmt)                           "formatting options
-  let fmt_tab = s:format_tab(N, fmt_chars)                   "formatted string
+  if ! s:Sets.show_current_tab
+    let fmt_tab = s:tabnum(N, 1)
+  else
+    let fmt = empty(s:tabname(N)) ? s:Sets.bufline_tab_format : s:Sets.bufline_named_tab_format
+    let fmt_chars = s:fmt_chars(fmt)                         "formatting options
+    let fmt_tab = s:format_tab(N, fmt_chars)                 "formatted string
+  endif
   let label = substitute(fmt_tab, '%#\w*#', '', 'g')         "text only, to find width
   return [fmt_tab, strwidth(label)]
 endfun
