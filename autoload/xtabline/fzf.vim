@@ -119,7 +119,7 @@ fun! s:tablist() abort
     let line = s:yellow(s:pad(tab+1, 5))."\t".
           \    s:green(s:pad(bufs, 5))."\t".
           \    s:cyan(s:pad(T.name, 20))."\t".
-          \    (&columns<150 ? s:F.short_cwd(tab, 1) : fnamemodify(T.cwd, ":~"))
+          \    (&columns<150 ? s:F.short_cwd(tab+1, 1) : fnamemodify(T.cwd, ":~"))
     call add(lines, line)
   endfor
   call add(lines, "Tab\tBufs\tName\t\t\tWorking Directory")
