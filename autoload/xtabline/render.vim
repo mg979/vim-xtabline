@@ -46,7 +46,6 @@ let s:specialHi         = { b -> s:B()[b].special                               
 " BufTabLine main function {{{1
 " =============================================================================
 
-let s:last_tabline = ''
 let s:v.time_to_update = 1
 let s:last_modified_state = { winbufnr(0): &modified }
 
@@ -56,7 +55,7 @@ let s:last_modified_state = { winbufnr(0): &modified }
 " there's no need to reprocess it, just return the old string
 
 fun! xtabline#render#buffers() abort
-  if !s:ready() | return s:last_tabline | endif
+  if !s:ready() | return g:xtabline.last_tabline | endif
   call xtabline#tab#check_index()
   let currentbuf = winbufnr(0)
 
@@ -68,7 +67,7 @@ fun! xtabline#render#buffers() abort
     let s:last_modified_state[currentbuf] = &modified
     silent! unlet s:v.time_to_update
   else
-    return s:last_tabline
+    return g:xtabline.last_tabline
   endif
 
   if &columns < 40 | return s:get_tab_for_bufline()[0] | endif
@@ -80,40 +79,46 @@ fun! xtabline#render#buffers() abort
   " pick up data on all the buffers
   let tabs = []
   let Tab  = s:T()
-  let bufs = s:oB()
-  call filter(bufs, 'bufexists(v:val)')
 
-  "limiting to x most recent buffers, if option is set; here we consider only
-  "valid buffers, special/extra/etc will be added later
-  let max = get(s:Sets, 'recent_buffers', 10)
-  if max > 0
-    let recent = Tab.buffers.recent[:(max-1)]
-    call filter(bufs, 'index(recent, v:val) >= 0')
-  endif
+  if s:v.tabline_mode == 'buffers'
+    let bufs = s:oB()
+    let max = get(s:Sets, 'recent_buffers', 10)
+    call filter(bufs, 'bufexists(v:val)')
 
-  "put current buffer first
-  if s:Sets.last_open_first
-    let i = index(bufs, currentbuf)
-    if i >= 0
-      call remove(bufs, i)
-      call insert(bufs, currentbuf, 0)
+    "limiting to x most recent buffers, if option is set; here we consider only
+    "valid buffers, special/extra/etc will be added later
+    if max > 0
+      let recent = Tab.buffers.recent[:(max-1)]
+      call filter(bufs, 'index(recent, v:val) >= 0')
     endif
-  endif
 
-  "include special buffers (upfront)
-  let front = [] | let specials = []
-  for b in s:F.wins()
-    if s:B()[b].special
-      call add(specials, b)
-    elseif s:is_open(b)
-      call add(front, b)
+    "put current buffer first
+    if s:Sets.last_open_first
+      let i = index(bufs, currentbuf)
+      if i >= 0
+        call remove(bufs, i)
+        call insert(bufs, currentbuf, 0)
+      endif
     endif
-  endfor
 
-  "put upfront: special > pinned > open > extra buffers
-  for b in ( s:eB() + front + s:pinned() + specials )
-    call s:F.add_ordered(b, 1)
-  endfor
+    "include special buffers (upfront)
+    let front = [] | let specials = []
+    for b in s:F.wins()
+      if s:B()[b].special
+        call add(specials, b)
+      elseif s:is_open(b)
+        call add(front, b)
+      endif
+    endfor
+
+    "put upfront: special > pinned > open > extra buffers
+    for b in ( s:eB() + front + s:pinned() + specials )
+      call s:F.add_ordered(b, 1)
+    endfor
+  else
+    let bufs = s:F.uniq(map(argv(), 'bufnr(v:val)'))
+    call filter(bufs, 'bufexists(v:val)')
+  endif
 
   "no need to render more than 20 buffers at a time, since they'll be offscreen
   let begin = 0
@@ -230,8 +235,8 @@ fun! xtabline#render#buffers() abort
   let swallowclicks = '%'.(1 + tabpagenr('$')).'X'
   let buffers = swallowclicks . join(map(tabs,'v:val.label'),'')
   let padding = s:extra_padding(lft.width + rgt.width, limit)
-  let s:last_tabline = buffers . padding . active_tab . '%999X'
-  return s:last_tabline
+  let g:xtabline.last_tabline = buffers . padding . active_tab . '%999X'
+  return g:xtabline.last_tabline
 endfun
 
 " Buffer label formatting {{{1
@@ -378,8 +383,15 @@ fun! xtabline#render#tabs() abort
   for i in s:tabs()
     let tabline .= i == tabpagenr() ? '%#XTTabActive#' : '%#XTTabInactive#'
     let tabline .= '%' . i . 'T'
-    let fmt = empty(s:tabname(i)) ? fmt_unnamed : fmt_renamed
-    let tabline .= s:format_tab(i, fmt)
+    if s:Sets.use_tab_cwd == 0
+      let buflist = tabpagebuflist(i)
+      let winnr = tabpagewinnr(i)
+      let bname = bufname(buflist[winnr - 1])
+      let tabline .= printf("%s %s ", s:tabnum(i, 1), s:F.short_cwd(i, 0, bname))
+    else
+      let fmt = empty(s:tabname(i)) ? fmt_unnamed : fmt_renamed
+      let tabline .= s:format_tab(i, fmt)
+    endif
   endfor
 
   let tabline .= '%#XTFill#%T'
@@ -430,7 +442,7 @@ endfun
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:tabnum(tabnr, all) abort
-  if a:all && !s:v.showing_tabs
+  if a:all && s:v.tabline_mode != 'tabs'
     let hi = has_key(s:T(), 'dir') ? " %#XTNumSel#" : " %#XTTabInactive#"
     return "%#XTNum# " . a:tabnr .'/' . tabpagenr('$') . hi
   else
@@ -611,6 +623,13 @@ fun! s:get_tab_for_bufline() abort
   let N = tabpagenr()
   if ! s:Sets.show_current_tab
     let fmt_tab = s:tabnum(N, 1)
+  elseif s:v.tabline_mode == 'arglist'
+    let fmt_tab = s:tabnum(N, 1) . "%#XTSelect# arglist" . " %#XTTabInactive#"
+  elseif s:Sets.use_tab_cwd == 0
+    let buflist = tabpagebuflist(N)
+    let winnr = tabpagewinnr(N)
+    let bname = bufname(buflist[winnr - 1])
+    let fmt_tab = printf("%s %s ", s:tabnum(N, 1), s:F.short_cwd(N, 0, bname))
   else
     let fmt = empty(s:tabname(N)) ? s:Sets.bufline_tab_format : s:Sets.bufline_named_tab_format
     let fmt_chars = s:fmt_chars(fmt)                         "formatting options

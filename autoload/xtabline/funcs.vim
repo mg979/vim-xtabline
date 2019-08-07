@@ -181,11 +181,13 @@ endfun
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Shortened paths
 
-fun! s:Funcs.short_cwd(tabnr, h) abort
+fun! s:Funcs.short_cwd(tabnr, h, ...) abort
+  let path = a:0 ? a:1 : s:X.Tabs[a:tabnr-1].cwd
+
   if !a:h
-    return fnamemodify(s:X.Tabs[a:tabnr-1].cwd, ":t")
+    return fnamemodify(path, ":t")
   else
-    let H = fnamemodify(s:X.Tabs[a:tabnr-1].cwd, ":~")
+    let H = fnamemodify(path, ":~")
     if s:v.winOS | let H = tr(H, '\', '/')
   endif
 

@@ -87,20 +87,18 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:toggle_tabs() abort
-  """Toggle between tabs/buffers tabline."""
+fun! s:cycle_mode() abort
+  """Cycle the active tabline mode."""
 
-  if tabpagenr("$") == 1
-    call s:F.msg ("There is only one tab.", 1)
-  elseif s:v.showing_tabs
-    let s:v.showing_tabs = 0
-    call s:F.msg ([[ "Showing buffers", 'StorageClass' ]])
-    call s:plugins_toggle_tabs()
+  let modes = s:Sets.tabline_modes
+  let current = index(modes, s:v.tabline_mode)
+  if current == len(modes) - 1
+    let s:v.tabline_mode = modes[0]
   else
-    let s:v.showing_tabs = 1
-    call s:F.msg ([[ "Showing tabs", 'StorageClass' ]])
-    call s:plugins_toggle_tabs()
+    let s:v.tabline_mode = modes[current+1]
   endif
+
+  call s:F.msg ([[ "Showing " . s:v.tabline_mode, 'StorageClass' ]])
 
   call xtabline#update()
 endfun
@@ -116,7 +114,6 @@ fun! s:toggle_filtering() abort
     call s:F.msg ([[ "Buffer filtering turned on", 'StorageClass' ]])
   endif
   let s:Sets.buffer_filtering = !s:Sets.buffer_filtering
-  call s:plugins_toggle_buffers()
   call xtabline#update()
 endfun
 
@@ -653,17 +650,6 @@ fun! s:goto_last_tab() abort
   exe "normal!" (n + 1)."gt"
 endfun
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Adjustments for other plugins
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! s:plugins_toggle_tabs() abort
-endfun
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! s:plugins_toggle_buffers() abort
-endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Helpers

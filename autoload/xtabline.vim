@@ -10,7 +10,6 @@ let s:Sets = g:xtabline_settings
 let s:v.tab_properties = {}                     "if not empty, newly created tab will inherit them
 let s:v.buffer_properties = {}                  "if not empty, newly created tab will inherit them
 let s:v.custom_tabs    = 1                      "tabline shows custom names/icons
-let s:v.showing_tabs   = 0                      "tabline or bufline?
 let s:v.halt           = 0                      "used to temporarily halt some functions
 let s:v.auto_set_cwd   = 0                      "used to temporarily allow auto cwd detection
 
@@ -47,6 +46,7 @@ fun! xtabline#init() abort
     let s:X.devicons = {'extensions': extensions, 'exact': exact, 'patterns': patterns}
   endif
 
+  let s:v.tabline_mode = s:Sets.tabline_modes[0]
   call xtabline#tab#check_all()
   call xtabline#update()
 endfun
@@ -114,7 +114,7 @@ endfun
 
 fun! xtabline#update(...) abort
   let s:v.time_to_update = 1
-  if s:v.showing_tabs
+  if s:v.tabline_mode == 'tabs'
     set tabline=%!xtabline#render#tabs()
   else
     set tabline=%!xtabline#render#buffers()
@@ -145,7 +145,7 @@ fun! xtabline#filter_buffers(...) abort
 
   let T = xtabline#tab#check()
 
-  if s:v.showing_tabs && has_key(T, 'init')
+  if s:v.tabline_mode == 'tabs' && has_key(T, 'init')
     set tabline=%!xtabline#render#tabs()
     return
   endif

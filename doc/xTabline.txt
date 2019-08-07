@@ -5,6 +5,7 @@ XTABLINE - TABLE OF CONTENTS                                           *xtabline
 
   Features list                                  |xtabline-features|
   Introduction                                   |xtabline-introduction|
+  Tabline rendering                              |xtabline-rendering|
   Settings and mappings                          |xtabline-settings|
   Customizing look                               |xtabline-look|
   Tab buffers                                    |xtabline-buffers|
@@ -82,7 +83,7 @@ switching tabs, the tab's CWD is automatically restored.
 
 The second one means that in the tabline, only buffers that are valid for the
 tab's CWD will be listed. The number of listed buffers is limited (by default)
-to the 10 most recently accessed buffers, so that the tabline will not be 
+to the 10 most recently accessed buffers, so that the tabline will not be
 easily overcrowded.
 
 The last two are a series of commands that allow you to save/restore tabs and
@@ -97,7 +98,35 @@ sessions.
 
 
 
-SETTINGS AND MAPPINGS                                        *xtabline-settings*
+TABLINE RENDERING                                          *xtabline-rendering*
+===============================================================================
+
+The tabline can be rendered in three different modes:
+
+- 'buffers':  up to a max of N (default 10) recent buffers, numbered by either
+              order or buffer number, or with custom formatting.
+
+- 'tabs':     it will show the tab's CWD, if the feature has been activated,
+              otherwise the buffer name.
+
+- 'arglist':  only the buffers contained in the arglist will be showed.
+
+In |buffer-mode|, in the tabline will be shown buffers that belong to the tab's
+CWD, or any open buffer inside the window. By using the custom buffer
+navigation commands you can switch among them, while using the normal |:bnext|
+command, you still cycle among the default (global) buffer list.
+
+In |arglist-mode|, the tabline will show the files defined in the arglist. You
+can switch file with the usual commands (|:next|, etc).
+
+These modes can be cycled with a mapping (<F5> by default). You can also define
+which modes to cycle with a setting (|xtabline-tabline_modes|).
+
+
+
+
+
+SETTINGS AND MAPPINGS                                       *xtabline-settings*
 ===============================================================================
 
 Here are described the most important settings, for the full list read
@@ -129,8 +158,20 @@ Most mappings presented are meant prefixed by <prefix>, when preceded by *.
 Mappings are disabled by default.
 
 ------------------------------------------------------------------------------
+                                                    *xtabline-tabline_modes*  >
+    let g:xtabline_settings.tabline_modes = ['buffers', 'tabs', 'arglist']
+
+The modes that can be put in this list are:
+
+- |buffers|:    buffer names, formatted with |xtabline-bufline_format|.
+- |tabs|:       the tabs CWDs, if per-tab CWD is active, or the buffer name
+- |arglist|:    the files contained in the arglist, as shown by |:args|
+
+The modes can be cycled with <F5> (default).
+
+------------------------------------------------------------------------------
                                                       *xtabline-use_tab_cwd*  >
-    let g:xtabline_settings.use_tab_cwd = exists(':tcd')
+    let g:xtabline_settings.use_tab_cwd = !exists(':tcd')
 <
 Set this value to 0 if you don't want the plugin to manage the CWD when
 switching tabs, and keep the default vim behaviour. Note that:
@@ -148,9 +189,10 @@ switching tabs, and keep the default vim behaviour. Note that:
 
 ------------------------------------------------------------------------------
 
-By default, the plugin will build the tabline putting a list of valid buffers
-on the left side, and the current working directory (CWD) in the corner on the
-right. 'Valid' buffers are those whose path is within the CWD.
+When the tabline is in |buffer-mode|, the plugin will build the tabline putting
+a list of valid buffers on the left side, and the current working directory
+(CWD) in the corner on the right. 'Valid' buffers are those whose path is
+within the CWD.
 
                                                  *xtabline-buffer_filtering*  >
     let g:xtabline_settings.buffer_filtering = 1
@@ -224,13 +266,27 @@ Function example:
 
 
 
-TAB BUFFERS                                                  *xtabline-buffers*
+
+TABLINE MODES                                          *xtabline-tabline_modes*
 ===============================================================================
 
-By default, in the bufferline will be shown buffers that belong to the tab's
-CWD, or any open buffer inside the window.  Using xtabline buffer navigation
-commands you can switch among them, while using the normal *:bnext* command,
-you still cycle among the default (global) buffer list.
+Command               | Mapping  | Plug                        ~
+----------------------+----------+------------------------------
+XTabCycleMode         |  <F5>    | <Plug>(XT-Cycle-Mode)
+XTabToggleFiltering   |  *tf     | <Plug>(XT-Toggle-Filtering)
+
+`XTabCycleMode`         will cycle the tabline among the modes defined by the
+                      |xtabline-tabline_modes| setting.
+
+`XTabToggleFiltering`   will toggle buffer filtering, based on either the tab's
+                      CWD or base directory.
+
+
+
+
+
+TAB BUFFERS                                                  *xtabline-buffers*
+===============================================================================
 
 ---------------------------------+------------------------------------------
 Mapping                          | Default                              ~
@@ -306,15 +362,12 @@ XTabWD[!]             |  cdw     | <Plug>(XT-Working-Directory)
 XTabBD[!]             |  cdb     | <Plug>(XT-Base-Directory)
                       |  cdc     | <Plug>(XT-Cd-Current)
                       |  cdd     | <Plug>(XT-Cd-Down)
-XTabToggleFiltering   |  *tf     | <Plug>(XT-Toggle-Filtering)
 
-*XTabWD*    will let you set the `cwd` and updates the tabline.
-          With a bang, you'll be prompted for a cwd.
+`XTabWD`                will let you set the `cwd` and updates the tabline.
+                      With a bang, you'll be prompted for a cwd.
 
-*XTabBD*    will let you set the base filtering directory.
-          A bang will clear current base directory.
-
-*XTabToggleFiltering*  will disable filtering, based on either WD or BD.
+`XTabBD`                will let you set the base filtering directory.
+                      A bang will clear current base directory.
 
 You can see that are 4 mappings that start with `cd`:
 
@@ -333,8 +386,6 @@ MANAGING TABS AND BUFFERS                                     *xtabline-manage*
 
 
 OPENING TABS                                            *xtabline-opening-tabs*
-
-You can toggle between buffers and tabs with <F5>
 
 --------------+----------+---------------------
 Command       | Mapping  | Plug               ~

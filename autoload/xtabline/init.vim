@@ -45,6 +45,7 @@ com!                           XTabFormatBuffer        call xtabline#cmds#run("f
 com!                           XTabCustomTabs          call xtabline#cmds#run("toggle_tab_names")
 com!                           XTabLock                call xtabline#cmds#run("lock_tab")
 com! -nargs=?                  XTabPinBuffer           call xtabline#cmds#run("toggle_pin_buffer", <q-args>)
+com!                           XTabCycleMode           call xtabline#cmds#run("cycle_mode")
 com!                           XTabToggleFiltering     call xtabline#cmds#run("toggle_filtering")
 com!                           XTabConfig              call xtabline#config#start()
 
@@ -75,7 +76,8 @@ endfun
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 let g:xtabline = {'Tabs': [], 'Vars': {}, 'Buffers': {}, 'Funcs': {},
-                 \'pinned_buffers': [], 'closed_tabs': [], 'closed_cwds': []}
+                 \'pinned_buffers': [], 'closed_tabs': [], 'closed_cwds': [],
+                 \'last_tabline': ''}
 
 let g:xtabline.Vars = {
       \'winOS': has("win16") || has("win32") || has("win64"),
@@ -88,6 +90,7 @@ let g:xtabline_highlight = get(g:, 'xtabline_highlight', {'themes': {}})
 
 let s:S = {
       \ 'map_prefix' :                '<leader>x',
+      \ 'tabline_modes':              ['buffers', 'tabs', 'arglist'],
       \ 'close_buffer_can_close_tab': 0,
       \ 'close_buffer_can_quit_vim':  0,
       \ 'select_buffer_alt_action':   "buffer #",

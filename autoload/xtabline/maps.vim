@@ -14,7 +14,7 @@ fun! s:do_map() abort
     endif
   endfun
 
-  call s:mapkeys('<F5>',  'Toggle-Tabs')
+  call s:mapkeys('<F5>',  'Cycle-Mode')
   call s:mapkeys('<BS>',  'Select-Buffer')
   call s:mapkeys(']b',    'Next-Buffer')
   call s:mapkeys('[b',    'Prev-Buffer')
@@ -72,7 +72,7 @@ function! xtabline#maps#init()
   nnoremap <unique>                 <Plug>(XT-Tab-Edit)              :<c-u>XTabEdit<space>
   nnoremap <unique>                 <Plug>(XT-Edit)                  :<c-u>XEdit<space>
 
-  nnoremap <unique> <silent>        <Plug>(XT-Toggle-Tabs)           :<c-u>call xtabline#cmds#run('toggle_tabs')<cr>
+  nnoremap <unique> <silent>        <Plug>(XT-Cycle-Mode)            :<c-u>call xtabline#cmds#run('cycle_mode')<cr>
   nnoremap <unique> <silent>        <Plug>(XT-Toggle-Filtering)      :<c-u>call xtabline#cmds#run('toggle_filtering')<cr>
   nnoremap <unique> <silent> <expr> <Plug>(XT-Select-Buffer)         v:count? <sid>select_buffer(v:count-1) : ":\<C-U>".g:xtabline_settings.select_buffer_alt_action."\<cr>"
   nnoremap <unique> <silent> <expr> <Plug>(XT-Next-Buffer)           xtabline#cmds#next_buffer(v:count1, 0)
