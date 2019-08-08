@@ -46,7 +46,6 @@ fun! xtabline#init() abort
     let s:X.devicons = {'extensions': extensions, 'exact': exact, 'patterns': patterns}
   endif
 
-  let s:v.tabline_mode = s:Sets.tabline_modes[0]
   call xtabline#tab#check_all()
   call xtabline#update()
 endfun
