@@ -148,7 +148,7 @@ let s:Themes.slate = { -> {
       \"XTSpecial":     [ 239, 150, '#3C4C55',   '#A8CE93', 0 ],
       \"XTTabActive":   [ 110, 236, '#83AFE5',   '#333233', 1 ],
       \"XTTabInactive": [ 39,  234, '#569cd6',   '#1e1e1e', 1 ],
-      \"XTNumSel":      [ 39,  239, '#569cd6',   '#4c4e50', 1 ],
+      \"XTNumSel":      [ 24,  174, '#073655',   '#DF8C8C', 1 ],
       \"XTNum":         [ 39,  239, '#569cd6',   '#4c4e50', 1 ],
       \"XTFill":        s:bg(s:fill_lite, [ 248, 236, '#a9a9a9', '#333333', 0 ]),
       \}}

@@ -444,7 +444,7 @@ endfun
 fun! s:tabnum(tabnr, all) abort
   if a:all && s:v.tabline_mode != 'tabs'
     let hi = has_key(s:T(), 'dir') ? " %#XTNumSel#" : " %#XTTabInactive#"
-    return "%#XTNum# " . a:tabnr .'/' . tabpagenr('$') . hi
+    return "%#XTNumSel# " . a:tabnr .'/' . tabpagenr('$') . hi
   else
     return a:tabnr == tabpagenr() ?
           \   "%#XTNumSel# " . a:tabnr . " %#XTTabActive#"
@@ -624,7 +624,9 @@ fun! s:get_tab_for_bufline() abort
   if ! s:Sets.show_current_tab
     let fmt_tab = s:tabnum(N, 1)
   elseif s:v.tabline_mode == 'arglist'
-    let fmt_tab = s:tabnum(N, 1) . "%#XTSelect# arglist" . " %#XTTabInactive#"
+    let [ n, N ] = [ index(argv(), bufname(bufnr('%'))) + 1, len(argv()) ]
+    let num = "%#XTNumSel# " . n .'/' . N . " "
+    let fmt_tab = num . "%#XTSelect# arglist" . " %#XTTabInactive#"
   elseif s:Sets.use_tab_cwd == 0
     let buflist = tabpagebuflist(N)
     let winnr = tabpagewinnr(N)
