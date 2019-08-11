@@ -198,7 +198,7 @@ fun! s:tab_load(...) abort
     endfor
 
     $tabnew | let newbuf = bufnr("%")
-    cd `=cwd`
+    call s:F.cd(cwd)
 
     "add buffers
     for buf in saved['buffers']
@@ -509,11 +509,11 @@ fun! s:tab_nerd_bookmarks_load(...) abort
     let bm = expand(bm, ":p")
     if isdirectory(bm)
       tabnew
-      exe "cd ".bm
+      call s:F.cd(bm)
       exe "NERDTree ".bm
     elseif filereadable(bm)
       exe "tabedit ".bm
-      exe "cd ".fnamemodify(bm, ":p:h")
+      call s:F.cd(fnamemodify(bm, ":p:h"))
     endif
   endfor
   call xtabline#update()

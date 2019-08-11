@@ -91,7 +91,7 @@ fun! xtabline#session_loaded() abort
     endif
   endfor
 
-  cd `=s:X.Tabs[tabpagenr()-1].cwd`
+  call s:F.cd(s:X.Tabs[tabpagenr()-1].cwd)
   let s:v.force_update = 1
   call xtabline#tab#check()
   call xtabline#update()
@@ -229,7 +229,7 @@ fun! s:set_new_tab_cwd(N) abort
   elseif T.cwd == '~' || s:F.fullpath("%") !~ s:F.fullpath(T.cwd)
     let T.cwd = s:F.find_suitable_cwd()
   endif
-  cd `=T.cwd`
+  call s:F.cd(T.cwd)
   call xtabline#update()
   call s:F.delay(200, 'g:xtabline.Funcs.msg([[ "CWD set to ", "Label" ], [ "'.T.cwd.'", "Directory" ]])')
 endfun
@@ -290,7 +290,7 @@ function! s:Do(action, ...)
     call xtabline#tab#check_all()
     call xtabline#tab#check()
 
-    call F.cd(X.Tabs[N])
+    call F.cd_into_tab_wd(X.Tabs[N])
 
     call xtabline#update()
 

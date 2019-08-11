@@ -96,7 +96,7 @@ let s:S = {
       \ 'select_buffer_alt_action':   "buffer #",
       \ 'superscript_unicode_nrs':    0,
       \ 'buffer_filtering':           1,
-      \ 'use_tab_cwd':                !exists(':tcd'),
+      \ 'use_tab_cwd':                1 + exists(':tcd'),
       \ 'show_current_tab':           1,
       \ 'last_open_first':            0,
       \ 'enable_mappings':            0,

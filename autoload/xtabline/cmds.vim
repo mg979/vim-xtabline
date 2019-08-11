@@ -232,7 +232,7 @@ fun! s:reopen_last_tab() abort
     return
   endif
 
-  cd `=cwd`
+  call s:F.cd(cwd)
   let s:v.halt = 0
   call xtabline#update()
 endfun
