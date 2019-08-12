@@ -108,8 +108,9 @@ sessions.
                                      {1} https://github.com/tpope/vim-obsession
                                      {2} https://github.com/junegunn/fzf.vim
 
-Note that |vim-obsession| isn't mandatory: an alternative is to set: >
-    set sessionoptions+=globals
+Note that |vim-obsession| isn't mandatory: the only caveat is that, if you have
+it installed, xtabline will not touch session files by itself, and persistance
+will not be enabled on sessions that aren't handled by |vim-obsession|.
 
 
 

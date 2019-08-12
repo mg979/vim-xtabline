@@ -51,13 +51,26 @@ fun! xtabline#init() abort
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Persistance
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! xtabline#update_obsession() abort
+" NOTE: if vim-obsession is installed, it is expected to be used for sessions.
+" xtabline will never touch session files if obsession is present, not even in
+" the case that obsession isn't handling the current session.
+" This may change in the future but I couldn't get them to work well together.
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+" this function creates a string with the informations needed for persistance
+" a custom method is implemented if vim-obsession is not detected
+
+fun! xtabline#persistance() abort
   let session = 'let g:xtabline = get(g:, "xtabline", {})'.
         \' | try | let g:xtabline.Tabs = '.string(s:X.Tabs).
         \' | let g:xtabline.Buffers = '.string(s:X.Buffers).
         \' | let g:xtabline.pinned_buffers = '.string(s:X.pinned_buffers).
-        \' | call xtabline#session_loaded() | catch | endtry'
+        \' | call xtabline#session_loaded()'.
+        \' | catch | endtry'
   if exists('g:loaded_obsession')
     if !exists('g:obsession_append')
       let g:obsession_append = [session]
@@ -70,13 +83,50 @@ fun! xtabline#update_obsession() abort
       endfor
       call add(g:obsession_append, session)
     endif
-    silent! unlet g:Xtsession
   else
     let g:Xtsession = session
   endif
 endfun
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" update session file, if obsession isn't loaded
+" add the g:Xtsession variable even if 'globals' not in &sessionoptions
+" code derived from vim-obsession
+
+fun! xtabline#update_this_session() abort
+  if v:this_session != "" && !exists('g:loaded_obsession') && exists('g:Xtsession')
+    exe 'mksession!' v:this_session
+    if &sessionoptions !~ 'globals'
+      let body = readfile(v:this_session)
+      for line in range(len(body))
+        if match(body[line], '^let g:Xtsession') == 0
+          let body[line] = 'let g:Xtsession = '.string(g:Xtsession)
+          return writefile(body, v:this_session)
+        endif
+      endfor
+      call insert(body, 'let g:Xtsession = '.string(g:Xtsession), 3)
+      call writefile(body, v:this_session)
+    endif
+  endif
+endfun
+
+" called on SessionLoadPost, it will restore non-obsession data if it has been
+" stored in the session file; the variable is cleared as soon as it's used, it
+" will be regenerated if obsession isn't loaded
+" if no data has been stored (pre-xtabline session), just run session_loaded()
+" to ensure xtabline data is generated
+
+fun! s:restore_session_info() abort
+  if exists('g:Xtsession')
+    exe g:Xtsession
+    unlet g:Xtsession
+  elseif !exists('g:this_obsession')
+    call xtabline#session_loaded()
+  endif
+endfun
+
+" called directly from inside the session file (if using obsession), or when
+" restoring session info in the function above; it ensures that data is
+" consistent with the actual running session, cleaning up invalid data
 
 fun! xtabline#session_loaded() abort
   for i in range(len(s:X.Tabs))
@@ -101,18 +151,12 @@ fun! xtabline#session_loaded() abort
   call xtabline#update()
 endfun
 
-"------------------------------------------------------------------------------
-
-fun! s:check_session() abort
-  if exists('g:Xtsession')
-    exe g:Xtsession
-  elseif !exists('g:loaded_obsession')
-    call xtabline#session_loaded()
-  endif
-endfun
 
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Update tabline
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! xtabline#refresh() abort
   """Perform a full tabline refresh. This should only be called manually.
@@ -133,6 +177,9 @@ fun! xtabline#update(...) abort
     set tabline=%!xtabline#render#buffers()
   endif
 endfun
+
+
+
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Filter buffers
@@ -202,7 +249,7 @@ fun! xtabline#filter_buffers(...) abort
   " //////////////////////////////////////////////////////////
 
   call s:ordered_buffers()
-  call xtabline#update_obsession()
+  call xtabline#persistance()
 endfun
 
 
@@ -340,8 +387,9 @@ augroup plugin-xtabline
   autocmd BufEnter      * call s:Do('bufenter')
   autocmd BufWritePost  * call s:Do('bufwrite')
   autocmd BufDelete     * call xtabline#update()
+  autocmd VimLeavePre   * call xtabline#update_this_session()
 
-  autocmd SessionLoadPost * call s:check_session()
+  autocmd SessionLoadPost * call s:restore_session_info()
   autocmd ColorScheme   * if s:ready() | call xtabline#hi#update_theme() | endif
 augroup END
 

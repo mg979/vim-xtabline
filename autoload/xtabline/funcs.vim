@@ -165,10 +165,13 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
+" change working directory, update tab cwd and session data
 fun! s:Funcs.cd(dir) abort
   if isdirectory(a:dir)
     let cmd = s:Sets.use_tab_cwd == 2 ? 'tcd' : 'cd'
     exe cmd a:dir
+    call self.set_tab_wd(s:T())
+    call xtabline#update_this_session()
   else
     return self.msg('[xtabline] directory doesn''t exists', 1)
   endif
