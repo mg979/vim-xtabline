@@ -53,22 +53,26 @@ endfun
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! xtabline#update_obsession() abort
-  let string = 'let g:xtabline = get(g:, "xtabline", {})'.
-        \' | try | if empty(g:xtabline) | call xtabline#init#start() | endif'.
-        \' | let g:xtabline.Tabs = '.string(s:X.Tabs).
+  let session = 'let g:xtabline = get(g:, "xtabline", {})'.
+        \' | try | let g:xtabline.Tabs = '.string(s:X.Tabs).
         \' | let g:xtabline.Buffers = '.string(s:X.Buffers).
         \' | let g:xtabline.pinned_buffers = '.string(s:X.pinned_buffers).
         \' | call xtabline#session_loaded() | catch | endtry'
-  if !exists('g:obsession_append')
-    let g:obsession_append = [string]
+  if exists('g:loaded_obsession')
+    if !exists('g:obsession_append')
+      let g:obsession_append = [session]
+    else
+      for i in g:obsession_append
+        if match(i, "^let g:xtabline") >= 0
+          call remove(g:obsession_append, i)
+          break
+        endif
+      endfor
+      call add(g:obsession_append, session)
+    endif
+    silent! unlet g:Xtsession
   else
-    for i in g:obsession_append
-      if match(i, "^let g:xtabline") >= 0
-        call remove(g:obsession_append, i)
-        break
-      endif
-    endfor
-    call add(g:obsession_append, string)
+    let g:Xtsession = session
   endif
 endfun
 
@@ -95,6 +99,16 @@ fun! xtabline#session_loaded() abort
   let s:v.force_update = 1
   call xtabline#tab#check()
   call xtabline#update()
+endfun
+
+"------------------------------------------------------------------------------
+
+fun! s:check_session() abort
+  if exists('g:Xtsession')
+    exe g:Xtsession
+  elseif !exists('g:loaded_obsession')
+    call xtabline#session_loaded()
+  endif
 endfun
 
 
@@ -132,7 +146,6 @@ fun! xtabline#filter_buffers(...) abort
 
   if      exists('s:v.force_update')          | unlet s:v.force_update
   elseif  !s:ready()                          | return
-  elseif  get(g:xtabline, 'version', 0) < 0.1 | call xtabline#session_loaded()
   endif
 
   " 'valid' is a list of buffer numbers that belong to the tab, either because:
@@ -328,6 +341,7 @@ augroup plugin-xtabline
   autocmd BufWritePost  * call s:Do('bufwrite')
   autocmd BufDelete     * call xtabline#update()
 
+  autocmd SessionLoadPost * call s:check_session()
   autocmd ColorScheme   * if s:ready() | call xtabline#hi#update_theme() | endif
 augroup END
 

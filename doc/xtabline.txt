@@ -102,12 +102,14 @@ tab's CWD will be listed.
 The last two are a series of commands that allow you to save/restore tabs and
 sessions.
 
-|vim-obsession| {1} is required for persistance and sessions commands.
+|vim-obsession| {1} is recommended for persistance.
 |fzf-vim| {2} is required for bookmarks and sessions commands.
 
                                      {1} https://github.com/tpope/vim-obsession
                                      {2} https://github.com/junegunn/fzf.vim
 
+Note that |vim-obsession| isn't mandatory: an alternative is to set: >
+    set sessionoptions+=globals
 
 
 
