@@ -149,6 +149,6 @@ fun! s:cd(count) abort
   if !empty(expand("%")) && empty(cwd)
     let cwd = '/'
   endif
-  call g:xtabline.Funcs.change_wd(cwd)
+  call g:xtabline.Funcs.verbose_change_wd(cwd)
 endfun
 

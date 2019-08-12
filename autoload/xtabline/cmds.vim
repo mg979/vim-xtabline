@@ -588,7 +588,7 @@ fun! s:set_cwd(...) abort
   if empty(cwd)
     call s:F.msg ([[ "Canceled.", 'WarningMsg' ]])
   else
-    call s:F.change_wd(cwd)
+    call s:F.verbose_change_wd(cwd)
   endif
   call xtabline#update()
 endfun
@@ -622,7 +622,7 @@ fun! s:reset_tab(...) abort
   """Reset the tab to a pristine state.
   let cwd = a:0? fnamemodify(expand(a:1), :p) : s:F.find_suitable_cwd()
   let s:X.Tabs[tabpagenr()-1] = xtabline#tab#new({'cwd': cwd})
-  call s:F.change_wd(cwd)
+  call s:F.verbose_change_wd(cwd)
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

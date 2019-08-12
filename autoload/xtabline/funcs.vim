@@ -156,39 +156,6 @@ fun! s:Funcs.all_open_buffers() abort
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! s:Funcs.set_tab_wd(tab) abort
-  if s:Sets.use_tab_cwd
-    let a:tab.cwd = self.fullpath(getcwd())
-  endif
-endfun
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-" change working directory, update tab cwd and session data
-fun! s:Funcs.cd(dir) abort
-  if isdirectory(a:dir)
-    let cmd = s:Sets.use_tab_cwd == 2 ? 'tcd' : 'cd'
-    exe cmd a:dir
-    call self.set_tab_wd(s:T())
-    call xtabline#update_this_session()
-  else
-    return self.msg('[xtabline] directory doesn''t exists', 1)
-  endif
-endfun
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! s:Funcs.cd_into_tab_wd(tab) abort
-  """Try to change the current directory.
-  if s:Sets.use_tab_cwd
-    call self.cd(a:tab.cwd)
-  elseif a:tab.cwd != getcwd()
-    let a:tab.cwd = getcwd()
-  endif
-endfun
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Shortened paths
 
 fun! s:Funcs.short_cwd(tabnr, h, ...) abort
@@ -258,6 +225,30 @@ fun! s:Funcs.bdelete(buf) abort
   endif
 endfun
 
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:Funcs.not_enough_buffers(pinned) abort
+  """Just return if there aren't enough buffers."""
+  let bufs = a:pinned ? s:v.pinned_buffers : s:oB()
+  let pin  = a:pinned ? ' pinned ' : ' '
+
+  if len(bufs) < 2
+    if empty(bufs)
+      call self.msg ([[ "No available".pin."buffers for this tab.", 'WarningMsg' ]])
+    elseif index(bufs, bufnr("%")) == -1
+      return
+    else
+      call self.msg ([[ "No other available".pin."buffers for this tab.", 'WarningMsg' ]])
+    endif
+    return 1
+  endif
+endfun
+
+
+
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Working directory functions
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:Funcs.find_suitable_cwd(...) abort
@@ -277,9 +268,9 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.change_wd(cwd) abort
+fun! s:Funcs.verbose_change_wd(cwd) abort
   if !isdirectory(a:cwd)
-    return  self.msg("Invalid directory: ".a:cwd, 1)
+    return self.msg("Invalid directory: ".a:cwd, 1)
   endif
   call extend(s:T(), { 'cwd': a:cwd })
   call self.cd(a:cwd)
@@ -312,22 +303,36 @@ fun! s:Funcs.change_base_dir(dir) abort
   call self.msg ([[ "Base directory: ", 'Label' ], [ a:dir, 'None' ]])
 endfun
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.not_enough_buffers(pinned) abort
-  """Just return if there aren't enough buffers."""
-  let bufs = a:pinned ? s:v.pinned_buffers : s:oB()
-  let pin  = a:pinned ? ' pinned ' : ' '
+fun! s:Funcs.set_tab_wd(tab) abort
+  if s:Sets.use_tab_cwd
+    let a:tab.cwd = self.fullpath(getcwd())
+  endif
+endfun
 
-  if len(bufs) < 2
-    if empty(bufs)
-      call self.msg ([[ "No available".pin."buffers for this tab.", 'WarningMsg' ]])
-    elseif index(bufs, bufnr("%")) == -1
-      return
-    else
-      call self.msg ([[ "No other available".pin."buffers for this tab.", 'WarningMsg' ]])
-    endif
-    return 1
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+" change working directory, update tab cwd and session data
+fun! s:Funcs.cd(dir) abort
+  if isdirectory(a:dir)
+    let cmd = s:Sets.use_tab_cwd == 2 ? 'tcd' : 'cd'
+    exe cmd a:dir
+    call self.set_tab_wd(s:T())
+    call xtabline#update_this_session()
+  else
+    return self.msg('[xtabline] directory doesn''t exists', 1)
+  endif
+endfun
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:Funcs.cd_into_tab_wd(tab) abort
+  """Try to change the current directory.
+  if s:Sets.use_tab_cwd
+    call self.cd(a:tab.cwd)
+  elseif a:tab.cwd != getcwd()
+    let a:tab.cwd = getcwd()
   endif
 endfun
 

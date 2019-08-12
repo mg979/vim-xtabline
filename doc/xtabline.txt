@@ -38,7 +38,7 @@ This plugin tries to give you full control on the tabline:
 * buffer filtering on the base of the current CWD, or other directories
 * three tabline modes: (filtered) buffers, tabs, |arglist|
 * limit rendered buffers to the N most recently accessed (default 10)
-* persistance
+* persistance in sessions
 
 More advanced features:
 
@@ -111,6 +111,7 @@ sessions.
 Note that |vim-obsession| isn't mandatory: the only caveat is that, if you have
 it installed, xtabline will not touch session files by itself, and persistance
 will not be enabled on sessions that aren't handled by |vim-obsession|.
+Persistance can be disabled (|xtabline-enable_persistance|).
 
 
 
@@ -146,6 +147,12 @@ Most mappings presented are meant prefixed by <prefix>, when preceded by *.
     let g:xtabline_settings.enable_mappings = 0
 
 Mappings are disabled by default.
+
+------------------------------------------------------------------------------
+                                               *xtabline-enable_persistance*  >
+    let g:xtabline_settings.enable_persistance = 1
+
+Persistance is enabled by default.
 
 ------------------------------------------------------------------------------
                                                     *xtabline-tabline_modes*  >

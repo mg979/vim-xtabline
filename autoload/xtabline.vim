@@ -65,6 +65,7 @@ endfun
 " a custom method is implemented if vim-obsession is not detected
 
 fun! xtabline#persistance() abort
+  if !get(s:Sets, 'persistance', 1) | return | endif
   let session = 'let g:xtabline = get(g:, "xtabline", {})'.
         \' | try | let g:xtabline.Tabs = '.string(s:X.Tabs).
         \' | let g:xtabline.Buffers = '.string(s:X.Buffers).
