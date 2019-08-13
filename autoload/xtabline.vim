@@ -173,7 +173,7 @@ endfun
 fun! xtabline#update(...) abort
   let s:v.time_to_update = 1
   if s:v.tabline_mode == 'tabs'
-    set tabline=%!xtabline#render#tabs()
+    set tabline=%!xtabline#render#buffers()
   else
     set tabline=%!xtabline#render#buffers()
   endif
@@ -206,7 +206,7 @@ fun! xtabline#filter_buffers(...) abort
   let T = xtabline#tab#check()
 
   if s:v.tabline_mode == 'tabs' && has_key(T, 'init')
-    set tabline=%!xtabline#render#tabs()
+    set tabline=%!xtabline#render#buffers()
     return
   endif
 
