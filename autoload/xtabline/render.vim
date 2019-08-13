@@ -234,11 +234,11 @@ endfun
 
 fun! s:fit_tabline(centerlabel, tabs) abort "{{{2
   " toss away tabs and pieces until all fits
-  let [active_tab, tab_width] = s:get_label_for_right_corner()
+  let [corner_label, corner_width] = s:get_label_for_right_corner()
   let Tabs = a:tabs
 
   " limit is the max bufline length
-  let limit = &columns - tab_width - 1
+  let limit = &columns - corner_width - 1
 
   " now keep the current buffer center-screen as much as possible
   let L = { 'lasttab':  0, 'cut':  '.', 'indicator': '<', 'width': 0, 'half': limit / 2 }
@@ -285,9 +285,17 @@ fun! s:fit_tabline(centerlabel, tabs) abort "{{{2
     endif
   endif
 
-  let buffers = join(map(Tabs,'v:val.label'),'')
+  let labels = map(Tabs,'v:val.label')
+  if s:v.tabline_mode == 'tabs'
+    "FIXME: it works like this, but it's adding the %nT part for the second
+    "time, for some reason it doesn't work anymore if I only add it here
+    for n in range(len(labels))
+      let labels[n] = '%' . (n+1) . 'T' . labels[n]
+    endfor
+  endif
+  let labels = join(labels, '')
   let padding = s:extra_padding(L.width + R.width, limit)
-  let g:xtabline.last_tabline = buffers . padding . active_tab . '%999X'
+  let g:xtabline.last_tabline = labels . padding . corner_label . '%999X'
   return g:xtabline.last_tabline
 endfun "}}}
 
