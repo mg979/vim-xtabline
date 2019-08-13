@@ -171,8 +171,14 @@ endfun
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! xtabline#update(...) abort
-  let s:v.time_to_update = 1
-  set tabline=%!xtabline#render#tabline()
+  if !s:Sets.enabled || ( exists('b:no_xtabline') && b:no_xtabline )
+    return
+  elseif empty(s:Sets.tabline_modes)
+    set tabline=
+  else
+    let s:v.time_to_update = 1
+    set tabline=%!xtabline#render#tabline()
+  endif
 endfun
 
 

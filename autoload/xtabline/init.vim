@@ -89,6 +89,7 @@ let s:vimdir = ( has('win32unix') || g:xtabline.Vars.winOS ) &&
 let g:xtabline_highlight = get(g:, 'xtabline_highlight', {'themes': {}})
 
 let s:S = {
+      \ 'enabled':                    1,
       \ 'map_prefix' :                '<leader>x',
       \ 'tabline_modes':              ['buffers', 'tabs', 'arglist'],
       \ 'close_buffer_can_close_tab': 0,

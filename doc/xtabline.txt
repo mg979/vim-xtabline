@@ -78,8 +78,9 @@ In |tabs-mode|, the tabline will show the numbered tabs. The label will be
 either the tab name (if defined), the tab CWD (if using per-tab CWDs), or the
 filename of the first buffer in the tab.
 
-In |arglist-mode|, the tabline will show the files defined in the arglist. You
-can switch file with the usual commands (|:next|, etc).
+In |arglist-mode|, the tabline will show the files included in the arglist. You
+can switch file with the usual commands (|:next|, etc). Note that if the
+arglist is empty, this mode won't be available.
 
 These modes can be cycled with a mapping (<F5> by default). You can also define
 which modes to cycle with a setting (|xtabline-tabline_modes|).
@@ -133,6 +134,14 @@ You can lazy load the plugin (on |TabNew|, |SessionLoadPost|, |BufAdd|):
 >
     let g:xtabline_lazy = 1
 
+------------------------------------------------------------------------------
+                                                          *xtabline-enabled*  >
+    let g:xtabline_settings.enabled = 1
+
+If set to 0, xtabline is disabled. You can also disable it per-buffer, if you
+set a buffer variable:  >
+  let b:no_xtabline = 1
+<
 ------------------------------------------------------------------------------
                                                        *xtabline-map_prefix*  >
     let g:xtabline_settings.map_prefix = '<leader>x'
