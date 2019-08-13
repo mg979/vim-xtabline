@@ -47,7 +47,6 @@ let s:pinned            = { -> s:X.pinned_buffers                               
 let s:buffer_has_format = { buf -> has_key(s:B()[buf.nr], 'format')                           }
 let s:has_buf_icon      = { nr -> !empty(get(s:B()[nr], 'icon', ''))                          }
 let s:extraHi           = { b -> s:is_extra(b) || s:is_open(b) || index(s:pinned(), b) >= 0   }
-let s:specialHi         = { b -> s:B()[b].special                                             }
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Main functions {{{1
@@ -189,8 +188,9 @@ fun! s:render_buffers() abort "{{{2
 
   " make tabline string
   for bnr in labels
-    let special = s:specialHi(bnr)
+    let special = s:special(bnr)
     let scratch = s:scratch(bnr)
+    let extra   = s:extraHi(bnr)
 
     " exclude special buffers without window, or non-special scratch buffers
     if special && !s:F.has_win(bnr) | continue
@@ -208,11 +208,9 @@ fun! s:render_buffers() abort "{{{2
           \                                       : s:F.short_path(bnr, Tab.rpaths),
           \ 'hilite':   is_currentbuf && special  ? 'Special' :
           \             is_currentbuf             ? 'Select' :
-          \             special || s:extraHi(bnr) ? 'Extra' :
+          \             special || extra          ? 'Extra' :
           \             s:F.has_win(bnr)          ? 'Visible' : 'Hidden'
           \}
-
-    let tab.label = s:format_buffer(tab)
 
     if type(s:Sets.bufline_format) == v:t_number
       let tab.path = s:get_buf_name(tab)
@@ -224,6 +222,7 @@ fun! s:render_buffers() abort "{{{2
 
     if is_currentbuf | let [centerlabel, s:centerbuf] = [bnr, bnr] | endif
 
+    let tab.label = s:format_buffer(tab)
     let tabs += [tab]
   endfor
 
