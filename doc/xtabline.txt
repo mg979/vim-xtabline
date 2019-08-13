@@ -1,4 +1,4 @@
-*xtabline.txt*    Version 0.8.0    Last change: August 7 2019
+*xtabline.txt*    Version 0.4.0    Last change: August 14 2019
 
 XTABLINE - TABLE OF CONTENTS                                         *xtabline*
 ===============================================================================
@@ -68,15 +68,12 @@ The tabline can be rendered in three different modes:
 - 'tabs':     tab name, CWD, or buffer name
 - 'arglist':  buffers contained in the arglist
 
-In |buffer-mode|, in the tabline will be shown buffers that belong to the tab's
-CWD, or any open buffer inside the window. By using the custom buffer
-navigation commands you can switch among them, while using the normal |:bnext|
-command, you still cycle among the default (global) buffer list.
-Formatting can be customized (|xtabline-bufline_format|).
+In |buffer-mode|, the tabline will show a filtered list of buffers that belong
+to the tab's CWD, or any open buffer inside the window. Formatting and number
+of (recently accessed) buffers can be customized (|xtabline-bufline_format|).
 
-In |tabs-mode|, the tabline will show the numbered tabs. The label will be
-either the tab name (if defined), the tab CWD (if using per-tab CWDs), or the
-filename of the first buffer in the tab.
+In |tabs-mode|, the tabline will show the numbered tabs. The label can be
+customized as well (to show buffer name, tab cwd, etc).
 
 In |arglist-mode|, the tabline will show the files included in the arglist. You
 can switch file with the usual commands (|:next|, etc). Note that if the
@@ -177,21 +174,34 @@ The modes can be cycled with <F5> (default).
 
 ------------------------------------------------------------------------------
                                                       *xtabline-use_tab_cwd*  >
-    let g:xtabline_settings.use_tab_cwd = !exists(':tcd')
+    let g:xtabline_settings.use_tab_cwd = 1 + exists(':tcd')
 <
-Set this value to 0 if you don't want the plugin to manage the CWD when
-switching tabs, and keep the default vim behaviour. Note that:
+If not 0, each will have its own CWD. This CWD will persist across sessions, if
+persistance is enabled. The value of this option can be:
+>
+  0:  the plugin won't touch the CWD when switching tabs
+  1:  the plugin will use `:cd` and autocommands to change the tab CWD
+  2:  the plugin will use `:tcd` (default if the command is available)
 
-1. the |:tcd| feature from neovim and recent vim is not supported. Versions of
-   vim that support this feature, have this setting disabled by default.
-   If you plan on using |:tcd| commands, you should keep this option at 0. As
-   long as the cwd reported by |getcwd()| reflects the directory given with
-   |:tcd| (I'm not sure of that), buffer filtering should work anyway.
+Note that:
 
-2. local working directories (set with |:lcd|) will be ignored.
+1. local working directories (set with |:lcd|) will be ignored when
+   getting/setting the tab's CWD.
 
-3. buffer filtering in the tabline is an independent feature and should be
+2. independently from the method used, buffer filtering is based on the working
+   directory reported by vim |getcwd()|.
+
+3. buffer filtering in the tabline is an independent feature and can be
    disabled/enabled on its own: |xtabline-buffer_filtering|.
+
+4: if your vim version doesn't support |:tcd| and you set this value to 2,
+   you'll probably get an error and things won't work. The lack of error
+   checking is intentional, so that you can use a setting of 1 even if |:tcd|
+   is supported (then it won't be used), and you can be sure of the method that
+   the plugin is actually using behind the scene. By not defining this option,
+   the value that makes more sense is chosen automatically, so you probably
+   shouldn't worry about changing the default for this option (unless you want
+   to disable it).
 
 ------------------------------------------------------------------------------
                                                  *xtabline-buffer_filtering*  >

@@ -21,7 +21,7 @@ This plugin tries to give you full control on the tabline:
 * buffer filtering on the base of the current CWD, or other directories
 * three tabline modes: (filtered) buffers, tabs, arglist
 * limit rendered buffers to the N most recently accessed (default 10)
-* persistance
+* persistance in sessions
 
 More advanced features:
 
@@ -45,15 +45,12 @@ The tabline can be rendered in three different modes:
 |tabs     | tab name, CWD, or buffer name |
 |arglist  | buffers contained in the arglist |
 
-In *buffer-mode*, in the tabline will be shown buffers that belong to the tab's
-CWD, or any open buffer inside the window. By using the custom buffer
-navigation commands you can switch among them, while using the normal `:bnext`
-command, you still cycle among the default (global) buffer list.
-Formatting can be customized.
+In *buffer-mode*, the tabline will show a filtered list of buffers that belong
+to the tab's CWD, or any open buffer inside the window. Formatting and number
+of (recently accessed) buffers can be customized.
 
-In *tabs-mode*, the tabline will show the numbered tabs. The label will be
-either the tab name (if defined), the tab CWD (if using per-tab CWDs), or the
-filename of the first buffer in the tab.
+In *tabs-mode*, the tabline will show the numbered tabs. The label can be
+customized as well (to show buffer name, tab cwd, etc).
 
 In *arglist-mode*, the tabline will show the files defined in the arglist. You
 can switch file with the usual commands (`:next`, etc).
