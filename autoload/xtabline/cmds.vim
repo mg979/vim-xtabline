@@ -90,12 +90,19 @@ endfun
 fun! s:cycle_mode() abort
   """Cycle the active tabline mode."""
 
-  let modes = s:Sets.tabline_modes
-  let current = index(modes, s:v.tabline_mode)
-  if current == len(modes) - 1
+  let modes = copy(s:Sets.tabline_modes)
+
+  " only allow arglist as mode, if the arglist isn't empty
+  let nargs = len(map(argv(), 'bufnr(v:val)'))
+  if !nargs && index(modes, 'arglist') >= 0
+    call remove(modes, index(modes, 'arglist'))
+  endif
+
+  let current = index(modes, s:v.tabline_mode) + 1
+  if current == len(modes)
     let s:v.tabline_mode = modes[0]
   else
-    let s:v.tabline_mode = modes[current+1]
+    let s:v.tabline_mode = modes[current]
   endif
 
   call s:F.msg ([[ "Showing " . s:v.tabline_mode, 'StorageClass' ]])
