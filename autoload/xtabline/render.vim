@@ -113,35 +113,7 @@ fun! s:render_tabs() abort "{{{2
     call add(tabs, {'label': label, 'nr': tnr, 'hilite': hi})
   endfor
 
-  "TODO: a right side corner for the tabs mode
-  let [active_tab, tab_width] = ['', 0]
-
-  " limit is the max bufline length
-  let limit = &columns - tab_width - 1
-
-  " now keep the current buffer center-screen as much as possible
-  let lft = { 'lasttab':  0, 'cut':  '.', 'indicator': '<', 'width': 0, 'half': limit / 2 }
-  let rgt = { 'lasttab': -1, 'cut': '.$', 'indicator': '>', 'width': 0, 'half': limit - lft.half }
-
-  " sum the string lengths for the left and right halves
-  let currentside = lft
-  for tab in tabs
-    let tab.width = strwidth(substitute(tab.label, '%#\w*#', '', 'g'))
-    if centerlabel == tab.nr
-      let halfwidth = tab.width / 2
-      let lft.width += halfwidth
-      let rgt.width += tab.width - halfwidth
-      let currentside = rgt
-      continue
-    endif
-    let currentside.width += tab.width
-  endfor
-
-  if currentside is lft " centered buffer not seen?
-    let [lft.width, rgt.width] = [0, lft.width]
-  endif
-
-  return s:fit_tabline(lft, rgt, tabs, limit, active_tab)
+  return s:fit_tabline(centerlabel, tabs)
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -212,6 +184,9 @@ fun! s:render_buffers() abort "{{{2
     let labels  = labels[begin:end]
   endif
 
+  " get the default buffer format, and set its type
+  let s:default_buffer_format = s:get_default_buffer_format()
+
   " make tabline string
   for bnr in labels
     let special = s:specialHi(bnr)
@@ -237,6 +212,8 @@ fun! s:render_buffers() abort "{{{2
           \             s:F.has_win(bnr)          ? 'Visible' : 'Hidden'
           \}
 
+    let tab.label = s:format_buffer(tab)
+
     if type(s:Sets.bufline_format) == v:t_number
       let tab.path = s:get_buf_name(tab)
     else
@@ -250,52 +227,46 @@ fun! s:render_buffers() abort "{{{2
     let tabs += [tab]
   endfor
 
-  " get the default buffer format, and set its type
-  let s:default_buffer_format = s:get_default_buffer_format()
+  return s:fit_tabline(centerlabel, tabs)
+endfun
 
-  " add the current tab name/cwd to the right side
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:fit_tabline(centerlabel, tabs) abort "{{{2
+  " toss away tabs and pieces until all fits
   let [active_tab, tab_width] = s:get_label_for_right_corner()
+  let Tabs = a:tabs
 
   " limit is the max bufline length
   let limit = &columns - tab_width - 1
 
   " now keep the current buffer center-screen as much as possible
-  let lft = { 'lasttab':  0, 'cut':  '.', 'indicator': '<', 'width': 0, 'half': limit / 2 }
-  let rgt = { 'lasttab': -1, 'cut': '.$', 'indicator': '>', 'width': 0, 'half': limit - lft.half }
+  let L = { 'lasttab':  0, 'cut':  '.', 'indicator': '<', 'width': 0, 'half': limit / 2 }
+  let R = { 'lasttab': -1, 'cut': '.$', 'indicator': '>', 'width': 0, 'half': limit - L.half }
 
   " sum the string lengths for the left and right halves
-  let currentside = lft
-  for tab in tabs
-    let tab.label = s:format_buffer(tab)
+  let currentside = L
+  for tab in Tabs
     let tab.width = strwidth(substitute(tab.label, '%#\w*#', '', 'g'))
-    if centerlabel == tab.nr
+    if a:centerlabel == tab.nr
       let halfwidth = tab.width / 2
-      let lft.width += halfwidth
-      let rgt.width += tab.width - halfwidth
-      let currentside = rgt
+      let L.width += halfwidth
+      let R.width += tab.width - halfwidth
+      let currentside = R
       continue
     endif
     let currentside.width += tab.width
   endfor
 
-  if currentside is lft " centered buffer not seen?
-    let [lft.width, rgt.width] = [0, lft.width]
+  if currentside is L " centered buffer not seen?
+    let [L.width, R.width] = [0, L.width]
   endif
 
-  return s:fit_tabline(lft, rgt, tabs, limit, active_tab)
-endfun
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! s:fit_tabline(lft, rgt, tabs, limit, active_tab) abort "{{{2
-  " toss away tabs and pieces until all fits
-
-  let [ L, R, Tabs ] = [ a:lft, a:rgt, a:tabs ]
   let left_has_been_cut = 0
   let right_has_been_cut = 0
 
-  if ( L.width + R.width ) > a:limit
-    while a:limit - ( L.width + R.width ) < 0
+  if ( L.width + R.width ) > limit
+    while limit - ( L.width + R.width ) < 0
       " remove a tab from the biggest side
       if L.width <= R.width
         let right_has_been_cut = 1
@@ -315,8 +286,8 @@ fun! s:fit_tabline(lft, rgt, tabs, limit, active_tab) abort "{{{2
   endif
 
   let buffers = join(map(Tabs,'v:val.label'),'')
-  let padding = s:extra_padding(L.width + R.width, a:limit)
-  let g:xtabline.last_tabline = buffers . padding . a:active_tab . '%999X'
+  let padding = s:extra_padding(L.width + R.width, limit)
+  let g:xtabline.last_tabline = buffers . padding . active_tab . '%999X'
   return g:xtabline.last_tabline
 endfun "}}}
 
@@ -660,12 +631,16 @@ endfun
 fun! s:get_label_for_right_corner() abort "{{{2
   """Build string with tab label and icon for the bufline."""
   let N = tabpagenr()
-  if ! s:Sets.show_current_tab
-    let fmt_tab = s:tabnum(N, 1)
+
+  "TODO: a right side corner for the tabs mode
+  if s:v.tabline_mode == 'tabs'
+    return ['', 0]
   elseif s:v.tabline_mode == 'arglist'
     let [ n, N ] = [ index(argv(), bufname(bufnr('%'))) + 1, len(argv()) ]
     let num = "%#XTNumSel# " . n .'/' . N . " "
     let fmt_tab = num . "%#XTSelect# arglist" . " %#XTTabInactive#"
+  elseif ! s:Sets.show_current_tab
+    let fmt_tab = s:tabnum(N, 1)
   elseif s:Sets.use_tab_cwd == 0
     let buflist = tabpagebuflist(N)
     let winnr = tabpagewinnr(N)
