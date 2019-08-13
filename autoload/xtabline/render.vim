@@ -1,3 +1,24 @@
+" BufTabLine credits {{{1
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Description: Vim global plugin for rendering the buffer list in the tabline
+" Mantainer:   Aristotle Pagaltzis <pagaltzis@gmx.de>
+" Url:         https://github.com/ap/vim-buftabline
+" Licence:     The MIT License (MIT)
+" Copyright:   (c) 2015 Aristotle Pagaltzis <pagaltzis@gmx.de>
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Taboo credits {{{1
+"" =============================================================================
+" File: taboo.vim
+" Description: A little plugin for managing the vim tabline
+" Mantainer: Giacomo Comitti (https://github.com/gcmt)
+" Url: https://github.com/gcmt/taboo.vim
+" License: MIT
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Variables and lambdas {{{1
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
 let s:X    = g:xtabline
 let s:v    = g:xtabline.Vars
 let s:F    = g:xtabline.Funcs
@@ -17,21 +38,6 @@ let s:Hi        = { -> g:xtabline_highlight.themes[s:Sets.theme] }
 let s:is_open   = { n -> s:F.has_win(n) && index(s:vB(), n) < 0 && getbufvar(n, "&ma") }
 let s:is_extra  = { n -> index(s:eB(), n) >= 0 }
 
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-" BufTabLine {{{1
-" =============================================================================
-" Description: Vim global plugin for rendering the buffer list in the tabline
-" Mantainer:   Aristotle Pagaltzis <pagaltzis@gmx.de>
-" Url:         https://github.com/ap/vim-buftabline
-" Licence:     The MIT License (MIT)
-" Copyright:   (c) 2015 Aristotle Pagaltzis <pagaltzis@gmx.de>
-" =============================================================================
-
-" Variables
-" =============================================================================
-
 let s:dirsep            = fnamemodify(getcwd(),':p')[-1:]
 let s:centerbuf         = winbufnr(0)
 let s:is_current_buf    = { nr -> nr == winbufnr(0)                                           }
@@ -43,8 +49,9 @@ let s:has_buf_icon      = { nr -> !empty(get(s:B()[nr], 'icon', ''))            
 let s:extraHi           = { b -> s:is_extra(b) || s:is_open(b) || index(s:pinned(), b) >= 0   }
 let s:specialHi         = { b -> s:B()[b].special                                             }
 
-" BufTabLine main function {{{1
-" =============================================================================
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Main functions {{{1
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 let s:v.time_to_update = 1
 let s:last_modified_state = { winbufnr(0): &modified }
@@ -54,10 +61,13 @@ let s:last_modified_state = { winbufnr(0): &modified }
 " a buffer has been modified. We store the last rendered tabline, and if
 " there's no need to reprocess it, just return the old string
 
-fun! xtabline#render#buffers() abort
+fun! xtabline#render#tabline() abort "{{{2
   if !s:ready() | return g:xtabline.last_tabline | endif
   call xtabline#tab#check_index()
   let currentbuf = winbufnr(0)
+
+  " no room for a full tabline
+  if &columns < 40 | return s:get_label_for_right_corner()[0] | endif
 
   let changed_modified_state =
         \ !has_key(s:last_modified_state, currentbuf) ||
@@ -70,12 +80,76 @@ fun! xtabline#render#buffers() abort
     return g:xtabline.last_tabline
   endif
 
-  " no room for a full tabline, render the right corner
-  if &columns < 40 | return s:get_tab_for_bufline()[0] | endif
+  if s:v.tabline_mode == 'tabs'
+    return s:render_tabs()
+  else
+    return s:render_buffers()
+  endif
+endfun
 
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:render_tabs() abort "{{{2
+  let centerlabel = tabpagenr()
+  let tabs = []
+  let labels = range(1, tabpagenr('$'))
+
+  let fmt_unnamed = s:fmt_chars(s:Sets.tab_format)
+  let fmt_renamed = s:fmt_chars(s:Sets.named_tab_format)
+
+  for tnr in labels
+    if tnr == tabpagenr() | let centerlabel = tnr | endif
+    let hi = tnr == tabpagenr() ? 'TabActive' : 'TabInactive'
+    let label = printf('%%#XT%s#', hi) . '%' . tnr . 'T'
+    if !s:Sets.use_tab_cwd || get(s:Sets, 'tabs_show_bufname', 0)
+      let buflist = tabpagebuflist(tnr)
+      let winnr = tabpagewinnr(tnr)
+      let bname = bufname(buflist[winnr - 1])
+      let label .= printf("%s %s ", s:tabnum(tnr, 1), s:F.short_cwd(tnr, 0, bname))
+    else
+      let fmt = empty(s:tabname(tnr)) ? fmt_unnamed : fmt_renamed
+      let label .= s:format_tab(tnr, fmt)
+    endif
+    call add(tabs, {'label': label, 'nr': tnr, 'hilite': hi})
+  endfor
+
+  "TODO: a right side corner for the tabs mode
+  let [active_tab, tab_width] = ['', 0]
+
+  " limit is the max bufline length
+  let limit = &columns - tab_width - 1
+
+  " now keep the current buffer center-screen as much as possible
+  let lft = { 'lasttab':  0, 'cut':  '.', 'indicator': '<', 'width': 0, 'half': limit / 2 }
+  let rgt = { 'lasttab': -1, 'cut': '.$', 'indicator': '>', 'width': 0, 'half': limit - lft.half }
+
+  " sum the string lengths for the left and right halves
+  let currentside = lft
+  for tab in tabs
+    let tab.width = strwidth(substitute(tab.label, '%#\w*#', '', 'g'))
+    if centerlabel == tab.nr
+      let halfwidth = tab.width / 2
+      let lft.width += halfwidth
+      let rgt.width += tab.width - halfwidth
+      let currentside = rgt
+      continue
+    endif
+    let currentside.width += tab.width
+  endfor
+
+  if currentside is lft " centered buffer not seen?
+    let [lft.width, rgt.width] = [0, lft.width]
+  endif
+
+  return s:fit_tabline(lft, rgt, tabs, limit, active_tab)
+endfun
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:render_buffers() abort "{{{2
   call xtabline#filter_buffers() " filter buffers is called only from here
   let centerlabel = s:centerbuf " prevent tabline jumping around when non-user buffer current (e.g. help)
-  let show_num  = s:Sets.bufline_numbers
+  let currentbuf = winbufnr(0)
 
   " pick up data on all the buffers
   let tabs = []
@@ -116,9 +190,6 @@ fun! xtabline#render#buffers() abort
     for b in ( s:eB() + front + s:pinned() + specials )
       call s:F.add_ordered(b, 1)
     endfor
-  elseif s:v.tabline_mode == 'tabs'
-    let centerlabel = tabpagenr()
-    let labels = range(1, tabpagenr('$'))
   else
     let labels = s:F.uniq(map(argv(), 'bufnr(v:val)'))
     call filter(labels, 'bufexists(v:val)')
@@ -142,73 +213,48 @@ fun! xtabline#render#buffers() abort
   endif
 
   " make tabline string
-  if s:v.tabline_mode == 'tabs'
-    let fmt_unnamed = s:fmt_chars(s:Sets.tab_format)
-    let fmt_renamed = s:fmt_chars(s:Sets.named_tab_format)
+  for bnr in labels
+    let special = s:specialHi(bnr)
+    let scratch = s:scratch(bnr)
 
-    for tnr in labels
-      if tnr == tabpagenr() | let centerlabel = tnr | endif
-      let hi = tnr == tabpagenr() ? 'TabActive' : 'TabInactive'
-      let label = printf('%%#XT%s#', hi) . '%' . tnr . 'T'
-      if !s:Sets.use_tab_cwd || get(s:Sets, 'tabs_show_bufname', 0)
-        let buflist = tabpagebuflist(tnr)
-        let winnr = tabpagewinnr(tnr)
-        let bname = bufname(buflist[winnr - 1])
-        let label .= printf("%s %s ", s:tabnum(tnr, 1), s:F.short_cwd(tnr, 0, bname))
-      else
-        let fmt = empty(s:tabname(tnr)) ? fmt_unnamed : fmt_renamed
-        let label .= s:format_tab(tnr, fmt)
-      endif
-      call add(tabs, {'label': label, 'nr': tnr, 'hilite': hi})
-    endfor
-  else
-    for bnr in labels
-      let special = s:specialHi(bnr)
-      let scratch = s:scratch(bnr)
+    " exclude special buffers without window, or non-special scratch buffers
+    if special && !s:F.has_win(bnr) | continue
+    elseif scratch && !special      | continue | endif
 
-      " exclude special buffers without window, or non-special scratch buffers
-      if special && !s:F.has_win(bnr) | continue
-      elseif scratch && !special      | continue | endif
+    let n = index(labels, bnr) + 1 + begin       "tab buffer index
+    let is_currentbuf = currentbuf == bnr
 
-      let n = index(labels, bnr) + 1 + begin       "tab buffer index
-      let is_currentbuf = currentbuf == bnr
+    let tab = { 'nr': bnr,
+          \ 'n': n,
+          \ 'tried_devicon': 0,
+          \ 'tried_icon': 0,
+          \ 'has_icon': 0,
+          \ 'path': &columns < 150 || !Tab.rpaths ? fnamemodify(bufname(bnr), ':t')
+          \                                       : s:F.short_path(bnr, Tab.rpaths),
+          \ 'hilite':   is_currentbuf && special  ? 'Special' :
+          \             is_currentbuf             ? 'Select' :
+          \             special || s:extraHi(bnr) ? 'Extra' :
+          \             s:F.has_win(bnr)          ? 'Visible' : 'Hidden'
+          \}
 
-      let tab = { 'nr': bnr,
-            \ 'n': n,
-            \ 'tried_devicon': 0,
-            \ 'tried_icon': 0,
-            \ 'has_icon': 0,
-            \ 'path': &columns < 150 || !Tab.rpaths ? fnamemodify(bufname(bnr), ':t')
-            \                                       : s:F.short_path(bnr, Tab.rpaths),
-            \ 'hilite':   is_currentbuf && special  ? 'Special' :
-            \             is_currentbuf             ? 'Select' :
-            \             special || s:extraHi(bnr) ? 'Extra' :
-            \             s:F.has_win(bnr)          ? 'Visible' : 'Hidden'
-            \}
+    if type(s:Sets.bufline_format) == v:t_number
+      let tab.path = s:get_buf_name(tab)
+    else
+      let tab.path = fnamemodify(bufname(bnr), (Tab.rpaths ? ':p:~:.' : ':t'))
+      let tab.separators = s:buf_separators(bnr)
+      let tab.indicator = s:buf_indicator(bnr)
+    endif
 
-      if type(s:Sets.bufline_format) == v:t_number
-        let tab.path = s:get_buf_name(tab)
-      else
-        let tab.path = fnamemodify(bufname(bnr), (Tab.rpaths ? ':p:~:.' : ':t'))
-        let tab.separators = s:buf_separators(bnr)
-        let tab.indicator = s:buf_indicator(bnr)
-      endif
+    if is_currentbuf | let [centerlabel, s:centerbuf] = [bnr, bnr] | endif
 
-      if is_currentbuf | let [centerlabel, s:centerbuf] = [bnr, bnr] | endif
+    let tabs += [tab]
+  endfor
 
-      let tabs += [tab]
-    endfor
-  endif
+  " get the default buffer format, and set its type
+  let s:default_buffer_format = s:get_default_buffer_format()
 
-  if s:v.tabline_mode == 'tabs'
-    let [active_tab, tab_width] = ['', 0]
-  else
-    " get the default buffer format, and set its type
-    let s:default_buffer_format = s:get_default_buffer_format()
-
-    " add the current tab name/cwd to the right side
-    let [active_tab, tab_width] = s:get_tab_for_bufline()
-  endif
+  " add the current tab name/cwd to the right side
+  let [active_tab, tab_width] = s:get_label_for_right_corner()
 
   " limit is the max bufline length
   let limit = &columns - tab_width - 1
@@ -219,73 +265,66 @@ fun! xtabline#render#buffers() abort
 
   " sum the string lengths for the left and right halves
   let currentside = lft
-  if s:v.tabline_mode == 'tabs'
-    for tab in tabs
-      let tab.width = strwidth(substitute(tab.label, '%#\w*#', '', 'g'))
-      if centerlabel == tab.nr
-        let halfwidth = tab.width / 2
-        let lft.width += halfwidth
-        let rgt.width += tab.width - halfwidth
-        let currentside = rgt
-        continue
-      endif
-      let currentside.width += tab.width
-    endfor
-  else
-    for tab in tabs
-      let tab.label = s:format_buffer(tab)
-      let tab.width = strwidth(substitute(tab.label, '%#\w*#', '', 'g'))
-      if centerlabel == tab.nr
-        let halfwidth = tab.width / 2
-        let lft.width += halfwidth
-        let rgt.width += tab.width - halfwidth
-        let currentside = rgt
-        continue
-      endif
-      let currentside.width += tab.width
-    endfor
-  endif
+  for tab in tabs
+    let tab.label = s:format_buffer(tab)
+    let tab.width = strwidth(substitute(tab.label, '%#\w*#', '', 'g'))
+    if centerlabel == tab.nr
+      let halfwidth = tab.width / 2
+      let lft.width += halfwidth
+      let rgt.width += tab.width - halfwidth
+      let currentside = rgt
+      continue
+    endif
+    let currentside.width += tab.width
+  endfor
+
   if currentside is lft " centered buffer not seen?
-    " then blame any overflow on the right side, to protect the left
     let [lft.width, rgt.width] = [0, lft.width]
   endif
 
+  return s:fit_tabline(lft, rgt, tabs, limit, active_tab)
+endfun
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:fit_tabline(lft, rgt, tabs, limit, active_tab) abort "{{{2
   " toss away tabs and pieces until all fits
 
+  let [ L, R, Tabs ] = [ a:lft, a:rgt, a:tabs ]
   let left_has_been_cut = 0
   let right_has_been_cut = 0
 
-  if ( lft.width + rgt.width ) > limit
-    while limit - ( lft.width + rgt.width ) < 0
+  if ( L.width + R.width ) > a:limit
+    while a:limit - ( L.width + R.width ) < 0
       " remove a tab from the biggest side
-      if lft.width <= rgt.width
+      if L.width <= R.width
         let right_has_been_cut = 1
-        let rgt.width -= remove(tabs, -1).width
+        let R.width -= remove(Tabs, -1).width
       else
         let left_has_been_cut = 1
-        let lft.width -= remove(tabs, 0).width
+        let L.width -= remove(Tabs, 0).width
       endif
     endwhile
     if left_has_been_cut
-      let lab = substitute(tabs[0].label, '%#X\w*#', '', 'g')
-      let tabs[0].label = printf('%%#DiffDelete# < %%#XT%s#%s', tabs[0].hilite, strcharpart(lab, 3))
+      let lab = substitute(Tabs[0].label, '%#X\w*#', '', 'g')
+      let Tabs[0].label = printf('%%#DiffDelete# < %%#XT%s#%s', Tabs[0].hilite, strcharpart(lab, 3))
     endif
     if right_has_been_cut
-      let tabs[-1].label = printf('%s%%#DiffDelete# > ', tabs[-1].label[:-4])
+      let Tabs[-1].label = printf('%s%%#DiffDelete# > ', Tabs[-1].label[:-4])
     endif
   endif
 
-  let swallowclicks = s:v.tabline_mode == 'tabs' ? '' : '%'.(1 + tabpagenr('$')).'X'
-  let buffers = swallowclicks . join(map(tabs,'v:val.label'),'')
-  let padding = s:extra_padding(lft.width + rgt.width, limit)
-  let g:xtabline.last_tabline = buffers . padding . active_tab . '%999X'
+  let buffers = join(map(Tabs,'v:val.label'),'')
+  let padding = s:extra_padding(L.width + R.width, a:limit)
+  let g:xtabline.last_tabline = buffers . padding . a:active_tab . '%999X'
   return g:xtabline.last_tabline
-endfun
+endfun "}}}
 
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Buffer label formatting {{{1
-" =============================================================================
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:format_buffer(buf) abort
+fun! s:format_buffer(buf) abort "{{{2
   let [ B, fmt ] = [ a:buf, s:default_buffer_format ]
   if s:buffer_has_format(B)
     let chars = s:fmt_chars(s:B()[B.nr].format)
@@ -327,7 +366,7 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:buf_indicator(bnr) abort
+fun! s:buf_indicator(bnr) abort "{{{2
   let mods = s:Sets.bufline_indicators | let nr = a:bnr
   let mod = index(s:pinned(), nr) >= 0 ? mods.pinned : ''
   let modHi = s:is_current_buf(nr) ? "%#XTSelectMod#" :
@@ -348,7 +387,7 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:buf_separators(nr) abort
+fun! s:buf_separators(nr) abort "{{{2
   """Use custom separators if defined in buffer entry."""
   let B = s:B()[a:nr]
   return has_key(B, 'separators') ? B.separators : s:Sets.bufline_separators
@@ -356,7 +395,7 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:get_buf_name(buf) abort
+fun! s:get_buf_name(buf) abort "{{{2
   """Return custom buffer name, if it has been set, otherwise the filename."""
   let B = s:B()[a:buf.nr]
   return !empty(B.name)       ? B.name :
@@ -365,7 +404,7 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:get_dev_icon(buf) abort
+fun! s:get_dev_icon(buf) abort "{{{2
   """Return preferably devicon for buffer, or custom icon if present."""
   let a:buf.tried_devicon = 1
   if exists('g:loaded_webdevicons') &&
@@ -380,7 +419,7 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:get_buf_icon(buf) abort
+fun! s:get_buf_icon(buf) abort "{{{2
   """Return preferably custom icon for buffer, or devicon if present."""
   let a:buf.tried_icon = 1
   let nr = a:buf.nr
@@ -394,58 +433,18 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:needs_separator(buf) abort
+fun! s:needs_separator(buf) abort "{{{2
   """Verify if a separator must be inserted."""
   let either_or = s:Sets.bufline_sep_or_icon
   return (either_or && !a:buf.has_icon) || !either_or
-endfun
+endfun "}}}
 
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-
-
-"Taboo  {{{1
-"" =============================================================================
-" File: taboo.vim
-" Description: A little plugin for managing the vim tabline
-" Mantainer: Giacomo Comitti (https://github.com/gcmt)
-" Url: https://github.com/gcmt/taboo.vim
-" License: MIT
-" =============================================================================
-
-" Main command
-" =============================================================================
-
-" To construct the tabline string for terminal vim.
-fun! xtabline#render#tabs() abort
-  let tabline = ''
-  let fmt_unnamed = s:fmt_chars(s:Sets.tab_format)
-  let fmt_renamed = s:fmt_chars(s:Sets.named_tab_format)
-
-  for i in range(1, tabpagenr('$'))
-    let tabline .= i == tabpagenr() ? '%#XTTabActive#' : '%#XTTabInactive#'
-    let tabline .= '%' . i . 'T'
-    if s:Sets.use_tab_cwd == 0
-      let buflist = tabpagebuflist(i)
-      let winnr = tabpagewinnr(i)
-      let bname = bufname(buflist[winnr - 1])
-      let tabline .= printf("%s %s ", s:tabnum(i, 1), s:F.short_cwd(i, 0, bname))
-    else
-      let fmt = empty(s:tabname(i)) ? fmt_unnamed : fmt_renamed
-      let tabline .= s:format_tab(i, fmt)
-    endif
-  endfor
-
-  let tabline .= '%#XTFill#%T'
-  let tabline .= '%=%#XTHidden#%999X' . s:Sets.close_tabs_label
-  return tabline
-endfun
-
 " Tab label formatting {{{1
-" =============================================================================
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:fmt_chars(fmt) abort
+fun! s:fmt_chars(fmt) abort "{{{2
   """Return a split string with the formatting option in use.
   let chars = []
   for i in range(strchars(a:fmt))
@@ -456,7 +455,7 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:format_tab(tabnr, fmt) abort
+fun! s:format_tab(tabnr, fmt) abort "{{{2
   let out = []
   for c in a:fmt
     let C = nr2char(c)
@@ -484,7 +483,7 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:tabnum(tabnr, all) abort
+fun! s:tabnum(tabnr, all) abort "{{{2
   if a:all && s:v.tabline_mode != 'tabs'
     let hi = has_key(s:T(), 'dir') ? " %#XTNumSel#" : " %#XTTabInactive#"
     return "%#XTNumSel# " . a:tabnr .'/' . tabpagenr('$') . hi
@@ -497,21 +496,21 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:wincount(tabnr, all) abort
+fun! s:wincount(tabnr, all) abort "{{{2
   return a:all || a:tabnr == tabpagenr() ?
         \tabpagewinnr(a:tabnr, '$') : ''
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:wincountUnicode(tabnr, all) abort
+fun! s:wincountUnicode(tabnr, all) abort "{{{2
   let buffers_number = s:unicode_nrs(tabpagewinnr(a:tabnr, '$'))
   return a:all || a:tabnr == tabpagenr() ? buffers_number : ''
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:modflag(tabnr) abort
+fun! s:modflag(tabnr) abort "{{{2
   let flag = s:Sets.modified_tab_flag
   for buf in tabpagebuflist(a:tabnr)
     if getbufvar(buf, "&mod")
@@ -525,7 +524,7 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:bufname(tabnr) abort
+fun! s:bufname(tabnr) abort "{{{2
   let buffers = tabpagebuflist(a:tabnr)
   let buf = s:first_normal_buffer(buffers)
   let bname = bufname(buf > -1 ? buf : buffers[0])
@@ -537,7 +536,7 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:bufpath(tabnr) abort
+fun! s:bufpath(tabnr) abort "{{{2
   let buffers = tabpagebuflist(a:tabnr)
   let buf = s:first_normal_buffer(buffers)
   let bname = bufname(buf > -1 ? buf : buffers[0])
@@ -549,7 +548,7 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:get_tab_icon(tabnr) abort
+fun! s:get_tab_icon(tabnr) abort "{{{2
   if !s:v.custom_tabs | return s:Sets.tab_icon | endif
 
   let T = s:X.Tabs[a:tabnr-1]
@@ -561,7 +560,7 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:has_tab_icon(T) abort
+fun! s:has_tab_icon(T) abort "{{{2
   if !has_key(a:T, 'icon') | return | endif
   let I = a:T.icon
 
@@ -574,13 +573,11 @@ fun! s:has_tab_icon(T) abort
   elseif type(I) == v:t_list && len(I) == 1
     return [I[0], I[0]]
   endif
-endfun
+endfun "}}}
 
-
-
-
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Helpers {{{1
-" =============================================================================
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 let s:tabcwd = { n -> s:X.Tabs[n-1].cwd }
 let s:windows = { n -> range(1, tabpagewinnr(n, '$')) }
@@ -588,7 +585,7 @@ let s:basename = { f -> fnamemodify(f, ':p:t') }
 
 "------------------------------------------------------------------------------
 
-fun! s:tabname(tabnr) abort
+fun! s:tabname(tabnr) abort "{{{2
   if s:v.custom_tabs
     return s:X.Tabs[a:tabnr-1].name
   else
@@ -598,7 +595,7 @@ endfun
 
 "------------------------------------------------------------------------------
 
-fun! s:first_normal_buffer(buffers) abort
+fun! s:first_normal_buffer(buffers) abort "{{{2
   for buf in a:buffers
     if buflisted(buf) && getbufvar(buf, "&bt") != 'nofile'
       return buf
@@ -609,7 +606,7 @@ endfun
 
 "------------------------------------------------------------------------------
 
-fun! s:get_default_buffer_format() abort
+fun! s:get_default_buffer_format() abort "{{{2
   " get the default buffer format, and set its type, either:
   " - funcref
   " - format string
@@ -636,7 +633,7 @@ let s:unr2 = [ '¹', '²', '³', '⁴', '⁵', '⁶', '⁷', '⁸', '⁹', '¹�
       \'¹¹', '¹²', '¹³', '¹⁴', '¹⁵', '¹⁶', '¹⁷', '¹⁸', '¹⁹', '²⁰',
       \'²¹', '²²', '²³', '²⁴', '²⁵', '²⁶', '²⁷', '²⁸', '²⁹', '³⁰' ]
 
-fun! s:unicode_nrs(nr) abort
+fun! s:unicode_nrs(nr) abort "{{{2
   """Adapted from Vim-CtrlSpace (https://github.com/szw/vim-ctrlspace)
   let u_nr = ""
 
@@ -660,7 +657,7 @@ endfun
 
 "------------------------------------------------------------------------------
 
-fun! s:get_tab_for_bufline() abort
+fun! s:get_label_for_right_corner() abort "{{{2
   """Build string with tab label and icon for the bufline."""
   let N = tabpagenr()
   if ! s:Sets.show_current_tab
@@ -685,13 +682,13 @@ endfun
 
 "------------------------------------------------------------------------------
 
-fun! s:extra_padding(l_r, limit) abort
+fun! s:extra_padding(l_r, limit) abort "{{{2
   return a:l_r < a:limit ? '%#XTFill#'.repeat(' ', a:limit - a:l_r) : ''
 endfun
 
 "------------------------------------------------------------------------------
 
-fun! s:ready() abort
+fun! s:ready() abort "{{{2
    return !exists('g:SessionLoad')
-endfun
+endfun "}}}
 

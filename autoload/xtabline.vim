@@ -172,11 +172,7 @@ endfun
 
 fun! xtabline#update(...) abort
   let s:v.time_to_update = 1
-  if s:v.tabline_mode == 'tabs'
-    set tabline=%!xtabline#render#buffers()
-  else
-    set tabline=%!xtabline#render#buffers()
-  endif
+  set tabline=%!xtabline#render#tabline()
 endfun
 
 
@@ -186,8 +182,8 @@ endfun
 " Filter buffers
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-" This function is called by xtabline#render#buffers(), every time the tabline
-" is updated. It won't always run, though: xtabline#update() will set the flag
+" This function is called in the render script, every time the tabline is
+" updated. It won't always run, though: xtabline#update() will set the flag
 
 fun! xtabline#filter_buffers(...) abort
   """Filter buffers so that only valid buffers for this tab will be shown.
@@ -204,11 +200,6 @@ fun! xtabline#filter_buffers(...) abort
   "     - they aren't handled here, they are handled at render time
 
   let T = xtabline#tab#check()
-
-  if s:v.tabline_mode == 'tabs' && has_key(T, 'init')
-    set tabline=%!xtabline#render#buffers()
-    return
-  endif
 
   let T.buffers.valid = T.locked? T.buffers.valid : []
   let use_files = !empty(get(T, 'files', []))
