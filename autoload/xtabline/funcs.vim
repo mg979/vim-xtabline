@@ -273,7 +273,7 @@ fun! s:Funcs.verbose_change_wd(cwd) abort
     return self.msg("Invalid directory: ".a:cwd, 1)
   endif
   call extend(s:T(), { 'cwd': a:cwd })
-  call self.cd(a:cwd)
+  call self.change_wd(a:cwd)
   call xtabline#update()
   redraw
   call self.msg ([[ "Working directory: ", 'Label' ], [ a:cwd, 'None' ]])
@@ -314,7 +314,7 @@ endfun
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 " change working directory, update tab cwd and session data
-fun! s:Funcs.cd(dir) abort
+fun! s:Funcs.change_wd(dir) abort
   if isdirectory(a:dir)
     let cmd = s:Sets.use_tab_cwd == 2 ? 'tcd' : 'cd'
     exe cmd a:dir
@@ -330,7 +330,7 @@ endfun
 fun! s:Funcs.cd_into_tab_wd(tab) abort
   """Try to change the current directory.
   if s:Sets.use_tab_cwd
-    call self.cd(a:tab.cwd)
+    call self.change_wd(a:tab.cwd)
   elseif a:tab.cwd != getcwd()
     let a:tab.cwd = getcwd()
   endif
