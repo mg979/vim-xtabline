@@ -306,12 +306,12 @@ fun! s:format_buffer(buf) abort "{{{2
   let [ B, fmt ] = [ a:buf, s:default_buffer_format ]
   if s:buffer_has_format(B)
     let chars = s:fmt_chars(s:B()[B.nr].format)
-  elseif fmt.simple
+  elseif fmt.flat
     let mod = index(s:pinned(), B.nr) >= 0 ? ' '.s:Sets.bufline_indicators.pinned : ''
     let mod .= (getbufvar(B.nr, "&modified") ? " [+] " : " ")
     let hi = printf(" %%#XT%s# ", B.hilite)
     let ic = s:get_buf_icon(B)
-    let bn = fmt.simple == 2 ? B.n : B.nr
+    let bn = fmt.flat == 2 ? B.n : B.nr
     let nu = winbufnr(0) == B.nr ? ("%#XTNumSel# " . bn) : ("%#XTNum# " . bn)
     let st = nu . hi . ic . B.path . mod
     return st
@@ -589,14 +589,14 @@ fun! s:get_default_buffer_format() abort "{{{2
   " - funcref
   " - format string
   " - number (1 to show bufnr, 2 to show buffer order)
-  let fmt = { 'is_func': 0, 'simple': 0 }
+  let fmt = { 'is_func': 0, 'flat': 0 }
   if type(s:Sets.bufline_format) == v:t_func
     let fmt.is_func = 1
     let fmt.content = s:Sets.bufline_format
   elseif type(s:Sets.bufline_format) == v:t_string
     let fmt.content = s:fmt_chars(s:Sets.bufline_format)
   elseif type(s:Sets.bufline_format) == v:t_number
-    let fmt.simple = s:Sets.bufline_format
+    let fmt.flat = s:Sets.bufline_format
   endif
   return fmt
 endfun
