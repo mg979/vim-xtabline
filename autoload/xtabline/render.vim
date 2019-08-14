@@ -101,10 +101,7 @@ fun! s:render_tabs() abort "{{{2
     let hi = tnr == tabpagenr() ? 'TabActive' : 'TabInactive'
     let label = printf('%%#XT%s#', hi) . '%' . tnr . 'T'
     if !s:Sets.use_tab_cwd || get(s:Sets, 'tabs_show_bufname', 0)
-      let buflist = tabpagebuflist(tnr)
-      let winnr = tabpagewinnr(tnr)
-      let bname = bufname(buflist[winnr - 1])
-      let label .= printf("%s %s ", s:tabnum(tnr, 1), s:F.short_cwd(tnr, 0, bname))
+      let label .= printf("%s %s ", s:tabnum(tnr, 1), s:tabbufname(tnr, 1))
     else
       let fmt = empty(s:tabname(tnr)) ? fmt_unnamed : fmt_renamed
       let label .= s:format_tab(tnr, fmt)
@@ -298,6 +295,9 @@ fun! s:fit_tabline(centerlabel, tabs) abort "{{{2
   return g:xtabline.last_tabline
 endfun "}}}
 
+
+
+
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Buffer label formatting {{{1
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -449,8 +449,8 @@ fun! s:format_tab(tabnr, fmt) abort "{{{2
     elseif C ==# 'U' | let C = s:wincountUnicode(a:tabnr, 1)
     elseif C ==# '+' | let C = s:modflag(a:tabnr)
     elseif C ==# 'l' | let C = s:tabname(a:tabnr)
-    elseif C ==# 'f' | let C = s:bufname(a:tabnr)
-    elseif C ==# 'a' | let C = s:bufpath(a:tabnr)
+    elseif C ==# 'b' | let C = s:tabbufname(a:tabnr, 1)
+    elseif C ==# 'B' | let C = s:tabbufname(a:tabnr, 0)
     elseif C ==# 'P' | let C = s:tabcwd(a:tabnr)
     elseif C =~ '\d' | let C = s:F.short_cwd(a:tabnr, C)
     endif
@@ -502,26 +502,12 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:bufname(tabnr) abort "{{{2
+fun! s:tabbufname(tabnr, basename) abort "{{{2
   let buffers = tabpagebuflist(a:tabnr)
-  let buf = s:first_normal_buffer(buffers)
-  let bname = bufname(buf > -1 ? buf : buffers[0])
-  if !empty(bname)
-    return s:basename(bname)
-  endif
-  return s:Sets.unnamed_tab_label
-endfun
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! s:bufpath(tabnr) abort "{{{2
-  let buffers = tabpagebuflist(a:tabnr)
-  let buf = s:first_normal_buffer(buffers)
-  let bname = bufname(buf > -1 ? buf : buffers[0])
-  if !empty(bname)
-    return fnamemodify(bname, ':~')
-  endif
-  return s:Sets.unnamed_tab_label
+  let bufname = s:first_normal_buffer(buffers)
+  return empty(bufname)
+        \ ? s:Sets.unnamed_tab_label
+        \ : fnamemodify(bufname, a:basename ? ':t' : ':~')
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -559,7 +545,6 @@ endfun "}}}
 
 let s:tabcwd = { n -> s:X.Tabs[n-1].cwd }
 let s:windows = { n -> range(1, tabpagewinnr(n, '$')) }
-let s:basename = { f -> fnamemodify(f, ':p:t') }
 
 "------------------------------------------------------------------------------
 
@@ -576,10 +561,10 @@ endfun
 fun! s:first_normal_buffer(buffers) abort "{{{2
   for buf in a:buffers
     if buflisted(buf) && getbufvar(buf, "&bt") != 'nofile'
-      return buf
+      return bufname(buf)
     end
   endfor
-  return -1
+  return bufname(a:buffers[0])
 endfun
 
 "------------------------------------------------------------------------------
