@@ -129,7 +129,7 @@ endfunction
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:select_buffer(cnt) abort
-  let Fmt = g:xtabline_settings.bufline_format
+  let Fmt = g:xtabline_settings.buffer_format
   if type(Fmt) == v:t_number && Fmt == 1
     let cn = a:cnt + 1
     return ":\<C-U>silent! exe 'b'.".cn."\<cr>"

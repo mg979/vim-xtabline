@@ -70,7 +70,7 @@ The tabline can be rendered in three different modes:
 
 In |buffer-mode|, the tabline will show a filtered list of buffers that belong
 to the tab's CWD, or any open buffer inside the window. Formatting and number
-of (recently accessed) buffers can be customized (|xtabline-bufline_format|).
+of (recently accessed) buffers can be customized (|xtabline-buffer_format|).
 
 In |tabs-mode|, the tabline will show the numbered tabs. The label can be
 customized as well (to show buffer name, tab cwd, etc).
@@ -166,7 +166,7 @@ Persistance is enabled by default.
 
 The modes that can be put in this list are:
 
-- |buffers|:    buffer names, formatted with |xtabline-bufline_format|.
+- |buffers|:    buffer names, formatted with |xtabline-buffer_format|.
 - |tabs|:       the tabs CWDs, if per-tab CWD is active, or the buffer name
 - |arglist|:    the files contained in the arglist, as shown by |:args|
 
@@ -253,8 +253,8 @@ buffers can still be listed before them, but they are also highlighted
 differently.
 
 ------------------------------------------------------------------------------
-                                                   *xtabline-bufline_format*  >
-    let g:xtabline_settings.bufline_format = 2
+                                                    *xtabline-buffer_format*  >
+    let g:xtabline_settings.buffer_format = 2
 
 This setting controls how the buffers are formatted in the tabline. Valid
 values are:
@@ -266,7 +266,7 @@ values are:
 
 String example:
 >
-    let g:xtabline_settings.bufline_format = ' n I< l +'
+    let g:xtabline_settings.buffer_format = ' n I< l +'
 
 Function example:
 >
@@ -277,8 +277,18 @@ Function example:
       return printf('%s %s %s %s ', A, a:bufnr, B, name)
     endfun
 
-    let g:xtabline_settings.bufline_format = function('MyBuflineFormat')
+    let g:xtabline_settings.buffer_format = function('MyBuflineFormat')
 
+------------------------------------------------------------------------------
+                                                       *xtabline-tab_format*  >
+    let g:xtabline_settings.tab_format = 1
+
+    = 0  ->  long/path/to/file.ext  ->   file.ext
+    = 1  ->  long/path/to/file.ext  ->   l/p/t/file.ext
+    = 2  ->  long/path/to/file.ext  ->   l/p/to/file.ext
+
+As above, but for tabs mode. The value must be an integer.
+If a tab has a custom name, this will have higher priority.
 
 
 
@@ -588,16 +598,11 @@ FORMATTING                                             *xtabline-formatting*
 Option                     | Description                   | Default ~
 ---------------------------+-------------------------------+----------
 relative_paths             |                              | 0
-bufline_numbers            |                              | 1
-bufline_sep_or_icon        | icon suppresses separator    | 0
 bufline_separators         | alternative: ['', '']      | ['|', '|']
 devicon_for_all_filetypes  |                              | 0
 devicon_for_extensions     |                              | ['md', 'txt']
-bufline_format             |                              | 2
-tab_format                 |                              | "N - 2+ "
-named_tab_format           |                              | "N - l+ "
-bufline_tab_format         | defaults to settings above   | "N - 2+ "
-bufline_named_tab_format   | defaults to settings above   | "N - l+ "
+buffer_format              |                              | 2
+tab_format                 |                              | 1
 modified_tab_flag          |                              | '*'
 close_tabs_label           |                              | ''
 tab_icon                   |                              | ["📂", "📁"]

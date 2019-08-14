@@ -563,7 +563,7 @@ fun! s:format_buffer() abort
   let n = bufnr("%")
   if s:invalid_buffer(n) | return | endif
 
-  let fmt = s:Sets.bufline_format
+  let fmt = s:Sets.buffer_format
   let default = type(fmt) == v:t_string ? fmt : ' n I< l +'
 
   let has_format = has_key(s:B(), n) && has_key(s:B()[n], 'format')
