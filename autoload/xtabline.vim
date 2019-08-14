@@ -348,7 +348,7 @@ function! s:Do(action, ...)
     call xtabline#tab#check_all()
     call xtabline#tab#check()
 
-    call F.cd_into_tab_wd(X.Tabs[N])
+    call F.cd_into_tab_wd()
 
     call xtabline#update()
 
@@ -357,7 +357,7 @@ function! s:Do(action, ...)
   elseif a:action == 'leave'
 
     let V.last_tab = X.Tabs[N]
-    call F.set_tab_wd(X.Tabs[N])
+    call F.set_tab_wd()
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 

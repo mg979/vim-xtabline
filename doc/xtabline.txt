@@ -174,7 +174,7 @@ The modes can be cycled with <F5> (default).
 
 ------------------------------------------------------------------------------
                                                       *xtabline-use_tab_cwd*  >
-    let g:xtabline_settings.use_tab_cwd = 1 + exists(':tcd')
+    let g:xtabline_settings.use_tab_cwd = 1 + exists(':tcd') == 2
 <
 If not 0, each will have its own CWD. This CWD will persist across sessions, if
 persistance is enabled. The value of this option can be:
@@ -188,16 +188,21 @@ Note that:
 1. local working directories (set with |:lcd|) will be ignored when
    getting/setting the tab's CWD.
 
-2. independently from the method used, buffer filtering is based on the working
-   directory reported by vim |getcwd()|.
-
-3. buffer filtering in the tabline is an independent feature and can be
+2. buffer filtering in the tabline is an independent feature and can be
    disabled/enabled on its own: |xtabline-buffer_filtering|.
 
-4: if your vim version doesn't support |:tcd| and you set this value to 2,
+3. independently from the method used, buffer filtering is based on the working
+   directory reported by vim |getcwd()|, so it also works if this option is
+   disabled. Take this in consideration if your vim version supports |:tcd|.
+
+4. if a value of 2 is used, |:tcd| will only be executed if the reported CWD is
+   different from the CWD that has been set for the current tab. Generally this
+   shouldn't happen.
+
+5: if your vim version doesn't support |:tcd| and you set this value to 2,
    you'll probably get an error and things won't work. The lack of error
-   checking is intentional, so that you can use a setting of 1 even if |:tcd|
-   is supported (then it won't be used), and you can be sure of the method that
+   checking is intentional: you can use a setting of 1 even if |:tcd| is
+   supported (then it won't be used), and you can be sure of the method that
    the plugin is actually using behind the scene. By not defining this option,
    the value that makes more sense is chosen automatically, so you probably
    shouldn't worry about changing the default for this option (unless you want
@@ -414,10 +419,10 @@ Saved tabs are stored in `$HOME/.vim/.XTablineTabs`.
 SESSION MANAGEMENT                                          *xtabline-sessions*
 
 Command                Mapping    Plug  ~
-XTabLoadSession        *ls        <Plug>(XT-Load-Session) 
-XTabSaveSession        *ss        <Plug>(XT-Save-Session) 
-XTabDeleteSession      *ds        <Plug>(XT-Delete-Session) 
-XTabNewSession         *ns        <Plug>(XT-New-Session) 
+XTabLoadSession        *ls        <Plug>(XT-Load-Session)
+XTabSaveSession        *ss        <Plug>(XT-Save-Session)
+XTabDeleteSession      *ds        <Plug>(XT-Delete-Session)
+XTabNewSession         *ns        <Plug>(XT-New-Session)
 
 Descriptions are saved in `$HOME/.vim/.XTablineSessions`.
 
@@ -433,8 +438,8 @@ the description and the symbol `[%]` that marks the active session (if any).
 MANAGING BUFFERS                                    *xtabline-managing-buffers*
 
 Command                Mapping    Plug ~
-XTabListBuffers        *bl        <Plug>(XT-List-Buffers)    
-XTabDeleteBuffers      *db        <Plug>(XT-Delete-Buffers)    
+XTabListBuffers        *bl        <Plug>(XT-List-Buffers)
+XTabDeleteBuffers      *db        <Plug>(XT-Delete-Buffers)
 
 `XTabListBuffers`        list a list of `Tab Buffers` to choose from
 `XTabDeleteBuffers`      same list, but use the |:bdelete| command on them
@@ -469,10 +474,10 @@ OTHER COMMANDS                                                 *xtabline-other*
 ===============================================================================
 
 Command                Mapping    Plug ~
-XTabPurge              *pt        <Plug>(XT-Purge)  
-XTabCleanUp!           *wa        <Plug>(XT-Wipe-All)  
-XTabCleanUp            *cu        <Plug>(XT-Clean-Up)  
-XTabTodo               *tt        <Plug>(XT-Tab-Todo)  
+XTabPurge              *pt        <Plug>(XT-Purge)
+XTabCleanUp!           *wa        <Plug>(XT-Wipe-All)
+XTabCleanUp            *cu        <Plug>(XT-Clean-Up)
+XTabTodo               *tt        <Plug>(XT-Tab-Todo)
 XTabConfig             *C         <Plug>(XT-Config)
 XTabTheme              *T         <Plug>(XT-Theme)
 

@@ -305,9 +305,12 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.set_tab_wd(tab) abort
-  if s:Sets.use_tab_cwd
-    let a:tab.cwd = self.fullpath(getcwd())
+fun! s:Funcs.set_tab_wd() abort
+  let T = s:T()
+  if s:Sets.use_tab_cwd > 1
+    let T.cwd = self.fullpath(getcwd(-1, tabpagenr()))
+  elseif s:Sets.use_tab_cwd
+    let T.cwd = self.fullpath(getcwd())
   endif
 endfun
 
@@ -315,10 +318,14 @@ endfun
 
 " change working directory, update tab cwd and session data
 fun! s:Funcs.change_wd(dir) abort
+  let T = s:T()
   if isdirectory(a:dir)
-    let cmd = s:Sets.use_tab_cwd == 2 ? 'tcd' : 'cd'
-    exe cmd a:dir
-    call self.set_tab_wd(s:T())
+    if s:Sets.use_tab_cwd > 1 && getcwd(-1, tabpagenr()) != a:dir
+      exe 'tcd' a:dir
+    elseif s:Sets.use_tab_cwd && !haslocaldir() && getcwd() != a:dir
+      exe 'cd' a:dir
+    endif
+    call self.set_tab_wd()
     call xtabline#update_this_session()
   else
     return self.msg('[xtabline] directory doesn''t exists', 1)
@@ -327,12 +334,13 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.cd_into_tab_wd(tab) abort
+fun! s:Funcs.cd_into_tab_wd() abort
   """Try to change the current directory.
+  let T = s:T()
   if s:Sets.use_tab_cwd
-    call self.change_wd(a:tab.cwd)
-  elseif a:tab.cwd != getcwd()
-    let a:tab.cwd = getcwd()
+    call self.change_wd(T.cwd)
+  elseif T.cwd != getcwd()
+    let T.cwd = getcwd()
   endif
 endfun
 
