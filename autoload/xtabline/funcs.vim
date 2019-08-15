@@ -323,7 +323,7 @@ endfun
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 " change working directory, update tab cwd and session data
-fun! s:Funcs.change_wd(dir, ...) abort
+fun! s:Funcs.change_wd(dir, force) abort
   let T = s:T()
 
   if !isdirectory(a:dir)
@@ -339,9 +339,12 @@ fun! s:Funcs.change_wd(dir, ...) abort
       exe 'tcd' a:dir
     endif
 
-  elseif haslocaldir() && !a:0 && getcwd() != a:dir
+  elseif haslocaldir() && !a:force && getcwd() != a:dir
     " has local dir and not forcing directory change
-    echoerr '[xtabline] local cwd detected, can''t set cwd for tab '.tabpagenr()
+    echohl WarningMsg
+    echomsg '[xtabline] local cwd detected, can''t set cwd for tab '.tabpagenr()
+    echohl None
+    return
 
   elseif getcwd() != a:dir
     exe 'cd' a:dir
@@ -357,7 +360,7 @@ fun! s:Funcs.cd_into_tab_wd() abort
   """Try to change the current directory.
   let T = s:T()
   if s:Sets.use_tab_cwd
-    call self.change_wd(T.cwd)
+    call self.change_wd(T.cwd, exists('s:v.loading_tab'))
   elseif T.cwd != getcwd()
     let T.cwd = getcwd()
   endif

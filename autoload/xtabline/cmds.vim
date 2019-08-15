@@ -239,7 +239,7 @@ fun! s:reopen_last_tab() abort
     return
   endif
 
-  call s:F.change_wd(cwd)
+  call s:F.change_wd(cwd, 1)
   let s:v.halt = 0
   call xtabline#update()
 endfun

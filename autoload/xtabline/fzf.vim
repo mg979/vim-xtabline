@@ -197,8 +197,9 @@ fun! s:tab_load(...) abort
       let T[prop] = saved[prop]
     endfor
 
+    let s:v.loading_tab = 1
     $tabnew | let newbuf = bufnr("%")
-    call s:F.change_wd(cwd)
+    unlet s:v.loading_tab
 
     "add buffers
     for buf in saved['buffers']
@@ -505,18 +506,20 @@ endfun
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:tab_nerd_bookmarks_load(...) abort
+  let s:v.loading_tab = 1
   for bm in a:000
     let bm = expand(bm, ":p")
     if isdirectory(bm)
       tabnew
-      call s:F.change_wd(bm)
+      call s:F.change_wd(bm, 1)
       exe "NERDTree ".bm
     elseif filereadable(bm)
       exe "tabedit ".bm
-      call s:F.change_wd(fnamemodify(bm, ":p:h"))
+      call s:F.change_wd(fnamemodify(bm, ":p:h"), 1)
     endif
   endfor
   call xtabline#update()
+  unlet s:v.loading_tab
 endfun
 
 
