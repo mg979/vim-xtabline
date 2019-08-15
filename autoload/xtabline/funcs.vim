@@ -268,12 +268,18 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
+fun! s:Funcs.can_use_tcd()
+  return exists(':tcd') == 2 && s:Sets.use_tab_cwd > 1
+endfun
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
 fun! s:Funcs.verbose_change_wd(cwd) abort
   if !isdirectory(a:cwd)
     return self.msg("Invalid directory: ".a:cwd, 1)
   endif
   call extend(s:T(), { 'cwd': a:cwd })
-  call self.change_wd(a:cwd)
+  call self.change_wd(a:cwd, 1)
   call xtabline#update()
   redraw
   call self.msg ([[ "Working directory: ", 'Label' ], [ a:cwd, 'None' ]])
@@ -307,7 +313,7 @@ endfun
 
 fun! s:Funcs.set_tab_wd() abort
   let T = s:T()
-  if s:Sets.use_tab_cwd > 1
+  if self.can_use_tcd()
     let T.cwd = self.fullpath(getcwd(-1, tabpagenr()))
   elseif s:Sets.use_tab_cwd
     let T.cwd = self.fullpath(getcwd())
@@ -317,19 +323,32 @@ endfun
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 " change working directory, update tab cwd and session data
-fun! s:Funcs.change_wd(dir) abort
+fun! s:Funcs.change_wd(dir, ...) abort
   let T = s:T()
-  if isdirectory(a:dir)
-    if s:Sets.use_tab_cwd > 1 && getcwd(-1, tabpagenr()) != a:dir
-      exe 'tcd' a:dir
-    elseif s:Sets.use_tab_cwd && !haslocaldir() && getcwd() != a:dir
-      exe 'cd' a:dir
-    endif
-    call self.set_tab_wd()
-    call xtabline#update_this_session()
-  else
+
+  if !isdirectory(a:dir)
     return self.msg('[xtabline] directory doesn''t exists', 1)
   endif
+
+  if !s:Sets.use_tab_cwd
+    " do nothing
+
+  elseif self.can_use_tcd()
+    " change dir if tab-local cwd is different from the expected tab cwd
+    if getcwd(-1, tabpagenr()) != a:dir
+      exe 'tcd' a:dir
+    endif
+
+  elseif haslocaldir() && !a:0 && getcwd() != a:dir
+    " has local dir and not forcing directory change
+    echoerr '[xtabline] local cwd detected, can''t set cwd for tab '.tabpagenr()
+
+  elseif getcwd() != a:dir
+    exe 'cd' a:dir
+  endif
+
+  call self.set_tab_wd()
+  call xtabline#update_this_session()
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

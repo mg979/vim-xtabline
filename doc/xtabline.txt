@@ -185,28 +185,16 @@ persistance is enabled. The value of this option can be:
 
 Note that:
 
-1. local working directories (set with |:lcd|) will be ignored when
-   getting/setting the tab's CWD.
-
-2. buffer filtering in the tabline is an independent feature and can be
+1. buffer filtering in the tabline is an independent feature and can be
    disabled/enabled on its own: |xtabline-buffer_filtering|.
 
-3. independently from the method used, buffer filtering is based on the working
+2. independently from the method used, buffer filtering is based on the working
    directory reported by vim |getcwd()|, so it also works if this option is
    disabled. Take this in consideration if your vim version supports |:tcd|.
 
-4. if a value of 2 is used, |:tcd| will only be executed if the reported CWD is
-   different from the CWD that has been set for the current tab. Generally this
-   shouldn't happen.
+3. the |:cd| or |:tcd| command is only issued if needed.
 
-5: if your vim version doesn't support |:tcd| and you set this value to 2,
-   you'll probably get an error and things won't work. The lack of error
-   checking is intentional: you can use a setting of 1 even if |:tcd| is
-   supported (then it won't be used), and you can be sure of the method that
-   the plugin is actually using behind the scene. By not defining this option,
-   the value that makes more sense is chosen automatically, so you probably
-   shouldn't worry about changing the default for this option (unless you want
-   to disable it).
+4. a value >1 is considered ==1 if |:tcd| is not available as a command.
 
 ------------------------------------------------------------------------------
                                                  *xtabline-buffer_filtering*  >
@@ -289,6 +277,15 @@ Function example:
 
 As above, but for tabs mode. The value must be an integer.
 If a tab has a custom name, this will have higher priority.
+
+------------------------------------------------------------------------------
+                                                *xtabline-tabs_show_bufname*  >
+    let g:xtabline_settings.tabs_show_bufname = 0
+
+If enabled, tabs will always show the buffer name, not the directory name. If
+not using per-tab CWD, this will happen regardless.
+
+
 
 
 

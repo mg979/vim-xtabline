@@ -600,7 +600,7 @@ fun! s:get_label_for_right_corner() abort "{{{2
     let fmt_tab = num . "%#XTSelect# arglist" . " %#XTTabInactive#"
   elseif ! s:Sets.show_current_tab
     let fmt_tab = s:tabnum(N, 1)
-  elseif s:Sets.use_tab_cwd == 0
+  elseif !s:Sets.use_tab_cwd
     let buflist = tabpagebuflist(N)
     let winnr = tabpagewinnr(N)
     let bname = bufname(buflist[winnr - 1])
