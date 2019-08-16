@@ -279,7 +279,7 @@ fun! s:Funcs.verbose_change_wd(cwd) abort
     return self.msg("Invalid directory: ".a:cwd, 1)
   endif
   call extend(s:T(), { 'cwd': a:cwd })
-  call self.change_wd(a:cwd, 1)
+  call self.change_wd(a:cwd)
   call xtabline#update()
   redraw
   call self.msg ([[ "Working directory: ", 'Label' ], [ a:cwd, 'None' ]])
@@ -323,7 +323,7 @@ endfun
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 " change working directory, update tab cwd and session data
-fun! s:Funcs.change_wd(dir, force) abort
+fun! s:Funcs.change_wd(dir) abort
   let T = s:T()
 
   if !isdirectory(a:dir)
@@ -339,13 +339,6 @@ fun! s:Funcs.change_wd(dir, force) abort
       exe 'tcd' a:dir
     endif
 
-  elseif haslocaldir() && !a:force && getcwd() != a:dir
-    " has local dir and not forcing directory change
-    echohl WarningMsg
-    echomsg '[xtabline] local cwd detected, can''t set cwd for tab '.tabpagenr()
-    echohl None
-    return
-
   elseif getcwd() != a:dir
     exe 'cd' a:dir
   endif
@@ -360,7 +353,7 @@ fun! s:Funcs.cd_into_tab_wd() abort
   """Try to change the current directory.
   let T = s:T()
   if s:Sets.use_tab_cwd
-    call self.change_wd(T.cwd, exists('s:v.loading_tab'))
+    call self.change_wd(T.cwd)
   elseif T.cwd != getcwd()
     let T.cwd = getcwd()
   endif

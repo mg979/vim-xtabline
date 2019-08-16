@@ -646,38 +646,15 @@ Option | Description                  ~
 -------+--------------------------------------------
   l    | custom name, filename as fallback
   f    | filename
-  n    | buffer number as small unicode
-  N    | buffer number
+  u    | buffer number as small unicode
+  n    | buffer number (real)
+  N    | buffer number (order in the tabline)
   +    | indicators (modified, read only...)
   i    | icon (devicon preferred)
   I    | icon (custom icon preferred)
   <    | separator, can be suppressed by icon
   >    | separator, can't be suppressed by icon
 
-
-TAB FORMATTING                                        *xtabline-tab-formatting*
-
-Default formatting is `N - 2+ ` for unnamed tabs, `N - l+ ` for named tabs.
-Notation rules are the same, but character meaning can be different:
-
--------+--------------------------------------------
-Option | Description                  ~
--------+--------------------------------------------
-  l    | custom name, short cwd as fallback
-  -    | icon (custom icon preferred)
-  +    | modified indicator
-  f    | buffer filename
-  a    | buffer path
-  n    | tab number (current tab)
-  N    | current tab / all tabs
-  w    | windows count
-  W    | windows count
-  u    | windows count as small unicode
-  U    | windows count as small unicode
-  P    | full cwd
-  0    | short cwd, truncated at 0 directory separators
-  1    | short cwd, truncated at 1 directory separators
-  2    | short cwd, truncated at 2 directory separators
 
 
 REMAPPING COMMANDS                                          *xtabline-remapping*
