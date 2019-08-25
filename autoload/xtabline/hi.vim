@@ -6,6 +6,7 @@ let s:Sets = g:xtabline_settings
 
 fun! xtabline#hi#init() abort
   let s:Sets.theme = get(s:Sets, 'theme', 'default')
+  let s:last_theme = s:Sets.theme
   call xtabline#hi#apply_theme(s:Sets.theme)
 endfun
 
