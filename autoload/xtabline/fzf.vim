@@ -611,66 +611,51 @@ endfun
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:run(cmd) abort
-  let i = 0
-  for cmd in map(copy(s:cmds), 'v:val[0]')
-    if a:cmd == cmd
-      exe s:cmds[i][1]
-      break
-    endif
-    let i += 1
-  endfor
-endfun
-
-fun! s:finder(input, prompt, sink)
-  let res = xtabline#finder#open(a:input, a:prompt, 0)
-  if !empty(res)
-    call s:{a:sink}(res[0])
-  endif
+  exe s:cmds[a:cmd]
 endfun
 
 fun! xtabline#fzf#cmds() abort
   """Run any XTabline command with fzf or finder."""
   redraw!
-  let input = map(copy(s:cmds), 'v:val[0]')
   if !exists('g:loaded_fzf')
-    return s:finder(input, 'Command ', 'run')
+    exe xtabline#finder#open(s:cmds, 'Select a command')
+  else
+    call fzf#vim#files('', {
+          \ 'source': keys(s:cmds),
+          \ 'sink': function('s:run'), 'down': '30%',
+          \ 'options': '--no-multi --no-preview --ansi --prompt "Command >>>  "'})
   endif
-  call fzf#vim#files('', {
-        \ 'source': input,
-        \ 'sink': function('s:run'), 'down': '30%',
-        \ 'options': '--no-multi --no-preview --ansi --prompt "Command >>>  "'})
 endfun
 
-let s:cmds = [
-      \['Reopen last tab',               "XTabReopen"],
-      \['Close buffer',                  "XTabCloseBuffer"],
-      \['Pin buffer',                    "XTabPinBuffer"],
-      \['Clean up buffers',              "XTabCleanUp"],
-      \['Purge all hidden buffers',      "XTabCleanUp"],
-      \['Tab todo',                      "XTabTodo"],
-      \['Purge tab',                     "XTabPurge"],
-      \['Toggle custom tabs',            "XTabCustomTabs"],
-      \['Toggle buffer relative paths',  "XTabRelativePaths"],
-      \['Reset tab',                     "XTabResetTab"],
-      \['Reset buffer',                  "XTabResetBuffer"],
-      \['Buffer format',                 "XTabFormatBuffer"],
-      \['Configure',                     "XTabConfig"],
-      \['Git mode',                      "XTabGit"],
-      \['Hide buffer',                   "normal \<Plug>(XT-Hide-Buffer)"],
-      \['Toggle tabs',                   "normal \<Plug>(XT-Toggle-Tabs)"],
-      \['Go to last tab',                "normal \<Plug>(XT-Last-Tab)"],
-      \['Refresh tabline',               "normal \<Plug>(XT-Refresh)"],
-      \['Toggle filtering',              "normal \<Plug>(XT-Toggle-Filtering)"],
-      \['Working directory',             "normal \<Plug>(XT-Working-Directory)"],
-      \['Toggle only current dir',       "normal \<Plug>(XT-Set-Depth)"],
-      \['Cd to current directory',       "normal \<Plug>(XT-Cd-Current)"],
-      \['Cd to parent directory',        "normal \<Plug>(XT-Cd-Down)"],
-      \['Rename tab',                    "call feedkeys(':XTabRenameTab ', 'n')"],
-      \['Rename buffer',                 "call feedkeys(':XTabRenameBuffer ', 'n')"],
-      \['Change tab icon',               "call feedkeys(':XTabIcon ', 'n')"],
-      \['Change buffer icon',            "call feedkeys(':XTabBufferIcon ', 'n')"],
-      \['Select theme',                  "call feedkeys(':XTabTheme ', 'n')"],
-      \]
+let s:cmds = {
+      \'Reopen last tab':              "XTabReopen",
+      \'Close buffer':                 "XTabCloseBuffer",
+      \'Pin buffer':                   "XTabPinBuffer",
+      \'Clean up buffers':             "XTabCleanUp",
+      \'Purge all hidden buffers':     "XTabCleanUp!",
+      \'Tab todo':                     "XTabTodo",
+      \'Purge tab':                    "XTabPurge",
+      \'Toggle custom tabs':           "XTabCustomTabs",
+      \'Toggle buffer relative paths': "XTabRelativePaths",
+      \'Reset tab':                    "XTabResetTab",
+      \'Reset buffer':                 "XTabResetBuffer",
+      \'Buffer format':                "XTabFormatBuffer",
+      \'Configure':                    "XTabConfig",
+      \'Hide buffer':                  "normal \<Plug>(XT-Hide-Buffer)",
+      \'Toggle tabs':                  "normal \<Plug>(XT-Toggle-Tabs)",
+      \'Go to last tab':               "normal \<Plug>(XT-Last-Tab)",
+      \'Refresh tabline':              "normal \<Plug>(XT-Refresh)",
+      \'Toggle filtering':             "normal \<Plug>(XT-Toggle-Filtering)",
+      \'Working directory':            "normal \<Plug>(XT-Working-Directory)",
+      \'Toggle only current dir':      "normal \<Plug>(XT-Set-Depth)",
+      \'Cd to current directory':      "normal \<Plug>(XT-Cd-Current)",
+      \'Cd to parent directory':       "normal \<Plug>(XT-Cd-Down)",
+      \'Rename tab':                   "call feedkeys(':XTabRenameTab ', 'n')",
+      \'Rename buffer':                "call feedkeys(':XTabRenameBuffer ', 'n')",
+      \'Change tab icon':              "call feedkeys(':XTabIcon ', 'n')",
+      \'Change buffer icon':           "call feedkeys(':XTabBufferIcon ', 'n')",
+      \'Select theme':                 "call feedkeys(':XTabTheme ', 'n')",
+      \}
 
 if exists('g:loaded_fzf')
   call extend(s:cmds, [
