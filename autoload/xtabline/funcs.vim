@@ -339,7 +339,7 @@ fun! s:Funcs.change_wd(dir) abort
       exe 'tcd' a:dir
     endif
 
-  elseif getcwd() != a:dir
+  elseif getcwd() != a:dir || (haslocaldir() && get(s:Sets, 'overwrite_localdir', 0))
     exe 'cd' a:dir
   endif
 
