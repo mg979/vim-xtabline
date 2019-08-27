@@ -29,7 +29,7 @@ fun! xtabline#cmds#next_buffer(nr, last) abort
   let accepted = s:oB()
 
   let ix = a:last ? (len(accepted) - 2) : index(accepted, bufnr("%"))
-  let target = ix + a:nr
+  let target = ix + (max([a:nr, 1]))
   let total = len(accepted)
 
   if target >= total
@@ -45,7 +45,7 @@ fun! xtabline#cmds#next_buffer(nr, last) abort
     let s:most_recent = target
   endif
 
-  return ":buffer " . accepted[s:most_recent] . "\<cr>"
+  exe "buffer " . accepted[s:most_recent]
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -57,7 +57,7 @@ fun! xtabline#cmds#prev_buffer(nr, first) abort
   let accepted = s:oB()
 
   let ix = a:first ? 1 : index(accepted, bufnr("%"))
-  let target = ix - a:nr
+  let target = ix - (max([a:nr, 1]))
   let total = len(accepted)
 
   if target < 0
@@ -73,7 +73,7 @@ fun! xtabline#cmds#prev_buffer(nr, first) abort
     let s:most_recent = target
   endif
 
-  return ":buffer " . accepted[s:most_recent] . "\<cr>"
+  exe "buffer " . accepted[s:most_recent]
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -292,8 +292,8 @@ endfun
 fun! s:relative_paths(cnt) abort
   """Toggle between full relative path and tail only, in the bufline.
   let T = s:T()
-  if !empty(a:cnt)
-    let T.rpaths = str2nr(a:cnt)
+  if a:cnt
+    let T.rpaths = a:cnt
   elseif T.rpaths
     let T.rpaths = 0
   elseif s:Sets.relative_paths
@@ -336,7 +336,7 @@ endfun
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:move_buffer(next, cnt) abort
-  let b = bufnr("%") | let max = len(s:oB()) - 1
+  let b = bufnr("%") | let max = len(s:oB()) - 1 | let nr = (max([a:cnt, 1]))
 
   " cannot move a buffer that is not valid for this tab
   if index(s:vB(), b) < 0
@@ -346,9 +346,9 @@ fun! s:move_buffer(next, cnt) abort
   let i = index(s:oB(), b)
 
   if a:next
-    let new_index = (i + a:cnt) >= max ? max : i + a:cnt
+    let new_index = (i + nr) >= max ? max : i + nr
   else
-    let new_index = (i - a:cnt) < 0 ? 0 : i - a:cnt
+    let new_index = (i - nr) < 0 ? 0 : i - nr
   endif
   call insert(s:oB(), remove(s:oB(), i), new_index)
   call xtabline#update()
@@ -356,13 +356,16 @@ endfun
 
 fun! s:move_buffer_to(cnt, ...) abort
   """Move buffer in the bufferline to a new position."""
-  let b = bufnr("%") | let oB = s:oB() | let max = len(oB) - 1
+  let b = bufnr("%")
+  let oB = s:oB()
+  let max = len(oB) - 1
+  let nr = (max([a:cnt, 1])) - 1
   let i = index(oB, b)
 
-  if i < 0 || i == a:cnt          | return
-  elseif i == max && a:cnt >= max | return | endif
+  if i < 0 || i == nr          | return
+  elseif i == max && nr >= max | return | endif
 
-  let new = min([a:cnt, max])
+  let new = min([nr, max])
   call remove (oB, i)
   if new < max
     call insert(oB, b, new)
@@ -380,7 +383,7 @@ fun! s:hide_buffer(new) abort
 
   "if hiding, the buffer that will be selected
   "new in this case is the wanted buffer
-  let new = a:new > i ?  a:new-2 : a:new-1
+  let new = a:new > i ?  a:new-2 : a:new
   let then_select = new >= 0 ?  oB[new] : oB[0]
 
   silent! exe 'b'.then_select
@@ -621,6 +624,21 @@ fun! s:set_cbd(...) abort
     call s:F.change_base_dir(dir)
   endif
   call xtabline#update()
+endfun
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:cd(count) abort
+  """Set cwd relatively to directory of current file.
+  let path = ':p:h'
+  for c in range(max([a:count, 1]))
+    let path .= ':h'
+  endfor
+  let cwd = s:F.fullpath(expand("%"), path)
+  if !empty(expand("%")) && empty(cwd)
+    let cwd = '/'
+  endif
+  call s:F.verbose_change_wd(cwd)
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

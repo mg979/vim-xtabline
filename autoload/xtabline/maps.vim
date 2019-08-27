@@ -7,59 +7,83 @@ fun! s:do_map() abort
   let S = g:xtabline_settings
   let X = S.map_prefix
 
-  fun! s:mapkeys(keys, plug) abort
-    let plug = '<Plug>(XT-'.a:plug.')'
-    if !hasmapto(plug)
-      silent! execute 'nmap <unique>' a:keys plug
+  fun! s:mapkey_(keys, cmd) abort
+    let cmd = ':<c-u>XTab'.a:cmd.'<CR>'
+    if !hasmapto(cmd)
+      silent! execute 'nnoremap <silent><unique>' a:keys cmd
     endif
   endfun
 
-  call s:mapkeys('<F5>',  'Cycle-Mode')
-  call s:mapkeys('<BS>',  'Select-Buffer')
-  call s:mapkeys(']b',    'Next-Buffer')
-  call s:mapkeys('[b',    'Prev-Buffer')
-  call s:mapkeys('[B',    'First-Buffer')
-  call s:mapkeys(']B',    'Last-Buffer')
-  call s:mapkeys('cdc',   'Cd-Current')
-  call s:mapkeys('cdd',   'Cd-Down')
-  call s:mapkeys('cdw',   'Working-Directory')
-  call s:mapkeys('cdb',   'Base-Directory')
-  call s:mapkeys(X.'q',   'Close-Buffer')
-  call s:mapkeys(X.'e',   'Edit')
-  call s:mapkeys(X.'bl',  'List-Buffers')
-  call s:mapkeys(X.'tl',  'List-Tabs')
-  call s:mapkeys(X.'db',  'Delete-Buffers')
-  call s:mapkeys(X.'lt',  'Load-Tab')
-  call s:mapkeys(X.'st',  'Save-Tab')
-  call s:mapkeys(X.'dt',  'Delete-Tab')
-  call s:mapkeys(X.'ls',  'Load-Session')
-  call s:mapkeys(X.'ss',  'Save-Session')
-  call s:mapkeys(X.'ds',  'Delete-Session')
-  call s:mapkeys(X.'ns',  'New-Session')
-  call s:mapkeys(X.'te',  'Tab-Edit')
-  call s:mapkeys(X.'tn',  'Tab-New')
-  call s:mapkeys(X.'pt',  'Purge')
-  call s:mapkeys(X.'wa',  'Wipe-All')
-  call s:mapkeys(X.'cu',  'Clean-Up')
-  call s:mapkeys(X.'rt',  'Reopen')
-  call s:mapkeys(X.'sd',  'Set-Depth')
-  call s:mapkeys(X.'it',  'Tab-Icon')
-  call s:mapkeys(X.'ib',  'Buffer-Icon')
-  call s:mapkeys(X.'nt',  'Rename-Tab')
-  call s:mapkeys(X.'nb',  'Rename-Buffer')
-  call s:mapkeys(X.'fb',  'Buffer-Format')
-  call s:mapkeys(X.'tt',  'Tab-Todo')
-  call s:mapkeys(X.'rp',  'Relative-Paths')
-  call s:mapkeys(X.'ct',  'Toggle-Custom-Tabs')
-  call s:mapkeys(X.'pb',  'Pin-Buffer')
-  call s:mapkeys(X.'C',   'Config')
+  fun! s:mapkeyc(keys, cmd) abort
+    let cmd = ':<c-u>XTab'.a:cmd.' <C-r>=v:count1<CR><CR>'
+    if !hasmapto(cmd)
+      silent! execute 'nnoremap <silent><unique>' a:keys cmd
+    endif
+  endfun
+
+  fun! s:mapkey0(keys, cmd) abort
+    let cmd = ':<c-u>XTab'.a:cmd.' <C-r>=v:count<CR><CR>'
+    if !hasmapto(cmd)
+      silent! execute 'nnoremap <silent><unique>' a:keys cmd
+    endif
+  endfun
+
+  fun! s:mapkeys(keys, cmd) abort
+    let cmd = ':<c-u>XTab'.a:cmd.'<Space>'
+    if !hasmapto(cmd)
+      silent! execute 'nnoremap <unique>' a:keys cmd
+    endif
+  endfun
+
+  if !hasmapto('<Plug>(XT-Select-Buffer)')
+    silent! nmap <BS> <Plug>(XT-Select-Buffer)
+  endif
+
+  call s:mapkey_('<F5>',  'CycleMode')
+  call s:mapkeyc(']b',    'NextBuffer')
+  call s:mapkeyc('[b',    'PrevBuffer')
+  call s:mapkey_('[B',    'FirstBuffer')
+  call s:mapkey_(']B',    'LastBuffer')
+  call s:mapkey_('cdc',   'CdCurrent')
+  call s:mapkeyc('cdd',   'CdDown')
+  call s:mapkey_('cdw',   'WD!')
+  call s:mapkey_('cdb',   'BD')
+  call s:mapkey_(X.'q',   'CloseBuffer')
+  call s:mapkey_(X.'x',   'Purge')
+  call s:mapkey_(X.'z',   'Last')
+  call s:mapkey_(X.'u',   'Reopen')
+  call s:mapkey_(X.'b',   'PinBuffer')
+  call s:mapkeyc(X.'m',   'MoveBufferTo')
+  call s:mapkey_(X.'h',   'HideBuffer')
+  call s:mapkey_(X.'f',   'ToggleFiltering')
+  call s:mapkey_(X.'c',   'CleanUp')
+  call s:mapkey_(X.'k',   'CleanUp!')
+  call s:mapkey_(X.'d',   'Todo')
+  call s:mapkey0(X.'p',   'RelativePaths')
+  call s:mapkey_(X.'tc',  'CustomTabs')
+  call s:mapkey_(X.'tr',  'ResetTab')
+  call s:mapkeys(X.'te',  'Edit')
+  call s:mapkeys(X.'ti',  'TabIcon')
+  call s:mapkeys(X.'tn',  'RenameTab')
+  call s:mapkeys(X.'bi',  'BufferIcon')
+  call s:mapkeys(X.'bn',  'RenameBuffer')
+  call s:mapkey_(X.'br',  'ResetBuffer')
+  call s:mapkey_(X.'bf',  'FormatBuffer')
+  call s:mapkey_(X.'C',   'Config')
   call s:mapkeys(X.'T',   'Theme')
-  call s:mapkeys(X.'mb',  'Move-Buffer-To')
-  call s:mapkeys(X.'hb',  'Hide-Buffer')
-  call s:mapkeys(X.'tf',  'Toggle-Filtering')
-  call s:mapkeys(X.'tr',  'Reset-Tab')
-  call s:mapkeys(X.'br',  'Reset-Buffer')
-  call s:mapkeys(X.'tv',  'Tab-Vimrc')
+
+  if exists('g:loaded_fzf')
+    call s:mapkey_(X.'<space>', 'ListBuffers')
+    call s:mapkey_(X.'a',       'ListTabs')
+    call s:mapkey_(X.'bd',      'DeleteBuffers')
+    call s:mapkey_(X.'tl',      'LoadTab')
+    call s:mapkey_(X.'ts',      'SaveTab')
+    call s:mapkey_(X.'td',      'DeleteTab')
+    call s:mapkey_(X.'ls',      'LoadSession')
+    call s:mapkey_(X.'ss',      'SaveSession')
+    call s:mapkey_(X.'sd',      'DeleteSession')
+    call s:mapkey_(X.'sn',      'NewSession')
+  endif
 
   if maparg(toupper(X)) == '' && !hasmapto('<Plug>(XT-Menu)')
     silent! execute 'nmap <unique><nowait>' toupper(X) '<Plug>(XT-Menu)'
@@ -68,58 +92,7 @@ endfun
 
 function! xtabline#maps#init()
 
-  nnoremap <unique>                 <Plug>(XT-Tab-New)               :<c-u>XTabNew<space>
-  nnoremap <unique>                 <Plug>(XT-Tab-Edit)              :<c-u>XTabEdit<space>
-  nnoremap <unique>                 <Plug>(XT-Edit)                  :<c-u>XEdit<space>
-
-  nnoremap <unique> <silent>        <Plug>(XT-Cycle-Mode)            :<c-u>call xtabline#cmds#run('cycle_mode')<cr>
-  nnoremap <unique> <silent>        <Plug>(XT-Toggle-Filtering)      :<c-u>call xtabline#cmds#run('toggle_filtering')<cr>
   nnoremap <unique> <silent> <expr> <Plug>(XT-Select-Buffer)         v:count? <sid>select_buffer(v:count-1) : ":\<C-U>".g:xtabline_settings.select_buffer_alt_action."\<cr>"
-  nnoremap <unique> <silent> <expr> <Plug>(XT-Next-Buffer)           xtabline#cmds#next_buffer(v:count1, 0)
-  nnoremap <unique> <silent> <expr> <Plug>(XT-Prev-Buffer)           xtabline#cmds#prev_buffer(v:count1, 0)
-  nnoremap <unique> <silent> <expr> <Plug>(XT-Last-Buffer)           xtabline#cmds#next_buffer(v:count1, 1)
-  nnoremap <unique> <silent> <expr> <Plug>(XT-First-Buffer)          xtabline#cmds#prev_buffer(v:count1, 1)
-  nnoremap <unique> <silent>        <Plug>(XT-Close-Buffer)          :<c-u>XTabCloseBuffer<cr>
-  nnoremap <unique> <silent>        <Plug>(XT-List-Buffers)          :<c-u>XTabListBuffers<cr>
-  nnoremap <unique> <silent>        <Plug>(XT-List-Tabs)             :<c-u>XTabListTabs<cr>
-  nnoremap <unique> <silent>        <Plug>(XT-Delete-Buffers)        :<c-u>XTabDeleteBuffers<cr>
-  nnoremap <unique> <silent>        <Plug>(XT-Load-Tab)              :<c-u>XTabLoadTab<cr>
-  nnoremap <unique> <silent>        <Plug>(XT-Save-Tab)              :<c-u>XTabSaveTab<cr>
-  nnoremap <unique> <silent>        <Plug>(XT-Delete-Tab)            :<c-u>XTabDeleteTab<cr>
-  nnoremap <unique> <silent>        <Plug>(XT-Load-Session)          :<c-u>XTabLoadSession<cr>
-  nnoremap <unique> <silent>        <Plug>(XT-Save-Session)          :<c-u>XTabSaveSession<cr>
-  nnoremap <unique> <silent>        <Plug>(XT-New-Session)           :<c-u>XTabNewSession<cr>
-  nnoremap <unique> <silent>        <Plug>(XT-Delete-Session)        :<c-u>XTabDeleteSession<cr>
-  nnoremap <unique> <silent>        <Plug>(XT-Purge)                 :<c-u>XTabPurge<cr>
-  nnoremap <unique> <silent>        <Plug>(XT-Pin-Buffer)            :<c-u>XTabPinBuffer<cr>
-  nnoremap <unique> <silent>        <Plug>(XT-Clean-Up)              :<c-u>XTabCleanUp<cr>
-  nnoremap <unique> <silent>        <Plug>(XT-Wipe-All)              :<c-u>XTabCleanUp!<cr>
-  nnoremap <unique> <silent>        <Plug>(XT-Reopen)                :<c-u>XTabReopen<cr>
-  nnoremap <unique> <silent>        <Plug>(XT-Working-Directory)     :<c-u>XTabWD!<cr>
-  nnoremap <unique> <silent>        <Plug>(XT-Base-Directory)        :<c-u>XTabBD<cr>
-  nnoremap <unique> <silent>        <Plug>(XT-Move-Buffer-Next)      :<c-u>call xtabline#cmds#run('move_buffer', 1, v:count1)<cr>
-  nnoremap <unique> <silent>        <Plug>(XT-Move-Buffer-Prev)      :<c-u>call xtabline#cmds#run('move_buffer', 0, v:count1)<cr>
-  nnoremap <unique> <silent>        <Plug>(XT-Move-Buffer-To)        :<c-u>call xtabline#cmds#run('move_buffer_to', v:count)<cr>
-  nnoremap <unique> <silent>        <Plug>(XT-Hide-Buffer)           :<c-u>call xtabline#cmds#run('hide_buffer', v:count1)<cr>
-  nnoremap <unique> <silent>        <Plug>(XT-Tab-Todo)              :<c-u>XTabTodo<cr>
-  nnoremap <unique> <silent>        <Plug>(XT-Toggle-Custom-Tabs)    :<c-u>XTabCustomTabs<cr>
-  nnoremap <unique>                 <Plug>(XT-Theme)                 :<c-u>XTabTheme<Space>
-  nnoremap <unique>                 <Plug>(XT-Tab-Icon)              :<c-u>XTabIcon<Space>
-  nnoremap <unique>                 <Plug>(XT-Config)                :<c-u>XTabConfig<cr>
-  nnoremap <unique>                 <Plug>(XT-Buffer-Icon)           :<c-u>XTabBufferIcon<Space>
-  nnoremap <unique>                 <Plug>(XT-Rename-Tab)            :<c-u>XTabRenameTab<Space>
-  nnoremap <unique>                 <Plug>(XT-Rename-Buffer)         :<c-u>XTabRenameBuffer<Space>
-  nnoremap <unique>                 <Plug>(XT-Buffer-Format)         :<c-u>XTabFormatBuffer<cr>
-  nnoremap <unique> <silent>        <Plug>(XT-Cd-Current)            :<c-u>call <sid>cd(0)<cr>
-  nnoremap <unique> <silent>        <Plug>(XT-Cd-Down)               :<c-u>call <sid>cd(v:count1)<cr>
-  nnoremap <unique> <silent>        <Plug>(XT-Reset-Tab)             :<c-u>XTabResetTab<cr>
-  nnoremap <unique> <silent>        <Plug>(XT-Reset-Buffer)          :<c-u>XTabResetBuffer<cr>
-  nnoremap <unique> <silent>        <Plug>(XT-Relative-Paths)        :<c-u>XTabRelativePaths <C-R>=(v:count)?(v:count):''<cr><cr>
-  nnoremap <unique> <silent>        <Plug>(XT-Menu)                  :<c-u>XTabMenu<cr>
-  nnoremap <unique> <silent>        <Plug>(XT-Update)                :<c-u>call xtabline#update()<cr>
-  nnoremap <unique> <silent>        <Plug>(XT-Refresh)               :<c-u>call xtabline#refresh()<cr>
-  nnoremap <unique> <silent>        <Plug>(XT-Last-Tab)              :<c-u>call xtabline#cmds#run('goto_last_tab')<cr>
-
 
   if g:xtabline_settings.enable_mappings | call s:do_map() | endif
 endfunction
@@ -138,17 +111,5 @@ fun! s:select_buffer(cnt) abort
   let n = min([a:cnt, len(bufs)-1])
   let b = bufs[n]
   return ":\<C-U>silent! exe 'b'.".b."\<cr>"
-endfun
-
-fun! s:cd(count) abort
-  let path = ':p:h'
-  for c in range(a:count)
-    let path .= ':h'
-  endfor
-  let cwd = g:xtabline.Funcs.fullpath(expand("%"), path)
-  if !empty(expand("%")) && empty(cwd)
-    let cwd = '/'
-  endif
-  call g:xtabline.Funcs.verbose_change_wd(cwd)
 endfun
 
