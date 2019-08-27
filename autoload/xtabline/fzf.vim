@@ -658,16 +658,16 @@ let s:cmds = {
       \}
 
 if exists('g:loaded_fzf')
-  call extend(s:cmds, [
-        \['List tabs',                     "XTabListTabs"],
-        \['List buffers',                  "XTabListBuffers"],
-        \['Delete tab buffers',            "XTabDeleteBuffers"],
-        \['Load tab',                      "XTabLoadTab"],
-        \['Save tab',                      "XTabSaveTab"],
-        \['Delete tab',                    "XTabDeleteTab"],
-        \['Load session',                  "XTabLoadSession"],
-        \['Save session',                  "XTabSaveSession"],
-        \['New session',                   "XTabNewSession"],
-        \['Delete session',                "XTabDeleteSession"],
-        \])
+  call extend(s:cmds, {
+        \'List tabs':          "XTabListTabs",
+        \'List buffers':       "XTabListBuffers",
+        \'Delete tab buffers': "XTabDeleteBuffers",
+        \'Load tab':           "XTabLoadTab",
+        \'Save tab':           "XTabSaveTab",
+        \'Delete tab':         "XTabDeleteTab",
+        \'Load session':       "XTabLoadSession",
+        \'Save session':       "XTabSaveSession",
+        \'New session':        "XTabNewSession",
+        \'Delete session':     "XTabDeleteSession",
+        \})
 endif
