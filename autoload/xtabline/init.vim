@@ -46,12 +46,12 @@ com!                           XTabCustomTabs          call xtabline#cmds#run("t
 com!                           XTabLock                call xtabline#cmds#run("lock_tab")
 com! -nargs=?                  XTabPinBuffer           call xtabline#cmds#run("toggle_pin_buffer", <q-args>)
 com!                           XTabCycleMode           call xtabline#cmds#run("cycle_mode")
-com!                           XTabToggleFiltering     call xtabline#cmds#run("toggle_filtering")
+com!                           XTabFiltering           call xtabline#cmds#run("toggle_filtering")
 com!                           XTabConfig              call xtabline#config#start()
 
 com! -nargs=? -count           XTabNew                 call xtabline#cmds#run("new_tab", <count>, <q-args>)
 com! -nargs=?                  XTabMove                call xtabline#cmds#run("move_tab", <q-args>)
-com!                           XTabMenu                call xtabline#fzf#cmds()
+com!                           XTabMenu                call xtabline#maps#menu()
 com!                           XTabLast                call xtabline#cmds#run('goto_last_tab')
 
 com! -count                    XTabNextBuffer          call xtabline#cmds#next_buffer(<count>, 0)

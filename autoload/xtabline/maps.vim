@@ -50,20 +50,21 @@ fun! s:do_map() abort
   call s:mapkey_('cdb',   'BD')
   call s:mapkey_(X.'q',   'CloseBuffer')
   call s:mapkey_(X.'x',   'Purge')
-  call s:mapkey_(X.'z',   'Last')
+  call s:mapkey_(X."'",   'Last')
   call s:mapkey_(X.'u',   'Reopen')
-  call s:mapkey_(X.'b',   'PinBuffer')
+  call s:mapkey_(X.'p',   'PinBuffer')
   call s:mapkeyc(X.'m',   'MoveBufferTo')
   call s:mapkey_(X.'h',   'HideBuffer')
   call s:mapkey_(X.'f',   'ToggleFiltering')
   call s:mapkey_(X.'c',   'CleanUp')
   call s:mapkey_(X.'k',   'CleanUp!')
   call s:mapkey_(X.'d',   'Todo')
-  call s:mapkey0(X.'p',   'RelativePaths')
+  call s:mapkey0(X.'/',   'RelativePaths')
+  call s:mapkey_(X.'?',   'Menu')
   call s:mapkey_(X.'tc',  'CustomTabs')
   call s:mapkey_(X.'tr',  'ResetTab')
   call s:mapkeys(X.'te',  'Edit')
-  call s:mapkeys(X.'ti',  'TabIcon')
+  call s:mapkeys(X.'ti',  'Icon')
   call s:mapkeys(X.'tn',  'RenameTab')
   call s:mapkeys(X.'bi',  'BufferIcon')
   call s:mapkeys(X.'bn',  'RenameBuffer')
@@ -73,16 +74,16 @@ fun! s:do_map() abort
   call s:mapkeys(X.'T',   'Theme')
 
   if exists('g:loaded_fzf')
-    call s:mapkey_(X.'<space>', 'ListBuffers')
-    call s:mapkey_(X.'a',       'ListTabs')
-    call s:mapkey_(X.'bd',      'DeleteBuffers')
-    call s:mapkey_(X.'tl',      'LoadTab')
-    call s:mapkey_(X.'ts',      'SaveTab')
-    call s:mapkey_(X.'td',      'DeleteTab')
-    call s:mapkey_(X.'ls',      'LoadSession')
-    call s:mapkey_(X.'ss',      'SaveSession')
-    call s:mapkey_(X.'sd',      'DeleteSession')
-    call s:mapkey_(X.'sn',      'NewSession')
+    call s:mapkey_(X.'z',  'ListBuffers')
+    call s:mapkey_(X.'a',  'ListTabs')
+    call s:mapkey_(X.'bd', 'DeleteBuffers')
+    call s:mapkey_(X.'tl', 'LoadTab')
+    call s:mapkey_(X.'ts', 'SaveTab')
+    call s:mapkey_(X.'td', 'DeleteTab')
+    call s:mapkey_(X.'sl', 'LoadSession')
+    call s:mapkey_(X.'ss', 'SaveSession')
+    call s:mapkey_(X.'sd', 'DeleteSession')
+    call s:mapkey_(X.'sn', 'NewSession')
   endif
 
   if maparg(toupper(X)) == '' && !hasmapto('<Plug>(XT-Menu)')
@@ -96,6 +97,93 @@ function! xtabline#maps#init()
 
   if g:xtabline_settings.enable_mappings | call s:do_map() | endif
 endfunction
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+let s:basic = {
+      \'<F5>': ['Cycle mode',                   "XTabCycleMode"],
+      \"]b":   ['Next Buffer',                  "XTabNextBuffer"],
+      \"[b":   ['Prev Buffer',                  "XTabPrevBuffer"],
+      \"[B":   ['First Buffer',                 "XTabFirstBuffer"],
+      \"]B":   ['Last Buffer',                  "XTabLastBuffer"],
+      \'cdw':  ['Working directory',            "XTabWD!"],
+      \'cdb':  ['Base directory',               "XTabBD"],
+      \'cdc':  ['Cd to current directory',      "XTabCdCurrent"],
+      \'cdd':  ['Cd to parent directory',       "XTabCdDown"],
+      \}
+
+let s:leader = {
+      \"'":    ['Go to last tab',               "XTabLastTab"],
+      \'.':    ['Toggle custom tabs',           "XTabCustomTabs"],
+      \'/':    ['Toggle relative paths',        "XTabRelativePaths"],
+      \'?':    ['Menu',                         "XTabMenu"],
+      \'a':    ['List tabs',                    "XTabListTabs"],
+      \'c':    ['Clean up tab',                 "XTabCleanUp"],
+      \'d':    ['Tab todo',                     "XTabTodo"],
+      \'f':    ['Toggle filtering',             "XTabFiltering"],
+      \'h':    ['Hide buffer',                  "XTabHideBuffer"],
+      \'k':    ['Minimize all tabs',            "XTabCleanUp!"],
+      \'p':    ['Pin buffer',                   "XTabPinBuffer"],
+      \'q':    ['Close buffer',                 "XTabCloseBuffer"],
+      \'z':    ['List buffers',                 "XTabListBuffers"],
+      \'u':    ['Reopen last tab',              "XTabReopen"],
+      \'x':    ['Purge tab',                    "XTabPurge"],
+      \'C':    ['Configure',                    "XTabConfig"],
+      \'T':    ['Select theme',                 "XTabTheme  "],
+      \}
+
+let s:manage = {
+      \'bd':   ['Delete tab buffers',           "XTabDeleteBuffers"],
+      \'bf':   ['Buffer format',                "XTabFormatBuffer"],
+      \'bi':   ['Change buffer icon',           "XTabBufferIcon "],
+      \'bn':   ['Rename buffer',                "XTabRenameBuffer "],
+      \'br':   ['Reset buffer',                 "XTabResetBuffer"],
+      \'sd':   ['Delete session',               "XTabDeleteSession"],
+      \'sl':   ['Load session',                 "XTabLoadSession"],
+      \'sn':   ['New session',                  "XTabNewSession"],
+      \'ss':   ['Save session',                 "XTabSaveSession"],
+      \'td':   ['Delete tab',                   "XTabDeleteTab"],
+      \'ti':   ['Change tab icon',              "XTabIcon  "],
+      \'tl':   ['Load tab',                     "XTabLoadTab"],
+      \'tn':   ['Rename tab',                   "XTabRenameTab "],
+      \'tr':   ['Reset tab',                    "XTabResetTab"],
+      \'ts':   ['Save tab',                     "XTabSaveTab"],
+      \}
+
+fun! xtabline#maps#menu() abort
+  let X = substitute(g:xtabline_settings.map_prefix, '<leader>', get(g:, 'mapleader', '\'), 'g')
+  for group in [[s:basic, 'basic'], [s:leader, X], [s:manage, X.' tabs/buffer/session']]
+    let i = 1
+    echohl Title
+    echo "\n" . group[1] "mappings:\n\n"
+    echohl None
+    for m in sort(keys(group[0]))
+      if i % 2
+        echo printf("%-25s%-10s", group[0][m][0], m)
+      else
+        echon printf("%-25s%s", group[0][m][0], m)
+      endif
+      let i += 1
+    endfor
+  endfor
+  echo "\n\\x... "
+  let [ch, cmd] = [nr2char(getchar()), '']
+  if index(keys(s:leader), ch) >= 0
+    let cmd = s:leader[ch][1]
+  elseif index(['b', 't', 's'], ch) >= 0
+    echon ch
+    let ch .= nr2char(getchar())
+    if index(keys(s:manage), ch) >= 0
+      let cmd = s:manage[ch][1]
+    endif
+  endif
+  let tab = "\<c-r>=feedkeys(\"\<Tab>\", 't')\<cr>"
+  if !empty(cmd)
+    call feedkeys("\<cr>:".cmd.(cmd[-2:-1]=='  '?tab:cmd[-1:-1]==' '?'':"\<cr>"), 'n')
+  else
+    call feedkeys("\<cr>", 'n')
+  endif
+endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Helpers

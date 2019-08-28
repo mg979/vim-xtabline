@@ -295,11 +295,11 @@ Command                Mapping    Plug                        ~
 XTabCycleMode           <F5>      <Plug>(XT-Cycle-Mode)
 XTabToggleFiltering     *tf       <Plug>(XT-Toggle-Filtering)
 
-`XTabCycleMode`         will cycle the tabline among the modes defined by the
-                      |xtabline-tabline_modes| setting.
+`XTabCycleMode`     will cycle the tabline among the modes defined by the
+                  |xtabline-tabline_modes| setting.
 
-`XTabToggleFiltering`   will toggle buffer filtering, based on either the tab's
-                      CWD or base directory.
+`XTabFiltering`     will toggle buffer filtering, based on either the tab's CWD
+                  or base directory.
 
 
 
