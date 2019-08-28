@@ -5,27 +5,22 @@ XTABLINE - TABLE OF CONTENTS                                         *xtabline*
 
   Introduction                                   |xtabline-introduction|
   Features                                       |xtabline-features|
+  Tabline rendering                              |xtabline-rendering|
   Settings and mappings                          |xtabline-settings|
   Tabline modes                                  |xtabline-modes|
   Tab buffers                                    |xtabline-buffers|
   Tab working and base directories               |xtabline-directories|
   Managing tabs and buffers                      |xtabline-manage|
-    Opening tabs                                 |xtabline-opening-tabs|
-    Saving and loading tabs                      |xtabline-saving-and-loading|
-    Session management                           |xtabline-sessions|
-    Managing buffers                             |xtabline-managing-buffers|
-    Tuning buffer filtering                      |xtabline-tuning-filtering|
-    Rearranging buffers                          |xtabline-rearranging|
-    Customizing tabs and buffers                 |xtabline-customizing|
-  Other commands, plugs and mappings             |xtabline-other|
+  Session management                             |xtabline-sessions|
+  Other commands                                 |xtabline-other|
     Buffers clean-up                             |xtabline-clean-up|
     Tab-Todo                                     |xtabline-tab-todo|
-    Cwd selection                                |xtabline-cwd|
   Options summary                                |xtabline-options|
     Formatting                                   |xtabline-formatting|
     Buffers formatting                           |xtabline-buffers-formatting|
     Tab formatting                               |xtabline-tab-formatting|
     Remapping commands                           |xtabline-remapping|
+  Additional notes                               |xtabline-notes|
   Credits                                        |xtabline-credits|
   License                                        |xtabline-license|
 
@@ -60,16 +55,45 @@ With the help of:
 
 FEATURES LIST                                               *xtabline-features*
 ===============================================================================
-                                                           *xtabline-rendering*
+
+The main features of the plugin are:
+
+- custom tabline rendering    |xtabline-rendering|
+- per-tab CWD                 |xtabline-use_tab_cwd|
+- buffer filtering            |xtabline-buffer_filtering|
+- tabs management             |xtabline-manage|
+- sessions management         |xtabline-sessions|
+
+By default, only tabline rendering is enabled: more specific options must be
+enabled manually. Without any option set, you will see a different tabline, but
+the rest works normally.
+
+Per-tab CWD means that each tab can have its own CWD (set with |:cd|): when
+switching tabs, the tab's CWD is automatically restored. This will work even in
+versions of vim that do not support the |:tcd| command.
+
+Buffer filtering makes sense if per-tab CWD is being used, either via |:tcd| or
+by setting the option above. It means that in the tabline, only buffers that
+are valid for the tab's CWD will be listed.
+
+The last two are a series of commands that allow you to save/restore tabs and
+sessions.
+
+|vim-obsession| {1} is recommended for persistance.
+
+
+
+
+TABLINE RENDERING                                          *xtabline-rendering*
+===============================================================================
+
 The tabline can be rendered in three different modes:
 
-- 'buffers':  up to a max of N (default 10) recent buffers
 - 'tabs':     tab name, CWD, or buffer name
 - 'arglist':  buffers contained in the arglist
+- 'buffers':  up to a max of N (default 10) recent buffers
 
-In |buffer-mode|, the tabline will show a filtered list of buffers that belong
-to the tab's CWD, or any open buffer inside the window. Formatting and number
-of (recently accessed) buffers can be customized (|xtabline-buffer_format|).
+Default order is ['tabs', 'arglist'], with 'buffers' disabled.
 
 In |tabs-mode|, the tabline will show the numbered tabs. The label can be
 customized as well (to show buffer name, tab cwd, etc).
@@ -78,36 +102,12 @@ In |arglist-mode|, the tabline will show the files included in the arglist. You
 can switch file with the usual commands (|:next|, etc). Note that if the
 arglist is empty, this mode won't be available.
 
+In |buffer-mode|, the tabline will show a list of the most recently accessed
+buffers (10 by default). This list will be filtered on the base of the current
+tab's CWD, if |buffer_filtering| is active.
+
 These modes can be cycled with a mapping (<F5> by default). You can also define
-which modes to cycle with a setting (|xtabline-tabline_modes|).
-
-------------------------------------------------------------------------------
-
-Other features, besides the tabline rendering, are:
-
-- per-tab CWD                 |xtabline-use_tab_cwd|
-- buffer filtering            |xtabline-buffer_filtering|
-- tabs management             |xtabline-saving-and-loading-tabs|
-- sessions management         |xtabline-sessions|
-
-The first one means that each tab can have its own CWD (set with |:cd|): when
-switching tabs, the tab's CWD is automatically restored.
-
-The second one means that in the tabline, only buffers that are valid for the
-tab's CWD will be listed.
-
-The last two are a series of commands that allow you to save/restore tabs and
-sessions.
-
-|vim-obsession| {1} is recommended for persistance.
-
-                                     {1} https://github.com/tpope/vim-obsession
-
-Note that |vim-obsession| isn't mandatory: the only caveat is that, if you have
-it installed, xtabline will not touch session files by itself, and persistance
-will not be enabled on sessions that aren't handled by |vim-obsession|.
-Persistance can be disabled (|xtabline-enable_persistance|).
-
+which modes to cycle with a setting (|tabline_modes|).
 
 
 
@@ -159,7 +159,7 @@ Persistance is enabled by default.
 
 ------------------------------------------------------------------------------
                                                     *xtabline-tabline_modes*  >
-    let g:xtabline_settings.tabline_modes = ['buffers', 'tabs', 'arglist']
+    let g:xtabline_settings.tabline_modes = ['tabs', 'arglist']
 
 The modes that can be put in this list are:
 
@@ -171,10 +171,10 @@ The modes can be cycled with <F5> (default).
 
 ------------------------------------------------------------------------------
                                                       *xtabline-use_tab_cwd*  >
-    let g:xtabline_settings.use_tab_cwd = 1 + exists(':tcd') == 2
+    let g:xtabline_settings.use_tab_cwd = 0
 <
 If not 0, each will have its own CWD. This CWD will persist across sessions, if
-persistance is enabled. The value of this option can be:
+persistance is enabled.
 >
   0:  the plugin won't touch the CWD when switching tabs
   1:  the plugin will use `:cd` and autocommands to change the tab CWD
@@ -188,10 +188,6 @@ Note that:
 2. independently from the method used, buffer filtering is based on the working
    directory reported by vim |getcwd()|, so it also works if this option is
    disabled. Take this in consideration if your vim version supports |:tcd|.
-
-3. the |:cd| or |:tcd| command is only issued if needed.
-
-4. a value >1 is considered ==1 if |:tcd| is not available as a command.
 
 ------------------------------------------------------------------------------
                                                  *xtabline-buffer_filtering*  >
@@ -425,8 +421,6 @@ MANAGING TABS AND BUFFERS                                     *xtabline-manage*
 ===============================================================================
 
 
-OPENING TABS                                            *xtabline-opening-tabs*
-
 Command                Mapping~
 XTabNew                *n
 XTabLast               *'
@@ -436,9 +430,6 @@ XTabReopen             *u
 *XTabLast*    Brings you back to the last visited tab
 *XTabReopen*  lets you reopen a previosly closed tab, and is repeatable
 
-
-
-MANAGING TABS AND BUFFERS                              *xtabline-managing-tabs*
 
 Command                Mapping~
 XTabListTabs           *a           (mnemonic: 'all tabs')
@@ -452,7 +443,9 @@ Saved tabs are stored in `$HOME/.vim/.XTablineTabs`.
 
 
 
+
 SESSION MANAGEMENT                                          *xtabline-sessions*
+===============================================================================
 
 Command                Mapping ~
 XTabLoadSession        *sl
@@ -642,6 +635,18 @@ Option | Description                  ~
   I    | icon (custom icon preferred)
   <    | separator, can be suppressed by icon
   >    | separator, can't be suppressed by icon
+
+
+
+
+
+ADDITIONAL NOTES                                               *xtabline-notes*
+===============================================================================
+
+Note that |vim-obsession| isn't mandatory: the only caveat is that, if you have
+it installed, xtabline will not touch session files by itself, and persistance
+will not be enabled on sessions that aren't handled by |vim-obsession|.
+Persistance can be disabled (|xtabline-enable_persistance|).
 
 
 
