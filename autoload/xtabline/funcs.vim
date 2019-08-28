@@ -315,7 +315,7 @@ fun! s:Funcs.set_tab_wd() abort
   let T = s:T()
   if self.can_use_tcd()
     let T.cwd = self.fullpath(getcwd(-1, tabpagenr()))
-  elseif s:Sets.use_tab_cwd
+  elseif s:Sets.use_tab_cwd && !haslocaldir()
     let T.cwd = self.fullpath(getcwd())
   endif
 endfun
