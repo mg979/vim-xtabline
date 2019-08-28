@@ -9,28 +9,28 @@ fun! s:do_map() abort
 
   fun! s:mapkey_(keys, cmd) abort
     let cmd = ':<c-u>XTab'.a:cmd.'<CR>'
-    if !hasmapto(cmd)
+    if maparg(a:keys) == ''
       silent! execute 'nnoremap <silent><unique>' a:keys cmd
     endif
   endfun
 
   fun! s:mapkeyc(keys, cmd) abort
     let cmd = ':<c-u>XTab'.a:cmd.' <C-r>=v:count1<CR><CR>'
-    if !hasmapto(cmd)
+    if maparg(a:keys) == ''
       silent! execute 'nnoremap <silent><unique>' a:keys cmd
     endif
   endfun
 
   fun! s:mapkey0(keys, cmd) abort
     let cmd = ':<c-u>XTab'.a:cmd.' <C-r>=v:count<CR><CR>'
-    if !hasmapto(cmd)
+    if maparg(a:keys) == ''
       silent! execute 'nnoremap <silent><unique>' a:keys cmd
     endif
   endfun
 
   fun! s:mapkeys(keys, cmd) abort
     let cmd = ':<c-u>XTab'.a:cmd.'<Space>'
-    if !hasmapto(cmd)
+    if maparg(a:keys) == ''
       silent! execute 'nnoremap <unique>' a:keys cmd
     endif
   endfun
@@ -53,8 +53,10 @@ fun! s:do_map() abort
   call s:mapkey_(X."'",   'Last')
   call s:mapkey_(X.'u',   'Reopen')
   call s:mapkey_(X.'p',   'PinBuffer')
-  call s:mapkeyc(X.'m',   'MoveBufferTo')
-  call s:mapkey_(X.'h',   'HideBuffer')
+  call s:mapkeyc(X.'m',   'MoveBuffer')
+  call s:mapkeyc(X.']',   'MoveBufferNext')
+  call s:mapkeyc(X.'[',   'MoveBufferPrev')
+  call s:mapkey_(X.'z',   'HideBuffer')
   call s:mapkey_(X.'f',   'ToggleFiltering')
   call s:mapkey_(X.'c',   'CleanUp')
   call s:mapkey_(X.'k',   'CleanUp!')
@@ -63,7 +65,6 @@ fun! s:do_map() abort
   call s:mapkey_(X.'?',   'Menu')
   call s:mapkey_(X.'tc',  'CustomTabs')
   call s:mapkey_(X.'tr',  'ResetTab')
-  call s:mapkeys(X.'te',  'Edit')
   call s:mapkeys(X.'ti',  'Icon')
   call s:mapkeys(X.'tn',  'RenameTab')
   call s:mapkeys(X.'bi',  'BufferIcon')
@@ -74,7 +75,7 @@ fun! s:do_map() abort
   call s:mapkeys(X.'T',   'Theme')
 
   if exists('g:loaded_fzf')
-    call s:mapkey_(X.'z',  'ListBuffers')
+    call s:mapkey_(X.'l',  'ListBuffers')
     call s:mapkey_(X.'a',  'ListTabs')
     call s:mapkey_(X.'bd', 'DeleteBuffers')
     call s:mapkey_(X.'tl', 'LoadTab')
@@ -85,16 +86,12 @@ fun! s:do_map() abort
     call s:mapkey_(X.'sd', 'DeleteSession')
     call s:mapkey_(X.'sn', 'NewSession')
   endif
-
-  if maparg(toupper(X)) == '' && !hasmapto('<Plug>(XT-Menu)')
-    silent! execute 'nmap <unique><nowait>' toupper(X) '<Plug>(XT-Menu)'
-  endif
 endfun
 
 function! xtabline#maps#init()
-
-  nnoremap <unique> <silent> <expr> <Plug>(XT-Select-Buffer)         v:count? <sid>select_buffer(v:count-1) : ":\<C-U>".g:xtabline_settings.select_buffer_alt_action."\<cr>"
-
+  nnoremap <unique> <silent> <expr> <Plug>(XT-Select-Buffer) v:count
+        \ ? xtabline#cmds#select_buffer(v:count-1)
+        \ : ":\<C-U>".g:xtabline_settings.select_buffer_alt_action."\<cr>"
   if g:xtabline_settings.enable_mappings | call s:do_map() | endif
 endfunction
 
@@ -121,11 +118,14 @@ let s:leader = {
       \'c':    ['Clean up tab',                 "XTabCleanUp"],
       \'d':    ['Tab todo',                     "XTabTodo"],
       \'f':    ['Toggle filtering',             "XTabFiltering"],
-      \'h':    ['Hide buffer',                  "XTabHideBuffer"],
+      \'m':    ['Move buffer to...',            "XTabMoveBuffer"],
+      \']':    ['Move buffer forwards',         "XTabMoveBufferNext"],
+      \'[':    ['Move buffer backwards',        "XTabMoveBufferPrev"],
+      \'z':    ['Hide buffer',                  "XTabHideBuffer"],
       \'k':    ['Minimize all tabs',            "XTabCleanUp!"],
       \'p':    ['Pin buffer',                   "XTabPinBuffer"],
       \'q':    ['Close buffer',                 "XTabCloseBuffer"],
-      \'z':    ['List buffers',                 "XTabListBuffers"],
+      \'l':    ['List buffers',                 "XTabListBuffers"],
       \'u':    ['Reopen last tab',              "XTabReopen"],
       \'x':    ['Purge tab',                    "XTabPurge"],
       \'C':    ['Configure',                    "XTabConfig"],
@@ -183,21 +183,5 @@ fun! xtabline#maps#menu() abort
   else
     call feedkeys("\<cr>", 'n')
   endif
-endfun
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Helpers
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! s:select_buffer(cnt) abort
-  let Fmt = g:xtabline_settings.buffer_format
-  if type(Fmt) == v:t_number && Fmt == 1
-    let cn = a:cnt + 1
-    return ":\<C-U>silent! exe 'b'.".cn."\<cr>"
-  endif
-  let bufs = g:xtabline.Tabs[tabpagenr()-1].buffers.order
-  let n = min([a:cnt, len(bufs)-1])
-  let b = bufs[n]
-  return ":\<C-U>silent! exe 'b'.".b."\<cr>"
 endfun
 

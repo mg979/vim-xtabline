@@ -22,6 +22,18 @@ let s:pinned  =  { b  -> index(s:X.pinned_buffers, b) }
 
 let s:most_recent = -1
 
+fun! xtabline#cmds#select_buffer(cnt) abort
+  let Fmt = g:xtabline_settings.buffer_format
+  if type(Fmt) == v:t_number && Fmt == 1
+    let b = a:cnt + 1
+  else
+    let bufs = g:xtabline.Tabs[tabpagenr()-1].buffers.order
+    let n = min([a:cnt, len(bufs)-1])
+    let b = bufs[n]
+  endif
+  return ":\<C-U>silent! exe 'b'.".b."\<cr>"
+endfun
+
 fun! xtabline#cmds#next_buffer(nr, last) abort
   """Switch to next visible/pinned buffer."""
 
@@ -380,6 +392,11 @@ fun! s:hide_buffer(new) abort
   let b = bufnr("%") | let oB = s:oB() | let max = len(oB) - 1
   let i = index(oB, b)
   call s:move_buffer_to(1000)
+  if index(s:T().buffers.recent, b) < 0
+    return
+  else
+    call remove(s:T().buffers.recent, index(s:T().buffers.recent, b))
+  endif
 
   "if hiding, the buffer that will be selected
   "new in this case is the wanted buffer
