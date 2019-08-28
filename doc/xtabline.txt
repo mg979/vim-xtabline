@@ -52,7 +52,6 @@ More advanced features:
 
 With the help of:
 
-* |fzf-vim| (load saved tabs, session management)
 * |vim-obsession| for automatic CWDs persistance across sessions
 
 
@@ -101,10 +100,8 @@ The last two are a series of commands that allow you to save/restore tabs and
 sessions.
 
 |vim-obsession| {1} is recommended for persistance.
-|fzf-vim| {2} is required for bookmarks and sessions commands.
 
                                      {1} https://github.com/tpope/vim-obsession
-                                     {2} https://github.com/junegunn/fzf.vim
 
 Note that |vim-obsession| isn't mandatory: the only caveat is that, if you have
 it installed, xtabline will not touch session files by itself, and persistance
@@ -326,7 +323,7 @@ XTabRelativePaths                 */
 *XTabNextBuffer* and *XTabPrevBuffer* accept a [count], to move to ±[N] buffer, as
 they are shown in the tabline.  If moving beyond the limit, it will start from
 the start (or the end).
-                                              
+
 `Select-Buffer` works this way:
 
 * it needs a [count] to work, eg. 2<BS> would bring you to buffer #2
@@ -426,9 +423,6 @@ You can see that are 4 mappings that start with `cd`:
 
 MANAGING TABS AND BUFFERS                                     *xtabline-manage*
 ===============================================================================
-
-With most of the |fzf-vim| commands you can select multiple items by pressing
-<Tab>.
 
 
 OPENING TABS                                            *xtabline-opening-tabs*
@@ -659,7 +653,6 @@ CREDITS                                                      *xtabline-credits*
 Bram Moolenaar for Vim
 Buftabline for the bufferline rendering  https://github.com/ap/vim-buftabline
 Taboo for the tabline rendering          https://github.com/gcmt/taboo.vim
-Junegunn Choi for [fzf-vim]              https://github.com/junegunn/fzf.vim
 Tim Pope for [vim-obsession]             https://github.com/tpope/vim-obsession
 Kana Natsuno for [tabpagecd]             https://github.com/kana/vim-tabpagecd
 

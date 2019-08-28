@@ -12,6 +12,7 @@ let s:B =  { -> s:X.Buffers             }       "customized buffers
 let s:vB = { -> s:T().buffers.valid     }       "valid buffers for tab
 let s:oB = { -> s:T().buffers.order     }       "ordered buffers for tab
 
+let s:use_finder = !exists('g:loaded_fzf') || get(s:Sets, 'use_builtin_finder', 0)
 
 fun! xtabline#fzf#list_buffers(args)
   call fzf#vim#buffers(a:args, {
@@ -66,6 +67,50 @@ fun! xtabline#fzf#nerd_bookmarks(args)
         \ 'sink': function('s:tab_nerd_bookmarks_load'), 'down': '30%',
         \ 'options': '--multi --no-preview --ansi --prompt "Load NERD Bookmark >>>  "'})
 endfun
+
+if s:use_finder
+  silent! call xtabline#finder#open()
+  let s:Find = funcref('xtabline#finder#open')
+  fun! xtabline#fzf#list_buffers(args)
+    let b = s:Find(s:tab_buffers(), 'Open Tab Buffer')
+    if b != '' | exe 'e' b | endif
+  endfun
+
+  fun! xtabline#fzf#list_tabs(args)
+    let T = s:Find(s:tablist(), 'Open Tab')
+    if T != '' | call s:tabopen(T) | endif
+  endfun
+
+  fun! xtabline#fzf#delete_buffers(args)
+    let bufs = s:Find(s:tab_buffers(), 'Delete Tab Buffer', {'multi':1})
+    for b in bufs | exe 'bd' b | endfor
+  endfun
+
+  fun! xtabline#fzf#load_session(args)
+    let s = s:Find(s:sessions_list(), 'Load session')
+    if s != '' | call s:session_load(s) | endif
+  endfun
+
+  fun! xtabline#fzf#delete_session(args)
+    let s = s:Find(s:sessions_list(), 'Delete session')
+    if s != '' | call s:session_delete(s) | endif
+  endfun
+
+  fun! xtabline#fzf#load_tab(args)
+    let T = s:Find(s:tabs(), 'Load Tab Bookmark')
+    if T != '' | call s:tab_load(T) | endif
+  endfun
+
+  fun! xtabline#fzf#delete_tab(args)
+    let T = s:Find(s:tabs(), 'Delete Tab Bookmark')
+    if T != '' | call s:tab_delete(T) | endif
+  endfun
+
+  fun! xtabline#fzf#nerd_bookmarks(args)
+    let T = s:Find(s:tab_nerd_bookmarks(), 'Load Nerd Bookmark')
+    if T != '' | call s:tab_nerd_bookmarks_load(T) | endif
+  endfun
+endif
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Tab buffers {{{1
@@ -126,6 +171,20 @@ fun! s:tablist() abort
   return reverse(lines)
 endfun
 
+if s:use_finder
+  fun! s:tablist() abort
+    let lines = []
+    for tab in range(tabpagenr("$"))
+      let T = g:xtabline.Tabs[tab]
+      let bufs = len(T.buffers.valid)
+      let line = s:pad(tab+1, 5)."\t" . s:pad(T.name, 20)."\t".
+            \    (&columns<150 ? s:F.short_cwd(tab+1, 1) : fnamemodify(T.cwd, ":~"))
+      call add(lines, line)
+    endfor
+    return reverse(lines)
+  endfun
+endif
+
 fun! s:tabopen(line) abort
   let tab = a:line[0:(match(a:line, '\s')-1)]
   exe "normal!" tab."gt"
@@ -138,7 +197,7 @@ endfun
 fun! s:tabs() abort
   let json = json_decode(readfile(s:Sets.bookmarks_file)[0])
 
-  let bookmarks = &columns > 99 ?
+  let bookmarks = s:use_finder ? [] : &columns > 99 ?
         \ ["Name\t\t\tDescription\t\t\t\tBuffers\t\tWorking Directory"] :
         \ ["Name\t\t\tBuffers\t\tWorking Directory"]
 
@@ -563,11 +622,19 @@ fun! xtabline#fzf#colors() abort
     let s:ansi = {'black': 0, 'red': 1, 'green': 2, 'yellow': 3, 'blue': 4, 'magenta': 5, 'cyan': 6}
   endif
 
-  for s:color_name in keys(s:ansi)
-    execute "fun! s:".s:color_name."(str, ...)\n"
-          \ "  return s:ansi(a:str, get(a:, 1, ''), '".s:color_name."')\n"
-          \ "endfun"
-  endfor
+  if s:use_finder
+    for s:color_name in keys(s:ansi)
+      execute "fun! s:".s:color_name."(str, ...)\n"
+            \ "  return printf('%-8s', a:str)\n"
+            \ "endfun"
+    endfor
+  else
+    for s:color_name in keys(s:ansi)
+      execute "fun! s:".s:color_name."(str, ...)\n"
+            \ "  return s:ansi(a:str, get(a:, 1, ''), '".s:color_name."')\n"
+            \ "endfun"
+    endfor
+  endif
 endfun
 call xtabline#fzf#colors()
 
@@ -578,7 +645,7 @@ fun! s:strip(str) abort
 endfun
 
 fun! s:format_buffer(b) abort
-  if !exists('g:loaded_fzf')
+  if s:use_finder
     return bufname(a:b)
   endif
   let name = bufname(a:b)

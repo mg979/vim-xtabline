@@ -17,19 +17,17 @@ endfun
 " Commands
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-if exists('g:loaded_fzf')
-  com! -nargs=? -complete=buffer XTabListBuffers       call xtabline#fzf#list_buffers(<q-args>)
-  com! -nargs=? -complete=buffer XTabListTabs          call xtabline#fzf#list_tabs(<q-args>)
-  com! -nargs=? -complete=buffer XTabDeleteBuffers     call xtabline#fzf#delete_buffers(<q-args>)
-  com! -nargs=?                  XTabLoadSession       call xtabline#fzf#load_session(<q-args>)
-  com! -nargs=?                  XTabDeleteSession     call xtabline#fzf#delete_session(<q-args>)
-  com! -nargs=?                  XTabLoadTab           call xtabline#fzf#load_tab(<q-args>)
-  com! -nargs=?                  XTabDeleteTab         call xtabline#fzf#delete_tab(<q-args>)
-  com! -nargs=?                  XTabNERDBookmarks     call xtabline#fzf#nerd_bookmarks(<q-args>)
-  com!                           XTabSaveTab           call xtabline#fzf#tab_save()
-  com!                           XTabSaveSession       call xtabline#fzf#session_save()
-  com! -nargs=?                  XTabNewSession        call xtabline#fzf#session_save(<q-args>)
-endif
+com! -nargs=? -complete=buffer XTabListBuffers       call xtabline#fzf#list_buffers(<q-args>)
+com! -nargs=? -complete=buffer XTabListTabs          call xtabline#fzf#list_tabs(<q-args>)
+com! -nargs=? -complete=buffer XTabDeleteBuffers     call xtabline#fzf#delete_buffers(<q-args>)
+com! -nargs=?                  XTabLoadSession       call xtabline#fzf#load_session(<q-args>)
+com! -nargs=?                  XTabDeleteSession     call xtabline#fzf#delete_session(<q-args>)
+com! -nargs=?                  XTabLoadTab           call xtabline#fzf#load_tab(<q-args>)
+com! -nargs=?                  XTabDeleteTab         call xtabline#fzf#delete_tab(<q-args>)
+com! -nargs=?                  XTabNERDBookmarks     call xtabline#fzf#nerd_bookmarks(<q-args>)
+com!                           XTabSaveTab           call xtabline#fzf#tab_save()
+com!                           XTabSaveSession       call xtabline#fzf#session_save()
+com! -nargs=?                  XTabNewSession        call xtabline#fzf#session_save(<q-args>)
 
 com!                           XTabTodo                call xtabline#cmds#run('tab_todo')
 com!                           XTabPurge               call xtabline#cmds#run('purge_buffers')
