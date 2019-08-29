@@ -496,7 +496,7 @@ Set this value to 0 to remove the tab CWD from the right side of the tabline.
 The number of buffers that can be shown in the tabline is limited (by default)
 to the 10 most recently accessed buffers.
 
----------------------------------------------------- *xtabline-last_open_first* 
+---------------------------------------------------- *xtabline-last_open_first*
 >
     let g:xtabline_settings.last_open_first = 0
 

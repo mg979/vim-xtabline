@@ -345,13 +345,13 @@ fun! s:format_tab_label(tabnr, ...) abort "{{{2
 
   let name  = s:X.Tabs[a:tabnr-1].name
   let nr    = s:tabnum(a:tabnr, 1)
-  let icon  = s:get_tab_icon(a:tabnr)[a:tabnr != tabpagenr()]
+  let icon  = s:get_tab_icon(a:tabnr)
   let mod   = s:modflag(a:tabnr)
   let label = !empty(name) ? name :
         \     show_bufname && !a:0 ? s:tabbufname(a:tabnr)
         \     : s:F.short_cwd(a:tabnr, s:Sets.tab_format)
 
-  return printf("%s %s %s%s ", nr, icon, label, mod)
+  return printf("%s %s%s%s ", nr, icon, label, mod)
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -413,14 +413,19 @@ endfun
 fun! s:get_dev_icon(buf) abort "{{{2
   """Return preferably devicon for buffer, or custom icon if present.
   let a:buf.tried_devicon = 1
-  if exists('g:loaded_webdevicons') &&
-        \ (s:Sets.devicon_for_all_filetypes ||
-        \ index(s:Sets.devicon_for_extensions, expand("#".a:buf.nr.":e")) >= 0)
-    let a:buf.has_icon = 1
-    return WebDevIconsGetFileTypeSymbol(bufname(a:buf.path)).' '
-  else
+  try
+    if exists('g:loaded_webdevicons')
+    " if exists('g:loaded_webdevicons') &&
+    "       \ (s:Sets.devicon_for_all_filetypes ||
+    "       \ index(s:Sets.devicon_for_extensions, expand("#".a:buf.nr.":e")) >= 0)
+      let a:buf.has_icon = 1
+      return WebDevIconsGetFileTypeSymbol(bufname(a:buf.nr)).' '
+    else
+      return a:buf.tried_icon ? '' : s:get_buf_icon(a:buf)
+    endif
+  catch
     return a:buf.tried_icon ? '' : s:get_buf_icon(a:buf)
-  endif
+  endtry
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -483,13 +488,24 @@ endfun
 
 fun! s:get_tab_icon(tabnr) abort "{{{2
   if !s:v.custom_tabs | return s:Sets.tab_icon | endif
+  let show_bufname = !s:Sets.use_tab_cwd || get(s:Sets, 'tabs_show_bufname', 0)
+
+  if show_bufname
+    let bnr = s:first_normal_buffer(tabpagebuflist(a:tabnr))
+    let buf = {'nr': bnr, 'tried_devicon': 0, 'tried_icon': 0, 'has_icon': 0}
+  endif
 
   let T = s:X.Tabs[a:tabnr-1]
   let icon = s:has_tab_icon(T)
 
-  return  !empty(icon) ? icon
-        \ : !empty(T.name) ? s:Sets.named_tab_icon
-        \                  : s:Sets.tab_icon
+  let icon = !empty(icon) ? icon
+        \  : !empty(T.name) ? s:Sets.named_tab_icon
+        \  : show_bufname ? s:get_buf_icon(buf)
+        \  : s:Sets.tab_icon
+
+  return empty(icon) ? ''
+        \ : type(icon) == v:t_list ? icon[a:tabnr != tabpagenr()] . ' '
+        \ : icon
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
