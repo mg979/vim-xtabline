@@ -62,6 +62,7 @@ fun! s:do_map() abort
   call s:mapkey_(X.'k',   'CleanUp!')
   call s:mapkey_(X.'d',   'Todo')
   call s:mapkey0(X.'/',   'RelativePaths')
+  call s:mapkey0(X.'-',   'RelativePaths!')
   call s:mapkey_(X.'?',   'Menu')
   call s:mapkey_(X.'tc',  'CustomTabs')
   call s:mapkey_(X.'tr',  'ResetTab')
@@ -109,8 +110,8 @@ let s:basic = {
 let s:leader = {
       \"'":    ['Go to last tab',               "XTabLastTab"],
       \'.':    ['Toggle custom tabs',           "XTabCustomTabs"],
-      \'/':    ['Toggle relative paths',        "XTabRelativePaths"],
-      \'?':    ['Menu',                         "XTabMenu"],
+      \'/':    ['Relative paths (+)',           "XTabRelativePaths"],
+      \'-':    ['Relative paths (-)',           "XTabRelativePaths!"],
       \'a':    ['List tabs',                    "XTabListTabs"],
       \'c':    ['Clean up tab',                 "XTabCleanUp"],
       \'d':    ['Tab todo',                     "XTabTodo"],

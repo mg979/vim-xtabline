@@ -62,6 +62,7 @@ let s:last_modified_state = { winbufnr(0): &modified }
 
 fun! xtabline#render#tabline() abort "{{{2
   if !s:ready() | return g:xtabline.last_tabline | endif
+  call xtabline#tab#check_all()
   call xtabline#tab#check_index()
   let currentbuf = winbufnr(0)
 
@@ -347,7 +348,7 @@ fun! s:format_tab_label(tabnr, ...) abort "{{{2
   let icon  = s:get_tab_icon(a:tabnr)[a:tabnr != tabpagenr()]
   let mod   = s:modflag(a:tabnr)
   let label = !empty(name) ? name :
-        \     show_bufname && !a:0 ? s:tabbufname(a:tabnr, 1)
+        \     show_bufname && !a:0 ? s:tabbufname(a:tabnr)
         \     : s:F.short_cwd(a:tabnr, s:Sets.tab_format)
 
   return printf("%s %s %s%s ", nr, icon, label, mod)
@@ -470,11 +471,12 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:tabbufname(tabnr, basename) abort "{{{2
+fun! s:tabbufname(tabnr) abort "{{{2
   let buffers = tabpagebuflist(a:tabnr)
-  let bufname = s:first_normal_buffer(buffers)
-  return empty(bufname) ?
-        \ s:Sets.unnamed_tab : fnamemodify(bufname, a:basename ? ':t' : ':~')
+  let bnr     = s:first_normal_buffer(buffers)
+  return empty(bufname(bnr)) ? s:Sets.unnamed_tab
+        \ : &columns < 150 || !s:T().rpaths ? fnamemodify(bufname(bnr), ':t')
+        \ : s:F.short_path(bnr, s:T().rpaths)
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -528,10 +530,10 @@ endfun
 fun! s:first_normal_buffer(buffers) abort "{{{2
   for buf in a:buffers
     if buflisted(buf) && getbufvar(buf, "&bt") != 'nofile'
-      return bufname(buf)
+      return bufnr(buf)
     end
   endfor
-  return bufname(a:buffers[0])
+  return bufnr(a:buffers[0])
 endfun
 
 "------------------------------------------------------------------------------

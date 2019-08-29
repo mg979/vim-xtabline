@@ -6,6 +6,7 @@ XTABLINE - TABLE OF CONTENTS                                         *xtabline*
   Introduction                                   |xtabline-introduction|
   Features                                       |xtabline-features|
   Tabline rendering                              |xtabline-rendering|
+  Tabline paths                                  |xtabline-paths|
   Settings and mappings                          |xtabline-settings|
   Tabline modes                                  |xtabline-modes|
   Tab buffers                                    |xtabline-buffers|
@@ -23,6 +24,7 @@ XTABLINE - TABLE OF CONTENTS                                         *xtabline*
   Additional notes                               |xtabline-notes|
   Credits                                        |xtabline-credits|
   License                                        |xtabline-license|
+
 
 
 INTRODUCTION                                            *xtabline-introduction*
@@ -109,6 +111,37 @@ tab's CWD, if |buffer_filtering| is active.
 These modes can be cycled with a mapping (<F5> by default). You can also define
 which modes to cycle with a setting (|tabline_modes|).
 
+
+
+
+TABLINE PATHS                                                  *xtabline-paths*
+===============================================================================
+
+Both in 'tabs' and 'buffers' mode, the path can be displayed in several ways.
+Vim's default is to show a shortened version of the file's path, with directory
+names reduced to a single letter. I don't find this format to be very readable,
+but it generally gives you an idea of the file position. This is still the
+default in xtabline.
+
+There are alternatives, though, controlled by a command (|XTabRelativePaths|),
+and by a setting (|xtabline-relative_paths|). The setting defines the default
+for new tabs, while the command defines a tab-specific value for this setting.
+
+Without a [count], the command toggles between basename and relative path in
+the tabline. With a count, the text displayed will vary for positive or
+negative values. For example, with a path: >
+
+  long/path/to/file.ext
+
+different values will display the path in the following ways:
+>
+     -2  ->   path/to/file.ext
+     -1  ->   to/file.ext
+      0  ->   file.ext
+      1  ->   l/p/t/file.ext      (default)
+      2  ->   l/p/to/file.ext
+
+Mappings are also provided. See |XTabRelativePaths|.
 
 
 
@@ -210,15 +243,7 @@ to the 10 most recently accessed buffers.
 
 ------------------------------------------------------------------------------
                                                    *xtabline-relative_paths*  >
-    let g:xtabline_settings.relative_paths = 0
-
-By default, only the file name is printed in the tabline. Set this to
-a positive number to show (shortened) relative paths for buffers in the
-tabline, e.g.:
->
-    = 0  ->  long/path/to/file.ext  ->   file.ext
-    = 1  ->  long/path/to/file.ext  ->   l/p/t/file.ext
-    = 2  ->  long/path/to/file.ext  ->   l/p/to/file.ext
+    let g:xtabline_settings.relative_paths = 1
 
 Note that this setting is both global and specific to tabs. This means that
 when a tab is created, it inherits the global setting, but if you want to
@@ -314,7 +339,7 @@ XTabMoveBuffer                    *m
 XTabMoveBufferNext                *]
 XTabMoveBufferPrev                *[
 XTabPinBuffer                     *p
-XTabRelativePaths                 */
+XTabRelativePaths[!]              */  [/-]
 
 *XTabNextBuffer* and *XTabPrevBuffer* accept a [count], to move to ±[N] buffer, as
 they are shown in the tabline.  If moving beyond the limit, it will start from
@@ -362,10 +387,8 @@ considered valid for the current tab.
 
 *XTabPinBuffer* pins a buffer, so that it will be visible in all tabs.
 
-*XTabRelativePaths* toggles between basename and relative path in the tabline.
-Both the command and the mapping accept a [count], if this is given, the last
-[count-1] directories won't be 'shortened'. See |xtabline-relative_paths| to
-know how this count works.
+*XTabRelativePaths* is discussed in |xtabline-paths|. Notice that there are two
+mappings, */ and *-, with the second one that sets a negative value.
 
 
 

@@ -301,18 +301,13 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:relative_paths(cnt) abort
+fun! s:relative_paths(bang, cnt) abort
   """Toggle between full relative path and tail only, in the bufline.
   let T = s:T()
-  if a:cnt
-    let T.rpaths = a:cnt
-  elseif T.rpaths
-    let T.rpaths = 0
-  elseif s:Sets.relative_paths
-    let T.rpaths = s:Sets.relative_paths
-  else
-    let T.rpaths = 1
-  endif
+  let minus = a:bang ? -1 : 1
+  let T.rpaths = a:cnt ? a:cnt * minus
+        \      : T.rpaths ? 0
+        \      : s:Sets.relative_paths ? s:Sets.relative_paths : (1 * minus)
   call xtabline#update()
   if T.rpaths
     call s:F.msg ([[ "Bufferline shows relative paths [".T.rpaths."]",

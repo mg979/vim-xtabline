@@ -183,18 +183,24 @@ endfun
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:Funcs.short_path(bnr, h) abort
-  if empty(bufname(a:bnr))
-    return ''
-  endif
   let H = fnamemodify(bufname(a:bnr), ":~:.")
-  if s:v.winOS
-    let H = tr(H, '\', '/')
+
+  if empty(bufname(H)) | return ''               | endif
+  if s:v.winOS         | let H = tr(H, '\', '/') | endif
+  if match(H, '/') < 0 | return H                | endif
+
+  let is_root = H[:0] == '/'
+  let splits  = split(H, '/')
+  let h       = min([len(splits), abs(a:h)])
+
+  if a:h < 0
+    let head = split(fnamemodify(bufname(a:bnr), ":~:h"), '/')
+    let tail = [fnamemodify(bufname(a:bnr), ":t")]
+    return join(head[-h:] + tail, '/')
+  else
+    let head = splits[:-(h+1)]
+    let tail = splits[-h:]
   endif
-  if match(H, '/') < 0
-    return H
-  endif
-  let [ is_root, splits ] = [ H[:0] == '/', split(H, '/') ]
-  let [ head, tail ] = [splits[:-(a:h+1)], splits[-(a:h):]]
   call map(head, "substitute(v:val, '\\(.\\).*', '\\1', '')")
   let H = join(head + tail, '/')
   if is_root
