@@ -64,6 +64,7 @@ fun! xtabline#render#tabline() abort "{{{2
   if !s:ready() | return g:xtabline.last_tabline | endif
   call xtabline#tab#check_all()
   call xtabline#tab#check_index()
+  call xtabline#filter_buffers() " filter buffers is called only from here
   let currentbuf = winbufnr(0)
 
   " no room for a full tabline
@@ -110,7 +111,6 @@ endfun
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:render_buffers() abort "{{{2
-  call xtabline#filter_buffers() " filter buffers is called only from here
   let centerlabel = s:centerbuf " prevent tabline jumping around when non-user buffer current (e.g. help)
   let currentbuf = winbufnr(0)
 

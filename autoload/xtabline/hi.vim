@@ -106,18 +106,20 @@ endfun
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:Hi.themes.default() abort
-  hi! link XTSelect     PmenuSel
-  hi! link XTVisible    Special
-  hi! link XTHidden     TabLine
-  hi! link XTSelectMod  TabLineSel
-  hi! link XTVisibleMod Special
-  hi! link XTHiddenMod  WarningMsg
-  hi! link XTExtra      Visual
-  hi! link XTExtraMod   Visual
-  hi! link XTSpecial    IncSearch
-  hi! link XTFill       TabLineFill
-  hi! link XTVisibleTab TabLineSel
-  hi! link XTNumSel     TabLineSel
-  hi! link XTNum        TabLineSel
+  hi! link XTSelect         PmenuSel
+  hi! link XTVisible        Special
+  hi! link XTHidden         TabLine
+  hi! link XTSelectMod      TabLineSel
+  hi! link XTVisibleMod     Special
+  hi! link XTHiddenMod      WarningMsg
+  hi! link XTExtra          Visual
+  hi! link XTExtraMod       Visual
+  hi! link XTSpecial        IncSearch
+  hi! link XTFill           TabLineFill
+  hi! link XTVisibleTab     TabLineSel
+  hi! link XTNumSel         TabLineSel
+  hi! link XTNum            TabLineSel
+  hi! link XTTabActive      Special
+  hi! link XTTabInactive    TabLine
 endfun
 
