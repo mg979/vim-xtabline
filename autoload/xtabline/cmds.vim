@@ -643,7 +643,7 @@ endfun
 fun! s:cd(count) abort
   """Set cwd relatively to directory of current file.
   let path = ':p:h'
-  for c in range(max([a:count, 1]))
+  for c in range(max([a:count, 0]))
     let path .= ':h'
   endfor
   let cwd = s:F.fullpath(expand("%"), path)
