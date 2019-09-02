@@ -5,7 +5,7 @@ fun! xtabline#config#start() abort
   redraw!
   let opt = [
             \['Sort buffers by last open',   "last_open_first"],
-            \['Show current tab',            "show_current_tab"],
+            \['Show right corner',           "show_right_corner"],
             \['Superscript unicode nrs',     "superscript_unicode_nrs"],
             \['Close buffer can close tab',  "close_buffer_can_close_tab"],
             \['Close buffer can quit vim',   "close_buffer_can_quit_vim"],
@@ -56,7 +56,7 @@ fun! xtabline#config#generate() abort
         \'',
         \'let g:xtabline_settings = {}',
         \'let g:xtabline_settings.last_open_first            = '.g:xtabline_settings.last_open_first,
-        \'let g:xtabline_settings.show_current_tab           = '.g:xtabline_settings.show_current_tab,
+        \'let g:xtabline_settings.show_right_corner          = '.g:xtabline_settings.show_right_corner,
         \'let g:xtabline_settings.superscript_unicode_nrs    = '.g:xtabline_settings.superscript_unicode_nrs,
         \'let g:xtabline_settings.close_buffer_can_close_tab = '.g:xtabline_settings.close_buffer_can_close_tab,
         \'let g:xtabline_settings.close_buffer_can_quit_vim  = '.g:xtabline_settings.close_buffer_can_quit_vim,
@@ -81,7 +81,7 @@ fun! xtabline#config#help() abort
   echohl WarningMsg | echo _._._."\n" | echohl None
 
   echohl Special | echo "last_open_first\t\t"             | echohl None | echon "keep the last open buffers first in the bufferline"
-  echohl Special | echo "show_current_tab\t\t\t"          | echohl None | echon "in the right corner of the bufferline"
+  echohl Special | echo "show_right_corner\t\t\t"         | echohl None | echon "in the right corner of the bufferline"
   echohl Special | echo "superscript_unicode_nrs\t\t\t"   | echohl None | echon "when using small unicode numbers, use superscript or subscript"
   echohl Special | echo "close_buffer_can_close_tab\t\t"  | echohl None | echon "close buffer command can close a tab, if only one buffer left"
   echohl Special | echo "close_buffer_can_quit_vim\t\t"   | echohl None | echon "close buffer command can also quit vim"

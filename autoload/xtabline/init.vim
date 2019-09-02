@@ -109,7 +109,7 @@ let s:S = {
       \ 'superscript_unicode_nrs':    0,
       \ 'buffer_filtering':           0,
       \ 'use_tab_cwd':                0,
-      \ 'show_current_tab':           1,
+      \ 'show_right_corner':          1,
       \ 'last_open_first':            0,
       \ 'enable_mappings':            0,
       \ 'no_icons':                   0,
@@ -123,7 +123,6 @@ let s:S = {
       \ 'modified_tab_flag':          "*",
       \ 'close_tabs_label':           "",
       \ 'tab_icon':                   ["📂", "📁"],
-      \ 'named_tab_icon':             ["📂", "📁"],
       \ 'devicon_for_all_filetypes':  0,
       \ 'devicon_for_extensions':     ['md', 'txt'],
       \}

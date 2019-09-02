@@ -24,8 +24,9 @@ let s:v    = g:xtabline.Vars
 let s:F    = g:xtabline.Funcs
 let s:Sets = g:xtabline_settings
 
-let s:T =  { -> s:X.Tabs[tabpagenr()-1] }       "current tab
-let s:B =  { -> s:X.Buffers             }       "customized buffers
+let s:T  = { -> s:X.Tabs[tabpagenr()-1] }       "current tab
+let s:Tn = { n -> s:X.Tabs[n-1]         }       "tab n
+let s:B  = { -> s:X.Buffers             }       "customized buffers
 let s:vB = { -> s:T().buffers.valid     }       "valid buffers for tab
 let s:eB = { -> s:T().buffers.extra     }       "extra buffers for tab
 let s:oB = { -> s:T().buffers.order     }       "ordered buffers for tab
@@ -47,6 +48,8 @@ let s:pinned            = { -> s:X.pinned_buffers                               
 let s:buffer_has_format = { buf -> has_key(s:B()[buf.nr], 'format')                           }
 let s:has_buf_icon      = { nr -> !empty(get(s:B()[nr], 'icon', ''))                          }
 let s:extraHi           = { b -> s:is_extra(b) || s:is_open(b) || index(s:pinned(), b) >= 0   }
+let s:show_bufname      = { -> !s:Sets.use_tab_cwd || get(s:Sets, 'tabs_show_bufname', 1)     }
+let s:strwidth          = { label -> strwidth(substitute(label, '%#\w*#\|%\d\+T', '', 'g'))   }
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Main functions {{{1
@@ -68,7 +71,7 @@ fun! xtabline#render#tabline() abort "{{{2
   let currentbuf = winbufnr(0)
 
   " no room for a full tabline
-  if &columns < 40 | return s:get_label_for_right_corner()[0] | endif
+  if &columns < 40 | return s:format_right_corner() | endif
 
   let changed_modified_state =
         \ !has_key(s:last_modified_state, currentbuf) ||
@@ -225,7 +228,8 @@ endfun
 
 fun! s:fit_tabline(centerlabel, tabs) abort "{{{2
   " toss away tabs and pieces until all fits
-  let [corner_label, corner_width] = s:get_label_for_right_corner()
+  let corner_label = s:format_right_corner()
+  let corner_width = s:strwidth(corner_label)
   let Tabs = a:tabs
 
   " limit is the max bufline length
@@ -238,7 +242,7 @@ fun! s:fit_tabline(centerlabel, tabs) abort "{{{2
   " sum the string lengths for the left and right halves
   let currentside = L
   for tab in Tabs
-    let tab.width = strwidth(substitute(tab.label, '%#\w*#', '', 'g'))
+    let tab.width = s:strwidth(tab.label)
     if a:centerlabel == tab.nr
       let halfwidth = tab.width / 2
       let L.width += halfwidth
@@ -340,18 +344,48 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:format_tab_label(tabnr, ...) abort "{{{2
-  let show_bufname = !s:Sets.use_tab_cwd || get(s:Sets, 'tabs_show_bufname', 0)
-
-  let name  = s:X.Tabs[a:tabnr-1].name
+fun! s:format_tab_label(tabnr) abort "{{{2
   let nr    = s:tabnum(a:tabnr, 1)
-  let icon  = s:get_tab_icon(a:tabnr)
+  let icon  = s:get_tab_icon(a:tabnr, 0)
   let mod   = s:modflag(a:tabnr)
-  let label = !empty(name) ? name :
-        \     show_bufname && !a:0 ? s:tabbufname(a:tabnr)
-        \     : s:F.short_cwd(a:tabnr, s:Sets.tab_format)
+  let label = s:tab_label(a:tabnr, 0)
 
   return printf("%s %s%s%s ", nr, icon, label, mod)
+endfun
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:format_right_corner() abort "{{{2
+  """Build string with tab label and icon for the bufline.
+  let N = tabpagenr()
+
+  if s:v.tabline_mode == 'arglist'
+    let [ n, N ]  = [ index(argv(), bufname(bufnr('%'))) + 1, len(argv()) ]
+    let num       = "%#XTNumSel# " . n .'/' . N . " "
+    return num . "%#XTSelect# arglist" . " %#XTTabInactive#"
+
+  elseif !s:Sets.show_right_corner
+    return s:tabnum(N, 1)
+
+  elseif s:v.tabline_mode == 'tabs'
+    let icon      = "%#XTNumSel# " . s:get_tab_icon(N, 1)
+    let name      = "%#XTTabActive# " . s:F.short_cwd(N, 1)
+    return icon . name
+
+  elseif !s:Sets.use_tab_cwd && !haslocaldir(-1, tabpagenr())
+    " not using per-tab cwd, show the buffer name, unless there is a local cwd
+    let buflist   = tabpagebuflist(N)
+    let winnr     = tabpagewinnr(N)
+    let bname     = bufname(buflist[winnr - 1])
+    return printf("%s %s ", s:tabnum(N, 1), s:F.short_cwd(N, 0, bname))
+
+  else
+    let nr        = s:tabnum(N, 1)
+    let icon      = s:get_tab_icon(N, 1)
+    let mod       = s:modflag(N)
+    let label     = s:tab_label(N, 1)
+    return printf("%s %s%s%s ", nr, icon, label, mod)
+  endif
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -476,46 +510,48 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:tabbufname(tabnr) abort "{{{2
-  let buffers = tabpagebuflist(a:tabnr)
-  let bnr     = s:first_normal_buffer(buffers)
-  return empty(bufname(bnr)) ? s:Sets.unnamed_tab
-        \ : &columns < 150 || !s:T().rpaths ? fnamemodify(bufname(bnr), ':t')
-        \ : s:F.short_path(bnr, s:T().rpaths)
+fun! s:tab_label(tabnr, right_corner) abort "{{{2
+  return !empty(s:Tn(a:tabnr).name) ? s:Tn(a:tabnr).name :
+        \     !a:right_corner && s:show_bufname() ? s:tabbufname(a:tabnr)
+        \     : s:F.short_cwd(a:tabnr, s:Sets.tab_format)
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:get_tab_icon(tabnr) abort "{{{2
-  if !s:v.custom_tabs | return s:Sets.tab_icon | endif
-  let show_bufname = !s:Sets.use_tab_cwd || get(s:Sets, 'tabs_show_bufname', 0)
+fun! s:tabbufname(tabnr) abort "{{{2
+  let bnr = s:first_normal_buffer(a:tabnr)
+  return empty(bufname(bnr)) ? s:Sets.unnamed_tab
+        \ : &columns < 150 || !s:Tn(a:tabnr).rpaths ? fnamemodify(bufname(bnr), ':t')
+        \ : s:F.short_path(bnr, s:Tn(a:tabnr).rpaths)
+endfun
 
-  if show_bufname
-    let bnr = s:first_normal_buffer(tabpagebuflist(a:tabnr))
-    let buf = {'nr': bnr, 'tried_devicon': 0, 'tried_icon': 0, 'has_icon': 0}
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:get_tab_icon(tabnr, right_corner) abort "{{{2
+  let icon = s:tab_icon(s:Tn(a:tabnr))
+  if !empty(icon) | return icon | endif
+
+  if a:right_corner
+    let icon = s:Sets.tab_icon
+  elseif s:show_bufname()
+    let bnr  = s:first_normal_buffer(a:tabnr)
+    let buf  = {'nr': bnr, 'tried_devicon': 0, 'tried_icon': 0, 'has_icon': 0}
+    let icon = s:get_buf_icon(buf)
+  else
+    return ''
   endif
 
-  let T = s:X.Tabs[a:tabnr-1]
-  let icon = s:has_tab_icon(T)
-
-  let icon = !empty(icon) ? icon
-        \  : !empty(T.name) ? s:Sets.named_tab_icon
-        \  : show_bufname ? s:get_buf_icon(buf)
-        \  : s:Sets.tab_icon
-
-  return empty(icon) ? ''
-        \ : type(icon) == v:t_list ? icon[a:tabnr != tabpagenr()] . ' '
-        \ : icon
+  return type(icon) == v:t_string ? icon : icon[a:tabnr != tabpagenr()] . ' '
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:has_tab_icon(T) abort "{{{2
+fun! s:tab_icon(T) abort "{{{2
   if !has_key(a:T, 'icon') | return | endif
   let I = a:T.icon
 
   if empty(I)
-    return
+    return ''
   elseif type(I) == v:t_string
     return [I, I]
   elseif type(I) == v:t_list && len(I) == 2
@@ -543,13 +579,14 @@ endfun
 
 "------------------------------------------------------------------------------
 
-fun! s:first_normal_buffer(buffers) abort "{{{2
-  for buf in a:buffers
+fun! s:first_normal_buffer(tabnr) abort "{{{2
+  let bufs = tabpagebuflist(a:tabnr)
+  for buf in bufs
     if buflisted(buf) && getbufvar(buf, "&bt") != 'nofile'
       return bufnr(buf)
     end
   endfor
-  return bufnr(a:buffers[0])
+  return bufnr(bufs[0])
 endfun
 
 "------------------------------------------------------------------------------
@@ -601,33 +638,6 @@ fun! s:unicode_nrs(nr) abort "{{{2
   endfor
 
   return u_nr
-endfun
-
-"------------------------------------------------------------------------------
-
-fun! s:get_label_for_right_corner() abort "{{{2
-  """Build string with tab label and icon for the bufline.
-  let N = tabpagenr()
-
-  "TODO: a right side corner for the tabs mode
-  if s:v.tabline_mode == 'tabs'
-    return ['', 0]
-  elseif s:v.tabline_mode == 'arglist'
-    let [ n, N ] = [ index(argv(), bufname(bufnr('%'))) + 1, len(argv()) ]
-    let num = "%#XTNumSel# " . n .'/' . N . " "
-    let fmt_tab = num . "%#XTSelect# arglist" . " %#XTTabInactive#"
-  elseif ! s:Sets.show_current_tab
-    let fmt_tab = s:tabnum(N, 1)
-  elseif !s:Sets.use_tab_cwd
-    let buflist = tabpagebuflist(N)
-    let winnr = tabpagewinnr(N)
-    let bname = bufname(buflist[winnr - 1])
-    let fmt_tab = printf("%s %s ", s:tabnum(N, 1), s:F.short_cwd(N, 0, bname))
-  else
-    let fmt_tab = s:format_tab_label(N, 1)
-  endif
-  let label = substitute(fmt_tab, '%#\w*#', '', 'g')    "text only, to find width
-  return [fmt_tab, strwidth(label)]
 endfun
 
 "------------------------------------------------------------------------------

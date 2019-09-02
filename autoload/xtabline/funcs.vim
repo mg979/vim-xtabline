@@ -185,6 +185,7 @@ endfun
 fun! s:Funcs.short_path(bnr, h) abort
   let H = fnamemodify(bufname(a:bnr), ":~:.")
 
+  if !a:h | return fnamemodify(path, ":t")       | endif
   if empty(bufname(H)) | return ''               | endif
   if s:v.winOS         | let H = tr(H, '\', '/') | endif
   if match(H, '/') < 0 | return H                | endif

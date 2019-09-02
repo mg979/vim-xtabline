@@ -483,11 +483,11 @@ Mappings are enabled by default.
 
 Persistance is enabled by default.
 
---------------------------------------------------- *xtabline-show_current_tab*
+-------------------------------------------------- *xtabline-show_right_corner*
 >
-    let g:xtabline_settings.show_current_tab = 1
+    let g:xtabline_settings.show_right_corner = 1
 <
-Set this value to 0 to remove the tab CWD from the right side of the tabline.
+Set this value to 0 to remove the label on the right corner of the tabline.
 
 ----------------------------------------------------- *xtabline-recent_buffers*
 >
@@ -591,7 +591,6 @@ tab_format                 | 1
 modified_tab_flag          | '*'
 close_tabs_label           | ''
 tab_icon                   | ["📂", "📁"]
-named_tab_icon             | ["📂", "📁"]
 
 `icons` are the ones that can be used when assigning an icon to a
 tab/buffer, and can be used in other contexts (special buffers icon).
