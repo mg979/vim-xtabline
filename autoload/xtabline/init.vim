@@ -111,7 +111,7 @@ let s:S = {
       \ 'use_tab_cwd':                0,
       \ 'show_right_corner':          1,
       \ 'last_open_first':            0,
-      \ 'enable_mappings':            0,
+      \ 'enable_mappings':            1,
       \ 'no_icons':                   0,
       \ 'relative_paths':             1,
       \ 'tab_path_format':            0,

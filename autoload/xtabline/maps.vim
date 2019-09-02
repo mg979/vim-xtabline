@@ -39,6 +39,10 @@ fun! s:do_map() abort
     silent! nmap <BS> <Plug>(XT-Select-Buffer)
   endif
 
+  if maparg(X) == ''
+    exe 'nnoremap' X '<Nop>'
+  endif
+
   call s:mapkey_('<F5>',  'CycleMode')
   call s:mapkeyc(']b',    'NextBuffer')
   call s:mapkeyc('[b',    'PrevBuffer')
