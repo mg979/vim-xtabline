@@ -207,7 +207,7 @@ fun! s:render_buffers() abort "{{{2
           \             s:F.has_win(bnr)          ? 'Visible' : 'Hidden'
           \}
 
-    if type(s:Sets.buffer_format) == v:t_number
+    if !s:buffer_has_format(buf) && type(s:Sets.buffer_format) == v:t_number
       let buf.path = s:get_buf_name(buf)
     else
       let buf.path = fnamemodify(bufname(bnr), (Tab.rpaths ? ':p:~:.' : ':t'))

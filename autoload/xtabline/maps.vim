@@ -43,43 +43,43 @@ fun! s:do_map() abort
     exe 'nnoremap' X '<Nop>'
   endif
 
-  call s:mapkey_('<F5>',  'CycleMode')
-  call s:mapkeyc(']b',    'NextBuffer')
-  call s:mapkeyc('[b',    'PrevBuffer')
-  call s:mapkey_('[B',    'FirstBuffer')
-  call s:mapkey_(']B',    'LastBuffer')
-  call s:mapkey_('cdc',   'CdCurrent')
-  call s:mapkeyc('cdd',   'CdDown')
-  call s:mapkey_('cdw',   'WD!')
-  call s:mapkey_('cdb',   'BD')
-  call s:mapkey_(X.'q',   'CloseBuffer')
-  call s:mapkey_(X.'x',   'Purge')
-  call s:mapkey_(X."'",   'Last')
-  call s:mapkey_(X.'u',   'Reopen')
-  call s:mapkey_(X.'p',   'PinBuffer')
-  call s:mapkeyc(X.'m',   'MoveBuffer')
-  call s:mapkeyc(X.']',   'MoveBufferNext')
-  call s:mapkeyc(X.'[',   'MoveBufferPrev')
-  call s:mapkey_(X.'z',   'HideBuffer')
-  call s:mapkey_(X.'f',   'ToggleFiltering')
-  call s:mapkey_(X.'c',   'CleanUp')
-  call s:mapkey_(X.'k',   'CleanUp!')
-  call s:mapkey_(X.'d',   'Todo')
-  call s:mapkey0(X.'/',   'RelativePaths')
-  call s:mapkey0(X.'-',   'RelativePaths!')
-  call s:mapkey_(X.'?',   'Menu')
-  call s:mapkey_(X.'tc',  'CustomTabs')
-  call s:mapkey_(X.'tr',  'ResetTab')
-  call s:mapkeys(X.'ti',  'Icon')
-  call s:mapkeys(X.'tn',  'RenameTab')
-  call s:mapkeys(X.'bi',  'BufferIcon')
-  call s:mapkeys(X.'bn',  'RenameBuffer')
-  call s:mapkey_(X.'br',  'ResetBuffer')
-  call s:mapkey_(X.'bf',  'FormatBuffer')
-  call s:mapkey_(X.'C',   'Config')
-  call s:mapkeys(X.'T',   'Theme')
-  call s:mapkey_(X.'l',  'ListBuffers')
+  call s:mapkey_('<F5>', 'CycleMode')
+  call s:mapkeyc(']b',   'NextBuffer')
+  call s:mapkeyc('[b',   'PrevBuffer')
+  call s:mapkey_('[B',   'FirstBuffer')
+  call s:mapkey_(']B',   'LastBuffer')
+  call s:mapkey_('cdc',  'CdCurrent')
+  call s:mapkeyc('cdd',  'CdDown')
+  call s:mapkey_('cdw',  'WD!')
+  call s:mapkey_('cdb',  'BD')
+  call s:mapkey_(X.'q',  'CloseBuffer')
   call s:mapkey_(X.'a',  'ListTabs')
+  call s:mapkey_(X.'z',  'ListBuffers')
+  call s:mapkey_(X.'x',  'Purge')
+  call s:mapkey_(X."'",  'Last')
+  call s:mapkey_(X.'u',  'Reopen')
+  call s:mapkey_(X.'p',  'PinBuffer')
+  call s:mapkeyc(X.'m',  'MoveBuffer')
+  call s:mapkeyc(X.']',  'MoveBufferNext')
+  call s:mapkeyc(X.'[',  'MoveBufferPrev')
+  call s:mapkey_(X.'h',  'HideBuffer')
+  call s:mapkey_(X.'f',  'ToggleFiltering')
+  call s:mapkey_(X.'k',  'CleanUp')
+  call s:mapkey_(X.'K',  'CleanUp!')
+  call s:mapkey_(X.'d',  'Todo')
+  call s:mapkey0(X.'/',  'RelativePaths')
+  call s:mapkey0(X.'-',  'RelativePaths!')
+  call s:mapkey_(X.'?',  'Menu')
+  call s:mapkey_(X.'C',  'Config')
+  call s:mapkeys(X.'T',  'Theme')
+  call s:mapkey_(X.'tc', 'CustomTabs')
+  call s:mapkey_(X.'tr', 'ResetTab')
+  call s:mapkeys(X.'ti', 'Icon')
+  call s:mapkeys(X.'tn', 'RenameTab')
+  call s:mapkeys(X.'bi', 'BufferIcon')
+  call s:mapkeys(X.'bn', 'RenameBuffer')
+  call s:mapkey_(X.'br', 'ResetBuffer')
+  call s:mapkey_(X.'bf', 'FormatBuffer')
   call s:mapkey_(X.'bd', 'DeleteBuffers')
   call s:mapkey_(X.'tl', 'LoadTab')
   call s:mapkey_(X.'ts', 'SaveTab')
@@ -117,19 +117,19 @@ let s:leader = {
       \'/':    ['Relative paths (+)',           "XTabRelativePaths"],
       \'-':    ['Relative paths (-)',           "XTabRelativePaths!"],
       \'a':    ['List tabs',                    "XTabListTabs"],
-      \'c':    ['Clean up tab',                 "XTabCleanUp"],
+      \'z':    ['List buffers',                 "XTabListBuffers"],
       \'d':    ['Tab todo',                     "XTabTodo"],
       \'f':    ['Toggle filtering',             "XTabFiltering"],
       \'m':    ['Move buffer to...',            "XTabMoveBuffer"],
       \']':    ['Move buffer forwards',         "XTabMoveBufferNext"],
       \'[':    ['Move buffer backwards',        "XTabMoveBufferPrev"],
-      \'z':    ['Hide buffer',                  "XTabHideBuffer"],
-      \'k':    ['Minimize all tabs',            "XTabCleanUp!"],
+      \'h':    ['Hide buffer',                  "XTabHideBuffer"],
       \'p':    ['Pin buffer',                   "XTabPinBuffer"],
       \'q':    ['Close buffer',                 "XTabCloseBuffer"],
-      \'l':    ['List buffers',                 "XTabListBuffers"],
       \'u':    ['Reopen last tab',              "XTabReopen"],
       \'x':    ['Purge tab',                    "XTabPurge"],
+      \'k':    ['Clean up tabs',                "XTabCleanUp"],
+      \'K':    ['Clean up! tabs',               "XTabCleanUp!"],
       \'C':    ['Configure',                    "XTabConfig"],
       \'T':    ['Select theme',                 "XTabTheme  "],
       \}

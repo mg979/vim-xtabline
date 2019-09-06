@@ -584,9 +584,11 @@ fun! s:format_buffer() abort
   let has_format = has_key(s:B(), n) && has_key(s:B()[n], 'format')
   let current = has_format? s:B()[n].format : default
 
-  echohl Label | echo "Current  │" | echohl Special | echon current | echohl Label
+  echohl Label   | echo "Current  │"
+  echohl Special | echon current
+  echohl Label   | let new = input("New      │", current)
+  echohl None
 
-  let new = input("New      │", current) | echohl None
   if !empty(new) | call s:F.set_buffer_var('format', new)
   else           | call s:F.msg ([[ "Canceled.", 'WarningMsg' ]])
   endif

@@ -232,7 +232,7 @@ Command                           Mapping~
 XTabNextBuffer                    [count] ]b
 XTabPrevBuffer                    [count] [b
 XTabCloseBuffer                   *q
-XTabHideBuffer                    *z
+XTabHideBuffer                    *h
 XTabMoveBuffer                    *m
 XTabMoveBufferNext                *]
 XTabMoveBufferPrev                *[
@@ -354,7 +354,7 @@ XTabReopen             *u
 
 Command                Mapping~
 XTabListTabs           *a           (mnemonic: 'all tabs')
-XTabListBuffers        *l
+XTabListBuffers        *z           (mnemonic: just below previous)
 XTabLoadTab            *tl
 XTabSaveTab            *ts
 XTabDeleteTab          *td
@@ -393,8 +393,8 @@ OTHER COMMANDS                                                 *xtabline-other*
 
 Command                Mapping~
 XTabPurge              *x
-XTabCleanUp            *c
-XTabCleanUp!           *k
+XTabCleanUp            *k
+XTabCleanUp!           *K
 XTabTodo               *d
 XTabConfig             *C
 XTabTheme              *T
