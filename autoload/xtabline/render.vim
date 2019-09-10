@@ -356,7 +356,10 @@ fun! s:format_right_corner() abort "{{{2
   """Build string with tab label and icon for the bufline.
   let N = tabpagenr()
 
-  if s:v.tabline_mode == 'arglist'
+  if has_key(s:T(), 'corner')
+    return s:T().corner
+
+  elseif s:v.tabline_mode == 'arglist'
     let [ n, N ]  = [ index(argv(), bufname(bufnr('%'))) + 1, len(argv()) ]
     let num       = "%#XTNumSel# " . n .'/' . N . " "
     return num . "%#XTSelect# arglist" . " %#XTTabInactive#"
@@ -510,8 +513,9 @@ endfun
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:get_tab_icon(tabnr, right_corner) abort "{{{2
-  let icon = s:tab_icon(s:Tn(a:tabnr))
-  if !empty(icon) | return icon | endif
+  if !empty(get(s:Tn(a:tabnr), 'icon', ''))
+    return s:Tn(a:tabnr).icon . ' '
+  endif
 
   if a:right_corner
     let icon = s:Sets.tab_icon
@@ -524,23 +528,6 @@ fun! s:get_tab_icon(tabnr, right_corner) abort "{{{2
   endif
 
   return type(icon) == v:t_string ? icon : icon[a:tabnr != tabpagenr()] . ' '
-endfun
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! s:tab_icon(T) abort "{{{2
-  if !has_key(a:T, 'icon') | return | endif
-  let I = a:T.icon
-
-  if empty(I)
-    return ''
-  elseif type(I) == v:t_string
-    return [I, I]
-  elseif type(I) == v:t_list && len(I) == 2
-    return I
-  elseif type(I) == v:t_list && len(I) == 1
-    return [I[0], I[0]]
-  endif
 endfun "}}}
 
 
