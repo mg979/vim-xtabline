@@ -196,8 +196,6 @@ fun! s:render_buffers() abort "{{{2
 
     let buf = { 'nr': bnr,
           \ 'n': n,
-          \ 'tried_devicon': 0,
-          \ 'tried_icon': 0,
           \ 'has_icon': 0,
           \ 'path': &columns < 150 || !Tab.rpaths ? fnamemodify(bufname(bnr), ':t')
           \                                       : s:F.short_path(bnr, Tab.rpaths),
@@ -330,8 +328,7 @@ fun! s:format_buffer_label(item, chars) abort "{{{2
     elseif C == 110 | let C = I.nr                                          "n
     elseif C == 43  | let C = I.indicator                                   "+
     elseif C == 102 | let C = I.path                                        "f
-    elseif C == 105 | let C = s:get_dev_icon(I)                             "i
-    elseif C == 73  | let C = s:get_buf_icon(I)                             "I
+    elseif C == 73  | let C = s:get_buf_icon(I)                             "i
     elseif C == 60  | let C = !I.has_icon ? I.separators[0] : ''            "<
     elseif C == 62  | let C = I.separators[1]                               ">
     endif
@@ -444,36 +441,21 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:get_dev_icon(buf) abort "{{{2
-  """Return preferably devicon for buffer, or custom icon if present.
-  let a:buf.tried_devicon = 1
-  try
-    if exists('g:loaded_webdevicons')
-    " if exists('g:loaded_webdevicons') &&
-    "       \ (s:Sets.devicon_for_all_filetypes ||
-    "       \ index(s:Sets.devicon_for_extensions, expand("#".a:buf.nr.":e")) >= 0)
-      let a:buf.has_icon = 1
-      return WebDevIconsGetFileTypeSymbol(bufname(a:buf.nr)).' '
-    else
-      return a:buf.tried_icon ? '' : s:get_buf_icon(a:buf)
-    endif
-  catch
-    return a:buf.tried_icon ? '' : s:get_buf_icon(a:buf)
-  endtry
-endfun
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
 fun! s:get_buf_icon(buf) abort "{{{2
-  """Return preferably custom icon for buffer, or devicon if present.
-  let a:buf.tried_icon = 1
+  """Return custom icon for buffer, or devicon if present.
   let nr = a:buf.nr
   if s:has_buf_icon(nr)
     let a:buf.has_icon = 1
-    return s:B()[nr].icon.' '
+    let icon = s:B()[nr].icon.' '
   else
-    return a:buf.tried_devicon ? '' : s:get_dev_icon(a:buf)
+    try
+      let icon = WebDevIconsGetFileTypeSymbol(bufname(a:buf.nr)).' '
+      let a:buf.has_icon = 1
+    catch
+      return ''
+    endtry
   endif
+  return icon
 endfun "}}}
 
 
@@ -535,7 +517,7 @@ fun! s:get_tab_icon(tabnr, right_corner) abort "{{{2
     let icon = s:Sets.tab_icon
   elseif s:show_bufname()
     let bnr  = s:first_normal_buffer(a:tabnr)
-    let buf  = {'nr': bnr, 'tried_devicon': 0, 'tried_icon': 0, 'has_icon': 0}
+    let buf  = {'nr': bnr, 'has_icon': 0}
     let icon = s:get_buf_icon(buf)
   else
     return ''

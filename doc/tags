@@ -52,7 +52,7 @@ xtabline-rendering	xtabline.txt	/*xtabline-rendering*
 xtabline-select-buffer	xtabline.txt	/*xtabline-select-buffer*
 xtabline-sessions	xtabline.txt	/*xtabline-sessions*
 xtabline-settings	xtabline.txt	/*xtabline-settings*
-xtabline-show_current_tab	xtabline.txt	/*xtabline-show_current_tab*
+xtabline-show_right_corner	xtabline.txt	/*xtabline-show_right_corner*
 xtabline-tab-todo	xtabline.txt	/*xtabline-tab-todo*
 xtabline-tab_format	xtabline.txt	/*xtabline-tab_format*
 xtabline-tabline_modes	xtabline.txt	/*xtabline-tabline_modes*
