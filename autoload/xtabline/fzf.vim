@@ -486,6 +486,15 @@ endfun
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! xtabline#fzf#session_save(...) abort
+  let sdir = s:Sets.sessions_path
+  if !isdirectory(sdir)
+    if confirm('Directory '.sdir.' does not exist, create?', "&Yes\n&No") == 1
+      call mkdir(sdir, 'p')
+    else
+      return s:F.msg("Session not saved.", 1)
+    endif
+  endif
+
   let data = json_decode(readfile(s:Sets.sessions_data)[0])
 
   let defname = a:0 || empty(v:this_session)
@@ -506,7 +515,7 @@ fun! xtabline#fzf#session_save(...) abort
         execute "silent! %bdelete"
       endif
       call writefile([json_encode(data)], s:Sets.sessions_data)
-      let file = expand(s:Sets.sessions_path.s:F.sep().name, ":p")
+      let file = expand(sdir . s:F.sep().name, ":p")
       silent execute "Obsession ".fnameescape(file)
       call s:F.msg("Session '".file."' has been saved.", 0)
       return
