@@ -258,6 +258,10 @@ fun! s:tab_load(...) abort
 
     $tabnew | let newbuf = bufnr("%")
 
+    if !s:Sets.use_tab_cwd && cwd !=# getcwd()
+      call map(saved['buffers'], 'v:val =~ "^/" ? v:val : cwd."/".v:val')
+    endif
+
     "add buffers
     for buf in saved['buffers']
       execute "badd ".buf
