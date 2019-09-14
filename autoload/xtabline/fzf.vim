@@ -87,12 +87,16 @@ if s:use_finder
   endfun
 
   fun! xtabline#fzf#load_session(args)
-    let s = s:Find(s:sessions_list(), 'Load session')
+    let t = '      '
+    let header = printf("Session%s%s%s%sTimestamp%sDescription",t,t,t,t,t)
+    let s = s:Find(s:sessions_list(1), header)
     if s != '' | call s:session_load(s) | endif
   endfun
 
   fun! xtabline#fzf#delete_session(args)
-    let s = s:Find(s:sessions_list(), 'Delete session')
+    let t = '    '
+    let header = printf("Session%s%s%s%sTimestamp%sDescription",t,t,t,t,t)
+    let s = s:Find(s:sessions_list(1), header)
     if s != '' | call s:session_delete(s) | endif
   endfun
 
@@ -373,7 +377,7 @@ fun! s:desc_string(s, n, sfile, color) abort
 endfun
 
 fun! s:sessions_list(...) abort
-  let data = a:0 ? [] : ["Session\t\t\t\tTimestamp\tDescription"] | let sfile = {}
+  let data = a:0 ? [] : ["Session\t\t\t\tTimestamp\tDescription"]
   let sfile = json_decode(readfile(s:Sets.sessions_data)[0])
   let sessions = split(globpath(expand(s:Sets.sessions_path, ":p"), "*"), '\n')
 
