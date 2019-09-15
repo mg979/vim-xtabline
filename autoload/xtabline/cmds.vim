@@ -23,6 +23,13 @@ let s:pinned  =  { b  -> index(s:X.pinned_buffers, b) }
 let s:most_recent = -1
 
 fun! xtabline#cmds#select_buffer(cnt) abort
+  if s:v.tabline_mode == 'tabs'
+    return 'gt'
+  elseif s:v.tabline_mode == 'arglist'
+    let bufs = argv()
+    let n = min([a:cnt, len(bufs)-1])
+    return ":\<C-U>silent! buffer ".bufs[n]."\<cr>"
+  endif
   let Fmt = g:xtabline_settings.buffer_format
   if type(Fmt) == v:t_number && Fmt == 1
     let b = a:cnt + 1
@@ -31,8 +38,10 @@ fun! xtabline#cmds#select_buffer(cnt) abort
     let n = min([a:cnt, len(bufs)-1])
     let b = bufs[n]
   endif
-  return ":\<C-U>silent! exe 'b'.".b."\<cr>"
+  return ":\<C-U>silent! buffer ".b."\<cr>"
 endfun
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! xtabline#cmds#next_buffer(nr, last) abort
   """Switch to next visible/pinned buffer."""
