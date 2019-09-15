@@ -622,6 +622,7 @@ fun! s:set_cwd(...) abort
     call s:F.msg ([[ "Canceled.", 'WarningMsg' ]])
   else
     call s:F.verbose_change_wd(cwd)
+    let s:X.Tabs[tabpagenr()-1].name = ''
   endif
   call xtabline#update()
 endfun
