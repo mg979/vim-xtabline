@@ -5,7 +5,6 @@ let s:Hi   = g:xtabline_highlight
 let s:Sets = g:xtabline_settings
 
 fun! xtabline#hi#init() abort
-  let s:Sets.theme = get(s:Sets, 'theme', 'default')
   let s:last_theme = s:Sets.theme
   call xtabline#hi#apply_theme(s:Sets.theme)
 endfun
@@ -96,9 +95,12 @@ endfun
 
 fun! xtabline#hi#update_theme() abort
   """Reload theme on colorscheme switch."""
-  if g:xtabline_settings.theme == s:last_theme
-    call xtabline#hi#apply_theme(g:xtabline_settings.theme)
-  endif
+  try
+    if g:xtabline_settings.theme == s:last_theme
+      call xtabline#hi#apply_theme(g:xtabline_settings.theme)
+    endif
+  catch
+  endtry
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

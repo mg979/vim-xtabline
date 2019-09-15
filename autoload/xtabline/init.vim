@@ -109,6 +109,7 @@ let s:S = {
       \ 'superscript_unicode_nrs':    0,
       \ 'buffer_filtering':           0,
       \ 'use_tab_cwd':                0,
+      \ 'theme':                      'default',
       \ 'show_right_corner':          1,
       \ 'last_open_first':            0,
       \ 'enable_mappings':            1,
