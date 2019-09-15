@@ -46,8 +46,6 @@ fun! s:do_map() abort
   call s:mapkey_('<F5>', 'CycleMode')
   call s:mapkeyc(']b',   'NextBuffer')
   call s:mapkeyc('[b',   'PrevBuffer')
-  call s:mapkey_('[B',   'FirstBuffer')
-  call s:mapkey_(']B',   'LastBuffer')
   call s:mapkey_('cdc',  'CdCurrent')
   call s:mapkeyc('cdd',  'CdDown')
   call s:mapkey_('cdw',  'WD!')
@@ -103,8 +101,6 @@ let s:basic = {
       \'<F5>': ['Cycle mode',                   "XTabCycleMode"],
       \"]b":   ['Next Buffer',                  "XTabNextBuffer"],
       \"[b":   ['Prev Buffer',                  "XTabPrevBuffer"],
-      \"[B":   ['First Buffer',                 "XTabFirstBuffer"],
-      \"]B":   ['Last Buffer',                  "XTabLastBuffer"],
       \'cdw':  ['Working directory',            "XTabWD!"],
       \'cdb':  ['Base directory',               "XTabBD"],
       \'cdc':  ['Cd to current directory',      "XTabCdCurrent"],
