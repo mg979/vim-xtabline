@@ -65,12 +65,12 @@ fun! s:do_map() abort
   call s:mapkey_(X.'k',  'CleanUp')
   call s:mapkey_(X.'K',  'CleanUp!')
   call s:mapkey_(X.'d',  'Todo')
+  call s:mapkey_(X.'.',  'CustomLabels')
   call s:mapkey0(X.'/',  'RelativePaths')
   call s:mapkey0(X.'-',  'RelativePaths!')
   call s:mapkey_(X.'?',  'Menu')
   call s:mapkey_(X.'C',  'Config')
   call s:mapkeys(X.'T',  'Theme')
-  call s:mapkey_(X.'tc', 'CustomTabs')
   call s:mapkey_(X.'tr', 'ResetTab')
   call s:mapkeys(X.'ti', 'Icon')
   call s:mapkeys(X.'tn', 'RenameTab')
@@ -109,7 +109,7 @@ let s:basic = {
 
 let s:leader = {
       \"'":    ['Go to last tab',               "XTabLastTab"],
-      \'.':    ['Toggle custom tabs',           "XTabCustomTabs"],
+      \'.':    ['Toggle custom tabs',           "XTabCustomLabels"],
       \'/':    ['Relative paths (+)',           "XTabRelativePaths"],
       \'-':    ['Relative paths (-)',           "XTabRelativePaths!"],
       \'a':    ['List tabs',                    "XTabListTabs"],

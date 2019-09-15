@@ -392,6 +392,7 @@ OTHER COMMANDS                                                 *xtabline-other*
 ===============================================================================
 
 Command                Mapping~
+XTabCustomLabels       *.
 XTabPurge              *x
 XTabCleanUp            *k
 XTabCleanUp!           *K
@@ -399,7 +400,8 @@ XTabTodo               *d
 XTabConfig             *C
 XTabTheme              *T
 
-|XTabNERDBookmarks| opens the list of |NERDTreeBookmarks|.
+*XTabNERDBookmarks*   opens the list of |NERDTreeBookmarks|
+*XTabCustomLabels*    toggles visibility of tab customizations (name, icon)
 
 
 BUFFERS CLEAN-UP                                            *xtabline-clean-up*
@@ -445,12 +447,10 @@ XTabBufferIcon         *bi
 XTabFormatBuffer       *bf
 XTabResetTab           *tr
 XTabResetBuffer        *br
-XTabCustomTabs         *tc
 
 *XTabFormatBuffer*    change the label formatting
 *XTabResetTab*        reset tab customizations
 *XTabResetBuffer*     reset buffer customization
-*XTabCustomTabs*      toggle visibility of tab customizations (name, icon)
 
 When assigning an icon, you can autocomplete the icon name, or insert a single
 character. To expand the list of available icons for autocompletion, see

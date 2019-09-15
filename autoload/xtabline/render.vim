@@ -367,9 +367,10 @@ fun! s:format_right_corner() abort "{{{2
     return s:tabnum(N, 1)
 
   elseif s:v.tabline_mode == 'tabs'
-    let icon      = "%#XTNumSel# " . s:get_tab_icon(N, 1)
-    let name      = "%#XTTabActive# " . s:F.short_cwd(N, 1)
-    return icon . name
+    let icon  = "%#XTNumSel# " . s:get_tab_icon(N, 1)
+    let name  = s:v.custom_tabs && !empty(s:T().name) ? s:T().name : s:F.short_cwd(N, 1)
+    let label = "%#XTTabActive# " . name
+    return icon . label
 
   elseif !s:Sets.use_tab_cwd && !haslocaldir(-1, tabpagenr())
     " not using per-tab cwd, show the buffer name, unless there is a local cwd
@@ -495,7 +496,10 @@ endfun
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:tab_label(tabnr, right_corner) abort "{{{2
-  return !empty(s:Tn(a:tabnr).name) ? s:Tn(a:tabnr).name :
+  let can_show_name =  s:v.custom_tabs
+        \           && s:v.tabline_mode != 'tabs'
+        \           && !empty(s:Tn(a:tabnr).name)
+  return can_show_name ? s:Tn(a:tabnr).name :
         \     !a:right_corner && s:show_bufname() ? s:tabbufname(a:tabnr)
         \     : s:F.short_cwd(a:tabnr, s:Sets.tab_format)
 endfun
