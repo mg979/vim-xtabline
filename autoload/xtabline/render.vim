@@ -157,8 +157,7 @@ fun! s:render_buffers() abort "{{{2
       call s:F.add_ordered(b, 1)
     endfor
   else
-    let labels = s:F.uniq(map(argv(), 'bufnr(v:val)'))
-    call filter(labels, 'bufexists(v:val)')
+    let labels = map(argv(), 'bufnr(v:val)')
   endif
 
   "no need to render more than 20 buffers at a time, since they'll be offscreen
