@@ -62,9 +62,9 @@ com! -count                    XTabMoveBuffer          call xtabline#cmds#run('m
 com! -count                    XTabHideBuffer          call xtabline#cmds#run('hide_buffer', <count>)
 com!                           XTabCdCurrent           call xtabline#cmds#run('cd', 0)
 com! -count                    XTabCdDown              call xtabline#cmds#run('cd', <count>)
-com!                           XTabUpdate              call xtabline#update()
-com!                           XTabRefresh             call xtabline#refresh()
 com!                           XTabLastTab             call xtabline#cmds#run('goto_last_tab')
+com!                           XTablineUpdate          call xtabline#update()
+com!                           XTablineRefresh         call xtabline#refresh()
 
 com! -nargs=? -bang  -complete=file                  XTabWD              call xtabline#cmds#run("set_cwd", <bang>0, <q-args>)
 com! -nargs=? -bang  -complete=file                  XTabBD              call xtabline#cmds#run("set_cbd", <bang>0, <q-args>)
