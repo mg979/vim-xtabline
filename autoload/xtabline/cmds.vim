@@ -149,45 +149,27 @@ endfun
 
 fun! s:purge_buffers() abort
   """Remove unmodified buffers with invalid paths."""
+  let bcnt = 0
+  let purged = []
 
-  if !s:Sets.buffer_filtering | echo "Buffer filtering is turned off." | return | endif
-  let bufs = s:oB() + s:eB() | let bcnt = 0 | let purged = []
-
-  " include open buffers if not showing in tabline
   for buf in tabpagebuflist(tabpagenr())
-    if index(bufs, buf) < 0 | call add(bufs, buf) | endif
-  endfor
-
-  for buf in bufs
-    let bufpath = s:F.fullpath(bufname(buf))
-
-    let purge =  !buflisted(buf) || !getbufvar(buf, "&modifiable") ||
-          \     !filereadable(bufpath) && !getbufvar(buf, "&modified")
-
-    if purge
-      let bcnt += 1
-      let ix = index(bufs, buf)
-      if ix >= 0      | call add(purged, remove(bufs, ix))
-      else            | call add(purged, buf) | endif
+    if          !buflisted(buf)
+          \ ||  !getbufvar(buf, "&modifiable")
+          \ || (!filereadable(expand('#'.buf.':p')) && !getbufvar(buf, "&modified"))
+      call add(purged, buf)
     endif
   endfor
 
-  " the tab may be closed if there is one window, and it's going to be purged
+  " the tab could be closed if there is one window, prevent it
   if len(tabpagebuflist()) == 1 && index(purged, bufnr("%")) >= 0
-    for b in bufs
-      if ( index(purged, b) < 0 )
-        execute "buffer ".b
-        break
-      elseif b != bufs[-1]
-        continue
-      endif
-      let s = "Not executing because no other valid buffers for this tab"
-      return s:F.msg([[s, 'WarningMsg']])
-    endfor
+    let s = "No other valid buffers for this tab."
+    return s:F.msg([[s, 'WarningMsg']])
   endif
 
   for buf in purged
-    execute "silent! bwipe ".buf
+    if execute("bwipe ".buf) == ''
+      let bcnt += 1
+    endif
   endfor
 
   call xtabline#update()
