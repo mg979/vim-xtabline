@@ -187,6 +187,24 @@ Note that:
    directory reported by vim |getcwd()|, so it also works if this option is
    disabled. Take this in consideration if your vim version supports |:tcd|.
 
+-------------------------------------------------------- *xtabline-use_tab_lwd*
+>
+    let g:xtabline_settings.use_tab_lwd = 0
+<
+As an alternative to the setting above, you can let the plugin use |:lcd| to
+set the working directory. Note that by setting this option to 1, there is no
+use of autocommands: it only changes the type of command that is used whenever
+one of the commands of the `cd` family is issued (|xtabline-directories|). 
+If your vim version supports |:tcd| but this option is set, it will still use
+|:lcd|, not |:tcd|.
+
+------------------------------------------------- *xtabline-overwrite_localdir*
+>
+    let g:xtabline_settings.overwrite_localdir = 0
+<
+If a window-local directory has been defined, it won't be overwritten, unless
+this option is set, or if using an explicit command (|XTabLD|).
+
 --------------------------------------------------- *xtabline-buffer_filtering*
 >
     let g:xtabline_settings.buffer_filtering = 1
@@ -319,20 +337,25 @@ buffer filtering.
 
 Command                Mapping~
 XTabWD[!]               cdw
+XTabLD[!]               cdl
 XTabBD[!]               cdb
                         cdc
                         cdd
 
-*XTabWD*      Set the tab CWD. With a bang, you'll be prompted for a cwd.
+*XTabWD*      Set the tab CWD. With a bang, you'll be prompted for a dir.
+*XTabLD*      Set a window-local WD. With a bang, you'll be prompted for a dir.
 *XTabBD*      Set the base filtering directory. With a bang, it is cleared.
 
-You can see that are 4 mappings that start with `cd`:
+You can see that are 5 mappings that start with `cd`:
 
 * cdc   sets the CWD, relative to the currently open buffer (cd `current`)
 * cdd   sets the CWD, [count1] directories below current buffer (cd `down`)
 * cdw   you'll be prompted for a cwd
 * cdb   you'll be prompted for a base filtering directory
+* cdl   you'll be prompted for a window-local cwd (|:lcd|)
 
+This last mapping can be useful if you don't use a tab-local cwd (|:tcd|),
+since it can achieve similar effects.
 
 
 

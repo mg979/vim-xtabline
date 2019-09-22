@@ -29,6 +29,17 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
+fun! s:Funcs.input(prompt, ...) abort
+  """Input with colored prompt.
+  echohl Label
+  let [ text, complete ] = a:0 ? [ a:1, a:2 ] : [ '', '' ]
+  let i = input(a:prompt, text, complete)
+  echohl None
+  return i
+endfun
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
 fun! s:Funcs.msg(txt, ...) abort
   """Print a message with highlighting."""
   if type(a:txt) == v:t_string
@@ -281,12 +292,18 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.verbose_change_wd(cwd) abort
+fun! s:Funcs.is_local_dir()
+  return exists(':tcd') == 2 ? haslocaldir(0, 0) : haslocaldir()
+endfun
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:Funcs.verbose_change_wd(cwd, local) abort
   if !isdirectory(a:cwd)
     return self.msg("Invalid directory: ".a:cwd, 1)
   endif
   call extend(s:T(), { 'cwd': a:cwd })
-  if !self.change_wd(a:cwd, 1)
+  if !self.change_wd(a:cwd, a:local || s:Sets.use_tab_lwd ? 'lcd' : 'cd')
     return
   endif
   call xtabline#update()
@@ -340,19 +357,36 @@ fun! s:Funcs.change_wd(dir, ...) abort
   endif
 
   if !a:0 && !s:Sets.use_tab_cwd
-    " do nothing
+    " not using per-tab cwd and do nothing
 
-  elseif self.can_use_tcd()
-    " change dir if tab-local cwd is different from the expected tab cwd
-    if getcwd(-1, tabpagenr()) != a:dir
-      exe 'tcd' a:dir
+  elseif a:0 && a:1 == 'lcd'
+    " explicitly asking to set a window-local working directory
+    exe 'lcd' a:dir
+
+  elseif getcwd() != a:dir
+
+    if self.can_use_tcd()
+      " change dir if tab-local cwd is different from the expected tab cwd
+      if getcwd(-1, tabpagenr()) != a:dir
+        exe 'tcd' a:dir
+      endif
+
+    elseif self.is_local_dir()
+      " it's a local cwd, change it only if setting allows it
+      if get(s:Sets, 'overwrite_localdir', 0)
+        exe 'lcd' a:dir
+      endif
+
+    else
+      " no tab cwd, no local cwd: just cd
+      exe 'cd' a:dir
     endif
-
-  elseif getcwd() != a:dir || (haslocaldir() && get(s:Sets, 'overwrite_localdir', 0))
-    exe 'cd' a:dir
   endif
 
-  call self.set_tab_wd()
+  if !self.is_local_dir()
+    call self.set_tab_wd()
+  endif
+
   call xtabline#update_this_session()
   return 1
 endfun

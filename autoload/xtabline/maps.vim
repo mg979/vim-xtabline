@@ -50,6 +50,7 @@ fun! s:do_map() abort
   call s:mapkeyc('cdd',  'CdDown')
   call s:mapkey_('cdw',  'WD!')
   call s:mapkey_('cdb',  'BD')
+  call s:mapkey_('cdl',  'LD!')
   call s:mapkey_(X.'q',  'CloseBuffer')
   call s:mapkey_(X.'a',  'ListTabs')
   call s:mapkey_(X.'z',  'ListBuffers')
@@ -101,8 +102,12 @@ let s:basic = {
       \'<F5>': ['Cycle mode',                   "XTabCycleMode"],
       \"]b":   ['Next Buffer',                  "XTabNextBuffer"],
       \"[b":   ['Prev Buffer',                  "XTabPrevBuffer"],
+      \}
+
+let s:cd = {
       \'cdw':  ['Working directory',            "XTabWD!"],
       \'cdb':  ['Base directory',               "XTabBD"],
+      \'cdl':  ['Window-local directory',       "XTabLD!"],
       \'cdc':  ['Cd to current directory',      "XTabCdCurrent"],
       \'cdd':  ['Cd to parent directory',       "XTabCdDown"],
       \}
@@ -150,7 +155,7 @@ let s:manage = {
 
 fun! xtabline#maps#menu() abort
   let X = substitute(g:xtabline_settings.map_prefix, '<leader>', get(g:, 'mapleader', '\'), 'g')
-  for group in [[s:basic, 'basic'], [s:leader, X], [s:manage, X.' tabs/buffer/session']]
+  for group in [[s:basic, 'basic'], [s:cd, 'cd'], [s:leader, X], [s:manage, X.' tabs/buffer/session']]
     let i = 1
     echohl Title
     echo "\n" . group[1] "mappings:\n\n"
