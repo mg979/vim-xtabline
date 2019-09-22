@@ -9,28 +9,28 @@ fun! s:do_map() abort
 
   fun! s:mapkey_(keys, cmd) abort
     let cmd = ':<c-u>XTab'.a:cmd.'<CR>'
-    if maparg(a:keys) == ''
+    if maparg(a:keys, 'n') == ''
       silent! execute 'nnoremap <silent><unique>' a:keys cmd
     endif
   endfun
 
   fun! s:mapkeyc(keys, cmd) abort
     let cmd = ':<c-u>XTab'.a:cmd.' <C-r>=v:count1<CR><CR>'
-    if maparg(a:keys) == ''
+    if maparg(a:keys, 'n') == ''
       silent! execute 'nnoremap <silent><unique>' a:keys cmd
     endif
   endfun
 
   fun! s:mapkey0(keys, cmd) abort
     let cmd = ':<c-u>XTab'.a:cmd.' <C-r>=v:count<CR><CR>'
-    if maparg(a:keys) == ''
+    if maparg(a:keys, 'n') == ''
       silent! execute 'nnoremap <silent><unique>' a:keys cmd
     endif
   endfun
 
   fun! s:mapkeys(keys, cmd) abort
     let cmd = ':<c-u>XTab'.a:cmd.'<Space>'
-    if maparg(a:keys) == ''
+    if maparg(a:keys, 'n') == ''
       silent! execute 'nnoremap <unique>' a:keys cmd
     endif
   endfun
@@ -39,7 +39,7 @@ fun! s:do_map() abort
     silent! nmap <BS> <Plug>(XT-Select-Buffer)
   endif
 
-  if maparg(X) == ''
+  if maparg(X, 'n') == ''
     exe 'nnoremap' X '<Nop>'
   endif
 
