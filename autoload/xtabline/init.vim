@@ -66,7 +66,7 @@ com!                           XTabLastTab             call xtabline#cmds#run('g
 com!                           XTablineUpdate          call xtabline#update()
 com!                           XTablineRefresh         call xtabline#refresh()
 
-com! -nargs=? -bang  -complete=file                  XTabWD              call xtabline#cmds#run("set_cwd", <bang>0, <q-args>)
+com! -nargs=? -bang  -complete=file                  XTabWD              call xtabline#cmds#run("set_wd", <bang>0, <q-args>)
 com! -nargs=? -bang  -complete=file                  XTabBD              call xtabline#cmds#run("set_bd", <bang>0, <q-args>)
 com! -nargs=? -bang  -complete=file                  XTabLD              call xtabline#cmds#run("set_ld", <bang>0, <q-args>)
 com! -nargs=? -bang  -complete=customlist,<sid>icons XTabIcon            call xtabline#cmds#run("tab_icon", <bang>0, <q-args>)

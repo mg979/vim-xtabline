@@ -1,15 +1,17 @@
 XTabBD	xtabline.txt	/*XTabBD*
 XTabCleanUp	xtabline.txt	/*XTabCleanUp*
 XTabCloseBuffer	xtabline.txt	/*XTabCloseBuffer*
-XTabCustomTabs	xtabline.txt	/*XTabCustomTabs*
+XTabCustomLabels	xtabline.txt	/*XTabCustomLabels*
 XTabCycleMode	xtabline.txt	/*XTabCycleMode*
 XTabFiltering	xtabline.txt	/*XTabFiltering*
 XTabFormatBuffer	xtabline.txt	/*XTabFormatBuffer*
 XTabHideBuffer	xtabline.txt	/*XTabHideBuffer*
+XTabLD	xtabline.txt	/*XTabLD*
 XTabLast	xtabline.txt	/*XTabLast*
 XTabMoveBuffer	xtabline.txt	/*XTabMoveBuffer*
 XTabMoveBufferNext	xtabline.txt	/*XTabMoveBufferNext*
 XTabMoveBufferPrev	xtabline.txt	/*XTabMoveBufferPrev*
+XTabNERDBookmarks	xtabline.txt	/*XTabNERDBookmarks*
 XTabNew	xtabline.txt	/*XTabNew*
 XTabNextBuffer	xtabline.txt	/*XTabNextBuffer*
 XTabPinBuffer	xtabline.txt	/*XTabPinBuffer*
@@ -45,6 +47,7 @@ xtabline-modes	xtabline.txt	/*xtabline-modes*
 xtabline-notes	xtabline.txt	/*xtabline-notes*
 xtabline-options	xtabline.txt	/*xtabline-options*
 xtabline-other	xtabline.txt	/*xtabline-other*
+xtabline-overwrite_localdir	xtabline.txt	/*xtabline-overwrite_localdir*
 xtabline-paths	xtabline.txt	/*xtabline-paths*
 xtabline-recent_buffers	xtabline.txt	/*xtabline-recent_buffers*
 xtabline-relative_paths	xtabline.txt	/*xtabline-relative_paths*
@@ -58,4 +61,5 @@ xtabline-tab_format	xtabline.txt	/*xtabline-tab_format*
 xtabline-tabline_modes	xtabline.txt	/*xtabline-tabline_modes*
 xtabline-tabs_show_bufname	xtabline.txt	/*xtabline-tabs_show_bufname*
 xtabline-use_tab_cwd	xtabline.txt	/*xtabline-use_tab_cwd*
+xtabline-use_tab_lwd	xtabline.txt	/*xtabline-use_tab_lwd*
 xtabline.txt	xtabline.txt	/*xtabline.txt*

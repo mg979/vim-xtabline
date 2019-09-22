@@ -342,9 +342,9 @@ XTabBD[!]               cdb
                         cdc
                         cdd
 
-*XTabWD*      Set the tab CWD. With a bang, you'll be prompted for a dir.
-*XTabLD*      Set a window-local WD. With a bang, you'll be prompted for a dir.
-*XTabBD*      Set the base filtering directory. With a bang, it is cleared.
+*XTabWD*      Set the tab CWD, with prompt or automatically (with !).
+*XTabLD*      Set a window-local WD, with prompt or automatically (with !).
+*XTabBD*      Set the base filtering directory. With a !, it is cleared.
 
 You can see that are 5 mappings that start with `cd`:
 

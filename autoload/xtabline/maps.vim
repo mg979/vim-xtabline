@@ -48,9 +48,9 @@ fun! s:do_map() abort
   call s:mapkeyc('[b',   'PrevBuffer')
   call s:mapkey_('cdc',  'CdCurrent')
   call s:mapkeyc('cdd',  'CdDown')
-  call s:mapkey_('cdw',  'WD!')
+  call s:mapkey_('cdw',  'WD')
   call s:mapkey_('cdb',  'BD')
-  call s:mapkey_('cdl',  'LD!')
+  call s:mapkey_('cdl',  'LD')
   call s:mapkey_(X.'q',  'CloseBuffer')
   call s:mapkey_(X.'a',  'ListTabs')
   call s:mapkey_(X.'z',  'ListBuffers')
@@ -105,9 +105,9 @@ let s:basic = {
       \}
 
 let s:cd = {
-      \'cdw':  ['Working directory',            "XTabWD!"],
+      \'cdw':  ['Working directory',            "XTabWD"],
       \'cdb':  ['Base directory',               "XTabBD"],
-      \'cdl':  ['Window-local directory',       "XTabLD!"],
+      \'cdl':  ['Window-local directory',       "XTabLD"],
       \'cdc':  ['Cd to current directory',      "XTabCdCurrent"],
       \'cdd':  ['Cd to parent directory',       "XTabCdDown"],
       \}

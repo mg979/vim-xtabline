@@ -581,7 +581,7 @@ fun! s:format_buffer() abort
   echohl None
 
   if !empty(new) | call s:F.set_buffer_var('format', new)
-  else           | call s:F.msg ([[ " Canceled.", 'WarningMsg' ]])
+  else           | call s:F.msg ([[ "Canceled.", 'WarningMsg' ]])
   endif
 
   let &ch = och
@@ -590,20 +590,43 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:set_cwd(...) abort
+fun! s:set_wd(...) abort
   """Set new working directory.
-  let [ bang, cwd ] = [ a:1, a:2 ]
-  let cwd = s:F.fullpath(cwd)
+  let [ bang, dir ] = [ a:1, a:2 ]
 
-  if bang || empty(cwd)
+  if !bang && empty(dir)
     let base = s:F.find_suitable_cwd()
     let cwd = s:F.input("Enter a new working directory: ", base, "file")
+  else
+    let cwd = s:F.fullpath(dir)
   endif
 
   if empty(cwd)
-    call s:F.msg ([[ " Canceled.", 'WarningMsg' ]])
+    call s:F.msg ([[ "Canceled.", 'WarningMsg' ]])
   else
     call s:F.verbose_change_wd(cwd, 0)
+    let s:X.Tabs[tabpagenr()-1].name = ''
+  endif
+  call xtabline#update()
+endfun
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:set_ld(...) abort
+  """Set new window-local directory.
+  let [ bang, dir ] = [ a:1, a:2 ]
+
+  if !bang && empty(dir)
+    let base = s:F.find_suitable_cwd()
+    let lwd = s:F.input("Enter a new window-local directory: ", base, "file")
+  else
+    let lwd = s:F.fullpath(dir)
+  endif
+
+  if empty(lwd)
+    call s:F.msg ([[ "Canceled.", 'WarningMsg' ]])
+  else
+    call s:F.verbose_change_wd(lwd, 1)
     let s:X.Tabs[tabpagenr()-1].name = ''
   endif
   call xtabline#update()
@@ -625,30 +648,9 @@ fun! s:set_bd(...) abort
   endif
 
   if empty(dir)
-    call s:F.msg ([[ " Canceled.", 'WarningMsg' ]])
+    call s:F.msg ([[ "Canceled.", 'WarningMsg' ]])
   else
     call s:F.change_base_dir(dir)
-  endif
-  call xtabline#update()
-endfun
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! s:set_ld(...) abort
-  """Set new window-local directory.
-  let [ bang, lwd ] = [ a:1, a:2 ]
-  let lwd = s:F.fullpath(lwd)
-
-  if bang || empty(lwd)
-    let base = s:F.find_suitable_cwd()
-    let lwd = s:F.input("Enter a new window-local directory: ", base, "file")
-  endif
-
-  if empty(lwd)
-    call s:F.msg ([[ " Canceled.", 'WarningMsg' ]])
-  else
-    call s:F.verbose_change_wd(lwd, 1)
-    let s:X.Tabs[tabpagenr()-1].name = ''
   endif
   call xtabline#update()
 endfun
