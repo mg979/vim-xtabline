@@ -12,6 +12,8 @@ let s:B =  { -> s:X.Buffers             }       "customized buffers
 let s:vB = { -> s:T().buffers.valid     }       "valid buffers for tab
 let s:oB = { -> s:T().buffers.order     }       "ordered buffers for tab
 
+let s:sessions_path = { -> s:F.fullpath(s:Sets.sessions_path) }
+
 let s:use_finder = !exists('g:loaded_fzf') || get(s:Sets, 'use_builtin_finder', 0)
 
 fun! xtabline#fzf#list_buffers(args)
@@ -379,12 +381,11 @@ endfun
 fun! s:sessions_list(...) abort
   let data = a:0 ? [] : ["Session\t\t\t\tTimestamp\tDescription"]
   let sfile = json_decode(readfile(s:Sets.sessions_data)[0])
-  let sessions = split(globpath(expand(s:Sets.sessions_path, ":p"), "*"), '\n')
+  let sessions = split(globpath(s:sessions_path(), "*"), '\n')
 
   "remove __LAST__ session
-  let last = expand(s:Sets.sessions_path, ":p").s:F.sep().'__LAST__'
-  let _last = index(sessions, last)
-  if _last >= 0 | call remove(sessions, _last) | endif
+  let last = s:sessions_path() . s:F.sep() . '__LAST__'
+  silent! call remove(sessions, index(sessions, last))
 
   if !s:v.winOS
     "sort sessions by last modfication time
@@ -399,9 +400,6 @@ fun! s:sessions_list(...) abort
     let ord_times = map(keys(times), 'str2nr(v:val)')
     let ord_times = reverse(sort(ord_times, 'n'))
     let ordered = map(ord_times, 'times[v:val]')
-
-    "readd __LAST__ if found
-    if _last >= 0 | call add(ordered, last) | endif
   else
     let ordered = sessions
   endif
@@ -429,7 +427,7 @@ fun! s:session_load(file) abort
 
   let session = a:file
   if match(session, "\t") | let session = substitute(session, " *\t.*", "", "") | endif
-  let file = expand(s:Sets.sessions_path.s:F.sep().session, ":p")
+  let file = s:sessions_path() . s:F.sep() . session
 
   if !filereadable(file)     | call s:F.msg("Session file doesn't exist.", 1) | return | endif
   if file ==# v:this_session | call s:F.msg("Session is already loaded.", 1)  | return | endif
@@ -467,7 +465,7 @@ fun! s:session_delete(file) abort
   let session = a:file
   if match(session, "\t")
     let session = substitute(session, " *\t.*", "", "") | endif
-  let file = expand(s:Sets.sessions_path.s:F.sep().session, ":p")
+  let file = s:sessions_path() . s:F.sep() . session
 
   if !filereadable(file)
     call s:F.msg("Session file doesn't exist.", 1) | return | endif
@@ -494,7 +492,7 @@ endfun
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! xtabline#fzf#session_save(...) abort
-  let sdir = s:Sets.sessions_path
+  let sdir = s:sessions_path()
   if !isdirectory(sdir)
     if confirm('Directory '.sdir.' does not exist, create?', "&Yes\n&No") == 1
       call mkdir(sdir, 'p')
