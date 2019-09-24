@@ -42,6 +42,8 @@ endfun
 
 fun! s:Funcs.msg(txt, ...) abort
   """Print a message with highlighting."""
+  redraw
+
   if type(a:txt) == v:t_string
     exe "echohl" a:0 && a:1? "WarningMsg" : "Label"
     echon a:txt | echohl None
@@ -303,8 +305,9 @@ fun! s:Funcs.verbose_change_wd(cwd, local) abort
     return self.msg("Invalid directory: ".a:cwd, 1)
   endif
   call extend(s:T(), { 'cwd': a:cwd })
-  if !self.change_wd(a:cwd, a:local || s:Sets.use_tab_lwd ? 'lcd' : 'cd')
-    return
+  let result = self.change_wd(a:cwd, a:local || s:Sets.use_tab_lwd ? 'lcd' : 'cd')
+  if result != ''
+    return self.msg([[ "Directory not set: ", 'WarningMsg' ], [ result, 'None' ]])
   endif
   call xtabline#update()
   redraw
@@ -350,16 +353,16 @@ endfun
 
 " change working directory, update tab cwd and session data
 fun! s:Funcs.change_wd(dir, ...) abort
-  let T = s:T()
+  let [T, error, explicit] = [s:T(), '', a:0]
 
   if !isdirectory(a:dir)
     return self.msg('[xtabline] directory doesn''t exists', 1)
   endif
 
-  if !a:0 && !s:Sets.use_tab_cwd
-    " not using per-tab cwd and do nothing
+  if !explicit && !s:Sets.use_tab_cwd
+    " not using per-tab cwd and not explicitly changing the wd, do nothing
 
-  elseif a:0 && a:1 == 'lcd'
+  elseif explicit && a:1 == 'lcd'
     " explicitly asking to set a window-local working directory
     exe 'lcd' a:dir
 
@@ -369,18 +372,33 @@ fun! s:Funcs.change_wd(dir, ...) abort
       " change dir if tab-local cwd is different from the expected tab cwd
       if getcwd(-1, tabpagenr()) != a:dir
         exe 'tcd' a:dir
+      elseif explicit
+        let error = 'no difference'
       endif
 
     elseif self.is_local_dir()
       " it's a local cwd, change it only if setting allows it
-      if get(s:Sets, 'overwrite_localdir', 0)
+      if get(s:Sets, 'overwrite_localdir', 0) == 1
         exe 'lcd' a:dir
+      elseif get(s:Sets, 'overwrite_localdir', 0) == 2
+        exe 'cd' a:dir
+      elseif explicit
+        let action = confirm('Overwrite window-local directory ' .getcwd(). '?', "&Yes\n&No\n&Clear")
+        if action == 2
+          let error = 'a window-local directory has been previously set'
+        elseif action == 1
+          exe 'lcd' a:dir
+        else
+          exe 'cd' a:dir
+        endif
       endif
 
     else
       " no tab cwd, no local cwd: just cd
       exe 'cd' a:dir
     endif
+  elseif explicit
+    let error = 'no difference'
   endif
 
   if !self.is_local_dir()
@@ -388,7 +406,7 @@ fun! s:Funcs.change_wd(dir, ...) abort
   endif
 
   call xtabline#update_this_session()
-  return 1
+  return explicit ? error : ''
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
