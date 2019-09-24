@@ -172,7 +172,8 @@ endfun
 " Shortened paths
 
 fun! s:Funcs.short_cwd(tabnr, h, ...) abort
-  let path = a:0 ? a:1 : s:X.Tabs[a:tabnr-1].cwd
+  let path = a:0 ? a:1 : s:Sets.use_tab_cwd ? s:X.Tabs[a:tabnr-1].cwd
+        \                                   : getcwd()
 
   if !a:h
     return fnamemodify(path, ":t")
