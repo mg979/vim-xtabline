@@ -125,13 +125,18 @@ endif
 fun! s:tab_buffers() abort
   """Open a list of buffers for this tab with fzf.vim."""
 
-  if empty(s:vB()) | return [] | endif
+  let bufs = s:Sets.use_tab_cwd
+        \  ? s:vB()
+        \  : filter(range(1, bufnr('$')),
+        \    'buflisted(v:val) && s:F.fullpath(bufname(v:val)) =~ "^".getcwd()')
+
+  if empty(bufs) | return [] | endif
 
   let current = bufnr("%") | let alt = bufnr("#")
-  let l = sort(map(copy(s:vB()), 's:format_buffer(v:val)'))
+  let l = sort(map(copy(bufs), 's:format_buffer(v:val)'))
 
   "put alternate buffer last (but current will go after it)
-  if alt != -1 && index(s:vB(), alt) >= 0
+  if alt != -1 && index(bufs, alt) >= 0
     call insert(l, remove(l, index(l, s:format_buffer(alt))))
   endif
 
