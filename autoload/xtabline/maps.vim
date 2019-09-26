@@ -62,12 +62,12 @@ fun! s:do_map() abort
   call s:mapkeyc(X.']',  'MoveBufferNext')
   call s:mapkeyc(X.'[',  'MoveBufferPrev')
   call s:mapkey_(X.'h',  'HideBuffer')
-  call s:mapkey_(X.'f',  'Filtering')
   call s:mapkey_(X.'k',  'CleanUp')
   call s:mapkey_(X.'K',  'CleanUp!')
   call s:mapkey_(X.'d',  'Todo')
   call s:mapkey_(X.'.',  'CustomLabels')
-  call s:mapkey0(X.'/',  'RelativePaths')
+  call s:mapkey_(X.'/',  'Filtering')
+  call s:mapkey0(X.'+',  'RelativePaths')
   call s:mapkey0(X.'-',  'RelativePaths!')
   call s:mapkey_(X.'?',  'Menu')
   call s:mapkey_(X.'C',  'Config')
@@ -98,60 +98,75 @@ endfunction
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-let s:basic = {
-      \'<F5>': ['Cycle mode',                   "XTabCycleMode"],
-      \"]b":   ['Next Buffer',                  "XTabNextBuffer"],
-      \"[b":   ['Prev Buffer',                  "XTabPrevBuffer"],
-      \}
+let s:basic = [
+      \['<F5>', 'Cycle mode',                   "XTabCycleMode"],
+      \[']b',   'Next Buffer',                  "XTabNextBuffer"],
+      \['[b',   'Prev Buffer',                  "XTabPrevBuffer"],
+      \]
 
-let s:cd = {
-      \'cdw':  ['Working directory',            "XTabWD"],
-      \'cdb':  ['Base directory',               "XTabBD"],
-      \'cdl':  ['Window-local directory',       "XTabLD"],
-      \'cdc':  ['Cd to current directory',      "XTabCdCurrent"],
-      \'cdd':  ['Cd to parent directory',       "XTabCdDown"],
-      \}
+let s:cd = [
+      \['cdw',  'Working directory',            "XTabWD"],
+      \['cdb',  'Base directory',               "XTabBD"],
+      \['cdl',  'Window-local directory',       "XTabLD"],
+      \['cdc',  'Cd to current directory',      "XTabCdCurrent"],
+      \['cdd',  'Cd to parent directory',       "XTabCdDown"],
+      \]
 
-let s:leader = {
-      \"'":    ['Go to last tab',               "XTabLastTab"],
-      \'.':    ['Toggle custom tabs',           "XTabCustomLabels"],
-      \'/':    ['Relative paths (+)',           "XTabRelativePaths"],
-      \'-':    ['Relative paths (-)',           "XTabRelativePaths!"],
-      \'a':    ['List tabs',                    "XTabListTabs"],
-      \'z':    ['List buffers',                 "XTabListBuffers"],
-      \'d':    ['Tab todo',                     "XTabTodo"],
-      \'f':    ['Toggle filtering',             "XTabFiltering"],
-      \'m':    ['Move buffer to...',            "XTabMoveBuffer"],
-      \']':    ['Move buffer forwards',         "XTabMoveBufferNext"],
-      \'[':    ['Move buffer backwards',        "XTabMoveBufferPrev"],
-      \'h':    ['Hide buffer',                  "XTabHideBuffer"],
-      \'p':    ['Pin buffer',                   "XTabPinBuffer"],
-      \'q':    ['Close buffer',                 "XTabCloseBuffer"],
-      \'u':    ['Reopen last tab',              "XTabReopen"],
-      \'x':    ['Purge tab',                    "XTabPurge"],
-      \'k':    ['Clean up tabs',                "XTabCleanUp"],
-      \'K':    ['Clean up! tabs',               "XTabCleanUp!"],
-      \'C':    ['Configure',                    "XTabConfig"],
-      \'T':    ['Select theme',                 "XTabTheme  "],
-      \}
+let s:leader = [
+      \["'",    'Go to last tab',               "XTabLastTab"],
+      \['+',    'Relative paths (+)',           "XTabRelativePaths"],
+      \['/',    'Toggle filtering',             "XTabFiltering"],
+      \['-',    'Relative paths (-)',           "XTabRelativePaths!"],
+      \['.',    'Toggle custom tabs',           "XTabCustomLabels"],
+      \['', '', ''],
+      \['', '', ''],
+      \['', '', ''],
+      \['a',    'List tabs',                    "XTabListTabs"],
+      \[']',    'Move buffer forwards',         "XTabMoveBufferNext"],
+      \['z',    'List buffers',                 "XTabListBuffers"],
+      \['[',    'Move buffer backwards',        "XTabMoveBufferPrev"],
+      \['', '', ''],
+      \['', '', ''],
+      \['m',    'Move buffer to...',            "XTabMoveBuffer"],
+      \['h',    'Hide buffer',                  "XTabHideBuffer"],
+      \['q',    'Close buffer',                 "XTabCloseBuffer"],
+      \['u',    'Reopen last tab',              "XTabReopen"],
+      \['p',    'Pin buffer',                   "XTabPinBuffer"],
+      \['d',    'Tab todo',                     "XTabTodo"],
+      \['', '', ''],
+      \['', '', ''],
+      \['k',    'Clean up tabs',                "XTabCleanUp"],
+      \['x',    'Purge tab',                    "XTabPurge"],
+      \['K',    'Clean up! tabs',               "XTabCleanUp!"],
+      \['', '', ''],
+      \['', '', ''],
+      \['', '', ''],
+      \['C',    'Configure',                    "XTabConfig"],
+      \['T',    'Select theme',                 "XTabTheme  "],
+      \]
 
-let s:manage = {
-      \'bd':   ['Delete tab buffers',           "XTabDeleteBuffers"],
-      \'bf':   ['Buffer format',                "XTabFormatBuffer"],
-      \'bi':   ['Change buffer icon',           "XTabBufferIcon "],
-      \'bn':   ['Rename buffer',                "XTabRenameBuffer "],
-      \'br':   ['Reset buffer',                 "XTabResetBuffer"],
-      \'sd':   ['Delete session',               "XTabDeleteSession"],
-      \'sl':   ['Load session',                 "XTabLoadSession"],
-      \'sn':   ['New session',                  "XTabNewSession"],
-      \'ss':   ['Save session',                 "XTabSaveSession"],
-      \'td':   ['Delete tab',                   "XTabDeleteTab"],
-      \'ti':   ['Change tab icon',              "XTabIcon  "],
-      \'tl':   ['Load tab',                     "XTabLoadTab"],
-      \'tn':   ['Rename tab',                   "XTabRenameTab "],
-      \'tr':   ['Reset tab',                    "XTabResetTab"],
-      \'ts':   ['Save tab',                     "XTabSaveTab"],
-      \}
+let s:manage = [
+      \['bd',   'Delete tab buffers',           "XTabDeleteBuffers"],
+      \['bf',   'Buffer format',                "XTabFormatBuffer"],
+      \['bi',   'Change buffer icon',           "XTabBufferIcon "],
+      \['bn',   'Rename buffer',                "XTabRenameBuffer "],
+      \['br',   'Reset buffer',                 "XTabResetBuffer"],
+      \['', '', ''],
+      \['', '', ''],
+      \['', '', ''],
+      \['sd',   'Delete session',               "XTabDeleteSession"],
+      \['sl',   'Load session',                 "XTabLoadSession"],
+      \['sn',   'New session',                  "XTabNewSession"],
+      \['ss',   'Save session',                 "XTabSaveSession"],
+      \['', '', ''],
+      \['', '', ''],
+      \['td',   'Delete tab',                   "XTabDeleteTab"],
+      \['ti',   'Change tab icon',              "XTabIcon  "],
+      \['tl',   'Load tab',                     "XTabLoadTab"],
+      \['tn',   'Rename tab',                   "XTabRenameTab "],
+      \['tr',   'Reset tab',                    "XTabResetTab"],
+      \['ts',   'Save tab',                     "XTabSaveTab"],
+      \]
 
 fun! xtabline#maps#menu() abort
   let X = substitute(g:xtabline_settings.map_prefix, '<leader>', get(g:, 'mapleader', '\'), 'g')
@@ -160,24 +175,26 @@ fun! xtabline#maps#menu() abort
     echohl Title
     echo "\n" . group[1] "mappings:\n\n"
     echohl None
-    for m in sort(keys(group[0]))
+    for m in group[0]
       if i % 2
-        echo printf("%-25s%-10s", group[0][m][0], m)
+        echo printf("%-25s%-10s", m[1], m[0])
       else
-        echon printf("%-25s%s", group[0][m][0], m)
+        echon printf("%-25s%s", m[1], m[0])
       endif
       let i += 1
     endfor
   endfor
   echo "\n\\x... "
   let [ch, cmd] = [nr2char(getchar()), '']
-  if index(keys(s:leader), ch) >= 0
-    let cmd = s:leader[ch][1]
+  let i = index(map(copy(s:leader), 'v:val[0]'), ch)
+  if i >= 0
+    let cmd = s:leader[i][2]
   elseif index(['b', 't', 's'], ch) >= 0
     echon ch
     let ch .= nr2char(getchar())
-    if index(keys(s:manage), ch) >= 0
-      let cmd = s:manage[ch][1]
+    let i = index(map(copy(s:manage), 'v:val[0]'), ch)
+    if i >= 0
+      let cmd = s:manage[i][2]
     endif
   endif
   let tab = "\<c-r>=feedkeys(\"\<Tab>\", 't')\<cr>"
