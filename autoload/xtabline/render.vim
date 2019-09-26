@@ -372,13 +372,6 @@ fun! s:format_right_corner() abort "{{{2
     let label = "%#XTTabActive# " . name
     return icon . label
 
-  elseif !s:Sets.use_tab_cwd && !haslocaldir(-1, tabpagenr())
-    " not using per-tab cwd, show the buffer name, unless there is a local cwd
-    let buflist   = tabpagebuflist(N)
-    let winnr     = tabpagewinnr(N)
-    let bname     = bufname(buflist[winnr - 1])
-    return printf("%s %s ", s:tabnum(N, 1), s:F.short_cwd(N, 0, bname))
-
   else
     let nr        = s:tabnum(N, 1)
     let icon      = s:get_tab_icon(N, 1)
