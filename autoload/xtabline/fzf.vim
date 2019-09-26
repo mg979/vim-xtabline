@@ -271,6 +271,13 @@ fun! s:tab_load(...) abort
 
     if !s:Sets.use_tab_cwd && cwd !=# getcwd()
       call map(saved['buffers'], 'v:val =~ "^/" ? v:val : cwd."/".v:val')
+      if s:F.can_use_tcd()
+        exe 'tcd' cwd
+        let l:has_set_cd = 1
+      else
+        exe 'lcd' cwd
+        let l:has_set_cd = 2
+      endif
     endif
 
     "add buffers
@@ -289,6 +296,12 @@ fun! s:tab_load(...) abort
   endfor
   let s:v.halt = 0
   call xtabline#update()
+  if exists('l:has_set_cd')
+    let cd = l:has_set_cd == 1 ? 'tab-local' : 'window-local'
+    unlet l:has_set_cd
+    call s:F.msg([['[xtabline] ', 'Label'],
+          \       [cd.' cwd has been set to: '.cwd, 'None']])
+  endif
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
