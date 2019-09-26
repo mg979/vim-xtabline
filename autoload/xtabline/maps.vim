@@ -62,7 +62,7 @@ fun! s:do_map() abort
   call s:mapkeyc(X.']',  'MoveBufferNext')
   call s:mapkeyc(X.'[',  'MoveBufferPrev')
   call s:mapkey_(X.'h',  'HideBuffer')
-  call s:mapkey_(X.'f',  'ToggleFiltering')
+  call s:mapkey_(X.'f',  'Filtering')
   call s:mapkey_(X.'k',  'CleanUp')
   call s:mapkey_(X.'K',  'CleanUp!')
   call s:mapkey_(X.'d',  'Todo')
