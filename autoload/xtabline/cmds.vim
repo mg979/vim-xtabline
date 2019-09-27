@@ -465,52 +465,6 @@ fun! s:toggle_pin_buffer(...) abort
   call xtabline#update()
 endfun
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! s:new_tab(...) abort
-  """Open a new tab with optional name. CWD is $HOME.
-  "args : 0 or 1 (tab name)
-
-  let s:v.auto_set_cwd = 1
-  let args = a:000[0]
-  let n = args[0]? args[0] : ''
-  if n > tabpagenr("$") | let n = tabpagenr("$") | endif
-
-  if len(args) == 1
-    let s:v.tab_properties = {'cwd': expand("~")}
-  else
-    let s:v.tab_properties = {'name': args[1], 'cwd': expand("~")}
-  endif
-  exe n . "tabnew"
-  call xtabline#update()
-  let s:v.auto_set_cwd = 0
-endfun
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! s:edit_tab(...) abort
-  """Open a new tab with optional path. Bang triggers rename.
-
-  let s:v.auto_set_cwd = 1
-  let args = a:000[0]
-  let n = args[0]? args[0] : ''
-  let bang = args[1]
-  if n > tabpagenr("$") | let n = tabpagenr("$") | endif
-
-  if empty(args)
-    let s:v.tab_properties = {'cwd': expand("~")}
-    exe n . "tabnew"
-  else
-    let s:v.tab_properties = {'cwd': s:F.find_root_dir(args[2])}
-    exe n . "tabedit" args[2]
-  endif
-  call xtabline#update()
-  let s:v.auto_set_cwd = 0
-  if bang
-    call feedkeys("\<Plug>(XT-Rename-Tab)")
-  endif
-endfun
-
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:move_tab(...) abort

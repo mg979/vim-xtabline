@@ -389,13 +389,11 @@ MANAGING TABS AND BUFFERS                                    *xtabline-manage*
 
 
 Command                Mapping~
-XTabNew                *n
 XTabLast               *'
 XTabReopen             *u
 
-*XTabNew*     accepts a parameter, that is the name of the new tab
-*XTabLast*    Brings you back to the last visited tab
-*XTabReopen*  lets you reopen a previosly closed tab, and is repeatable
+*XTabLast*    brings you back to the last visited tab
+*XTabReopen*  reopen a previosly closed tab
 
 
 Command                Mapping~

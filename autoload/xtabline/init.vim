@@ -47,7 +47,6 @@ com!                           XTabCycleMode           call xtabline#cmds#run("c
 com!                           XTabFiltering           call xtabline#cmds#run("toggle_filtering")
 com!                           XTabConfig              call xtabline#config#start()
 
-com! -nargs=? -count           XTabNew                 call xtabline#cmds#run("new_tab", <count>, <q-args>)
 com! -nargs=?                  XTabMove                call xtabline#cmds#run("move_tab", <q-args>)
 com!                           XTabMenu                call xtabline#maps#menu()
 com!                           XTabLast                call xtabline#cmds#run('goto_last_tab')

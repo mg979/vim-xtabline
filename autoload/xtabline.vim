@@ -11,7 +11,6 @@ let s:v.tab_properties = {}                     "if not empty, newly created tab
 let s:v.buffer_properties = {}                  "if not empty, newly created tab will inherit them
 let s:v.custom_tabs    = 1                      "tabline shows custom names/icons
 let s:v.halt           = 0                      "used to temporarily halt some functions
-let s:v.auto_set_cwd   = 0                      "used to temporarily allow auto cwd detection
 
 let s:T  = { -> s:X.Tabs[tabpagenr()-1] }       "current tab
 let s:B  = { -> s:X.Buffers             }       "customized buffers
@@ -26,8 +25,7 @@ let s:is_special = { b -> s:F.has_win(b) && s:B()[b].special }
 let s:is_open    = { b -> s:F.has_win(b) && getbufvar(b, "&ma") }
 let s:ready      = { -> !(exists('g:SessionLoad') || s:v.halt) }
 
-let s:new_tab_created = 0
-let s:v.slash         = exists('+shellslash') && !&shellslash ? '\' : '/'
+let s:v.slash    = exists('+shellslash') && !&shellslash ? '\' : '/'
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Init functions
@@ -277,23 +275,6 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:set_new_tab_cwd(N) abort
-  """Find suitable cwd for the new tab. Only runs after XT commands."""
-  let s:new_tab_created = 0 | let T = s:X.Tabs[a:N]
-
-  " empty tab sets cwd to ~, non-empty tab looks for a .git dir
-  if empty(bufname("%"))
-    let T.cwd = s:F.fullpath(getcwd())
-  elseif T.cwd == '~' || s:F.fullpath("%") !~ s:F.fullpath(T.cwd)
-    let T.cwd = s:F.find_root_dir()
-  endif
-  call s:F.change_wd(T.cwd)
-  call xtabline#update()
-  call s:F.delay(200, 'g:xtabline.Funcs.msg([[ "CWD set to ", "Label" ], [ "'.T.cwd.'", "Directory" ]])')
-endfun
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
 fun! s:existing(buf) abort
   """Check if buffer exists, clean up the buffers dict if not.
   if bufexists(a:buf)            | return 1                 | endif
@@ -319,9 +300,6 @@ function! s:Do(action, ...)
   if a:action == 'new'
 
     call insert(X.Tabs, xtabline#tab#new(), N)
-    if V.auto_set_cwd && s:ready()
-      let s:new_tab_created = 1
-    endif
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
@@ -329,9 +307,6 @@ function! s:Do(action, ...)
 
     call xtabline#buffer#add(B)
     call xtabline#tab#recent_buffers(B)
-    if s:new_tab_created
-      call s:set_new_tab_cwd(N)
-    endif
     call xtabline#update()
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
