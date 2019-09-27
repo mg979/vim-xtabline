@@ -15,9 +15,12 @@ let s:Funcs.has_win = { b -> index(s:Funcs.wins(), b) >= 0 }
 let s:Funcs.is_repo = { t -> isdirectory(t.cwd . s:v.slash . '.git') }
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Misc functions                                                           {{{1
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.delay(time, func) abort
-  """Call a function with a timer."""
+fun! s:Funcs.delay(time, func) abort "{{{2
+  " Call a function with a timer
+
   " if exists('g:SessionLoad') || s:v.halt | return | endif
   let s:delayed_func = a:func
   call timer_start(a:time, self._delay)
@@ -27,10 +30,10 @@ fun! s:Funcs._delay(timer) abort
   exe "call" s:delayed_func
 endfun
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.input(prompt, ...) abort
-  """Input with colored prompt.
+fun! s:Funcs.input(prompt, ...) abort "{{{2
+  " Input with colored prompt.
+
   echohl Label
   let [ text, complete ] = a:0 ? [ a:1, a:2 ] : [ '', '' ]
   let i = input(a:prompt, text, complete)
@@ -38,10 +41,10 @@ fun! s:Funcs.input(prompt, ...) abort
   return i
 endfun
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.msg(txt, ...) abort
-  """Print a message with highlighting."""
+fun! s:Funcs.msg(txt, ...) abort "{{{2
+  " Print a message with highlighting
+
   redraw
 
   if type(a:txt) == v:t_string
@@ -57,11 +60,12 @@ fun! s:Funcs.msg(txt, ...) abort
   endfor
 endfun
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.set_buffer_var(var, ...) abort
-  """Init buffer variable in Tabs dict to 0 or a given value.
-  """Return buffer dict if successful."""
+
+fun! s:Funcs.set_buffer_var(var, ...) abort "{{{2
+  " Init buffer variable in Tabs dict to 0 or a given value.
+  " Return buffer dict if successful
+
   let B = bufnr('%') | let bufs = s:X.Buffers | let val = a:0 ? a:1 : 0
 
   if !self.is_tab_buffer(B)
@@ -73,10 +77,11 @@ fun! s:Funcs.set_buffer_var(var, ...) abort
   return bufs[B]
 endfun
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.fullpath(path, ...) abort
-  """OS-specific modified path."""
+
+fun! s:Funcs.fullpath(path, ...) abort "{{{2
+  " OS-specific modified path
+
   let path = expand(a:path)
   let path = empty(path) ? a:path : path        "expand can fail
   let mod = a:0 ? a:1 : ":p"
@@ -85,30 +90,33 @@ fun! s:Funcs.fullpath(path, ...) abort
   return resolve(path)
 endfun
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.sep() abort
-  """OS-specific directory separator."""
+
+fun! s:Funcs.sep() abort "{{{2
+  " OS-specific directory separator
+
   return s:v.winOS ? '\' : '/'
 endfun
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.todo_path() abort
+
+fun! s:Funcs.todo_path() abort "{{{2
   return fnameescape(getcwd().self.sep().s:Sets.todo.file)
 endfun
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.tab_buffers() abort
-  """Return a list of buffers names for this tab."""
+
+fun! s:Funcs.tab_buffers() abort   "{{{2
+  " Return a list of buffers names for this tab
+
   return map(copy(s:vB()), 'bufname(v:val)')
 endfun
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.add_ordered(buf, ...) abort
-  """Add a buffer to the Tab.buffers.ordere list.
+
+fun! s:Funcs.add_ordered(buf, ...) abort "{{{2
+  " Add a buffer to the Tab.buffers.ordere list.
+
   let [ b, bufs, first, i ] = [ a:buf, s:oB(), a:0, index(s:oB(), a:buf) ]
 
   " if the buffer goes first, remove it from the list if present
@@ -120,10 +128,11 @@ fun! s:Funcs.add_ordered(buf, ...) abort
   endif
 endfun
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.uniq(list) abort
-  """Make sure an element appears only once in the list.
+
+fun! s:Funcs.uniq(list) abort "{{{2
+  " Make sure an element appears only once in the list.
+
   let [ i, max ] = [ 0, len(a:list)-2 ]
   while i <= max
     let extra = index(a:list, a:list[i], i+1)
@@ -137,17 +146,19 @@ fun! s:Funcs.uniq(list) abort
   return a:list
 endfun
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.is_tab_buffer(...) abort
-  """Verify that the buffer belongs to the tab."""
+
+fun! s:Funcs.is_tab_buffer(...) abort "{{{2
+  " Verify that the buffer belongs to the tab
+
   return (index(s:vB(), a:1) != -1)
 endfun
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.all_valid_buffers(...) abort
-    """Return all valid buffers for all tabs."""
+
+fun! s:Funcs.all_valid_buffers(...) abort "{{{2
+  " Return all valid buffers for all tabs
+
   let valid = []
   for i in range(tabpagenr('$'))
     if a:0
@@ -159,19 +170,24 @@ fun! s:Funcs.all_valid_buffers(...) abort
   return valid
 endfun
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.all_open_buffers() abort
-    """Return all open buffers for all tabs."""
+
+fun! s:Funcs.all_open_buffers() abort "{{{2
+  " Return all open buffers for all tabs
+
   let open = []
   for i in range(tabpagenr('$')) | call extend(open, tabpagebuflist(i + 1)) | endfor
   return open
-endfun
+endfun "}}}
+
+
+
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Shortened paths
+" Shortened paths                                                          {{{1
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.short_cwd(tabnr, h, ...) abort
+fun! s:Funcs.short_cwd(tabnr, h, ...) abort "{{{2
   let path = a:0 ? a:1 : s:Sets.use_tab_cwd ? s:X.Tabs[a:tabnr-1].cwd
         \                                   : getcwd()
 
@@ -194,9 +210,9 @@ fun! s:Funcs.short_cwd(tabnr, h, ...) abort
   return H
 endfun
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.short_path(bnr, h) abort
+
+fun! s:Funcs.short_path(bnr, h) abort "{{{2
   let H = fnamemodify(bufname(a:bnr), ":~:.")
 
   if !a:h | return fnamemodify(path, ":t")       | endif
@@ -226,10 +242,11 @@ fun! s:Funcs.short_path(bnr, h) abort
   return H
 endfun
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.bdelete(buf) abort
-  """Delete buffer if unmodified and not pinned."""
+
+fun! s:Funcs.bdelete(buf) abort "{{{2
+  " Delete buffer if unmodified and not pinned
+
   if index(s:X.pinned_buffers, a:buf) >= 0
     call self.msg("Pinned buffer has not been deleted.", 1)
 
@@ -246,10 +263,11 @@ fun! s:Funcs.bdelete(buf) abort
   endif
 endfun
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.not_enough_buffers(pinned) abort
-  """Just return if there aren't enough buffers."""
+
+fun! s:Funcs.not_enough_buffers(pinned) abort "{{{2
+  " Just return if there aren't enough buffers
+
   let bufs = a:pinned ? s:v.pinned_buffers : s:oB()
   let pin  = a:pinned ? ' pinned ' : ' '
 
@@ -263,37 +281,38 @@ fun! s:Funcs.not_enough_buffers(pinned) abort
     endif
     return 1
   endif
-endfun
+endfun "}}}
 
 
 
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Working directory functions
+" Working directory functions                                              {{{1
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.find_root_dir(...) abort
-  """Look for a VCS dir below current directory."""
+fun! s:Funcs.find_root_dir(...) abort "{{{2
+  " Look for a VCS dir below current directory
+
   let current = a:0 ? a:1 : expand("%:h")
   let dir = system('git -C '.current.' rev-parse --show-toplevel 2>/dev/null')[:-2]
   return !empty(dir) ? dir : a:0 ? a:1 : current
 endfun
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.can_use_tcd()
+
+fun! s:Funcs.can_use_tcd() "{{{2
   return exists(':tcd') == 2 && s:Sets.use_tab_cwd
 endfun
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.is_local_dir()
+
+fun! s:Funcs.is_local_dir() "{{{2
   return exists(':tcd') == 2 ? haslocaldir(0, 0) : haslocaldir()
 endfun
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.verbose_change_wd(cwd, local) abort
+
+fun! s:Funcs.verbose_change_wd(cwd, local) abort "{{{2
   if !isdirectory(a:cwd)
     return self.msg("Invalid directory: ".a:cwd, 1)
   endif
@@ -307,12 +326,12 @@ fun! s:Funcs.verbose_change_wd(cwd, local) abort
   call self.msg ([[ "Working directory: ", 'Label' ], [ a:cwd, 'None' ]])
 endfun
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.change_base_dir(dir) abort
-  """Set/unset the base filtering directory.
+
+fun! s:Funcs.change_base_dir(dir) abort "{{{2
+  " Set/unset the base filtering directory.
+
   let T = s:T()
-
   if empty(a:dir) && !has_key(T, 'dir')
     return self.msg('No base directory has been set yet.', 1)
 
@@ -331,9 +350,9 @@ fun! s:Funcs.change_base_dir(dir) abort
   call self.msg ([[ "Base directory: ", 'Label' ], [ a:dir, 'None' ]])
 endfun
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.set_tab_wd() abort
+
+fun! s:Funcs.set_tab_wd() abort "{{{2
   let T = s:T()
   if self.can_use_tcd()
     let T.cwd = self.fullpath(getcwd(-1, tabpagenr()))
@@ -342,10 +361,11 @@ fun! s:Funcs.set_tab_wd() abort
   endif
 endfun
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-" change working directory, update tab cwd and session data
-fun! s:Funcs.change_wd(dir, ...) abort
+
+fun! s:Funcs.change_wd(dir, ...) abort "{{{2
+  " Change working directory, update tab cwd and session data
+
   let [T, error, explicit] = [s:T(), '', a:0]
 
   if !isdirectory(a:dir)
@@ -402,10 +422,11 @@ fun! s:Funcs.change_wd(dir, ...) abort
   return explicit ? error : ''
 endfun
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.cd_into_tab_wd() abort
-  """Try to change the current directory.
+
+fun! s:Funcs.cd_into_tab_wd() abort "{{{2
+  " Try to change the current directory.
+
   let T = s:T()
   if s:Sets.use_tab_cwd
     call self.change_wd(T.cwd)
