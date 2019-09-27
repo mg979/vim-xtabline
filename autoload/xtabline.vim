@@ -285,7 +285,7 @@ fun! s:set_new_tab_cwd(N) abort
   if empty(bufname("%"))
     let T.cwd = s:F.fullpath(getcwd())
   elseif T.cwd == '~' || s:F.fullpath("%") !~ s:F.fullpath(T.cwd)
-    let T.cwd = s:F.find_suitable_cwd()
+    let T.cwd = s:F.find_root_dir()
   endif
   call s:F.change_wd(T.cwd)
   call xtabline#update()

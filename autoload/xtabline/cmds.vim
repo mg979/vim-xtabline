@@ -514,7 +514,7 @@ fun! s:edit_tab(...) abort
     let s:v.tab_properties = {'cwd': expand("~")}
     exe n . "tabnew"
   else
-    let s:v.tab_properties = {'cwd': s:F.find_suitable_cwd(args[2])}
+    let s:v.tab_properties = {'cwd': s:F.find_root_dir(args[2])}
     exe n . "tabedit" args[2]
   endif
   call xtabline#update()
@@ -597,7 +597,7 @@ fun! s:set_wd(...) abort
   let [ bang, dir ] = [ a:1, a:2 ]
 
   if !bang && empty(dir)
-    let base = s:F.find_suitable_cwd()
+    let base = s:F.find_root_dir()
     let cwd = s:F.input("Enter a new working directory: ", base, "file")
   else
     let cwd = s:F.fullpath(dir)
@@ -619,7 +619,7 @@ fun! s:set_ld(...) abort
   let [ bang, dir ] = [ a:1, a:2 ]
 
   if !bang && empty(dir)
-    let base = s:F.find_suitable_cwd()
+    let base = s:F.find_root_dir()
     let lwd = s:F.input("Enter a new window-local directory: ", base, "file")
   else
     let lwd = s:F.fullpath(dir)
@@ -643,7 +643,7 @@ fun! s:set_bd(...) abort
   if bang
     return s:F.change_base_dir('')
   elseif empty(dir)
-    let base = s:F.find_suitable_cwd()
+    let base = s:F.find_root_dir()
     let dir = s:F.input("Enter a new base directory: ", base, "file")
   else
     let dir = s:F.fullpath(dir)
@@ -676,7 +676,7 @@ endfun
 
 fun! s:reset_tab(...) abort
   """Reset the tab to a pristine state.
-  let cwd = a:0? fnamemodify(expand(a:1), :p) : s:F.find_suitable_cwd()
+  let cwd = a:0? fnamemodify(expand(a:1), :p) : s:F.find_root_dir()
   let s:X.Tabs[tabpagenr()-1] = xtabline#tab#new({'cwd': cwd})
   call s:F.verbose_change_wd(cwd, 0)
 endfun

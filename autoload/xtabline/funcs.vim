@@ -272,19 +272,11 @@ endfun
 " Working directory functions
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:Funcs.find_suitable_cwd(...) abort
+fun! s:Funcs.find_root_dir(...) abort
   """Look for a VCS dir below current directory."""
-  let s = self.sep() | let l:Found = { d -> isdirectory(d.s.'.git') }
-
-  let limit = get(s:Sets, 'git_dir_search_down_limit', 5)
-  let f = a:0 ? a:1 : expand("%")
-  let h = ":p:h"
-  for i in range(limit)
-    let dir = fnamemodify(f, h)
-    if l:Found(dir) | return self.fullpath(dir) | endif
-    let h .= ":h"
-  endfor
-  return self.fullpath(getcwd())
+  let current = a:0 ? a:1 : expand("%:h")
+  let dir = system('git -C '.current.' rev-parse --show-toplevel 2>/dev/null')[:-2]
+  return !empty(dir) ? dir : a:0 ? a:1 : current
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
