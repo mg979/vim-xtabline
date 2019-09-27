@@ -332,13 +332,16 @@ function! s:Do(action, ...)
   elseif a:action == 'leave'
 
     let V.last_tab = X.Tabs[N]
+    let V.last_tab_buf = B
     call F.set_tab_wd()
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
   elseif a:action == 'close'
 
-    call add(X.closed_tabs, copy(V.last_tab))
+    let closed_tab = copy(V.last_tab)
+    let closed_tab.active_buffer = V.last_tab_buf
+    call add(X.closed_tabs, closed_tab)
     call remove(X.Tabs, index(X.Tabs, V.last_tab))
     call xtabline#update()
 

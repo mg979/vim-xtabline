@@ -210,23 +210,15 @@ fun! s:reopen_last_tab() abort
   endif
 
   let s:v.tab_properties = remove(s:X.closed_tabs, -1)
+  let cwd = s:v.tab_properties.cwd
 
-  "find a valid buffer
-  let has_buffer = 0
-  for b in s:v.tab_properties.buffers.valid
-    if buflisted(b)
-      let s:v.halt = 1
-      exe "$tabnew" bufname(b)
-      let has_buffer = 1
-      break
-    endif
-  endfor
-  if !has_buffer
+  if buflisted(s:v.tab_properties.active_buffer)
+    let s:v.halt = 1
+    exe "$tabnew" bufname(s:v.tab_properties.active_buffer)
+  else
     let s:v.tab_properties = {}
     redraw!
-    call s:F.msg([[ "There are no valid buffers for ", 'WarningMsg'],
-          \       [ cwd, 'None']])
-    return
+    return s:F.msg([[ "There are no valid buffers for ", 'WarningMsg'], [ cwd, 'None']])
   endif
 
   call s:F.change_wd(cwd)
