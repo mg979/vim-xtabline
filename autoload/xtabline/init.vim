@@ -88,7 +88,7 @@ endfun
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 let g:xtabline = {'Tabs': [], 'Vars': {}, 'Buffers': {}, 'Funcs': {},
-                 \'pinned_buffers': [], 'closed_tabs': [], 'closed_cwds': [],
+                 \'pinned_buffers': [], 'closed_tabs': [],
                  \'last_tabline': ''}
 
 let g:xtabline.Vars = {

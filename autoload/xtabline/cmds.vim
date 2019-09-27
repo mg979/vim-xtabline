@@ -211,19 +211,6 @@ fun! s:reopen_last_tab() abort
 
   let s:v.tab_properties = remove(s:X.closed_tabs, -1)
 
-  "check if the cwd must be removed from the blacklist closed_cwds
-  let other_with_same_cwd = 0
-  let cwd = s:v.tab_properties.cwd
-
-  for t in s:X.Tabs
-    if t.cwd == s:v.tab_properties.cwd
-      let other_with_same_cwd = 1 | break | endif
-  endfor
-
-  if !other_with_same_cwd
-    call remove(s:X.closed_cwds, index(s:X.closed_cwds, cwd))
-  endif
-
   "find a valid buffer
   let has_buffer = 0
   for b in s:v.tab_properties.buffers.valid

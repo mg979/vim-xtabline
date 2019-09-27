@@ -363,10 +363,7 @@ function! s:Do(action, ...)
 
   elseif a:action == 'close'
 
-    if tabpagenr('$') == 1 || index(X.closed_cwds, V.last_tab.cwd) < 0
-      call add(X.closed_tabs, copy(V.last_tab))
-      call add(X.closed_cwds, V.last_tab.cwd)
-    endif
+    call add(X.closed_tabs, copy(V.last_tab))
     call remove(X.Tabs, index(X.Tabs, V.last_tab))
     call xtabline#update()
 
