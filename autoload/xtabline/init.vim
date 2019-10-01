@@ -113,7 +113,6 @@ let s:S = {
       \ 'superscript_unicode_nrs':    0,
       \ 'buffer_filtering':           1,
       \ 'use_tab_cwd':                0,
-      \ 'use_tab_lwd':                0,
       \ 'theme':                      'default',
       \ 'show_right_corner':          1,
       \ 'last_open_first':            0,

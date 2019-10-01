@@ -192,41 +192,6 @@ Note that:
    |:tcd|.
 
 
-------------------------------------------------------- *xtabline-use_tab_lwd*
->
-    let g:xtabline_settings.use_tab_lwd = 0
-<
-As an alternative to the setting above, you can let the plugin use |:lcd| to
-set the working directory. Note that by setting this option to 1, there is no
-use of autocommands: it only changes the type of command that is used whenever
-one of the commands of the `cd` family is issued (|xtabline-directories|). 
-If your vim version supports |:tcd| but this option is set, it will still use
-|:lcd|, not |:tcd|.
-
-
------------------------------------------------- *xtabline-overwrite_localdir*
->
-    let g:xtabline_settings.overwrite_localdir = 0
-<
-If a window-local directory has been defined, xtabline won't overwrite it
-without explicit consent. This option controls what happens in these cases.
-
-With the default value of 0, you will be asked every time whether:
-
-  - overwrite the local directory (will issue a new |:lcd|)
-  - do nothing
-  - clear the local directory (will change the directory with |:cd|)
-
-Note that you will only be asked when trying to change explicitly the
-directory with |XTabWD| or a mapping of the |cd| family.
-See |xtabline-directories|.
-
-If this option is set to 1, it will always overwrite the local directory.
-With a value of 2, the local directory will be always cleared.
-In both cases, the directory change will take place even when not explicitly
-asked (via autocommand, if |use_tab_cwd| is set).
-
-
 -------------------------------------------------- *xtabline-buffer_filtering*
 >
     let g:xtabline_settings.buffer_filtering = 1
