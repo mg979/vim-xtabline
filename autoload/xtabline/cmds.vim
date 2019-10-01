@@ -23,6 +23,7 @@ let s:pinned  =  { b  -> index(s:X.pinned_buffers, b) }
 let s:most_recent = -1
 
 fun! xtabline#cmds#select_buffer(cnt) abort
+  " Select buffer with count. {{{1
   if s:v.tabline_mode == 'tabs'
     return 'gt'
   elseif s:v.tabline_mode == 'arglist'
@@ -39,12 +40,10 @@ fun! xtabline#cmds#select_buffer(cnt) abort
     let b = bufs[n]
   endif
   return ":\<C-U>silent! buffer ".b."\<cr>"
-endfun
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+endfun "}}}
 
 fun! xtabline#cmds#next_buffer(nr, last) abort
-  """Switch to next visible/pinned buffer."""
+  " Switch to next visible/pinned buffer. "{{{1
 
   if s:F.not_enough_buffers(0) | return | endif
   let accepted = s:oB()
@@ -67,12 +66,10 @@ fun! xtabline#cmds#next_buffer(nr, last) abort
   endif
 
   exe "buffer " . accepted[s:most_recent]
-endfun
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+endfun "}}}
 
 fun! xtabline#cmds#prev_buffer(nr, first) abort
-  """Switch to previous visible/pinned buffer."""
+  " Switch to previous visible/pinned buffer. "{{{1
 
   if s:F.not_enough_buffers(0) | return | endif
   let accepted = s:oB()
@@ -95,7 +92,7 @@ fun! xtabline#cmds#prev_buffer(nr, first) abort
   endif
 
   exe "buffer " . accepted[s:most_recent]
-endfun
+endfun "}}}
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Other commands
@@ -106,10 +103,8 @@ fun! xtabline#cmds#run(cmd, ...) abort
   exe "call s:".a:cmd."(".args.")"
 endfun
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
 fun! s:cycle_mode() abort
-  """Cycle the active tabline mode."""
+  " Cycle the active tabline mode. "{{{1
 
   let modes = copy(s:Sets.tabline_modes)
 
@@ -129,12 +124,10 @@ fun! s:cycle_mode() abort
   call s:F.msg ([[ "Showing " . s:v.tabline_mode, 'StorageClass' ]])
 
   call xtabline#update()
-endfun
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+endfun "}}}
 
 fun! s:toggle_filtering() abort
-  """Toggle buffer filtering in the tabline."""
+  " Toggle buffer filtering in the tabline. "{{{1
 
   if s:Sets.buffer_filtering
     call s:F.msg ([[ "Buffer filtering turned off", 'WarningMsg' ]])
@@ -143,12 +136,10 @@ fun! s:toggle_filtering() abort
   endif
   let s:Sets.buffer_filtering = !s:Sets.buffer_filtering
   call xtabline#update()
-endfun
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+endfun "}}}
 
 fun! s:purge_buffers() abort
-  """Remove unmodified buffers with invalid paths."""
+  " Remove unmodified buffers with invalid paths. "{{{1
 
   let bcnt = 0
   let purged = []
@@ -176,12 +167,10 @@ fun! s:purge_buffers() abort
   call xtabline#update()
   redraw!
   let s = "Purged ".bcnt." buffer" | let s .= bcnt!=1 ? "s." : "." | echo s
-endfun
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+endfun "}}}
 
 fun! s:clean_up(bang) abort
-  """Remove all invalid/not open(!) buffers in all tabs.
+  " Remove all invalid/not open(!) buffers in all tabs. "{{{1
 
   let valid  = s:F.all_valid_buffers()
   let active = s:F.all_open_buffers()
@@ -200,12 +189,10 @@ fun! s:clean_up(bang) abort
 
   let s = "Cleaned ".nr." buffer" | let s .= nr!=1 ? "s." : "."
   call s:F.msg([[s, 'WarningMsg']])
-endfun
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+endfun "}}}
 
 fun! s:reopen_last_tab() abort
-  """Reopen the last closed tab."""
+  " Reopen the last closed tab. "{{{1
 
   if empty(s:X.closed_tabs)
     call s:F.msg("No recent tabs.", 1) | return
@@ -226,12 +213,10 @@ fun! s:reopen_last_tab() abort
   call s:F.change_wd(cwd)
   let s:v.halt = 0
   call xtabline#update()
-endfun
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+endfun "}}}
 
 fun! s:lock_tab() abort
-  """Lock a tab, including currently displayed buffers as valid buffers.
+  " Lock a tab, including currently displayed buffers as valid buffers. "{{{1
 
   let T = s:T()
   let T.locked = !T.locked
@@ -241,12 +226,10 @@ fun! s:lock_tab() abort
   endif
   redraw!
   call s:F.msg('Tab has been '.un.'locked', T.locked)
-endfun
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+endfun "}}}
 
 fun! s:close_buffer() abort
-  """Close and delete a buffer, without closing the tab."""
+  " Close and delete a buffer, without closing the tab. "{{{1
 
   let current = bufnr("%") | let alt = bufnr("#") | let tbufs = len(s:vB())
 
@@ -271,12 +254,10 @@ fun! s:close_buffer() abort
   else
     call s:F.msg ("There is only one tab.", 1)
   endif
-endfun
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+endfun "}}}
 
 fun! s:relative_paths(bang, cnt) abort
-  """Toggle between full relative path and tail only, in the bufline.
+  " Toggle between full relative path and tail only, in the bufline. "{{{1
 
   let T = s:T()
 
@@ -292,12 +273,10 @@ fun! s:relative_paths(bang, cnt) abort
   else
     call s:F.msg ([[ "Bufferline shows filename only.", 'WarningMsg']])
   endif
-endfun
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+endfun "}}}
 
 fun! s:tab_todo() abort
-  """Open or close the Tab todo file.
+  " Open or close the Tab todo file. "{{{1
 
   for b in tabpagebuflist()
     if getbufvar(b, 'xtab_todo', 0)
@@ -316,11 +295,10 @@ fun! s:tab_todo() abort
   execute "setf" todo['syntax']
   let b:xtab_todo = 1
   nnoremap <silent><nowait> <buffer> \q :update<bar>bwipeout<cr>
-endfun
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+endfun "}}}
 
 fun! s:move_buffer(next, cnt) abort
+  " Move buffer by [count] steps. {{{1
   let b = bufnr("%") | let max = len(s:oB()) - 1 | let nr = (max([a:cnt, 1]))
 
   " cannot move a buffer that is not valid for this tab
@@ -337,10 +315,10 @@ fun! s:move_buffer(next, cnt) abort
   endif
   call insert(s:oB(), remove(s:oB(), i), new_index)
   call xtabline#update()
-endfun
+endfun "}}}
 
 fun! s:move_buffer_to(cnt, ...) abort
-  """Move buffer in the bufferline to a new position."""
+  " Move buffer in the bufferline to a new position. "{{{1
 
   let b = bufnr("%")
   let oB = s:oB()
@@ -359,10 +337,10 @@ fun! s:move_buffer_to(cnt, ...) abort
     call add(oB, b)
   endif
   call xtabline#update()
-endfun
+endfun "}}}
 
 fun! s:hide_buffer(new) abort
-  """Move buffer to the last position, then select another one."""
+  " Move buffer to the last position, then select another one. "{{{1
 
   let b = bufnr("%") | let oB = s:oB() | let max = len(oB) - 1
   let i = index(oB, b)
@@ -380,31 +358,25 @@ fun! s:hide_buffer(new) abort
 
   silent! exe 'b'.then_select
   call xtabline#update()
-endfun
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+endfun "}}}
 
 fun! s:rename_tab(label) abort
-  """Rename the current tab.
+  " Rename the current tab. "{{{1
 
   let s:X.Tabs[tabpagenr()-1].name = a:label
   call xtabline#update()
-endfun
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+endfun "}}}
 
 fun! s:rename_buffer(label) abort
-  """Rename the current buffer.
+  " Rename the current buffer. "{{{1
 
   let B = s:F.set_buffer_var('name', a:label)
   if empty(B) | return | endif
   call xtabline#update()
-endfun
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+endfun "}}}
 
 fun! s:get_icon(ico) abort
-  """Get current icon for this tab."""
+  " Get current icon for this tab. "{{{1
 
   let I = get(s:Sets, 'icons', {})
   if index(keys(I), a:ico) >= 0
@@ -415,10 +387,10 @@ fun! s:get_icon(ico) abort
     call s:F.msg ([[ "Invalid icon.", 'WarningMsg']])
     return
   endif
-endfun
+endfun "}}}
 
 fun! s:tab_icon(...) abort
-  """Set an icon for this tab."""
+  " Set an icon for this tab. "{{{1
 
   let [ bang, icon ] = [ a:1, a:2 ]
   let T = s:T()
@@ -432,10 +404,10 @@ fun! s:tab_icon(...) abort
     endif
   endif
   call xtabline#update()
-endfun
+endfun "}}}
 
 fun! s:buffer_icon(...) abort
-  """Set an icon for this buffer."""
+  " Set an icon for this buffer. "{{{1
 
   let [ bang, icon ] = [ a:1, a:2 ]
   let B = s:F.set_buffer_var('icon')
@@ -450,12 +422,10 @@ fun! s:buffer_icon(...) abort
     endif
   endif
   call xtabline#update()
-endfun
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+endfun "}}}
 
 fun! s:toggle_pin_buffer(...) abort
-  """Pin this buffer, so that it will be shown in all tabs. Optionally rename."""
+  " Pin this buffer, so that it will be shown in all tabs. Optionally rename. "{{{1
 
   let B = bufnr('%') | let i = s:pinned(B)
 
@@ -469,12 +439,10 @@ fun! s:toggle_pin_buffer(...) abort
     call add(s:X.pinned_buffers, B)
   endif
   call xtabline#update()
-endfun
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+endfun "}}}
 
 fun! s:move_tab(...) abort
-  """Move a tab to a new position."""
+  " Move a tab to a new position. "{{{1
 
   let max = tabpagenr("$") - 1 | let arg = a:1
 
@@ -507,12 +475,10 @@ fun! s:move_tab(...) abort
 
   exe dest . "tabmove"
   call xtabline#update()
-endfun
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+endfun "}}}
 
 fun! s:format_buffer() abort
-  """Specify a custom format for this buffer."""
+  " Specify a custom format for this buffer. "{{{1
 
   let och = &ch
   set ch=2
@@ -537,48 +503,40 @@ fun! s:format_buffer() abort
 
   let &ch = och
   call xtabline#update()
-endfun
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+endfun "}}}
 
 fun! s:reset_tab(...) abort
-  """Reset the tab to a pristine state.
+  " Reset the tab to a pristine state. "{{{1
 
   let cwd = a:0? fnamemodify(expand(a:1), :p) : s:F.find_root_dir()
   let s:X.Tabs[tabpagenr()-1] = xtabline#tab#new({'cwd': cwd})
   call s:F.change_wd(cwd)
-endfun
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+endfun "}}}
 
 fun! s:reset_buffer(...) abort
-  """Reset the buffer to a pristine state.
+  " Reset the buffer to a pristine state. "{{{1
 
   let B = s:B() | let n = bufnr("%")
   if has_key(B, n) | unlet B[n] | endif
   call xtabline#update()
-endfun
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+endfun "}}}
 
 fun! s:toggle_tab_names() abort
-  """Toggle between custom icon/name and short path/folder icons."""
+  " Toggle between custom icon/name and short path/folder icons. "{{{1
 
   let s:v.custom_tabs = !s:v.custom_tabs
   call xtabline#update()
-endfun
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+endfun "}}}
 
 fun! s:goto_last_tab() abort
-  """Go back to the previously opened tab.
+  " Go back to the previously opened tab. "{{{1
 
   let n = index(s:X.Tabs, s:v.last_tab)
   exe "normal!" (n + 1)."gt"
-endfun
+endfun "}}}
 
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Helpers
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
