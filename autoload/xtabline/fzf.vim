@@ -271,7 +271,7 @@ fun! s:tab_load(...) abort
 
     if !s:Sets.use_tab_cwd && cwd !=# getcwd()
       call map(saved['buffers'], 'v:val =~ "^/" ? v:val : cwd."/".v:val')
-      if s:F.can_use_tcd()
+      if s:F.has_tcd()
         exe 'tcd' cwd
         let l:has_set_cd = 1
       else

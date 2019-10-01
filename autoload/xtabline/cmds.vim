@@ -541,94 +541,12 @@ endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:set_wd(...) abort
-  """Set new working directory.
-  let [ bang, dir ] = [ a:1, a:2 ]
-
-  if !bang && empty(dir)
-    let base = s:F.find_root_dir()
-    let cwd = s:F.input("Enter a new working directory: ", base, "file")
-  else
-    let cwd = s:F.fullpath(dir)
-  endif
-
-  if empty(cwd)
-    call s:F.msg ([[ "Canceled.", 'WarningMsg' ]])
-  else
-    call s:F.verbose_change_wd(cwd, 0)
-    let s:X.Tabs[tabpagenr()-1].name = ''
-  endif
-  call xtabline#update()
-endfun
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! s:set_ld(...) abort
-  """Set new window-local directory.
-  let [ bang, dir ] = [ a:1, a:2 ]
-
-  if !bang && empty(dir)
-    let base = s:F.find_root_dir()
-    let lwd = s:F.input("Enter a new window-local directory: ", base, "file")
-  else
-    let lwd = s:F.fullpath(dir)
-  endif
-
-  if empty(lwd)
-    call s:F.msg ([[ "Canceled.", 'WarningMsg' ]])
-  else
-    call s:F.verbose_change_wd(lwd, 1)
-    let s:X.Tabs[tabpagenr()-1].name = ''
-  endif
-  call xtabline#update()
-endfun
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! s:set_bd(...) abort
-  """Set new base directory for buffer filtering.
-  let [ bang, dir ] = [ a:1, a:2 ]
-
-  if bang
-    return s:F.change_base_dir('')
-  elseif empty(dir)
-    let base = s:F.find_root_dir()
-    let dir = s:F.input("Enter a new base directory: ", base, "file")
-  else
-    let dir = s:F.fullpath(dir)
-  endif
-
-  if empty(dir)
-    call s:F.msg ([[ "Canceled.", 'WarningMsg' ]])
-  else
-    call s:F.change_base_dir(dir)
-  endif
-  call xtabline#update()
-endfun
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! s:cd(count) abort
-  """Set cwd relatively to directory of current file.
-  let path = ':p:h'
-  for c in range(max([a:count, 0]))
-    let path .= ':h'
-  endfor
-  let cwd = s:F.fullpath(expand("%"), path)
-  if !empty(expand("%")) && empty(cwd)
-    let cwd = '/'
-  endif
-  call s:F.verbose_change_wd(cwd, 0)
-endfun
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
 fun! s:reset_tab(...) abort
   """Reset the tab to a pristine state.
 
   let cwd = a:0? fnamemodify(expand(a:1), :p) : s:F.find_root_dir()
   let s:X.Tabs[tabpagenr()-1] = xtabline#tab#new({'cwd': cwd})
-  call s:F.verbose_change_wd(cwd, 0)
+  call s:F.change_wd(cwd)
 endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

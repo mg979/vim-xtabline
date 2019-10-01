@@ -59,18 +59,22 @@ com! -count                    XTabMoveBufferNext      call xtabline#cmds#run('m
 com! -count                    XTabMoveBufferPrev      call xtabline#cmds#run('move_buffer', 0, <count>)
 com! -count                    XTabMoveBuffer          call xtabline#cmds#run('move_buffer_to', <count>)
 com! -count                    XTabHideBuffer          call xtabline#cmds#run('hide_buffer', <count>)
-com!                           XTabCdCurrent           call xtabline#cmds#run('cd', 0)
-com! -count                    XTabCdDown              call xtabline#cmds#run('cd', <count>)
 com!                           XTabLastTab             call xtabline#cmds#run('goto_last_tab')
+com!                           XTabCdCurrent           call xtabline#dir#cd(0)
+com! -count                    XTabCdDown              call xtabline#dir#cd(<count>)
 com!                           XTablineUpdate          call xtabline#update()
 com!                           XTablineRefresh         call xtabline#refresh()
 
-com! -nargs=? -bang  -complete=file                  XTabWD              call xtabline#cmds#run("set_wd", <bang>0, <q-args>)
-com! -nargs=? -bang  -complete=file                  XTabBD              call xtabline#cmds#run("set_bd", <bang>0, <q-args>)
-com! -nargs=? -bang  -complete=file                  XTabLD              call xtabline#cmds#run("set_ld", <bang>0, <q-args>)
+com! -nargs=? -bang  -complete=file                  XTabWD              call xtabline#dir#set('working', <bang>0, <q-args>)
+com! -nargs=? -bang  -complete=file                  XTabBD              call xtabline#dir#set('base', <bang>0, <q-args>)
+com! -nargs=? -bang  -complete=file                  XTabLD              call xtabline#dir#set('window-local', <bang>0, <q-args>)
 com! -nargs=? -bang  -complete=customlist,<sid>icons XTabIcon            call xtabline#cmds#run("tab_icon", <bang>0, <q-args>)
 com! -nargs=? -bang  -complete=customlist,<sid>icons XTabBufferIcon      call xtabline#cmds#run("buffer_icon", <bang>0, <q-args>)
 com! -nargs=? -bang  -complete=customlist,<sid>theme XTabTheme           call xtabline#hi#load_theme(<bang>0, <q-args>)
+
+if exists(':tcd') == 2
+  com! -nargs=? -bang  -complete=file XTabTD call xtabline#dir#set('tab-local', <bang>0, <q-args>)
+endif
 
 fun! s:icons(A,L,P) abort
   """Icons completions for commands.

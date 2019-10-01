@@ -87,6 +87,10 @@ fun! s:do_map() abort
   call s:mapkey_(X.'ss', 'SaveSession')
   call s:mapkey_(X.'sd', 'DeleteSession')
   call s:mapkey_(X.'sn', 'NewSession')
+
+  if exists(':tcd') == 2
+    call s:mapkey_('cdt',  'TD')
+  endif
 endfun
 
 function! xtabline#maps#init()
@@ -167,6 +171,10 @@ let s:manage = [
       \['tr',   'Reset tab',                    "XTabResetTab"],
       \['ts',   'Save tab',                     "XTabSaveTab"],
       \]
+
+if exists(':tcd') == 2
+  call insert(s:cd, ['cdt', 'Tab-local directory', "XTabTD"], 1)
+endif
 
 fun! xtabline#maps#menu() abort
   let X = substitute(g:xtabline_settings.map_prefix, '<leader>', get(g:, 'mapleader', '\'), 'g')

@@ -6,10 +6,11 @@ fun! xtabline#funcs#init() abort
   let s:T =  { -> s:X.Tabs[tabpagenr()-1] }       "current tab
   let s:vB = { -> s:T().buffers.valid     }       "valid buffers for tab
   let s:oB = { -> s:T().buffers.order     }       "ordered buffers for tab
-  return s:Funcs
+  return xtabline#dir#init(s:Funcs)
 endfun
 
 let s:Funcs = {}
+
 let s:Funcs.wins    = {   -> tabpagebuflist(tabpagenr()) }
 let s:Funcs.has_win = { b -> index(s:Funcs.wins(), b) >= 0 }
 let s:Funcs.is_repo = { t -> isdirectory(t.cwd . s:v.slash . '.git') }
@@ -284,153 +285,4 @@ endfun "}}}
 
 
 
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Working directory functions                                              {{{1
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! s:Funcs.find_root_dir(...) abort "{{{2
-  " Look for a VCS dir below current directory
-
-  let current = a:0 ? a:1 : expand("%:h")
-  let dir = system('git -C '.current.' rev-parse --show-toplevel 2>/dev/null')[:-2]
-  return !empty(dir) ? dir : a:0 ? a:1 : current
-endfun
-
-
-
-fun! s:Funcs.can_use_tcd() "{{{2
-  return exists(':tcd') == 2 && s:Sets.use_tab_cwd
-endfun
-
-
-
-fun! s:Funcs.is_local_dir() "{{{2
-  return exists(':tcd') == 2 ? haslocaldir(0, 0) : haslocaldir()
-endfun
-
-
-
-fun! s:Funcs.verbose_change_wd(cwd, local) abort "{{{2
-  if !isdirectory(a:cwd)
-    return self.msg("Invalid directory: ".a:cwd, 1)
-  endif
-  call extend(s:T(), { 'cwd': a:cwd })
-  let result = self.change_wd(a:cwd, a:local || s:Sets.use_tab_lwd ? 'lcd' : 'cd')
-  if result != ''
-    return self.msg([[ "Directory not set: ", 'WarningMsg' ], [ result, 'None' ]])
-  endif
-  call xtabline#update()
-  redraw
-  call self.msg ([[ "Working directory: ", 'Label' ], [ a:cwd, 'None' ]])
-endfun
-
-
-
-fun! s:Funcs.change_base_dir(dir) abort "{{{2
-  " Set/unset the base filtering directory.
-
-  let T = s:T()
-  if empty(a:dir) && !has_key(T, 'dir')
-    return self.msg('No base directory has been set yet.', 1)
-
-  elseif empty(a:dir)
-    unlet T.dir
-    call self.msg('Base directory has been unset.', 0)
-    return xtabline#update()
-
-  elseif !isdirectory(a:dir)
-    return  self.msg("Invalid directory: ".a:dir, 1)
-  endif
-
-  let T.dir = a:dir
-  call xtabline#update()
-  redraw
-  call self.msg ([[ "Base directory: ", 'Label' ], [ a:dir, 'None' ]])
-endfun
-
-
-
-fun! s:Funcs.set_tab_wd() abort "{{{2
-  let T = s:T()
-  if self.can_use_tcd()
-    let T.cwd = self.fullpath(getcwd(-1, tabpagenr()))
-  elseif s:Sets.use_tab_cwd && !haslocaldir()
-    let T.cwd = self.fullpath(getcwd())
-  endif
-endfun
-
-
-
-fun! s:Funcs.change_wd(dir, ...) abort "{{{2
-  " Change working directory, update tab cwd and session data
-
-  let [T, error, explicit] = [s:T(), '', a:0]
-
-  if !isdirectory(a:dir)
-    return self.msg('[xtabline] directory doesn''t exists', 1)
-  endif
-
-  if !explicit && !s:Sets.use_tab_cwd
-    " not using per-tab cwd and not explicitly changing the wd, do nothing
-
-  elseif explicit && a:1 == 'lcd'
-    " explicitly asking to set a window-local working directory
-    exe 'lcd' a:dir
-
-  elseif getcwd() != a:dir
-
-    if self.can_use_tcd()
-      " change dir if tab-local cwd is different from the expected tab cwd
-      if getcwd(-1, tabpagenr()) != a:dir
-        exe 'tcd' a:dir
-      elseif explicit
-        let error = 'no difference'
-      endif
-
-    elseif self.is_local_dir()
-      " it's a local cwd, change it only if setting allows it
-      if get(s:Sets, 'overwrite_localdir', 0) == 1
-        exe 'lcd' a:dir
-      elseif get(s:Sets, 'overwrite_localdir', 0) == 2
-        exe 'cd' a:dir
-      elseif explicit
-        let action = confirm('Overwrite window-local directory ' .getcwd(). '?', "&Yes\n&No\n&Clear")
-        if action == 2
-          let error = 'a window-local directory has been previously set'
-        elseif action == 1
-          exe 'lcd' a:dir
-        else
-          exe 'cd' a:dir
-        endif
-      endif
-
-    else
-      " no tab cwd, no local cwd: just cd
-      exe 'cd' a:dir
-    endif
-  elseif explicit
-    let error = 'no difference'
-  endif
-
-  if !self.is_local_dir()
-    call self.set_tab_wd()
-  endif
-
-  call xtabline#update_this_session()
-  return explicit ? error : ''
-endfun
-
-
-
-fun! s:Funcs.cd_into_tab_wd() abort "{{{2
-  " Try to change the current directory.
-
-  let T = s:T()
-  if s:Sets.use_tab_cwd
-    call self.change_wd(T.cwd)
-  elseif T.cwd != getcwd()
-    let T.cwd = getcwd()
-  endif
-endfun
 
