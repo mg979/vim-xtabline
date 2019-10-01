@@ -46,7 +46,6 @@ fun! s:Funcs.msg(txt, ...) abort "{{{2
   " Print a message with highlighting
 
   redraw
-
   if type(a:txt) == v:t_string
     exe "echohl" a:0 && a:1? "WarningMsg" : "Label"
     echon a:txt | echohl None

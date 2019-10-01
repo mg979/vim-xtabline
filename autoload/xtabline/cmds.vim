@@ -149,6 +149,7 @@ endfun
 
 fun! s:purge_buffers() abort
   """Remove unmodified buffers with invalid paths."""
+
   let bcnt = 0
   let purged = []
 
@@ -181,6 +182,7 @@ endfun
 
 fun! s:clean_up(bang) abort
   """Remove all invalid/not open(!) buffers in all tabs.
+
   let valid  = s:F.all_valid_buffers()
   let active = s:F.all_open_buffers()
   let ok     = a:bang? active : valid + active
@@ -230,6 +232,7 @@ endfun
 
 fun! s:lock_tab() abort
   """Lock a tab, including currently displayed buffers as valid buffers.
+
   let T = s:T()
   let T.locked = !T.locked
   let un = T.locked ? '' : 'un'
@@ -244,6 +247,7 @@ endfun
 
 fun! s:close_buffer() abort
   """Close and delete a buffer, without closing the tab."""
+
   let current = bufnr("%") | let alt = bufnr("#") | let tbufs = len(s:vB())
 
   if s:F.is_tab_buffer(alt)
@@ -273,6 +277,7 @@ endfun
 
 fun! s:relative_paths(bang, cnt) abort
   """Toggle between full relative path and tail only, in the bufline.
+
   let T = s:T()
 
   let T.rpaths = a:cnt ? a:cnt
@@ -293,6 +298,7 @@ endfun
 
 fun! s:tab_todo() abort
   """Open or close the Tab todo file.
+
   for b in tabpagebuflist()
     if getbufvar(b, 'xtab_todo', 0)
       if getbufvar(b, '&modified')
@@ -335,6 +341,7 @@ endfun
 
 fun! s:move_buffer_to(cnt, ...) abort
   """Move buffer in the bufferline to a new position."""
+
   let b = bufnr("%")
   let oB = s:oB()
   let max = len(oB) - 1
@@ -356,6 +363,7 @@ endfun
 
 fun! s:hide_buffer(new) abort
   """Move buffer to the last position, then select another one."""
+
   let b = bufnr("%") | let oB = s:oB() | let max = len(oB) - 1
   let i = index(oB, b)
   call s:move_buffer_to(1000)
@@ -378,6 +386,7 @@ endfun
 
 fun! s:rename_tab(label) abort
   """Rename the current tab.
+
   let s:X.Tabs[tabpagenr()-1].name = a:label
   call xtabline#update()
 endfun
@@ -386,6 +395,7 @@ endfun
 
 fun! s:rename_buffer(label) abort
   """Rename the current buffer.
+
   let B = s:F.set_buffer_var('name', a:label)
   if empty(B) | return | endif
   call xtabline#update()
@@ -395,6 +405,7 @@ endfun
 
 fun! s:get_icon(ico) abort
   """Get current icon for this tab."""
+
   let I = get(s:Sets, 'icons', {})
   if index(keys(I), a:ico) >= 0
     return I[a:ico]
@@ -408,6 +419,7 @@ endfun
 
 fun! s:tab_icon(...) abort
   """Set an icon for this tab."""
+
   let [ bang, icon ] = [ a:1, a:2 ]
   let T = s:T()
   if bang
@@ -424,6 +436,7 @@ endfun
 
 fun! s:buffer_icon(...) abort
   """Set an icon for this buffer."""
+
   let [ bang, icon ] = [ a:1, a:2 ]
   let B = s:F.set_buffer_var('icon')
   if empty(B) | return | endif
@@ -443,6 +456,7 @@ endfun
 
 fun! s:toggle_pin_buffer(...) abort
   """Pin this buffer, so that it will be shown in all tabs. Optionally rename."""
+
   let B = bufnr('%') | let i = s:pinned(B)
 
   if a:0 && match(a:1, "\S") >= 0
@@ -461,6 +475,7 @@ endfun
 
 fun! s:move_tab(...) abort
   """Move a tab to a new position."""
+
   let max = tabpagenr("$") - 1 | let arg = a:1
 
   let forward = arg[0] == '+' || empty(arg)
@@ -498,6 +513,7 @@ endfun
 
 fun! s:format_buffer() abort
   """Specify a custom format for this buffer."""
+
   let och = &ch
   set ch=2
 
@@ -609,6 +625,7 @@ endfun
 
 fun! s:reset_tab(...) abort
   """Reset the tab to a pristine state.
+
   let cwd = a:0? fnamemodify(expand(a:1), :p) : s:F.find_root_dir()
   let s:X.Tabs[tabpagenr()-1] = xtabline#tab#new({'cwd': cwd})
   call s:F.verbose_change_wd(cwd, 0)
@@ -618,6 +635,7 @@ endfun
 
 fun! s:reset_buffer(...) abort
   """Reset the buffer to a pristine state.
+
   let B = s:B() | let n = bufnr("%")
   if has_key(B, n) | unlet B[n] | endif
   call xtabline#update()
@@ -627,6 +645,7 @@ endfun
 
 fun! s:toggle_tab_names() abort
   """Toggle between custom icon/name and short path/folder icons."""
+
   let s:v.custom_tabs = !s:v.custom_tabs
   call xtabline#update()
 endfun
@@ -635,6 +654,7 @@ endfun
 
 fun! s:goto_last_tab() abort
   """Go back to the previously opened tab.
+
   let n = index(s:X.Tabs, s:v.last_tab)
   exe "normal!" (n + 1)."gt"
 endfun
