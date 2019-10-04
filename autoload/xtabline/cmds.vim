@@ -253,6 +253,8 @@ fun! s:relative_paths(bang, cnt) abort
   let T = s:T()
 
   let T.rpaths = a:cnt ? a:cnt
+        \      : a:bang && T.rpaths == 1 ? 1
+        \      : !a:bang && T.rpaths == -1 ? 1
         \      : T.rpaths ? 0
         \      : s:Sets.relative_paths ? s:Sets.relative_paths : 1
   let T.rpaths = T.rpaths * (a:bang ? -1 : 1)

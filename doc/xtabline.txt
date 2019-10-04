@@ -224,7 +224,8 @@ XTabMoveBuffer                    *m
 XTabMoveBufferNext                *]
 XTabMoveBufferPrev                *[
 XTabPinBuffer                     *p
-XTabRelativePaths[!]              */  [/-]
+XTabRelativePaths                 *+
+XTabRelativePaths!                *-
 
 *XTabNextBuffer* and *XTabPrevBuffer* accept a [count], to move to ±N buffer,
 as they are shown in the tabline.  If moving beyond the limit, it will start
@@ -273,7 +274,7 @@ considered valid for the current tab.
 *XTabPinBuffer* pins a buffer, so that it will be visible in all tabs.
 
 *XTabRelativePaths* is discussed in |xtabline-paths|. Notice that there are
-two mappings, */ and *-, with the second one that sets a negative value.
+two mappings, *+ and *-, with the second one that sets a negative value.
 
 
 
