@@ -120,7 +120,7 @@ fun! s:Dir.change_wd(dir, ...) abort
     " explicitly asking to set a tab-local working directory
       exe 'tcd' a:dir
 
-  elseif self.is_local_dir() && getcwd() == a:dir
+  elseif self.is_local_dir() && getcwd() ==# a:dir
     " same directory as current window-local directory, either keep or clear {{{2
     let action = confirm('Same as current window-local directory, keep it or clear it?',
           \"&Keep\n&Clear")
@@ -145,7 +145,7 @@ fun! s:Dir.change_wd(dir, ...) abort
       let [error, out] = [1, 'window-local directory unchanged']
     endif "}}}
 
-  elseif self.is_tab_dir() && getcwd(-1, 0) == a:dir
+  elseif self.is_tab_dir() && getcwd(-1, 0) ==# a:dir
     " same directory as current tab-local directory, either keep or clear {{{2
     let action = confirm('Same as current tab-local directory, keep it or clear it?',
           \"&Keep\n&Clear")
@@ -227,7 +227,7 @@ endfun "}}}
 fun! s:Dir.try_auto_change(dir) abort
   " Not a manual cwd change, check if it must be applied. "{{{1
 
-  if getcwd() == a:dir || self.has_tcd()
+  if getcwd() ==# a:dir || self.has_tcd()
     " do nothing: same directory, or has :tcd
     return
   endif
