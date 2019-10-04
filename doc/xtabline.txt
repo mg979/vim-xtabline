@@ -64,13 +64,9 @@ By default, only tabline rendering is enabled: more specific options must be
 enabled manually. Without any option set, you will see a different tabline,
 but the rest works normally.
 
-Per-tab CWD means that each tab can have its own CWD (set with |:cd|): when
-switching tabs, the tab's CWD is automatically restored. This will work even
-in versions of vim that do not support the |:tcd| command.
-
 Buffer filtering makes sense if per-tab CWD is being used, either via |:tcd|
-or by setting the option above. It means that in the tabline, only buffers
-that are valid for the tab's CWD will be listed.
+or |:lcd|. It means that in the tabline, only buffers that are valid for the
+tab's CWD will be listed.
 
 The last two are a series of commands that allow you to save/restore tabs and
 sessions.
@@ -139,6 +135,8 @@ Mappings are also provided. See |XTabRelativePaths|.
 
 
 
+
+
 INITIALIZATION                                                 *xtabline-init*
 ==============================================================================
 
@@ -192,6 +190,8 @@ affected.
 
 
 
+
+
 TABLINE MODES                                                 *xtabline-modes*
 ==============================================================================
 
@@ -204,6 +204,8 @@ XTabFiltering           *f
 
 *XTabFiltering*     will toggle buffer filtering, based on either the tab's
                   CWD or base directory.
+
+
 
 
 
@@ -285,16 +287,8 @@ TAB WORKING AND BASE DIRECTORIES                        *xtabline-directories*
 ==============================================================================
 
 Mappings are provided to set a tab's working directory, and optionally a base
-directory. Setting a tab working directory means that every time you enter
-that tab, the CWD changes to that directory.
-
-Consider that if you set a tab WD, the old WD is restored when that tab is
-left: >
-  start Vim       ->  a WD is set
-  create tab      ->  assign a tab WD  -> WD changes and is set for tab
-  change tab      ->  the old WD is restored
-  go back to tab  ->  tab's WD is applied
-<                                                    *xtabline-base-directory*
+directory.
+                                                     *xtabline-base-directory*
 Sometimes you may want to show buffers from a different directory, or from
 a subdirectory of the CWD. Or you may not want to change the working directory
 at all, and still be able to show only buffers from a specific directory.
@@ -308,12 +302,14 @@ buffer filtering.
 Command                Mapping~
 XTabWD[!]               cdw
 XTabLD[!]               cdl
+XTabTD[!]               cdt
 XTabBD[!]               cdb
                         cdc
                         cdd
 
 *XTabWD*      Set the tab CWD, with prompt or automatically (with !).
 *XTabLD*      Set a window-local WD, with prompt or automatically (with !).
+*XTabTD*      Set a tab-local WD, with prompt or automatically (with !).
 *XTabBD*      Set the base filtering directory. With a !, it is cleared.
 
 You can see that are 5 mappings that start with `cd`:
@@ -323,9 +319,10 @@ You can see that are 5 mappings that start with `cd`:
 * cdw   you'll be prompted for a cwd
 * cdb   you'll be prompted for a base filtering directory
 * cdl   you'll be prompted for a window-local cwd (|:lcd|)
+* cdt   you'll be prompted for a tab-local cwd (|:tcd|)
 
-This last mapping can be useful if you don't use a tab-local cwd (|:tcd|),
-since it can achieve similar effects.
+Note that |:tcd| is only available in neovim and the most recent vim versions
+(>= 8.1).
 
 
 
@@ -352,6 +349,7 @@ XTabDeleteTab          *td
 XTabDeleteBuffers      *bd
 
 Saved tabs are stored in `$HOME/.vim/.XTablineTabs`.
+
 
 
 
@@ -449,6 +447,8 @@ character. To expand the list of available icons for autocompletion, see
 |xtabline-customization|
 
 |XTabResetTab| will also try to find a suitable cwd for that tab.
+
+
 
 
 
