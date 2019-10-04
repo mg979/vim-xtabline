@@ -7,6 +7,27 @@
 " Licence:      The MIT License
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
+" Credits {{{1
+" Pieces of code have been taken from:
+"
+" BufTabLine {{{2
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Description: Vim global plugin for rendering the buffer list in the tabline
+" Mantainer:   Aristotle Pagaltzis <pagaltzis@gmx.de>
+" Url:         https://github.com/ap/vim-buftabline
+" Licence:     The MIT License (MIT)
+" Copyright:   (c) 2015 Aristotle Pagaltzis <pagaltzis@gmx.de>
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""}}}
+" Taboo {{{2
+"" =============================================================================
+" File: taboo.vim
+" Description: A little plugin for managing the vim tabline
+" Mantainer: Giacomo Comitti (https://github.com/gcmt)
+" Url: https://github.com/gcmt/taboo.vim
+" License: MIT
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""}}}
+"}}}
+
 let s:save_cpo = &cpo
 set cpo&vim
 

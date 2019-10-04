@@ -1,20 +1,3 @@
-" BufTabLine credits {{{1
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Description: Vim global plugin for rendering the buffer list in the tabline
-" Mantainer:   Aristotle Pagaltzis <pagaltzis@gmx.de>
-" Url:         https://github.com/ap/vim-buftabline
-" Licence:     The MIT License (MIT)
-" Copyright:   (c) 2015 Aristotle Pagaltzis <pagaltzis@gmx.de>
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Taboo credits {{{1
-"" =============================================================================
-" File: taboo.vim
-" Description: A little plugin for managing the vim tabline
-" Mantainer: Giacomo Comitti (https://github.com/gcmt)
-" Url: https://github.com/gcmt/taboo.vim
-" License: MIT
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Variables and lambdas {{{1
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -31,25 +14,19 @@ let s:vB = { -> s:T().buffers.valid     }       "valid buffers for tab
 let s:eB = { -> s:T().buffers.extra     }       "extra buffers for tab
 let s:oB = { -> s:T().buffers.order     }       "ordered buffers for tab
 
-let s:special = { nr -> s:B()[nr].special }
-let s:refilter = 0
-let s:mod_width = 0
+let s:is_special = { nr -> s:B()[nr].special }
+let s:is_open    = { n -> s:F.has_win(n) && index(s:vB(), n) < 0 && getbufvar(n, "&ma") }
+let s:is_extra   = { n -> index(s:eB(), n) >= 0 }
 
-let s:Hi        = { -> g:xtabline_highlight.themes[s:Sets.theme] }
-let s:is_open   = { n -> s:F.has_win(n) && index(s:vB(), n) < 0 && getbufvar(n, "&ma") }
-let s:is_extra  = { n -> index(s:eB(), n) >= 0 }
-
-let s:dirsep            = fnamemodify(getcwd(),':p')[-1:]
-let s:centerbuf         = winbufnr(0)
-let s:is_current_buf    = { nr -> nr == winbufnr(0)                                           }
 let s:scratch           = { nr -> index(['nofile','acwrite'], getbufvar(nr, '&buftype')) >= 0 }
-let s:nowrite           = { nr -> !getbufvar(nr, '&modifiable')                               }
 let s:pinned            = { -> s:X.pinned_buffers                                             }
 let s:buffer_has_format = { buf -> has_key(s:B()[buf.nr], 'format')                           }
 let s:has_buf_icon      = { nr -> !empty(get(s:B()[nr], 'icon', ''))                          }
 let s:extraHi           = { b -> s:is_extra(b) || s:is_open(b) || index(s:pinned(), b) >= 0   }
 let s:show_bufname      = { -> !s:Sets.use_tab_cwd || get(s:Sets, 'tabs_show_bufname', 1)     }
 let s:strwidth          = { label -> strwidth(substitute(label, '%#\w*#\|%\d\+T', '', 'g'))   }
+
+
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Main functions {{{1
@@ -63,24 +40,18 @@ let s:last_modified_state = { winbufnr(0): &modified }
 " a buffer has been modified. We store the last rendered tabline, and if
 " there's no need to reprocess it, just return the old string
 
-fun! xtabline#render#tabline() abort "{{{2
+fun! xtabline#render#tabline() abort
+  " Entry point {{{2
   if !s:ready() | return g:xtabline.last_tabline | endif
   call xtabline#tab#check_all()
   call xtabline#tab#check_index()
   call xtabline#filter_buffers() " filter buffers is called only from here
-  let currentbuf = winbufnr(0)
 
   " no room for a full tabline
   if &columns < 40 | return s:format_right_corner() | endif
 
-  let changed_modified_state =
-        \ !has_key(s:last_modified_state, currentbuf) ||
-        \ &modified != s:last_modified_state[currentbuf]
-
-  if changed_modified_state || exists('s:v.time_to_update')
-    let s:last_modified_state[currentbuf] = &modified
-    silent! unlet s:v.time_to_update
-  else
+  " reuse last tabline because there's no need to update it
+  if s:reuse_last_tabline()
     return g:xtabline.last_tabline
   endif
 
@@ -89,11 +60,10 @@ fun! xtabline#render#tabline() abort "{{{2
   else
     return s:render_buffers()
   endif
-endfun
+endfun "}}}
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! s:render_tabs() abort "{{{2
+fun! s:render_tabs() abort
+  " Tabline rendering in 'tabs' mode {{{2
   let centerlabel = tabpagenr()
   let tabs = []
   let labels = range(1, tabpagenr('$'))
@@ -109,22 +79,19 @@ fun! s:render_tabs() abort "{{{2
   endfor
 
   return s:fit_tabline(centerlabel, tabs)
-endfun
+endfun "}}}
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! s:render_buffers() abort "{{{2
-  let centerlabel = s:centerbuf " prevent tabline jumping around when non-user buffer current (e.g. help)
-  let currentbuf = winbufnr(0)
+fun! s:render_buffers() abort
+  " Tabline rendering in 'buffers' or 'arglist' mode {{{2
+  let [currentbuf, centerlabel] = [winbufnr(0), winbufnr(0)]
 
   " pick up data on all the buffers
   let tabs = []
   let Tab  = s:T()
 
   if s:v.tabline_mode == 'buffers'
-    let labels = s:oB()
+    let labels = filter(s:oB(), 'bufexists(v:val)')
     let max = get(s:Sets, 'recent_buffers', 10)
-    call filter(labels, 'bufexists(v:val)')
 
     "limiting to x most recent buffers, if option is set; here we consider only
     "valid buffers, special/extra/etc will be added later
@@ -182,7 +149,7 @@ fun! s:render_buffers() abort "{{{2
 
   " make tabline string
   for bnr in labels
-    let special = s:special(bnr)
+    let special = s:is_special(bnr)
     let scratch = s:scratch(bnr)
     let extra   = s:extraHi(bnr)
 
@@ -212,19 +179,17 @@ fun! s:render_buffers() abort "{{{2
       let buf.indicator = s:buf_indicator(bnr)
     endif
 
-    if is_currentbuf | let [centerlabel, s:centerbuf] = [bnr, bnr] | endif
+    if is_currentbuf | let centerlabel = bnr | endif
 
     let buf.label = s:format_buffer(buf)
     let tabs += [buf]
   endfor
 
   return s:fit_tabline(centerlabel, tabs)
-endfun
+endfun "}}}
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! s:fit_tabline(centerlabel, tabs) abort "{{{2
-  " toss away tabs and pieces until all fits
+fun! s:fit_tabline(centerlabel, tabs) abort
+  " Toss away tabs and pieces until all fits {{{2
   let corner_label = s:format_right_corner()
   let corner_width = s:strwidth(corner_label)
   let Tabs = a:tabs
@@ -286,8 +251,7 @@ fun! s:fit_tabline(centerlabel, tabs) abort "{{{2
     endfor
   endif
   let labels = join(labels, '')
-  let padding = s:extra_padding(L.width + R.width, limit)
-  let g:xtabline.last_tabline = labels . padding . corner_label . '%999X'
+  let g:xtabline.last_tabline = labels . '%#XTFill#%=' . corner_label . '%999X'
   return g:xtabline.last_tabline
 endfun "}}}
 
@@ -295,10 +259,14 @@ endfun "}}}
 
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Label formatting {{{1
+" Buffer label formatting {{{1
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:flat_buffer(buf) abort "{{{2
+fun! s:flat_buffer(buf) abort
+  " Buffer label, using the default flat formatter {{{2
+  "
+  " @param bufdict: a buffer object, as generated in s:render_buffers()
+  " Returns: the buffer label, complete with highlight groups
   let B = a:buf
 
   let mod    = index(s:pinned(), B.nr) >= 0 ? ' '.s:Sets.bufline_indicators.pinned : ''
@@ -310,102 +278,108 @@ fun! s:flat_buffer(buf) abort "{{{2
   let number = winbufnr(0) == B.nr ? ("%#XTNumSel# " . bn) : ("%#XTNum# " . bn)
 
   return number . hi . icon . B.path . mod
-endfun
+endfun "}}}
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! s:format_buffer_label(item, chars) abort "{{{2
+fun! s:custom_buffer_label(bufdict, chars) abort
+  " Buffer label, using a custom formatter {{{2
+  "
+  " @param bufdict: a buffer object, as generated in s:render_buffers()
+  " @param chars: the formatter, as a list of characters
+  " Returns: the formatted label
   let out = []
-  let I = a:item
+  let B = a:bufdict
   for c in a:chars
     let C = c
     "custom tab icon, if tab has a name and/or icon has been defined
     if     C == 32  | let C = ' '
-    elseif C == 108 | let C = s:get_buf_name(I)                             "l
-    elseif C == 117 | let C = s:unicode_nrs(I.n)                            "u
-    elseif C == 78  | let C = I.n                                           "N
-    elseif C == 110 | let C = I.nr                                          "n
-    elseif C == 43  | let C = I.indicator                                   "+
-    elseif C == 102 | let C = I.path                                        "f
-    elseif C == 73  | let C = s:get_buf_icon(I)                             "i
-    elseif C == 60  | let C = !I.has_icon ? I.separators[0] : ''            "<
-    elseif C == 62  | let C = I.separators[1]                               ">
+    elseif C == 108 | let C = s:get_buf_name(B)                             "l
+    elseif C == 117 | let C = s:unicode_nrs(B.n)                            "u
+    elseif C == 78  | let C = B.n                                           "N
+    elseif C == 110 | let C = B.nr                                          "n
+    elseif C == 43  | let C = B.indicator                                   "+
+    elseif C == 102 | let C = B.path                                        "f
+    elseif C == 73  | let C = s:get_buf_icon(B)                             "i
+    elseif C == 60  | let C = !B.has_icon ? B.separators[0] : ''            "<
+    elseif C == 62  | let C = B.separators[1]                               ">
     endif
     call add(out, C)
   endfor
   let st = join(out, '')
-  let hi = '%#XT' . I.hilite . '#'
+  let hi = '%#XT' . B.hilite . '#'
   return hi.st
-endfun
+endfun "}}}
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! s:format_tab_label(tabnr) abort "{{{2
-  let nr    = s:tabnum(a:tabnr, 1)
-  let icon  = s:get_tab_icon(a:tabnr, 0)
-  let mod   = s:modflag(a:tabnr)
-  let label = s:tab_label(a:tabnr, 0)
-
-  return printf("%s %s%s%s ", nr, icon, label, mod)
-endfun
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! s:format_right_corner() abort "{{{2
-  """Build string with tab label and icon for the bufline.
+fun! s:format_right_corner() abort
+  " Label for the upper right corner. {{{2
   let N = tabpagenr()
 
   if has_key(s:T(), 'corner')
+    " special right corner with its own label
     return s:T().corner
 
   elseif s:v.tabline_mode == 'arglist'
-    let [ n, N ]  = [ index(argv(), bufname(bufnr('%'))) + 1, len(argv()) ]
-    let num       = "%#XTNumSel# " . n .'/' . N . " "
-    return num . "%#XTSelect# arglist" . " %#XTTabInactive#"
+    " the number of the files in the arglist, in form n/N
+    return s:right_corner_label()
 
   elseif !s:Sets.show_right_corner
-    return s:tabnum(N, 1)
+    " no label, just the tab number in form n/N
+    return s:tab_num(N)
 
   elseif s:v.tabline_mode == 'tabs'
+    " no number, just the name or the cwd
     let icon  = "%#XTNumSel# " . s:get_tab_icon(N, 1)
-    let name  = s:v.custom_tabs && !empty(s:T().name) ? s:T().name : s:F.short_cwd(N, 1)
-    let label = "%#XTTabActive# " . name
+    let label = s:right_corner_label()
     return icon . label
 
-  else
-    let nr        = s:tabnum(N, 1)
+  elseif s:v.tabline_mode == 'buffers'
+    " tab number in form n/N, plus tab name or cwd
+    let nr        = s:tab_num(N)
     let icon      = s:get_tab_icon(N, 1)
-    let mod       = s:modflag(N)
-    let label     = s:tab_label(N, 1)
+    let mod       = s:tab_mod_flag(N)
+    let label     = s:right_corner_label()
     return printf("%s %s%s%s ", nr, icon, label, mod)
   endif
-endfun
+endfun "}}}
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+fun! s:format_buffer(bufdict) abort
+  " Generate label in 'buffers' mode {{{2
+  "
+  " In buffer mode, the buffer formatting can be specified in different ways:
+  " - specific buffer's format
+  " - flat (default)
+  " - funcref (user defined)
 
-fun! s:format_buffer(buf) abort "{{{2
-  let [ B, fmt ] = [ a:buf, s:default_buffer_format ]
+  " @param bufdict: a buffer object, as generated in s:render_buffers()
+  " Returns: the buffer label, complete with highlight groups
+  ""
+  let [ B, fmt ] = [ a:bufdict, s:default_buffer_format ]
+
   if s:buffer_has_format(B)
     let chars = s:fmt_chars(s:B()[B.nr].format)
+
   elseif fmt.flat
     return s:flat_buffer(B)
-  elseif fmt.is_func
+
+  elseif fmt.func
     return fmt.content(B.nr)
+
   else
     let chars = fmt.content
   endif
-  return s:format_buffer_label(B, chars)
-endfun
+  return s:custom_buffer_label(B, chars)
+endfun "}}}
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+fun! s:buf_indicator(bnr) abort
+  " Different kinds of indicators: modified, pinned {{{2
+  let [ nr, mods ] = [ a:bnr, s:Sets.bufline_indicators ]
+  let current_buf  = nr == winbufnr(0)
+  let has_window   = bufwinnr(nr) > 0
 
-fun! s:buf_indicator(bnr) abort "{{{2
-  let mods = s:Sets.bufline_indicators | let nr = a:bnr
   let mod = index(s:pinned(), nr) >= 0 ? mods.pinned : ''
-  let modHi = s:is_current_buf(nr) ? "%#XTSelectMod#" :
-        \     s:extraHi(nr)        ? "%#XTExtraMod#" :
-        \     bufwinnr(nr) > 0     ? "%#XTVisibleMod#" : "%#XTHiddenMod#"
-  if s:special(nr)
+  let modHi = current_buf      ? "%#XTSelectMod#" :
+        \     s:extraHi(nr)    ? "%#XTExtraMod#" :
+        \     has_window       ? "%#XTVisibleMod#" : "%#XTHiddenMod#"
+  if s:is_special(nr)
     return ''
   elseif getbufvar(nr, '&mod')
     return (mod . modHi . mods.modified)
@@ -416,29 +390,23 @@ fun! s:buf_indicator(bnr) abort "{{{2
   else
     return mod
   endif
-endfun
+endfun "}}}
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! s:buf_separators(nr) abort "{{{2
-  """Use custom separators if defined in buffer entry.
+fun! s:buf_separators(nr) abort
+  " Use custom separators if defined in buffer entry. {{{2
   let B = s:B()[a:nr]
   return has_key(B, 'separators') ? B.separators : s:Sets.bufline_separators
-endfun
+endfun "}}}
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! s:get_buf_name(buf) abort "{{{2
-  """Return custom buffer name, if it has been set, otherwise the filename.
+fun! s:get_buf_name(buf) abort
+  " Return custom buffer name, if it has been set, otherwise the filename. {{{2
   let B = s:B()[a:buf.nr]
   return !empty(B.name)       ? B.name :
         \ empty( a:buf.path ) ? s:Sets.unnamed_buffer : a:buf.path
-endfun
+endfun "}}}
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! s:get_buf_icon(buf) abort "{{{2
-  """Return custom icon for buffer, or devicon if present.
+fun! s:get_buf_icon(buf) abort
+  " Return custom icon for buffer, or devicon if present. {{{2
   let nr = a:buf.nr
   if s:has_buf_icon(nr)
     let a:buf.has_icon = 1
@@ -461,8 +429,27 @@ endfun "}}}
 " Tab label formatting {{{1
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:tabnum(tabnr, all) abort "{{{2
-  if a:all && s:v.tabline_mode != 'tabs'
+fun! s:format_tab_label(tabnr) abort
+  " Format the tab label in 'tabs' mode {{{2
+  "
+  " @param tabnr: the tab's number
+  " Returns: the formatted tab label
+
+  let nr    = s:tab_num(a:tabnr)
+  let icon  = s:get_tab_icon(a:tabnr, 0)
+  let mod   = s:tab_mod_flag(a:tabnr)
+  let label = s:tab_label(a:tabnr)
+
+  return printf("%s %s%s%s ", nr, icon, label, mod)
+endfun "}}}
+
+fun! s:tab_num(tabnr) abort
+  " Format the tab number, for either the tab label or the right corner. {{{2
+  "
+  " @param tabnr: tab number
+  " Returns: the formatted tab number
+
+  if s:v.tabline_mode != 'tabs'
     let hi = has_key(s:T(), 'dir') ? " %#XTNumSel#" : " %#XTTabInactive#"
     return "%#XTNumSel# " . a:tabnr .'/' . tabpagenr('$') . hi
   else
@@ -470,45 +457,86 @@ fun! s:tabnum(tabnr, all) abort "{{{2
           \   "%#XTNumSel# " . a:tabnr . " %#XTTabActive#"
           \ : "%#XTNum# "    . a:tabnr . " %#XTTabInactive#"
   endif
-endfun
+endfun "}}}
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+fun! s:tab_mod_flag(tabnr) abort
+  " Flag for the 'modified' state for a tab label. {{{2
+  "
+  " @param tabnr: the tab number
+  " Returns: the formatted flag
 
-fun! s:modflag(tabnr) abort "{{{2
   let flag = s:Sets.modified_tab_flag
   for buf in tabpagebuflist(a:tabnr)
     if getbufvar(buf, "&mod")
       return a:tabnr == tabpagenr() ?
-              \ "%#XTHiddenMod#"  . flag . "%#XTHidden#" :
-              \ "%#XTVisibleMod#" . flag . "%#XTVisible#"
+              \ "%#ErrorMsg# "  . flag : "%#WarningMsg# " . flag
     endif
   endfor
   return ""
-endfun
+endfun "}}}
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+fun! s:right_corner_label() abort
+  " Build the label for the right corner. {{{2
+  "
+  " The label can be either:
+  " 1. the shortened cwd ('tabs' and 'buffers' mode)
+  " 2. a custom tab name ('buffers' mode)
+  " 3. the name of the active buffer for this tab ('buffers' mode)
+  " 4. the number/total files in the arglist ('arglist' mode)
+  "
+  " Returns: the formatted label
+  let N = tabpagenr()
 
-fun! s:tab_label(tabnr, right_corner) abort "{{{2
-  let can_show_name =  s:v.custom_tabs
-        \           && s:v.tabline_mode != 'tabs'
-        \           && !empty(s:Tn(a:tabnr).name)
-  return can_show_name ? s:Tn(a:tabnr).name :
-        \     !a:right_corner && s:show_bufname() ? s:tabbufname(a:tabnr)
-        \     : s:F.short_cwd(a:tabnr, s:Sets.tab_format)
-endfun
+  if s:v.tabline_mode == 'tabs'
+    let name  = s:v.custom_tabs && !empty(s:T().name)
+          \   ? s:T().name : s:F.short_cwd(N, 1)
+    return "%#XTTabActive# " . name
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+  elseif s:v.tabline_mode == 'arglist'
+    let [ n, N ]  = [ index(argv(), bufname(bufnr('%'))) + 1, len(argv()) ]
+    let num       = "%#XTNumSel# " . n .'/' . N . " "
+    return num . "%#XTSelect# arglist" . " %#XTTabInactive#"
 
-fun! s:tabbufname(tabnr) abort "{{{2
+  elseif s:v.tabline_mode == 'buffers'
+    return s:v.custom_tabs && !empty(s:T().name)
+          \ ? s:T().name : s:F.short_cwd(N, s:Sets.tab_format)
+  endif
+endfun "}}}
+
+fun! s:tab_label(tabnr) abort
+  " Build the tab label. {{{2
+  "
+  " The label can be either:
+  " 1. the shortened cwd
+  " 2. the name of the active buffer for this tab (option-controlled)
+  "
+  " @param tabnr: the tab number
+  " Returns: the formatted tab label
+
+  return s:show_bufname()
+        \ ? s:tab_bufname(a:tabnr)
+        \ : s:F.short_cwd(a:tabnr, s:Sets.tab_format)
+endfun "}}}
+
+fun! s:tab_bufname(tabnr) abort
+  " The formatted buffer name for the tab. {{{2
+  "
+  " @param tabnr: the tab number
+  " Returns: the buffer name
+
   let bnr = s:first_normal_buffer(a:tabnr)
   return empty(bufname(bnr)) ? s:Sets.unnamed_tab
         \ : &columns < 150 || !s:Tn(a:tabnr).rpaths ? fnamemodify(bufname(bnr), ':t')
         \ : s:F.short_path(bnr, s:Tn(a:tabnr).rpaths)
-endfun
+endfun "}}}
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+fun! s:get_tab_icon(tabnr, right_corner) abort
+  " The icon for the tab label. {{{2
+  "
+  " @param tabnr: the tab number
+  " @param right_corner: if it's for the right corner
+  " Returns: the icon
 
-fun! s:get_tab_icon(tabnr, right_corner) abort "{{{2
   if !empty(get(s:Tn(a:tabnr), 'icon', ''))
     return s:Tn(a:tabnr).icon . ' '
   endif
@@ -533,18 +561,17 @@ endfun "}}}
 " Helpers {{{1
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:fmt_chars(fmt) abort "{{{2
-  """Return a split string with the formatting option in use.
+fun! s:fmt_chars(fmt) abort
+  " Return a split string with the formatting option in use. {{{2
   let chars = []
   for i in range(strchars(a:fmt))
     call add(chars, strgetchar(a:fmt, i))
   endfor
   return chars
-endfun
+endfun "}}}
 
-"------------------------------------------------------------------------------
-
-fun! s:first_normal_buffer(tabnr) abort "{{{2
+fun! s:first_normal_buffer(tabnr) abort
+  " The first regular buffer for the tab. {{{2
   let bufs = tabpagebuflist(a:tabnr)
   for buf in bufs
     if buflisted(buf) && getbufvar(buf, "&bt") != 'nofile'
@@ -552,18 +579,17 @@ fun! s:first_normal_buffer(tabnr) abort "{{{2
     end
   endfor
   return bufnr(bufs[0])
-endfun
+endfun "}}}
 
-"------------------------------------------------------------------------------
-
-fun! s:get_default_buffer_format() abort "{{{2
-  " get the default buffer format, and set its type, either:
+fun! s:get_default_buffer_format() abort
+  " Get the default buffer format, and set its type {{{2
+  " It can be either:
   " - funcref
   " - format string
   " - number (1 to show bufnr, 2 to show buffer order)
-  let fmt = { 'is_func': 0, 'flat': 0 }
+  let fmt = { 'func': 0, 'flat': 0 }
   if type(s:Sets.buffer_format) == v:t_func
-    let fmt.is_func = 1
+    let fmt.func = 1
     let fmt.content = s:Sets.buffer_format
   elseif type(s:Sets.buffer_format) == v:t_string
     let fmt.content = s:fmt_chars(s:Sets.buffer_format)
@@ -571,9 +597,7 @@ fun! s:get_default_buffer_format() abort "{{{2
     let fmt.flat = s:Sets.buffer_format
   endif
   return fmt
-endfun
-
-"------------------------------------------------------------------------------
+endfun "}}}
 
 let s:unr1 = [ '₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉', '₁₀',
       \'₁₁', '₁₂', '₁₃', '₁₄', '₁₅', '₁₆', '₁₇', '₁₈', '₁₉', '₂₀',
@@ -583,8 +607,8 @@ let s:unr2 = [ '¹', '²', '³', '⁴', '⁵', '⁶', '⁷', '⁸', '⁹', '¹�
       \'¹¹', '¹²', '¹³', '¹⁴', '¹⁵', '¹⁶', '¹⁷', '¹⁸', '¹⁹', '²⁰',
       \'²¹', '²²', '²³', '²⁴', '²⁵', '²⁶', '²⁷', '²⁸', '²⁹', '³⁰' ]
 
-fun! s:unicode_nrs(nr) abort "{{{2
-  """Adapted from Vim-CtrlSpace (https://github.com/szw/vim-ctrlspace)
+fun! s:unicode_nrs(nr) abort
+  " Adapted from Vim-CtrlSpace (https://github.com/szw/vim-ctrlspace) {{{2
   let u_nr = ""
 
   if !s:Sets.superscript_unicode_nrs && a:nr < 31
@@ -603,17 +627,34 @@ fun! s:unicode_nrs(nr) abort "{{{2
   endfor
 
   return u_nr
-endfun
-
-"------------------------------------------------------------------------------
-
-fun! s:extra_padding(l_r, limit) abort "{{{2
-  return a:l_r < a:limit ? '%#XTFill#'.repeat(' ', a:limit - a:l_r) : ''
-endfun
-
-"------------------------------------------------------------------------------
-
-fun! s:ready() abort "{{{2
-   return !exists('g:SessionLoad')
 endfun "}}}
 
+fun! s:extra_padding(l_r, limit) abort
+  " Padding before the right corner {{{2
+  return a:l_r < a:limit ? '%#XTFill#'.repeat(' ', a:limit - a:l_r) : ''
+endfun "}}}
+
+fun! s:ready() abort
+  " Do not update when a session is still loading. {{{2
+   return !exists('g:SessionLoad')
+ endfun "}}}
+
+fun! s:reuse_last_tabline() abort
+  " Check if it's time to update the tabline or not {{{2
+  " Returns: bool
+  let currentbuf = winbufnr(0)
+
+  let changed_modified_state =
+        \ !has_key(s:last_modified_state, currentbuf) ||
+        \ &modified != s:last_modified_state[currentbuf]
+
+  if changed_modified_state || exists('s:v.time_to_update')
+    let s:last_modified_state[currentbuf] = &modified
+    silent! unlet s:v.time_to_update
+  else
+    return 1
+  endif
+endfun "}}}
+
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" vim: et sw=2 ts=2 sts=2 fdm=marker
