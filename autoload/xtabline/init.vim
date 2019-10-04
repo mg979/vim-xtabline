@@ -106,7 +106,7 @@ let g:xtabline_highlight = get(g:, 'xtabline_highlight', {'themes': {}})
 let s:S = {
       \ 'enabled':                    1,
       \ 'map_prefix' :                '<leader>x',
-      \ 'tabline_modes':              ['tabs', 'arglist'],
+      \ 'tabline_modes':              ['tabs', 'buffers', 'arglist'],
       \ 'close_buffer_can_close_tab': 0,
       \ 'close_buffer_can_quit_vim':  0,
       \ 'select_buffer_alt_action':   "buffer #",

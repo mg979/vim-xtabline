@@ -162,12 +162,12 @@ Most mappings presented are meant prefixed by <prefix>, when preceded by *.
 
 ----------------------------------------------------- *xtabline-tabline_modes*
 >
-    let g:xtabline_settings.tabline_modes = ['tabs', 'arglist']
+    let g:xtabline_settings.tabline_modes = ['tabs', 'buffers', 'arglist']
 
 The modes that can be put in this list are:
 
+- |tabs|:       similar to the default vim tabline, with CWD in the corner
 - |buffers|:    buffer names, formatted with |xtabline-buffer_format|.
-- |tabs|:       the tabs CWDs, if per-tab CWD is active, or the buffer name
 - |arglist|:    the files contained in the arglist, as shown by |:args|
 
 The modes can be cycled with <F5> (default).
@@ -336,7 +336,7 @@ MANAGING TABS AND BUFFERS                                    *xtabline-manage*
 
 
 Command                Mapping~
-XTabLast               *'
+XTabLast               *\
 XTabReopen             *u
 
 *XTabLast*    brings you back to the last visited tab

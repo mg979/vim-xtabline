@@ -55,7 +55,7 @@ fun! s:do_map() abort
   call s:mapkey_(X.'a',  'ListTabs')
   call s:mapkey_(X.'z',  'ListBuffers')
   call s:mapkey_(X.'x',  'Purge')
-  call s:mapkey_(X."'",  'Last')
+  call s:mapkey_(X.'\',  'Last')
   call s:mapkey_(X.'u',  'Reopen')
   call s:mapkey_(X.'p',  'PinBuffer')
   call s:mapkeyc(X.'m',  'MoveBuffer')
@@ -117,7 +117,7 @@ let s:cd = [
       \]
 
 let s:leader = [
-      \["'",    'Go to last tab',               "XTabLastTab"],
+      \['\',    'Go to last tab',               "XTabLastTab"],
       \['+',    'Relative paths (+)',           "XTabRelativePaths"],
       \['/',    'Toggle filtering',             "XTabFiltering"],
       \['-',    'Relative paths (-)',           "XTabRelativePaths!"],
