@@ -144,7 +144,6 @@ fun! xtabline#session_loaded() abort
     endif
   endfor
 
-  call s:F.change_wd(s:X.Tabs[tabpagenr()-1].cwd)
   let s:v.force_update = 1
   call xtabline#tab#check()
   call xtabline#update()
@@ -196,9 +195,12 @@ fun! xtabline#filter_buffers(...) abort
   elseif  !s:ready()                          | return
   endif
 
+  " Types of tab buffers:
+  "
   " 'valid' is a list of buffer numbers that belong to the tab, either because:
   "     - their path is valid for this tab
   "     - tab is locked and buffers are included
+  "
   " 'extra' are buffers that have been purposefully added by other means to the tab
   "     - not a dynamic list, elements are manually added or removed
   "     - they aren't handled here, they are handled at render time
@@ -222,6 +224,7 @@ fun! xtabline#filter_buffers(...) abort
     elseif !T.locked
 
       if !s:Sets.buffer_filtering
+        " buffer filtering is disabled, accept all buffers
         let valid = 1
 
       elseif use_files
@@ -322,9 +325,6 @@ function! s:Do(action, ...)
 
     call xtabline#tab#check_all()
     call xtabline#tab#check()
-
-    call F.cd_into_tab_wd()
-
     call xtabline#update()
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""

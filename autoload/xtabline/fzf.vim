@@ -124,11 +124,7 @@ endif
 
 fun! s:tab_buffers() abort
   """Open a list of buffers for this tab with fzf.vim."""
-
-  let bufs = s:Sets.use_tab_cwd
-        \  ? s:vB()
-        \  : filter(range(1, bufnr('$')),
-        \    'buflisted(v:val) && s:F.fullpath(bufname(v:val)) =~ "^".getcwd()')
+  let bufs = s:vB()
 
   if empty(bufs) | return [] | endif
 
@@ -269,7 +265,7 @@ fun! s:tab_load(...) abort
 
     $tabnew | let newbuf = bufnr("%")
 
-    if !s:Sets.use_tab_cwd && cwd !=# getcwd()
+    if cwd !=# getcwd()
       call map(saved['buffers'], 'v:val =~ "^/" ? v:val : cwd."/".v:val')
       if s:F.has_tcd()
         exe 'tcd' cwd

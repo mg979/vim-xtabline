@@ -188,8 +188,7 @@ endfun "}}}
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:Funcs.short_cwd(tabnr, h, ...) abort "{{{2
-  let path = a:0 ? a:1 : s:Sets.use_tab_cwd ? s:X.Tabs[a:tabnr-1].cwd
-        \                                   : getcwd()
+  let path = a:0 ? a:1 : getcwd()
 
   if !a:h
     return fnamemodify(path, ":t")

@@ -23,7 +23,6 @@ let s:pinned            = { -> s:X.pinned_buffers                               
 let s:buffer_has_format = { buf -> has_key(s:B()[buf.nr], 'format')                           }
 let s:has_buf_icon      = { nr -> !empty(get(s:B()[nr], 'icon', ''))                          }
 let s:extraHi           = { b -> s:is_extra(b) || s:is_open(b) || index(s:pinned(), b) >= 0   }
-let s:show_bufname      = { -> !s:Sets.use_tab_cwd || get(s:Sets, 'tabs_show_bufname', 1)     }
 let s:strwidth          = { label -> strwidth(substitute(label, '%#\w*#\|%\d\+T', '', 'g'))   }
 
 
@@ -513,7 +512,7 @@ fun! s:tab_label(tabnr) abort
   " @param tabnr: the tab number
   " Returns: the formatted tab label
 
-  return s:show_bufname()
+  return s:Sets.tabs_show_bufname
         \ ? s:tab_bufname(a:tabnr)
         \ : s:F.short_cwd(a:tabnr, s:Sets.tab_format)
 endfun "}}}
@@ -543,10 +542,12 @@ fun! s:get_tab_icon(tabnr, right_corner) abort
 
   if a:right_corner
     let icon = s:Sets.tab_icon
-  elseif s:show_bufname()
+
+  elseif s:Sets.tabs_show_bufname
     let bnr  = s:first_normal_buffer(a:tabnr)
     let buf  = {'nr': bnr, 'has_icon': 0}
     let icon = s:get_buf_icon(buf)
+
   else
     return ''
   endif

@@ -56,7 +56,6 @@ FEATURES LIST                                             *xtabline-features*
 The main features of the plugin are:
 
 - custom tabline rendering    |xtabline-rendering|
-- per-tab CWD                 |xtabline-use_tab_cwd|
 - buffer filtering            |xtabline-buffer_filtering|
 - tabs management             |xtabline-manage|
 - sessions management         |xtabline-sessions|
@@ -172,24 +171,6 @@ The modes that can be put in this list are:
 - |arglist|:    the files contained in the arglist, as shown by |:args|
 
 The modes can be cycled with <F5> (default).
-
-
-------------------------------------------------------- *xtabline-use_tab_cwd*
->
-    let g:xtabline_settings.use_tab_cwd = 0
-<
-If not 0, each will have its own CWD. This CWD will persist across sessions,
-if persistance is enabled.
->
-Note that:
-
-1. buffer filtering in the tabline is an independent feature and can be
-   disabled/enabled on its own: |xtabline-buffer_filtering|.
-
-2. independently from the method used, buffer filtering is based on the
-   working directory reported by vim |getcwd()|, so it also works if this
-   option is disabled. Take this in consideration if your vim version supports
-   |:tcd|.
 
 
 -------------------------------------------------- *xtabline-buffer_filtering*

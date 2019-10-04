@@ -218,35 +218,26 @@ fun! s:Dir.set_tab_wd() abort
   let T = s:T()
   if self.has_tcd()
     let T.cwd = self.fullpath(getcwd(-1, tabpagenr()))
-  elseif s:Sets.use_tab_cwd && !haslocaldir()
+  elseif !haslocaldir()
     let T.cwd = self.fullpath(getcwd())
   endif
 endfun "}}}
 
 
-fun! s:Dir.cd_into_tab_wd() abort
-  " Try to change the current directory. {{{1
-
-  let T = s:T()
-  if s:Sets.use_tab_cwd
-    call self.change_wd(T.cwd)
-  elseif T.cwd != getcwd()
-    let T.cwd = getcwd()
-  endif
-endfun "}}}
-
 fun! s:Dir.try_auto_change(dir) abort
   " Not a manual cwd change, check if it must be applied. "{{{1
 
-  if !s:Sets.use_tab_cwd || getcwd() == a:dir || self.has_tcd()
-    " not using per-tab cwd, same directory, or has :tcd, do nothing
+  if getcwd() == a:dir || self.has_tcd()
+    " do nothing: same directory, or has :tcd
     return
   endif
 
-  if !self.is_local_dir()
+  if self.is_local_dir()
+    exe 'lcd' a:dir
+  else
     exe 'cd' a:dir
-    call self.set_tab_wd()
   endif
+  call self.set_tab_wd()
   call xtabline#update_this_session()
 endfun "}}}
 
