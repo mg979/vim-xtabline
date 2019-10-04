@@ -123,6 +123,7 @@ let s:S = {
       \ 'bufline_separators':         ['|', '|'],
       \ 'buffer_format':              2,
       \ 'tab_format':                 1,
+      \ 'recent_buffers':             10,
       \ 'unnamed_buffer':             '...',
       \ 'unnamed_tab':                "[no name]",
       \ 'modified_tab_flag':          "*",

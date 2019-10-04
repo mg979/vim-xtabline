@@ -35,63 +35,54 @@ fun! xtabline#cmds#select_buffer(cnt) abort
   if type(Fmt) == v:t_number && Fmt == 1
     let b = a:cnt + 1
   else
-    let bufs = g:xtabline.Tabs[tabpagenr()-1].buffers.order
-    let n = min([a:cnt, len(bufs)-1])
-    let b = bufs[n]
+    let n = min([a:cnt, len(s:oB())-1])
+    let b = s:oB()[n]
   endif
   return ":\<C-U>silent! buffer ".b."\<cr>"
 endfun "}}}
 
 fun! xtabline#cmds#next_buffer(nr, last) abort
   " Switch to next visible/pinned buffer. "{{{1
-
   if s:F.not_enough_buffers(0) | return | endif
-  let accepted = s:oB()
+  let max = min([len(s:oB()) - 1, s:Sets.recent_buffers - 1])
+  let nr = a:nr > max + 1 ? a:nr % (max + 1) : a:nr
 
-  let ix = a:last ? (len(accepted) - 2) : index(accepted, bufnr("%"))
-  let target = ix + (max([a:nr, 1]))
-  let total = len(accepted)
-
-  if target >= total
-    " over last buffer
-    let s:most_recent = target - total
-
-  elseif ix == -1
-    " not in index, go back to most recent or back to first
-    if s:most_recent == -1 || index(accepted, s:most_recent) == -1
-      let s:most_recent = 0
-    endif
+  if a:last
+    let target = max - 1
   else
-    let s:most_recent = target
+    let current = index(s:oB(), bufnr("%"))
+    if current >= 0
+      let target = current + nr
+    else
+      let target = nr - 1
+    endif
+    if target > max
+      let target = current - max + nr - 1
+    endif
   endif
 
-  exe "buffer " . accepted[s:most_recent]
+  exe "buffer " . s:oB()[target]
 endfun "}}}
 
 fun! xtabline#cmds#prev_buffer(nr, first) abort
   " Switch to previous visible/pinned buffer. "{{{1
-
   if s:F.not_enough_buffers(0) | return | endif
-  let accepted = s:oB()
+  let max = min([len(s:oB()) - 1, s:Sets.recent_buffers - 1])
+  let nr = a:nr > max + 1 ? a:nr % (max + 1) : a:nr
 
-  let ix = a:first ? 1 : index(accepted, bufnr("%"))
-  let target = ix - (max([a:nr, 1]))
-  let total = len(accepted)
-
-  if target < 0
-    " before first buffer
-    let s:most_recent = total + target
-
-  elseif ix == -1
-    " not in index, go back to most recent or back to first
-    if s:most_recent == -1 || index(accepted, s:most_recent) == -1
-      let s:most_recent = 0
-    endif
+  if a:first
+    let target = 0
   else
-    let s:most_recent = target
+    let current = index(s:oB(), bufnr("%"))
+    if current >= 0
+      let target = current - nr
+    else
+      let target = nr - 1
+    endif
   endif
 
-  exe "buffer " . accepted[s:most_recent]
+  echom target
+  exe "buffer " . s:oB()[target]
 endfun "}}}
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

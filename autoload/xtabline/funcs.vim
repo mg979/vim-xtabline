@@ -115,7 +115,7 @@ endfun
 
 
 fun! s:Funcs.add_ordered(buf, ...) abort "{{{2
-  " Add a buffer to the Tab.buffers.ordere list.
+  " Add a buffer to the Tab.buffers.order list.
 
   let [ b, bufs, first, i ] = [ a:buf, s:oB(), a:0, index(s:oB(), a:buf) ]
 
