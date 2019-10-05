@@ -126,7 +126,7 @@ let s:S = {
       \ 'recent_buffers':             10,
       \ 'unnamed_buffer':             '...',
       \ 'unnamed_tab':                "[no name]",
-      \ 'modified_tab_flag':          "*",
+      \ 'modified_tab_flag':          "* ",
       \ 'close_tabs_label':           "",
       \ 'tab_icon':                   ["📂", "📁"],
       \ 'devicon_for_all_filetypes':  0,

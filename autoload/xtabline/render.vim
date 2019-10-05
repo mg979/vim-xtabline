@@ -267,14 +267,19 @@ fun! s:flat_buffer(buf) abort
   " @param bufdict: a buffer object, as generated in s:render_buffers()
   " Returns: the buffer label, complete with highlight groups
   let B = a:buf
+  let curbuf = winbufnr(0) == B.nr
 
-  let mod    = index(s:pinned(), B.nr) >= 0 ? ' '.s:Sets.bufline_indicators.pinned : ''
-  let mod   .= (getbufvar(B.nr, "&modified") ? " [+] " : " ")
+  let mod = index(s:pinned(), B.nr) >= 0
+        \ ? ' '.s:Sets.bufline_indicators.pinned.' ' : ' '
+
+  if getbufvar(B.nr, "&modified")
+    let mod .= curbuf ? "%#XTSelectMod#* " : "%#XTHiddenMod#* "
+  endif
 
   let hi     = printf(" %%#XT%s# ", B.hilite)
   let icon   = s:get_buf_icon(B)
   let bn     = s:Sets.buffer_format == 2 ? B.n : B.nr
-  let number = winbufnr(0) == B.nr ? ("%#XTNumSel# " . bn) : ("%#XTNum# " . bn)
+  let number = curbuf ? ("%#XTNumSel# " . bn) : ("%#XTNum# " . bn)
 
   return number . hi . icon . B.path . mod
 endfun "}}}
@@ -318,7 +323,7 @@ fun! s:format_right_corner() abort
 
   elseif s:v.tabline_mode == 'arglist'
     " the number of the files in the arglist, in form n/N
-    return s:right_corner_label()
+    return s:right_corner_label() . "%#XTSelect# arglist "
 
   elseif !s:Sets.show_right_corner
     " no label, just the tab number in form n/N
@@ -327,7 +332,7 @@ fun! s:format_right_corner() abort
   elseif s:v.tabline_mode == 'tabs'
     " no number, just the name or the cwd
     let icon  = "%#XTNumSel# " . s:get_tab_icon(N, 1)
-    let label = s:right_corner_label()
+    let label = "%#XTVisible# " . s:right_corner_label() . ' '
     return icon . label
 
   elseif s:v.tabline_mode == 'buffers'
@@ -336,7 +341,7 @@ fun! s:format_right_corner() abort
     let icon      = s:get_tab_icon(N, 1)
     let mod       = s:tab_mod_flag(N)
     let label     = s:right_corner_label()
-    return printf("%s %s%s%s ", nr, icon, label, mod)
+    return printf("%s %s%s %s", nr, icon, label, mod)
   endif
 endfun "}}}
 
@@ -439,7 +444,7 @@ fun! s:format_tab_label(tabnr) abort
   let mod   = s:tab_mod_flag(a:tabnr)
   let label = s:tab_label(a:tabnr)
 
-  return printf("%s %s%s%s ", nr, icon, label, mod)
+  return printf("%s %s%s %s", nr, icon, label, mod)
 endfun "}}}
 
 fun! s:tab_num(tabnr) abort
@@ -449,12 +454,12 @@ fun! s:tab_num(tabnr) abort
   " Returns: the formatted tab number
 
   if s:v.tabline_mode != 'tabs'
-    let hi = has_key(s:T(), 'dir') ? " %#XTNumSel#" : " %#XTTabInactive#"
+    let hi = has_key(s:T(), 'dir') ? " %#XTNumSel#" : " %#XTVisible#"
     return "%#XTNumSel# " . a:tabnr .'/' . tabpagenr('$') . hi
   else
     return a:tabnr == tabpagenr() ?
-          \   "%#XTNumSel# " . a:tabnr . " %#XTTabActive#"
-          \ : "%#XTNum# "    . a:tabnr . " %#XTTabInactive#"
+          \   "%#XTNumSel# " . a:tabnr . " %#XTSelect#"
+          \ : "%#XTNum# "    . a:tabnr . " %#XTHidden#"
   endif
 endfun "}}}
 
@@ -467,8 +472,9 @@ fun! s:tab_mod_flag(tabnr) abort
   let flag = s:Sets.modified_tab_flag
   for buf in tabpagebuflist(a:tabnr)
     if getbufvar(buf, "&mod")
-      return a:tabnr == tabpagenr() ?
-              \ "%#ErrorMsg# "  . flag : "%#WarningMsg# " . flag
+      return a:tabnr == tabpagenr()
+            \? "%#XTSelectMod#"   . flag
+            \: "%#XTHiddenMod#" . flag
     endif
   endfor
   return ""
@@ -487,14 +493,12 @@ fun! s:right_corner_label() abort
   let N = tabpagenr()
 
   if s:v.tabline_mode == 'tabs'
-    let name  = s:v.custom_tabs && !empty(s:T().name)
+    return s:v.custom_tabs && !empty(s:T().name)
           \   ? s:T().name : s:F.short_cwd(N, 1)
-    return "%#XTTabActive# " . name
 
   elseif s:v.tabline_mode == 'arglist'
     let [ n, N ]  = [ index(argv(), bufname(bufnr('%'))) + 1, len(argv()) ]
-    let num       = "%#XTNumSel# " . n .'/' . N . " "
-    return num . "%#XTSelect# arglist" . " %#XTTabInactive#"
+    return "%#XTNumSel# " . n .'/' . N . " "
 
   elseif s:v.tabline_mode == 'buffers'
     return s:v.custom_tabs && !empty(s:T().name)

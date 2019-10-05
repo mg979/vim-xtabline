@@ -538,3 +538,5 @@ fun! s:invalid_buffer(b) abort
     call s:F.msg ([[ "Invalid buffer.", 'WarningMsg']]) | return 1
   endif
 endfun
+
+" vim: et sw=2 ts=2 sts=2 fdm=marker

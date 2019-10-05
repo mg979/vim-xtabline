@@ -65,8 +65,6 @@ fun! s:clear_groups() abort
   silent! hi clear XTExtra
   silent! hi clear XTExtramod
   silent! hi clear XTSpecial
-  silent! hi clear XTTabActive
-  silent! hi clear XTTabInactive
   silent! hi clear XTNumSel
   silent! hi clear XTNum
   silent! hi clear XTFill
@@ -111,17 +109,17 @@ fun! s:Hi.themes.default() abort
   hi! link XTSelect         PmenuSel
   hi! link XTVisible        Special
   hi! link XTHidden         TabLine
-  hi! link XTSelectMod      TabLineSel
-  hi! link XTVisibleMod     Special
-  hi! link XTHiddenMod      WarningMsg
   hi! link XTExtra          Visual
-  hi! link XTExtraMod       Visual
   hi! link XTSpecial        IncSearch
   hi! link XTFill           TabLineFill
   hi! link XTVisibleTab     TabLineSel
   hi! link XTNumSel         TabLineSel
   hi! link XTNum            TabLineSel
-  hi! link XTTabActive      Special
-  hi! link XTTabInactive    TabLine
+  
+  let pat = has('gui_running') || &termguicolors ? 'guibg=\S\+' : 'ctermbg=\S\+'
+  exe 'hi XTSelectMod'  matchstr(execute('hi PmenuSel'), pat) 'guifg=#af0000 gui=bold cterm=bold'
+  exe 'hi XTVisibleMod' matchstr(execute('hi Special'), pat) 'guifg=#af0000 gui=bold cterm=bold'
+  exe 'hi XTHiddenMod'  matchstr(execute('hi TabLine'), pat) 'guifg=#af0000 gui=bold cterm=bold'
+  exe 'hi XTExtraMod'   matchstr(execute('hi Visual'), pat) 'guifg=#af0000 gui=bold cterm=bold'
 endfun
 
