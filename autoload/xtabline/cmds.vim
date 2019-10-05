@@ -189,20 +189,25 @@ fun! s:reopen_last_tab() abort
     call s:F.msg("No recent tabs.", 1) | return
   endif
 
-  let s:v.tab_properties = remove(s:X.closed_tabs, -1)
-  let cwd = s:v.tab_properties.cwd
+  let tab = remove(s:X.closed_tabs, -1)
+  let s:v.tab_properties = tab
 
-  if buflisted(s:v.tab_properties.active_buffer)
-    let s:v.halt = 1
-    exe "$tabnew" bufname(s:v.tab_properties.active_buffer)
-  else
+  for good_buf in tab.buffers.valid
+    if buflisted(good_buf)
+      break
+    endif
     let s:v.tab_properties = {}
     redraw!
-    return s:F.msg([[ "There are no valid buffers for ", 'WarningMsg'], [ cwd, 'None']])
-  endif
+    return s:F.msg([[ "There are no valid buffers for ", 'WarningMsg'],
+          \         [ tab.cwd, 'None']])
+  endfor
 
-  call s:F.change_wd(cwd)
-  let s:v.halt = 0
+  if buflisted(s:v.tab_properties.active_buffer)
+    exe "$tabnew" bufname(tab.active_buffer)
+  else
+    exe "$tabnew" bufname(good_buf)
+  endif
+  call s:F.change_wd(tab.cwd)
   call xtabline#update()
 endfun "}}}
 

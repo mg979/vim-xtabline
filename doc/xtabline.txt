@@ -438,13 +438,12 @@ XTabResetTab           *tr
 XTabResetBuffer        *br
 
 *XTabResetTab*        reset tab customizations
+*XTabRenameBuffer*    it doesn't rename the REAL buffer!
 *XTabResetBuffer*     reset buffer customization
 
 When assigning an icon, you can autocomplete the icon name, or insert a single
 character. To expand the list of available icons for autocompletion, see
 |xtabline-customization|
-
-|XTabResetTab| will also try to find a suitable cwd for that tab.
 
 
 
@@ -539,8 +538,7 @@ If a tab has a custom name, this will have higher priority.
 >
     let g:xtabline_settings.tabs_show_bufname = 0
 
-If enabled, tabs will always show the buffer name, not the directory name. If
-not using per-tab CWD, this will happen regardless.
+If enabled, tabs will always show the buffer name, not the directory name.
 
 
 
