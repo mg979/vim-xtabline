@@ -283,41 +283,27 @@ two mappings, *+ and *-, with the second one that sets a negative value.
 
 
 
-TAB WORKING AND BASE DIRECTORIES                        *xtabline-directories*
+TAB WORKING DIRECTORIES                                 *xtabline-directories*
 ==============================================================================
 
-Mappings are provided to set a tab's working directory, and optionally a base
-directory.
-                                                     *xtabline-base-directory*
-Sometimes you may want to show buffers from a different directory, or from
-a subdirectory of the CWD. Or you may not want to change the working directory
-at all, and still be able to show only buffers from a specific directory.
-
-In this cases you can set a base directory for buffer filtering, without
-changing the tab's CWD. The tab label in the upper right corner will keep
-showing the CWD (or the tab's name, if set), but it will be differently
-highlighted, to remind you that you have set a different base directory for
-buffer filtering.
+Mappings are provided to set a tab's working directory.
 
 Command                Mapping~
 XTabWD[!]               cdw
 XTabLD[!]               cdl
 XTabTD[!]               cdt
-XTabBD[!]               cdb
                         cdc
                         cdd
 
 *XTabWD*      Set the tab CWD, with prompt or automatically (with !).
 *XTabLD*      Set a window-local WD, with prompt or automatically (with !).
 *XTabTD*      Set a tab-local WD, with prompt or automatically (with !).
-*XTabBD*      Set the base filtering directory. With a !, it is cleared.
 
 You can see that are 5 mappings that start with `cd`:
 
 * cdc   sets the CWD, relative to the currently open buffer (cd `current`)
 * cdd   sets the CWD, [count1] directories below current buffer (cd `down`)
 * cdw   you'll be prompted for a cwd
-* cdb   you'll be prompted for a base filtering directory
 * cdl   you'll be prompted for a window-local cwd (|:lcd|)
 * cdt   you'll be prompted for a tab-local cwd (|:tcd|)
 

@@ -44,7 +44,7 @@ fun! xtabline#dir#cd(count) abort
 endfun "}}}
 
 fun! xtabline#dir#set(...) abort
-  " Set new working/local/base directory. {{{1
+  " Set new working/local/tab directory. {{{1
 
   let [ type, bang, dir ] = [ a:1, a:2, a:3 ]
 
@@ -57,9 +57,6 @@ fun! xtabline#dir#set(...) abort
 
   if empty(dir)
     call s:F.msg ([[ "Canceled.", 'WarningMsg' ]])
-
-  elseif type == 'base'
-    call s:F.change_base_dir(dir)
 
   elseif s:F.manual_cwd(dir, type)
     " reset tab name if directory change was successful
@@ -187,29 +184,6 @@ endfun "}}}
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Helpers
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-
-fun! s:Dir.change_base_dir(dir) abort
-  " Set/unset the base filtering directory. {{{1
-
-  let T = s:T()
-  if empty(a:dir) && !has_key(T, 'dir')
-    return self.msg('No base directory has been set yet.', 1)
-
-  elseif empty(a:dir)
-    unlet T.dir
-    call self.msg('Base directory has been unset.', 0)
-    return xtabline#update()
-
-  elseif !isdirectory(a:dir)
-    return self.msg("Invalid directory: ".a:dir, 1)
-  endif
-
-  let T.dir = a:dir
-  call xtabline#update()
-  redraw
-  call self.msg ([[ "Base directory: ", 'Label' ], [ a:dir, 'None' ]])
-endfun "}}}
 
 
 fun! s:Dir.set_tab_wd() abort

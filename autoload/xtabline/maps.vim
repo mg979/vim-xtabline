@@ -49,7 +49,6 @@ fun! s:do_map() abort
   call s:mapkey_('cdc',  'CdCurrent')
   call s:mapkeyc('cdd',  'CdDown')
   call s:mapkey_('cdw',  'WD')
-  call s:mapkey_('cdb',  'BD')
   call s:mapkey_('cdl',  'LD')
   call s:mapkey_(X.'q',  'CloseBuffer')
   call s:mapkey_(X.'a',  'ListTabs')
@@ -109,7 +108,6 @@ let s:basic = [
 
 let s:cd = [
       \['cdw',  'Working directory',            "XTabWD"],
-      \['cdb',  'Base directory',               "XTabBD"],
       \['cdl',  'Window-local directory',       "XTabLD"],
       \['cdc',  'Cd to current directory',      "XTabCdCurrent"],
       \['cdd',  'Cd to parent directory',       "XTabCdDown"],
