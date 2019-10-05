@@ -511,12 +511,7 @@ values are:
 
   `1`       the buffer number (as by bufnr('%')), and the buffer base name
   `2`       the buffer position in the tabline, and the buffer base name
-  `string`  a formatting string, see |xtabline-buffers-formatting|
   `func`    a funcref (the buffer number is passed as parameter)
-
-String example:
->
-    let g:xtabline_settings.buffer_format = ' n I< l +'
 
 Function example:
 >
@@ -572,7 +567,6 @@ select_buffer_alt_action   | `buffer #`
 sessions_path              | `~/.vim/session`
 close_buffer_can_close_tab | 0
 close_buffer_can_quit_vim  | 0
-unload_session_ask_confirm | 1
 bookmarks_file             | `~/.vim/.XTablineBookmarks`
 sessions_data              | `~/.vim/.XTablineSessions`
 
@@ -583,13 +577,9 @@ FORMATTING                                             *xtabline-formatting*
 Option                     | Default ~
 ---------------------------+--------------------------------------------------
 relative_paths             | 0
-bufline_separators         | ['|', '|']
-devicon_for_all_filetypes  | 0
-devicon_for_extensions     | ['md', 'txt']
 buffer_format              | 2
 tab_format                 | 1
-modified_tab_flag          | '*'
-close_tabs_label           | ''
+modified_flag              | '* '
 tab_icon                   | ["📂", "📁"]
 
 `icons` are the ones that can be used when assigning an icon to a tab/buffer,
@@ -620,28 +610,6 @@ and can be used in other contexts (special buffers icon).
       \'lens': '🔍',
       \'flag': '🏁',
       \}
-
-
-BUFFERS FORMATTING                               *xtabline-buffers-formatting*
-
-Default formatting is ` n I< l +`. In this notation, each character is
-replaced by something, while spaces are retained as they are. Possible
-elements are:
-
--------+--------------------------------------------
-Option | Description                  ~
--------+--------------------------------------------
-  l    | custom name, filename as fallback
-  f    | filename
-  u    | buffer number as small unicode
-  n    | buffer number (real)
-  N    | buffer number (order in the tabline)
-  +    | indicators (modified, read only...)
-  i    | icon (devicon preferred)
-  I    | icon (custom icon preferred)
-  <    | separator, can be suppressed by icon
-  >    | separator, can't be suppressed by icon
-
 
 
 

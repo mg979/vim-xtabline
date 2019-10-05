@@ -273,7 +273,8 @@ fun! s:flat_buffer(buf) abort
         \ ? ' '.s:Sets.bufline_indicators.pinned.' ' : ' '
 
   if getbufvar(B.nr, "&modified")
-    let mod .= curbuf ? "%#XTSelectMod#* " : "%#XTHiddenMod#* "
+    let mod .= printf("%%#XT%sMod#%s",
+          \    (curbuf ? "Select" : "Hidden"), s:Sets.modified_flag)
   endif
 
   let hi     = printf(" %%#XT%s# ", B.hilite)
@@ -469,12 +470,12 @@ fun! s:tab_mod_flag(tabnr) abort
   " @param tabnr: the tab number
   " Returns: the formatted flag
 
-  let flag = s:Sets.modified_tab_flag
+  let flag = s:Sets.modified_flag
   for buf in tabpagebuflist(a:tabnr)
     if getbufvar(buf, "&mod")
       return a:tabnr == tabpagenr()
-            \? "%#XTSelectMod#"   . flag
-            \: "%#XTHiddenMod#" . flag
+            \ ? "%#XTSelectMod#" . flag
+            \ : "%#XTHiddenMod#" . flag
     endif
   endfor
   return ""
