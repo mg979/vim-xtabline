@@ -229,9 +229,13 @@ XTabPinBuffer                     *p
 XTabRelativePaths                 *+
 XTabRelativePaths!                *-
 
+------------------------------------------------------------------------------
+
 *XTabNextBuffer* and *XTabPrevBuffer* accept a [count], to move to ±N buffer,
 as they are shown in the tabline.  If moving beyond the limit, it will start
 from the start (or the end).
+
+------------------------------------------------------------------------------
 
 `Select-Buffer` works this way:
 
@@ -239,15 +243,9 @@ from the start (or the end).
 * when not using a [count], it will execute a command of your choice
 
 Define this command by setting the |select_buffer_alt_action| variable.
-Default is |:buffer| #.
+Default is `:buffer #` (go to alternate buffer).
 
-Examples:
->
-    " switch to alternative buffer
-    let g:xtabline_settings.select_buffer_alt_action = "buffer #"
-    " call fzf-vim :Buffers command
-    let g:xtabline_settings.select_buffer_alt_action = "Buffers"
-
+------------------------------------------------------------------------------
 
 *XTabCloseBuffer* will close and delete the current buffer, while keeping the
 window open, and loading either:
@@ -255,25 +253,30 @@ window open, and loading either:
 * the alternate buffer
 * a valid buffer for the tab
 
-It will not try to close the tab page/quit vim, unless:
->
-    let g:xtabline_settings.close_buffer_can_close_tab = 1
-    let g:xtabline_settings.close_buffer_can_quit_vim  = 1
-<
+------------------------------------------------------------------------------
+
 *XTabHideBuffer* removes the buffer from the list of recent buffers for the
 tab, effectively hiding it from the tabline if there are enough tab buffers,
 so that the next most recent one will take its place. Then [count] buffer will
 be selected, as by |Select-Buffer|. Selects first if no count is given.
 Differently from |XTabCloseBuffer|, the buffer is not deleted.
 
+------------------------------------------------------------------------------
+
 *XTabMoveBuffer* will move the current buffer at [count] position, or first if
 no count is given.
+
+------------------------------------------------------------------------------
 
 *XTabMoveBufferNext* and *XTabMoveBufferPrev* move the current buffer to the
 next/previous position in the tabline, but they only work for buffers that are
 considered valid for the current tab.
 
+------------------------------------------------------------------------------
+
 *XTabPinBuffer* pins a buffer, so that it will be visible in all tabs.
+
+------------------------------------------------------------------------------
 
 *XTabRelativePaths* is discussed in |xtabline-paths|. Notice that there are
 two mappings, *+ and *-, with the second one that sets a negative value.
@@ -288,27 +291,20 @@ TAB WORKING DIRECTORIES                                 *xtabline-directories*
 
 Mappings are provided to set a tab's working directory.
 
-Command                Mapping~
-XTabWD[!]               cdw
-XTabLD[!]               cdl
-XTabTD[!]               cdt
-                        cdc
-                        cdd
-
-*XTabWD*      Set the tab CWD, with prompt or automatically (with !).
-*XTabLD*      Set a window-local WD, with prompt or automatically (with !).
-*XTabTD*      Set a tab-local WD, with prompt or automatically (with !).
-
-You can see that are 5 mappings that start with `cd`:
-
-* cdc   sets the CWD, relative to the currently open buffer (cd `current`)
-* cdd   sets the CWD, [count1] directories below current buffer (cd `down`)
-* cdw   you'll be prompted for a cwd
-* cdl   you'll be prompted for a window-local cwd (|:lcd|)
-* cdt   you'll be prompted for a tab-local cwd (|:tcd|)
+Command          Mapping~
+*XTabWD* [!]        cdw     Set the tab CWD, automatically with <bang>
+*XTabLD* [!]        cdl     Set a window-local WD, automatically with <bang>
+*XTabTD* [!]        cdt     Set a tab-local WD, automatically with <bang>
+*XTabCdCurrent*     cdc     |:cd| relative to the currently open buffer
+*XTabCdDown*        cdd     |:cd| [count1] directories below current buffer
+*XTabInfo*          cd?     show current cwd (global/local/tab), git dir, tags
 
 Note that |:tcd| is only available in neovim and the most recent vim versions
 (>= 8.1).
+
+|XTabCdCurrent| and |XTabCdDown|, as |XTabWD| will use either |:cd|, or |:lcd|
+or |:tcd|, depending on the type of directory that is currently set for the
+tab/window, and they will prompt for confirmation if needed.
 
 
 
@@ -526,6 +522,13 @@ If a tab has a custom name, this will have higher priority.
 
 If enabled, tabs will always show the buffer name, not the directory name.
 
+
+---------------------------------------- *xtabline-close_buffer_can_close_tab*
+                                          *xtabline-close_buffer_can_quit_vim*
+Default: 0
+
+They affect whether the |XTabCloseBuffer| command can close a tab or even quit
+vim, respectively.
 
 
 

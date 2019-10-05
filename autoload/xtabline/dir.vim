@@ -66,6 +66,36 @@ fun! xtabline#dir#set(...) abort
   call xtabline#update()
 endfun "}}}
 
+fun! xtabline#dir#info() abort
+  " Print current repo/cwd/tagfiles information. {{{1
+
+  " show global/local cwd
+  let cwd = haslocaldir(winnr(), tabpagenr())? 'local cwd:' : 'cwd:'
+  echo printf("%-20s %s", 'Current '.cwd, getcwd())
+
+  " show tab cwd, if present
+  if exists(':tcd') == 2 && haslocaldir(-1, 0)
+    echo printf("%-20s %s", 'Current tab cwd', getcwd(-1, 0))
+  endif
+
+  " show git dir
+  try
+    let d = exists('*FugitiveGitDir')
+          \ ? substitute(FugitiveGitDir(), '/\.git$', '', '') : getcwd()
+    let gitdir = systemlist('git -C '.d.' rev-parse --show-toplevel 2>/dev/null')[0]
+    if gitdir != ''
+      echo printf("%-20s %s", 'Current git dir:', gitdir)
+    endif
+  catch
+  endtry
+
+  " show current tagfiles
+  if !empty(tagfiles())
+    echo printf("%-20s %s", 'Tag files:', string(tagfiles()))
+  endif
+endfun "}}}
+
+
 
 
 

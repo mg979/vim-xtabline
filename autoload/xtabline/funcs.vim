@@ -13,7 +13,6 @@ let s:Funcs = {}
 
 let s:Funcs.wins    = {   -> tabpagebuflist(tabpagenr()) }
 let s:Funcs.has_win = { b -> index(s:Funcs.wins(), b) >= 0 }
-let s:Funcs.is_repo = { t -> isdirectory(t.cwd . s:v.slash . '.git') }
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Misc functions                                                           {{{1

@@ -61,6 +61,7 @@ com! -count                    XTabHideBuffer          call xtabline#cmds#run('h
 com!                           XTabLastTab             call xtabline#cmds#run('goto_last_tab')
 com!                           XTabCdCurrent           call xtabline#dir#cd(0)
 com! -count                    XTabCdDown              call xtabline#dir#cd(<count>)
+com!                           XTabInfo                call xtabline#dir#info()
 com!                           XTablineUpdate          call xtabline#update()
 com!                           XTablineRefresh         call xtabline#refresh()
 
