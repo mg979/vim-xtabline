@@ -103,7 +103,7 @@ fun! s:Dir.change_wd(dir, ...) abort
   " Change working directory, update tab cwd and session data. {{{1
 
   if !a:0   " automatic attempt to change working directory
-    return s:try_auto_change(dir)
+    return self.try_auto_change(a:dir)
   else
     let type = a:1
     let [error, out] = [0, type]
@@ -227,15 +227,14 @@ endfun "}}}
 fun! s:Dir.try_auto_change(dir) abort
   " Not a manual cwd change, check if it must be applied. "{{{1
 
-  if getcwd() ==# a:dir || self.has_tcd()
-    " do nothing: same directory, or has :tcd
+  if getcwd() ==# a:dir
     return
   endif
 
   if self.is_local_dir()
     exe 'lcd' a:dir
-  else
-    exe 'cd' a:dir
+  " elseif self.is_tab_dir() && getcwd(-1, 0) !=# a:dir
+  "   exe 'tcd' a:dir
   endif
   call self.set_tab_wd()
   call xtabline#update_this_session()
