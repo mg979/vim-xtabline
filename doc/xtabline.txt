@@ -434,11 +434,9 @@ XTabRenameTab          *tn
 XTabRenameBuffer       *bn
 XTabIcon               *ti
 XTabBufferIcon         *bi
-XTabFormatBuffer       *bf
 XTabResetTab           *tr
 XTabResetBuffer        *br
 
-*XTabFormatBuffer*    change the label formatting
 *XTabResetTab*        reset tab customizations
 *XTabResetBuffer*     reset buffer customization
 

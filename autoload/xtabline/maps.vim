@@ -78,7 +78,6 @@ fun! s:do_map() abort
   call s:mapkeys(X.'bi', 'BufferIcon')
   call s:mapkeys(X.'bn', 'RenameBuffer')
   call s:mapkey_(X.'br', 'ResetBuffer')
-  call s:mapkey_(X.'bf', 'FormatBuffer')
   call s:mapkey_(X.'bd', 'DeleteBuffers')
   call s:mapkey_(X.'tl', 'LoadTab')
   call s:mapkey_(X.'ts', 'SaveTab')
@@ -151,11 +150,9 @@ let s:leader = [
 
 let s:manage = [
       \['bd',   'Delete tab buffers',           "XTabDeleteBuffers"],
-      \['bf',   'Buffer format',                "XTabFormatBuffer"],
       \['bi',   'Change buffer icon',           "XTabBufferIcon "],
       \['bn',   'Rename buffer',                "XTabRenameBuffer "],
       \['br',   'Reset buffer',                 "XTabResetBuffer"],
-      \['', '', ''],
       \['', '', ''],
       \['', '', ''],
       \['sd',   'Delete session',               "XTabDeleteSession"],
