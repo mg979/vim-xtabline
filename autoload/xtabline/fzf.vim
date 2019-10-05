@@ -1,5 +1,5 @@
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" fzf commands
+" fzf/finder commands
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 let s:X = g:xtabline
@@ -13,8 +13,11 @@ let s:vB = { -> s:T().buffers.valid     }       "valid buffers for tab
 let s:oB = { -> s:T().buffers.order     }       "ordered buffers for tab
 
 let s:sessions_path = { -> s:F.fullpath(s:Sets.sessions_path) }
+let s:use_finder    = !exists('g:loaded_fzf') || get(s:Sets, 'use_builtin_finder', 0)
+let s:lastmodified  = { f -> str2nr(system('date -r '.f.' +%s')) }
 
-let s:use_finder = !exists('g:loaded_fzf') || get(s:Sets, 'use_builtin_finder', 0)
+
+" Commands definition  {{{1
 
 fun! xtabline#fzf#list_buffers(args)
   call fzf#vim#buffers(a:args, {
@@ -116,14 +119,16 @@ if s:use_finder
     let T = s:Find(s:tab_nerd_bookmarks(), 'Load Nerd Bookmark')
     if T != '' | call s:tab_nerd_bookmarks_load(T) | endif
   endfun
-endif
+endif "}}}
+
+
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Tab buffers {{{1
+" List tab buffers
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:tab_buffers() abort
-  """Open a list of buffers for this tab with fzf.vim."""
+  " Open a list of buffers for this tab. {{{1
   let bufs = s:vB()
 
   if empty(bufs) | return [] | endif
@@ -139,11 +144,10 @@ fun! s:tab_buffers() abort
   "put current buffer last
   call insert(l, remove(l, index(l, s:format_buffer(current))))
   return l
-endfun
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+endfun "}}}
 
 fun! s:bufdelete(name) abort
+  " Delete a buffer.  {{{1
   let current = bufnr('%')
   if len(a:name) < 2
     return
@@ -157,13 +161,16 @@ fun! s:bufdelete(name) abort
     call xtabline#cmds#run('close_buffer')
   endif
   call xtabline#update()
-endfun
+endfun "}}}
+
+
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Tabs overview {{{1
+" Tabs overview
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:tablist() abort
+  " Generate a formatted list of currently open tabs {{{1
   let lines = []
   for tab in range(tabpagenr("$"))
     let T = g:xtabline.Tabs[tab]
@@ -190,18 +197,22 @@ if s:use_finder
     endfor
     return reverse(lines)
   endfun
-endif
+endif "}}}
 
 fun! s:tabopen(line) abort
+  " Open the selected tab. {{{1
   let tab = a:line[0:(match(a:line, '\s')-1)]
   exe "normal!" tab."gt"
-endfun
+endfun "}}}
+
+
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Saved tabs {{{1
+" Saved tabs
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:tabs() abort
+  " Generate a formatted list of saved tabs. {{{1
   let json = json_decode(readfile(s:Sets.bookmarks_file)[0])
 
   let bookmarks = s:use_finder ? [] : &columns > 99 ?
@@ -221,26 +232,10 @@ fun! s:tabs() abort
     call add(bookmarks, line)
   endfor
   return bookmarks
-endfun
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! s:abort_load(name, fzf_line, error_type) abort
-  let s:v.halt = 0
-  if a:error_type == 'buffers'
-    call s:F.msg ([[ a:name, 'Type' ],
-          \[ ": no saved buffers. Remove entry?\t", 'WarningMsg' ]])
-  else
-    call s:F.msg ([[ a:name, 'Type' ],
-          \[ ": invalid directory. Remove entry?\t", 'WarningMsg' ]])
-  endif
-  if nr2char(getchar()) == 'y'
-    call s:tab_delete(a:fzf_line)
-  endif
-endfun
+endfun "}}}
 
 fun! s:tab_load(...) abort
-  """Load a saved tab."""
+  " Load a saved tab bookmark.  {{{1
   let json = json_decode(readfile(s:Sets.bookmarks_file)[0])
   let s:v.halt = 1
 
@@ -300,10 +295,23 @@ fun! s:tab_load(...) abort
   endif
 endfun
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+fun! s:abort_load(name, fzf_line, error_type) abort
+  " Invalid saved tab, abort operation.
+  let s:v.halt = 0
+  if a:error_type == 'buffers'
+    call s:F.msg ([[ a:name, 'Type' ],
+          \[ ": no saved buffers. Remove entry?\t", 'WarningMsg' ]])
+  else
+    call s:F.msg ([[ a:name, 'Type' ],
+          \[ ": invalid directory. Remove entry?\t", 'WarningMsg' ]])
+  endif
+  if nr2char(getchar()) == 'y'
+    call s:tab_delete(a:fzf_line)
+  endif
+endfun "}}}
 
 fun! s:tab_delete(...) abort
-  """Delete a saved tab."""
+  " Delete a saved tab bookmark.  {{{1
   let json = json_decode(readfile(s:Sets.bookmarks_file)[0])
 
   for bm in a:000
@@ -316,12 +324,10 @@ fun! s:tab_delete(...) abort
   call s:F.msg ([[ "Tab bookmark ", 'WarningMsg' ],
         \[ name, 'Type' ],
         \[ " deleted.", 'WarningMsg' ]])
-endfun
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+endfun "}}}
 
 fun! xtabline#fzf#tab_save() abort
-  """Create an entry and add it to the saved tabs file."""
+  " Create an entry and add it to the tab bookmarks file. {{{1
 
   if !s:Sets.buffer_filtering
     call s:F.msg("Activate buffer filtering first.", 1) | return | endif
@@ -366,33 +372,16 @@ fun! xtabline#fzf#tab_save() abort
   " write the file
   call writefile([json_encode(json)], s:Sets.bookmarks_file)
   call s:F.msg("\tTab bookmark saved.", 0)
-endfun
+endfun "}}}
+
+
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Sessions {{{1
+" Sessions
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-let s:lastmod = { f -> str2nr(system('date -r '.f.' +%s')) }
-
-fun! s:desc_string(s, n, sfile, color) abort
-  let active_mark = (a:s ==# v:this_session) ? a:color ? s:green(" [%]  ") : " [%]  " : '      '
-  let description = get(a:sfile, a:n, '')
-  let spaces = 30 - len(a:n)
-  let spaces = printf("%".spaces."s", "")
-  let pad = empty(active_mark) ? '     ' : ''
-  if !s:v.winOS
-    let time = system('date=`stat -c %Y '.fnameescape(a:s).'` && date -d@"$date" +%Y.%m.%d')[:-2]
-  else
-    let time = ''
-  endif
-  if a:color
-    return s:yellow(a:n).spaces."\t".s:cyan(time).pad.active_mark.description
-  else
-    return a:n.spaces."\t".time.pad.active_mark.description
-  endif
-endfun
 
 fun! s:sessions_list(...) abort
+  " Generate a formatted list of sessions {{{1
   let data = a:0 ? [] : ["Session\t\t\t\tTimestamp\tDescription"]
   let sfile = json_decode(readfile(s:Sets.sessions_data)[0])
   let sessions = split(globpath(s:sessions_path(), "*"), '\n')
@@ -405,7 +394,7 @@ fun! s:sessions_list(...) abort
     "sort sessions by last modfication time
     let times = {}
     for s in sessions
-      let t = s:lastmod(s)
+      let t = s:lastmodified(s)
       "prevent key overwriting
       while has_key(times, t) | let t += 1 | endwhile
       let times[t] = s
@@ -426,16 +415,32 @@ fun! s:sessions_list(...) abort
   return data
 endfun
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+fun! s:desc_string(s, n, sfile, color) abort
+  let active_mark = (a:s ==# v:this_session) ? a:color ? s:green(" [%]  ") : " [%]  " : '      '
+  let description = get(a:sfile, a:n, '')
+  let spaces = 30 - len(a:n)
+  let spaces = printf("%".spaces."s", "")
+  let pad = empty(active_mark) ? '     ' : ''
+  if !s:v.winOS
+    let time = system('date=`stat -c %Y '.fnameescape(a:s).'` && date -d@"$date" +%Y.%m.%d')[:-2]
+  else
+    let time = ''
+  endif
+  if a:color
+    return s:yellow(a:n).spaces."\t".s:cyan(time).pad.active_mark.description
+  else
+    return a:n.spaces."\t".time.pad.active_mark.description
+  endif
+endfun "}}}
 
 fun! s:session_load(file) abort
-
-  " abort if there are unsaved changes
+  " Load a session, but abort if there are unsaved changes. {{{1
   for b in range(1, bufnr("$"))
     if getbufvar(b, '&modified')
       call s:F.msg("Some buffer has unsaved changes. Aborting.", 1)
       return
-    endif | endfor
+    endif
+  endfor
 
   "-----------------------------------------------------------
 
@@ -470,12 +475,10 @@ fun! s:session_load(file) abort
 
   execute "silent! %bdelete"
   execute "source ".fnameescape(file)
-endfun
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+endfun "}}}
 
 fun! s:session_delete(file) abort
-
+  " Delete a session file.  {{{1
   let session = a:file
   if match(session, "\t")
     let session = substitute(session, " *\t.*", "", "") | endif
@@ -501,11 +504,10 @@ fun! s:session_delete(file) abort
   call s:F.msg ([[ "Session ", 'WarningMsg' ],
         \[ file, 'Type' ],
         \[ " has been deleted.", 'WarningMsg' ]])
-endfun
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+endfun "}}}
 
 fun! xtabline#fzf#session_save(...) abort
+  " Save a session.  {{{1
   let sdir = s:sessions_path()
   if !isdirectory(sdir)
     if confirm('Directory '.sdir.' does not exist, create?', "&Yes\n&No") == 1
@@ -542,43 +544,16 @@ fun! xtabline#fzf#session_save(...) abort
     endif
   endif
   call s:F.msg("Session not saved.", 1)
-endfun
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! xtabline#fzf#update_sessions_file() abort
-  let sfile = readfile(s:Sets.sessions_data)
-  let json = {}
-
-  for key in sfile
-    let json[key] = sfile[key]
-  endfor
-  call writefile([json_encode(json)], s:Sets.sessions_data)
-endfun
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! xtabline#fzf#update_bookmarks_file() abort
-  let bfile = readfile(s:Sets.bookmarks_file)
-  let json = {}
-
-  for line in bfile
-    let line = eval(line)
-    let name = line['name']
-    call remove(line, 'name')
-    let json[name] = line
-    let json[name]['description'] = ""
-  endfor
-  call writefile([json_encode(json)], s:Sets.bookmarks_file)
-endfun
+endfun "}}}
 
 
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" NERD commands {{{1
+" NERD commands
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:tab_nerd_bookmarks() abort
+  " List NERD bookmarks  {{{1
   let bfile = readfile(g:NERDTreeBookmarksFile)
   let bookmarks = []
   "skip last emty line
@@ -587,11 +562,10 @@ fun! s:tab_nerd_bookmarks() abort
     call add(bookmarks, b)
   endfor
   return bookmarks
-endfun
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+endfun "}}}
 
 fun! s:tab_nerd_bookmarks_load(...) abort
+  " Load a NERD bookmark  {{{1
   for bm in a:000
     let bm = expand(bm, ":p")
     if isdirectory(bm)
@@ -604,14 +578,15 @@ fun! s:tab_nerd_bookmarks_load(...) abort
     endif
   endfor
   call xtabline#update()
-endfun
+endfun "}}}
+
 
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Helper functions {{{1
+" Helper functions
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:get_color(attr, ...) abort
+fun! s:get_color(attr, ...) abort " {{{1
   let gui = has('termguicolors') && &termguicolors
   let fam = gui ? 'gui' : 'cterm'
   let pat = gui ? '^#[a-f0-9]\+' : '^[0-9]\+$'
@@ -624,7 +599,7 @@ fun! s:get_color(attr, ...) abort
   return ''
 endfun
 
-fun! s:csi(color, fg) abort
+fun! s:csi(color, fg) abort " {{{1
   let prefix = a:fg ? '38;' : '48;'
   if a:color[0] == '#'
     return prefix.'2;'.join(map([a:color[1:2], a:color[3:4], a:color[5:6]], 'str2nr(v:val, 16)'), ';')
@@ -632,7 +607,7 @@ fun! s:csi(color, fg) abort
   return prefix.'5;'.a:color
 endfun
 
-fun! s:ansi(str, group, default, ...) abort
+fun! s:ansi(str, group, default, ...) abort " {{{1
   let fg = s:get_color('fg', a:group)
   let bg = s:get_color('bg', a:group)
   let color = s:csi(empty(fg) ? s:ansi[a:default] : fg, 1) .
@@ -640,7 +615,7 @@ fun! s:ansi(str, group, default, ...) abort
   return printf("\x1b[%s%sm%s\x1b[m", color, a:0 ? ';1' : '', a:str)
 endfun
 
-fun! xtabline#fzf#colors() abort
+fun! xtabline#fzf#colors() abort " {{{1
   if &t_Co == 256 && !empty(get(g:, 'xtabline_fzf_colors', {}))
     let s:ansi = s:Sets.fzf_colors
   elseif &t_Co == 256
@@ -669,11 +644,11 @@ call xtabline#fzf#colors()
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:strip(str) abort
+fun! s:strip(str) abort " {{{1
   return substitute(a:str, '^\s*\|\s*$', '', 'g')
 endfun
 
-fun! s:format_buffer(b) abort
+fun! s:format_buffer(b) abort " {{{1
   if s:use_finder
     return bufname(a:b)
   endif
@@ -689,7 +664,7 @@ endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:pad(t, n) abort
+fun! s:pad(t, n) abort " {{{1
   if len(a:t) > a:n
     return a:t[:(a:n-1)]."…"
   else
@@ -697,5 +672,6 @@ fun! s:pad(t, n) abort
     let spaces = printf("%".spaces."s", "")
     return a:t.spaces
   endif
-endfun
+endfun "}}}
 
+" vim: et sw=2 ts=2 sts=2 fdm=marker

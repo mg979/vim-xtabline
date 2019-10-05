@@ -1,18 +1,26 @@
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Initialize buffer object
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
+" Script variables and lambdas {{{1
 let s:X = g:xtabline
 let s:F = s:X.Funcs
 let s:v = s:X.Vars
 let s:Sets = g:xtabline_settings
 
-let s:T =  { -> s:X.Tabs[tabpagenr()-1] }       "current tab
-let s:bufpath = { f -> filereadable(f) ? s:F.fullpath(f) : '' }
+let s:T           = { -> s:X.Tabs[tabpagenr()-1] }
+let s:bufpath     = { f -> filereadable(f) ? s:F.fullpath(f) : '' }
+let s:set_special = { name, dict -> extend({ 'name': name, 'special': 1 }, dict) }
+let s:Is          = { n,s -> match(bufname(n), '\C'.s) == 0 }
+let s:Ft          = { n,s -> getbufvar(n, "&ft")       == s }
+"}}}
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Template
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:template(nr) abort
+  " {{{1
   let buf = {
         \ 'name':    '',
         \ 'path':    s:bufpath(bufname(a:nr)),
@@ -23,33 +31,24 @@ fun! s:template(nr) abort
     call extend(buf, s:is_special(a:nr))
   endif
   return buf
-endfun
-
-"------------------------------------------------------------------------------
-
-fun! s:update(nr) abort
-  let B = s:X.Buffers[a:nr]
-  if !B.special
-    call extend(B, s:is_special(a:nr))
-  endif
-endfun
+endfun "}}}
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! xtabline#buffer#get(nr) abort
-  """Generate/update buffer properties while filtering.
+  " Generate/update buffer properties while filtering. {{{1
   if !has_key(s:X.Buffers, a:nr)
     call xtabline#buffer#add(a:nr)
     call extend(s:X.Buffers[a:nr], s:buf_var(a:nr))
   else
-    call s:update(a:nr)
+    call s:check_special(a:nr)
     call extend(s:X.Buffers[a:nr], s:buf_var(a:nr))
   endif
   return s:X.Buffers[a:nr]
-endfun
+endfun "}}}
 
 fun! xtabline#buffer#add(nr) abort
-  """For new buffers, apply s:v.buffer_properties and update tabline.
+  " For new buffers, apply s:v.buffer_properties and update tabline. {{{1
   if !has_key(s:X.Buffers, a:nr)
     let s:X.Buffers[a:nr] = s:template(a:nr)
     if !empty(s:v.buffer_properties)
@@ -57,18 +56,32 @@ fun! xtabline#buffer#add(nr) abort
       let s:v.buffer_properties = {}
     endif
   endif
-endfun
+endfun "}}}
 
 fun! xtabline#buffer#update(nr) abort
+  " Refresh buffer informations. Called on BufWrite and XTablineRefresh. {{{1
   if has_key(s:X.Buffers, a:nr) && !s:X.Buffers[a:nr].special
     let s:X.Buffers[a:nr].path = s:bufpath(bufname(a:nr))
   endif
-endfun
+endfun "}}}
 
-"------------------------------------------------------------------------------
+
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Helpers
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:check_special(nr) abort
+  " If a buffer hasn't been marked as special, check if it actually is. {{{1
+  " NOTE: this function should be totally redundant...
+  let B = s:X.Buffers[a:nr]
+  if !B.special
+    call extend(B, s:is_special(a:nr))
+  endif
+endfun "}}}
 
 fun! s:buf_var(nr) abort
-  """If b:XTbuf has been set, it will extend the buffer dict.
+  " If b:XTbuf has been set, it will extend the buffer dict. {{{1
   if empty(getbufvar(a:nr, 'XTbuf'))
     return {}
   else
@@ -76,18 +89,10 @@ fun! s:buf_var(nr) abort
     call setbufvar(a:nr, "XTbuf", {})
     return extend(bv, { 'special': get(bv, 'special', 1) })
   endif
-endfun
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Special buffers {{{1
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-let s:set_special = { name, dict -> extend({ 'name': name, 'special': 1 }, dict) }
-let s:Is          = { n,s -> match(bufname(n), '\C'.s) == 0 }
-let s:Ft          = { n,s -> getbufvar(n, "&ft")  == s }
+endfun "}}}
 
 fun! s:is_special(nr, ...) abort
-  """Customize special buffers, if visible in a window.
+  " Customize special buffers, if visible in a window. {{{1
   let n = a:nr | if !s:F.has_win(n) | return { 'special': 0 } | endif
 
   let git = index(['gitcommit', 'magit', 'git', 'fugitive'], getbufvar(n, "&ft"))
@@ -133,5 +138,8 @@ fun! s:is_special(nr, ...) abort
   else
     return { 'special': 0 }
   endif
-endfun
+endfun "}}}
 
+
+
+" vim: et sw=2 ts=2 sts=2 fdm=marker

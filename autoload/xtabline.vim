@@ -1,7 +1,8 @@
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Script variables
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Main script: buffer filtering, persistance, autocommands
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
+" Script variables and lambdas {{{1
 let s:X    = g:xtabline
 let s:v    = s:X.Vars
 let s:F    = s:X.Funcs
@@ -24,29 +25,23 @@ let s:invalid    = { b -> !buflisted(b) || getbufvar(b, "&buftype") == 'quickfix
 let s:is_special = { b -> s:F.has_win(b) && s:B()[b].special }
 let s:is_open    = { b -> s:F.has_win(b) && getbufvar(b, "&ma") }
 let s:ready      = { -> !(exists('g:SessionLoad') || s:v.halt) }
-
 let s:v.slash    = exists('+shellslash') && !&shellslash ? '\' : '/'
+"}}}
+
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Init functions
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! xtabline#init() abort
+  " Initialize the plugin. {{{1
   set showtabline=2
   let s:X.Funcs = xtabline#funcs#init()
   let s:F = s:X.Funcs
   call xtabline#maps#init()
-
-  if exists('g:loaded_webdevicons')
-    let extensions = g:WebDevIconsUnicodeDecorateFileNodesExtensionSymbols
-    let exact = g:WebDevIconsUnicodeDecorateFileNodesExactSymbols
-    let patterns = g:WebDevIconsUnicodeDecorateFileNodesPatternSymbols
-    let s:X.devicons = {'extensions': extensions, 'exact': exact, 'patterns': patterns}
-  endif
-
   call xtabline#tab#check_all()
   call xtabline#update()
-endfun
+endfun "}}}
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Persistance
@@ -63,6 +58,7 @@ endfun
 " a custom method is implemented if vim-obsession is not detected
 
 fun! xtabline#persistance() abort
+  " {{{1
   if !get(s:Sets, 'persistance', 1) | return | endif
   let session = 'let g:xtabline = get(g:, "xtabline", {})'.
         \' | try | let g:xtabline.Tabs = '.string(s:X.Tabs).
@@ -85,13 +81,14 @@ fun! xtabline#persistance() abort
   else
     let g:Xtsession = session
   endif
-endfun
+endfun "}}}
 
 " update session file, if obsession isn't loaded
 " add the g:Xtsession variable even if 'globals' not in &sessionoptions
 " code derived from vim-obsession
 
 fun! xtabline#update_this_session() abort
+  " {{{1
   if v:this_session != "" && !exists('g:loaded_obsession') && exists('g:Xtsession')
     exe 'mksession!' v:this_session
     if &sessionoptions !~ 'globals'
@@ -106,7 +103,7 @@ fun! xtabline#update_this_session() abort
       call writefile(body, v:this_session)
     endif
   endif
-endfun
+endfun "}}}
 
 " called on SessionLoadPost, it will restore non-obsession data if it has been
 " stored in the session file; the variable is cleared as soon as it's used, it
@@ -115,19 +112,21 @@ endfun
 " to ensure xtabline data is generated
 
 fun! s:restore_session_info() abort
+  " {{{1
   if exists('g:Xtsession')
     exe g:Xtsession
     unlet g:Xtsession
   elseif !exists('g:this_obsession')
     call xtabline#session_loaded()
   endif
-endfun
+endfun "}}}
 
 " called directly from inside the session file (if using obsession), or when
 " restoring session info in the function above; it ensures that data is
 " consistent with the actual running session, cleaning up invalid data
 
 fun! xtabline#session_loaded() abort
+  " {{{1
   for i in range(len(s:X.Tabs))
     let s:X.Tabs[i] = extend(xtabline#tab#new(), s:X.Tabs[i])
   endfor
@@ -147,7 +146,7 @@ fun! xtabline#session_loaded() abort
   let s:v.force_update = 1
   call xtabline#tab#check()
   call xtabline#update()
-endfun
+endfun "}}}
 
 
 
@@ -157,17 +156,16 @@ endfun
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! xtabline#refresh() abort
-  """Perform a full tabline refresh. This should only be called manually.
+  " Perform a full tabline refresh. This should only be called manually. {{{1
   for buf in range(1, bufnr("$"))
     if s:existing(buf) | continue | endif
     call xtabline#buffer#update(buf)
   endfor
   call xtabline#update()
-endfun
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+endfun "}}}
 
 fun! xtabline#update(...) abort
+  " Set the variable that triggers tabline update. {{{1
   if !s:Sets.enabled || ( exists('b:no_xtabline') && b:no_xtabline )
     return
   elseif empty(s:Sets.tabline_modes)
@@ -176,7 +174,7 @@ fun! xtabline#update(...) abort
     let s:v.time_to_update = 1
     set tabline=%!xtabline#render#tabline()
   endif
-endfun
+endfun "}}}
 
 
 
@@ -189,7 +187,7 @@ endfun
 " updated. It won't always run, though: xtabline#update() will set the flag
 
 fun! xtabline#filter_buffers(...) abort
-  """Filter buffers so that only valid buffers for this tab will be shown.
+  " Filter buffers so that only valid buffers for this tab will be shown. {{{1
 
   if      exists('s:v.force_update')          | unlet s:v.force_update
   elseif  !s:ready()                          | return
@@ -249,7 +247,9 @@ fun! xtabline#filter_buffers(...) abort
 
   call s:ordered_buffers()
   call xtabline#persistance()
-endfun
+endfun "}}}
+
+
 
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -257,6 +257,7 @@ endfun
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:ordered_buffers() abort
+  " Ensure the tab's buffers lists are valid. {{{1
   let B = s:T().buffers
 
   " if list of recent buffers is still empty, set it to current valid buffers
@@ -274,15 +275,16 @@ fun! s:ordered_buffers() abort
   for buf in B.valid
     call s:F.add_ordered(buf)
   endfor
-endfun
-
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+endfun "}}}
 
 fun! s:existing(buf) abort
-  """Check if buffer exists, clean up the buffers dict if not.
+  " Check if buffer exists, clean up the buffers dict if not. {{{1
   if bufexists(a:buf)            | return 1                 | endif
   if has_key(s:X.Buffers, a:buf) | unlet s:X.Buffers[a:buf] | endif
-endfun
+endfun "}}}
+
+
+
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Autocommand Functions
@@ -292,13 +294,14 @@ endfun
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 function! s:Do(action, ...)
+  " Called by several autocommands. {{{1
   if exists('g:SessionLoad') || empty(g:xtabline.Tabs) | return | endif
 
   let X = g:xtabline | let F = X.Funcs | let V = X.Vars
   let N = tabpagenr() - 1
   let B = bufnr(str2nr(expand('<abuf>')))
 
-  """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+  " """""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
   if a:action == 'new'
 
@@ -346,7 +349,7 @@ function! s:Do(action, ...)
     call xtabline#update()
 
   endif
-endfunction
+endfunction "}}}
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
@@ -366,3 +369,4 @@ augroup plugin-xtabline
   autocmd ColorScheme   * if s:ready() | call xtabline#hi#update_theme() | endif
 augroup END
 
+" vim: et sw=2 ts=2 sts=2 fdm=marker

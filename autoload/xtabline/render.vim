@@ -25,14 +25,14 @@ let s:has_buf_icon      = { nr -> !empty(get(s:B()[nr], 'icon', ''))            
 let s:extraHi           = { b -> s:is_extra(b) || s:is_open(b) || index(s:pinned(), b) >= 0   }
 let s:strwidth          = { label -> strwidth(substitute(label, '%#\w*#\|%\d\+T', '', 'g'))   }
 
-
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Main functions {{{1
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
 let s:v.time_to_update = 1
 let s:last_modified_state = { winbufnr(0): &modified }
+"}}}
+
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Main functions
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 " The tabline is refreshed rather often by vim (TextChanged, InsertEnter, etc)
 " We want to update it less often, mostly on buffer enter/write and when
@@ -40,7 +40,7 @@ let s:last_modified_state = { winbufnr(0): &modified }
 " there's no need to reprocess it, just return the old string
 
 fun! xtabline#render#tabline() abort
-  " Entry point {{{2
+  " Entry point {{{1
   if !s:ready() | return g:xtabline.last_tabline | endif
   call xtabline#tab#check_all()
   call xtabline#tab#check_index()
@@ -62,7 +62,7 @@ fun! xtabline#render#tabline() abort
 endfun "}}}
 
 fun! s:render_tabs() abort
-  " Tabline rendering in 'tabs' mode {{{2
+  " Tabline rendering in 'tabs' mode {{{1
   let centerlabel = tabpagenr()
   let tabs = []
   let labels = range(1, tabpagenr('$'))
@@ -81,7 +81,7 @@ fun! s:render_tabs() abort
 endfun "}}}
 
 fun! s:render_buffers() abort
-  " Tabline rendering in 'buffers' or 'arglist' mode {{{2
+  " Tabline rendering in 'buffers' or 'arglist' mode {{{1
   let [currentbuf, centerlabel] = [winbufnr(0), winbufnr(0)]
 
   " pick up data on all the buffers
@@ -188,7 +188,7 @@ fun! s:render_buffers() abort
 endfun "}}}
 
 fun! s:fit_tabline(centerlabel, tabs) abort
-  " Toss away tabs and pieces until all fits {{{2
+  " Toss away tabs and pieces until all fits {{{1
   let corner_label = s:format_right_corner()
   let corner_width = s:strwidth(corner_label)
   let Tabs = a:tabs
@@ -258,11 +258,11 @@ endfun "}}}
 
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Buffer label formatting {{{1
+" Buffer label formatting
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:flat_buffer(buf) abort
-  " Buffer label, using the default flat formatter {{{2
+  " Buffer label, using the default flat formatter {{{1
   "
   " @param bufdict: a buffer object, as generated in s:render_buffers()
   " Returns: the buffer label, complete with highlight groups
@@ -286,7 +286,7 @@ fun! s:flat_buffer(buf) abort
 endfun "}}}
 
 fun! s:custom_buffer_label(bufdict, chars) abort
-  " Buffer label, using a custom formatter {{{2
+  " Buffer label, using a custom formatter {{{1
   "
   " @param bufdict: a buffer object, as generated in s:render_buffers()
   " @param chars: the formatter, as a list of characters
@@ -315,7 +315,7 @@ fun! s:custom_buffer_label(bufdict, chars) abort
 endfun "}}}
 
 fun! s:format_right_corner() abort
-  " Label for the upper right corner. {{{2
+  " Label for the upper right corner. {{{1
   let N = tabpagenr()
 
   if has_key(s:T(), 'corner')
@@ -348,7 +348,7 @@ fun! s:format_right_corner() abort
 endfun "}}}
 
 fun! s:format_buffer(bufdict) abort
-  " Generate label in 'buffers' mode {{{2
+  " Generate label in 'buffers' mode {{{1
   "
   " In buffer mode, the buffer formatting can be specified in different ways:
   " - specific buffer's format
@@ -376,7 +376,7 @@ fun! s:format_buffer(bufdict) abort
 endfun "}}}
 
 fun! s:buf_indicator(bnr) abort
-  " Different kinds of indicators: modified, pinned {{{2
+  " Different kinds of indicators: modified, pinned {{{1
   let [ nr, mods ] = [ a:bnr, s:Sets.bufline_indicators ]
   let current_buf  = nr == winbufnr(0)
   let has_window   = bufwinnr(nr) > 0
@@ -399,20 +399,20 @@ fun! s:buf_indicator(bnr) abort
 endfun "}}}
 
 fun! s:buf_separators(nr) abort
-  " Use custom separators if defined in buffer entry. {{{2
+  " Use custom separators if defined in buffer entry. {{{1
   let B = s:B()[a:nr]
   return has_key(B, 'separators') ? B.separators : s:Sets.bufline_separators
 endfun "}}}
 
 fun! s:get_buf_name(buf) abort
-  " Return custom buffer name, if it has been set, otherwise the filename. {{{2
+  " Return custom buffer name, if it has been set, otherwise the filename. {{{1
   let B = s:B()[a:buf.nr]
   return !empty(B.name)       ? B.name :
         \ empty( a:buf.path ) ? s:Sets.unnamed_buffer : a:buf.path
 endfun "}}}
 
 fun! s:get_buf_icon(buf) abort
-  " Return custom icon for buffer, or devicon if present. {{{2
+  " Return custom icon for buffer, or devicon if present. {{{1
   let nr = a:buf.nr
   if s:has_buf_icon(nr)
     let a:buf.has_icon = 1
@@ -432,11 +432,11 @@ endfun "}}}
 
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Tab label formatting {{{1
+" Tab label formatting
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:format_tab_label(tabnr) abort
-  " Format the tab label in 'tabs' mode {{{2
+  " Format the tab label in 'tabs' mode {{{1
   "
   " @param tabnr: the tab's number
   " Returns: the formatted tab label
@@ -450,7 +450,7 @@ fun! s:format_tab_label(tabnr) abort
 endfun "}}}
 
 fun! s:tab_num(tabnr) abort
-  " Format the tab number, for either the tab label or the right corner. {{{2
+  " Format the tab number, for either the tab label or the right corner. {{{1
   "
   " @param tabnr: tab number
   " Returns: the formatted tab number
@@ -466,7 +466,7 @@ fun! s:tab_num(tabnr) abort
 endfun "}}}
 
 fun! s:tab_mod_flag(tabnr, corner) abort
-  " Flag for the 'modified' state for a tab label. {{{2
+  " Flag for the 'modified' state for a tab label. {{{1
   "
   " @param tabnr:  the tab number
   " @param corner: if the flag is for the right corner
@@ -486,7 +486,7 @@ fun! s:tab_mod_flag(tabnr, corner) abort
 endfun "}}}
 
 fun! s:right_corner_label() abort
-  " Build the label for the right corner. {{{2
+  " Build the label for the right corner. {{{1
   "
   " The label can be either:
   " 1. the shortened cwd ('tabs' and 'buffers' mode)
@@ -512,7 +512,7 @@ fun! s:right_corner_label() abort
 endfun "}}}
 
 fun! s:tab_label(tabnr) abort
-  " Build the tab label. {{{2
+  " Build the tab label. {{{1
   "
   " The label can be either:
   " 1. the shortened cwd
@@ -527,7 +527,7 @@ fun! s:tab_label(tabnr) abort
 endfun "}}}
 
 fun! s:tab_bufname(tabnr) abort
-  " The formatted buffer name for the tab. {{{2
+  " The formatted buffer name for the tab. {{{1
   "
   " @param tabnr: the tab number
   " Returns: the buffer name
@@ -539,7 +539,7 @@ fun! s:tab_bufname(tabnr) abort
 endfun "}}}
 
 fun! s:get_tab_icon(tabnr, right_corner) abort
-  " The icon for the tab label. {{{2
+  " The icon for the tab label. {{{1
   "
   " @param tabnr: the tab number
   " @param right_corner: if it's for the right corner
@@ -568,11 +568,11 @@ endfun "}}}
 
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Helpers {{{1
+" Helpers
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:fmt_chars(fmt) abort
-  " Return a split string with the formatting option in use. {{{2
+  " Return a split string with the formatting option in use. {{{1
   let chars = []
   for i in range(strchars(a:fmt))
     call add(chars, strgetchar(a:fmt, i))
@@ -581,7 +581,7 @@ fun! s:fmt_chars(fmt) abort
 endfun "}}}
 
 fun! s:first_normal_buffer(tabnr) abort
-  " The first regular buffer for the tab. {{{2
+  " The first regular buffer for the tab. {{{1
   let bufs = tabpagebuflist(a:tabnr)
   for buf in bufs
     if buflisted(buf) && getbufvar(buf, "&bt") != 'nofile'
@@ -592,7 +592,7 @@ fun! s:first_normal_buffer(tabnr) abort
 endfun "}}}
 
 fun! s:get_default_buffer_format() abort
-  " Get the default buffer format, and set its type {{{2
+  " Get the default buffer format, and set its type {{{1
   " It can be either:
   " - funcref
   " - format string
@@ -618,7 +618,7 @@ let s:unr2 = [ '¹', '²', '³', '⁴', '⁵', '⁶', '⁷', '⁸', '⁹', '¹�
       \'²¹', '²²', '²³', '²⁴', '²⁵', '²⁶', '²⁷', '²⁸', '²⁹', '³⁰' ]
 
 fun! s:unicode_nrs(nr) abort
-  " Adapted from Vim-CtrlSpace (https://github.com/szw/vim-ctrlspace) {{{2
+  " Adapted from Vim-CtrlSpace (https://github.com/szw/vim-ctrlspace) {{{1
   let u_nr = ""
 
   if !s:Sets.superscript_unicode_nrs && a:nr < 31
@@ -640,17 +640,17 @@ fun! s:unicode_nrs(nr) abort
 endfun "}}}
 
 fun! s:extra_padding(l_r, limit) abort
-  " Padding before the right corner {{{2
+  " Padding before the right corner {{{1
   return a:l_r < a:limit ? '%#XTFill#'.repeat(' ', a:limit - a:l_r) : ''
 endfun "}}}
 
 fun! s:ready() abort
-  " Do not update when a session is still loading. {{{2
+  " Do not update when a session is still loading. {{{1
    return !exists('g:SessionLoad')
  endfun "}}}
 
 fun! s:reuse_last_tabline() abort
-  " Check if it's time to update the tabline or not {{{2
+  " Check if it's time to update the tabline or not {{{1
   " Returns: bool
   let currentbuf = winbufnr(0)
 
