@@ -334,13 +334,14 @@ fun! s:format_right_corner() abort
     " no number, just the name or the cwd
     let icon  = "%#XTNumSel# " . s:get_tab_icon(N, 1)
     let label = "%#XTVisible# " . s:right_corner_label() . ' '
-    return icon . label
+    let mod   = s:tab_mod_flag(N, 1)
+    return icon . label . mod
 
   elseif s:v.tabline_mode == 'buffers'
     " tab number in form n/N, plus tab name or cwd
     let nr        = s:tab_num(N)
     let icon      = s:get_tab_icon(N, 1)
-    let mod       = s:tab_mod_flag(N)
+    let mod       = s:tab_mod_flag(N, 1)
     let label     = s:right_corner_label()
     return printf("%s %s%s %s", nr, icon, label, mod)
   endif
@@ -442,7 +443,7 @@ fun! s:format_tab_label(tabnr) abort
 
   let nr    = s:tab_num(a:tabnr)
   let icon  = s:get_tab_icon(a:tabnr, 0)
-  let mod   = s:tab_mod_flag(a:tabnr)
+  let mod   = s:tab_mod_flag(a:tabnr, 0)
   let label = s:tab_label(a:tabnr)
 
   return printf("%s %s%s %s", nr, icon, label, mod)
@@ -464,18 +465,21 @@ fun! s:tab_num(tabnr) abort
   endif
 endfun "}}}
 
-fun! s:tab_mod_flag(tabnr) abort
+fun! s:tab_mod_flag(tabnr, corner) abort
   " Flag for the 'modified' state for a tab label. {{{2
   "
-  " @param tabnr: the tab number
+  " @param tabnr:  the tab number
+  " @param corner: if the flag is for the right corner
   " Returns: the formatted flag
 
   let flag = s:Sets.modified_flag
   for buf in tabpagebuflist(a:tabnr)
     if getbufvar(buf, "&mod")
-      return a:tabnr == tabpagenr()
-            \ ? "%#XTSelectMod#" . flag
-            \ : "%#XTHiddenMod#" . flag
+      return a:corner
+            \ ? "%#XTVisibleMod#" . flag
+            \ : a:tabnr == tabpagenr()
+            \   ? "%#XTSelectMod#" . flag
+            \   : "%#XTHiddenMod#" . flag
     endif
   endfor
   return ""
