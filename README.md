@@ -18,7 +18,7 @@
 
 This plugin tries to give you full control on the tabline:
 
-* buffer filtering on the base of the current CWD, or other directories
+* buffer filtering on the base of the current CWD
 * three tabline modes: (filtered) buffers, tabs, arglist
 * limit rendered buffers to the N most recently accessed (default 10)
 * persistance in sessions
@@ -28,7 +28,6 @@ More advanced features:
 * buffers quick navigation (next, previous, with count)
 * reopen closed tabs
 * clean up buffers across all tabs
-* tabs/buffers formatting options (names, icons, separators, reordering)
 * session management: load/save/delete sessions, with timestamping/descriptions
 * tabs bookmarks: load/save customized tabs from/to disk
 * tab-todo: customizable command to open a todo file for that tab
@@ -40,10 +39,10 @@ More advanced features:
 The tabline can be rendered in three different modes:
 
 |||
-|-|-|
-|buffers  | up to a max of N (default 10) recent buffers |
-|tabs     | tab name, CWD, or buffer name |
-|arglist  | buffers contained in the arglist |
+-|-
+buffers  | up to a max of N (default 10) recent buffers 
+tabs     | tab name, CWD, or buffer name 
+arglist  | buffers contained in the arglist 
 
 In *buffer-mode*, the tabline will show a filtered list of buffers that belong
 to the tab's CWD, or any open buffer inside the window. Formatting and number
@@ -62,22 +61,18 @@ which modes to cycle with a setting.
 
 Other features, besides the tabline rendering, are:
 
-- per-tab CWD
 - buffer filtering
 - tabs management
 - sessions management
 
-The first one means that each tab can have its own CWD (set with |:cd|): when
-switching tabs, the tab's CWD is automatically restored.
-
-The second one means that in the tabline, only buffers that are valid for the
-tab's CWD will be listed.
+*Buffer filtering* means that in *buffer-mode*, only buffers that are valid
+for the tab's CWD will be listed.
 
 The last two are a series of commands that allow you to save/restore tabs and
-sessions.
+sessions, using a fuzzy finder ([fzf-vim](https://github.com/junegunn/fzf.vim)
+or a built-in one).
 
 [vim-obsession](https://github.com/tpope/vim-obsession) is required for persistance.  
-[fzf-vim](https://github.com/junegunn/fzf.vim) is required for commands related to sessions/tabs management.  
 
 ----------------------------------------------------------------------------
  

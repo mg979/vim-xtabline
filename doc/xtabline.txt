@@ -37,7 +37,6 @@ More advanced features:
 * buffers quick navigation (next, previous, with [count])
 * reopen closed tabs
 * clean up buffers across all tabs
-* tabs/buffers formatting options (names, icons, separators, reordering)
 * session management: load/save/delete sessions, with dates/descriptions
 * tabs bookmarks: load/save customized tabs from/to disk
 * tab-todo: customizable command to open a todo file for that tab
