@@ -24,6 +24,7 @@ let s:buffer_has_format = { buf -> has_key(s:B()[buf.nr], 'format')             
 let s:has_buf_icon      = { nr -> !empty(get(s:B()[nr], 'icon', ''))                          }
 let s:extraHi           = { b -> s:is_extra(b) || s:is_open(b) || index(s:pinned(), b) >= 0   }
 let s:strwidth          = { label -> strwidth(substitute(label, '%#\w*#\|%\d\+T', '', 'g'))   }
+let s:tab_buffer        = { t -> tabpagebuflist(t)[tabpagewinnr(t)-1]                         }
 
 let s:v.time_to_update = 1
 let s:last_modified_state = { winbufnr(0): &modified }
@@ -314,39 +315,6 @@ fun! s:custom_buffer_label(bufdict, chars) abort
   return hi.st
 endfun "}}}
 
-fun! s:format_right_corner() abort
-  " Label for the upper right corner. {{{1
-  let N = tabpagenr()
-
-  if has_key(s:T(), 'corner')
-    " special right corner with its own label
-    return s:T().corner
-
-  elseif s:v.tabline_mode == 'arglist'
-    " the number of the files in the arglist, in form n/N
-    return s:right_corner_label() . "%#XTSelect# arglist "
-
-  elseif !s:Sets.show_right_corner
-    " no label, just the tab number in form n/N
-    return s:tab_num(N)
-
-  elseif s:v.tabline_mode == 'tabs'
-    " no number, just the name or the cwd
-    let icon  = "%#XTNumSel# " . s:get_tab_icon(N, 1)
-    let label = "%#XTVisible# " . s:right_corner_label() . ' '
-    let mod   = s:tab_mod_flag(N, 1)
-    return icon . label . mod
-
-  elseif s:v.tabline_mode == 'buffers'
-    " tab number in form n/N, plus tab name or cwd
-    let nr        = s:tab_num(N)
-    let icon      = s:get_tab_icon(N, 1)
-    let mod       = s:tab_mod_flag(N, 1)
-    let label     = s:right_corner_label()
-    return printf("%s %s%s %s", nr, icon, label, mod)
-  endif
-endfun "}}}
-
 fun! s:format_buffer(bufdict) abort
   " Generate label in 'buffers' mode {{{1
   "
@@ -490,26 +458,20 @@ fun! s:tab_label(tabnr) abort
   "
   " The label can be either:
   " 1. the shortened cwd
-  " 2. the name of the active buffer for this tab (option-controlled)
+  " 2. the name of the active special buffer for this tab
+  " 3. the name of the active buffer for this tab (option-controlled)
   "
   " @param tabnr: the tab number
   " Returns: the formatted tab label
 
+  let buf = s:tab_buffer(a:tabnr)
+  if s:is_special(buf)
+    return s:B()[buf].name
+  endif
+
   return s:Sets.tabs_show_bufname
-        \ ? s:tab_bufname(a:tabnr)
+        \ ? s:F.short_path(buf, s:Tn(a:tabnr).rpaths)
         \ : s:F.short_cwd(a:tabnr, s:Sets.tab_format)
-endfun "}}}
-
-fun! s:tab_bufname(tabnr) abort
-  " The formatted buffer name for the tab. {{{1
-  "
-  " @param tabnr: the tab number
-  " Returns: the buffer name
-
-  let bnr = s:first_normal_buffer(a:tabnr)
-  return empty(bufname(bnr)) ? s:Sets.unnamed_tab
-        \ : &columns < 150 || !s:Tn(a:tabnr).rpaths ? fnamemodify(bufname(bnr), ':t')
-        \ : s:F.short_path(bnr, s:Tn(a:tabnr).rpaths)
 endfun "}}}
 
 fun! s:get_tab_icon(tabnr, right_corner) abort
@@ -527,7 +489,7 @@ fun! s:get_tab_icon(tabnr, right_corner) abort
     let icon = s:Sets.tab_icon
 
   elseif s:Sets.tabs_show_bufname
-    let bnr  = s:first_normal_buffer(a:tabnr)
+    let bnr  = s:tab_buffer(a:tabnr)
     let buf  = {'nr': bnr, 'has_icon': 0}
     let icon = s:get_buf_icon(buf)
 
@@ -620,17 +582,6 @@ fun! s:fmt_chars(fmt) abort
   return chars
 endfun "}}}
 
-fun! s:first_normal_buffer(tabnr) abort
-  " The first regular buffer for the tab. {{{1
-  let bufs = tabpagebuflist(a:tabnr)
-  for buf in bufs
-    if buflisted(buf) && getbufvar(buf, "&bt") != 'nofile'
-      return bufnr(buf)
-    end
-  endfor
-  return bufnr(bufs[0])
-endfun "}}}
-
 fun! s:get_default_buffer_format() abort
   " Get the default buffer format, and set its type {{{1
   " It can be either:
@@ -705,6 +656,9 @@ fun! s:reuse_last_tabline() abort
     return 1
   endif
 endfun "}}}
+
+
+
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " vim: et sw=2 ts=2 sts=2 fdm=marker

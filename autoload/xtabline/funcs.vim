@@ -211,6 +211,13 @@ endfun
 
 
 fun! s:Funcs.short_path(bnr, h) abort "{{{2
+  if !filereadable(bufname(a:bnr))
+    let bname = bufname(a:bnr)
+    return empty(bname) && &buftype != ''
+          \ ? '[Volatile]'
+          \ : empty(bname) ? '...' : bname
+  endif
+
   let H = fnamemodify(bufname(a:bnr), ":~:.")
 
   if !a:h | return fnamemodify(path, ":t")       | endif
