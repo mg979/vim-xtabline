@@ -485,32 +485,6 @@ fun! s:tab_mod_flag(tabnr, corner) abort
   return ""
 endfun "}}}
 
-fun! s:right_corner_label() abort
-  " Build the label for the right corner. {{{1
-  "
-  " The label can be either:
-  " 1. the shortened cwd ('tabs' and 'buffers' mode)
-  " 2. a custom tab name ('buffers' mode)
-  " 3. the name of the active buffer for this tab ('buffers' mode)
-  " 4. the number/total files in the arglist ('arglist' mode)
-  "
-  " Returns: the formatted label
-  let N = tabpagenr()
-
-  if s:v.tabline_mode == 'tabs'
-    return s:v.custom_tabs && !empty(s:T().name)
-          \   ? s:T().name : s:F.short_cwd(N, 1)
-
-  elseif s:v.tabline_mode == 'arglist'
-    let [ n, N ]  = [ index(argv(), bufname(bufnr('%'))) + 1, len(argv()) ]
-    return "%#XTNumSel# " . n .'/' . N . " "
-
-  elseif s:v.tabline_mode == 'buffers'
-    return s:v.custom_tabs && !empty(s:T().name)
-          \ ? s:T().name : s:F.short_cwd(N, s:Sets.tab_format)
-  endif
-endfun "}}}
-
 fun! s:tab_label(tabnr) abort
   " Build the tab label. {{{1
   "
@@ -562,6 +536,72 @@ fun! s:get_tab_icon(tabnr, right_corner) abort
   endif
 
   return type(icon) == v:t_string ? icon : icon[a:tabnr != tabpagenr()] . ' '
+endfun "}}}
+
+
+
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Right corner label
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:format_right_corner() abort
+  " Label for the upper right corner. {{{1
+  let N = tabpagenr()
+
+  if has_key(s:T(), 'corner')
+    " special right corner with its own label
+    return s:T().corner
+
+  elseif s:v.tabline_mode == 'arglist'
+    " the number of the files in the arglist, in form n/N
+    return s:right_corner_label() . "%#XTSelect# arglist "
+
+  elseif !s:Sets.show_right_corner
+    " no label, just the tab number in form n/N
+    return s:tab_num(N)
+
+  elseif s:v.tabline_mode == 'tabs'
+    " no number, just the name or the cwd
+    let icon  = "%#XTNumSel# " . s:get_tab_icon(N, 1)
+    let label = "%#XTVisible# " . s:right_corner_label() . ' '
+    let mod   = s:tab_mod_flag(N, 1)
+    return icon . label . mod
+
+  elseif s:v.tabline_mode == 'buffers'
+    " tab number in form n/N, plus tab name or cwd
+    let nr        = s:tab_num(N)
+    let icon      = s:get_tab_icon(N, 1)
+    let mod       = s:tab_mod_flag(N, 1)
+    let label     = s:right_corner_label()
+    return printf("%s %s%s %s", nr, icon, label, mod)
+  endif
+endfun "}}}
+
+fun! s:right_corner_label() abort
+  " Build the label for the right corner. {{{1
+  "
+  " The label can be either:
+  " 1. the shortened cwd ('tabs' and 'buffers' mode)
+  " 2. a custom tab name ('buffers' mode)
+  " 3. the name of the active buffer for this tab ('buffers' mode)
+  " 4. the number/total files in the arglist ('arglist' mode)
+  "
+  " Returns: the formatted label
+  let N = tabpagenr()
+
+  if s:v.tabline_mode == 'tabs'
+    return s:v.custom_tabs && !empty(s:T().name)
+          \   ? s:T().name : s:F.short_cwd(N, 1)
+
+  elseif s:v.tabline_mode == 'arglist'
+    let [ n, N ]  = [ index(argv(), bufname(bufnr('%'))) + 1, len(argv()) ]
+    return "%#XTNumSel# " . n .'/' . N . " "
+
+  elseif s:v.tabline_mode == 'buffers'
+    return s:v.custom_tabs && !empty(s:T().name)
+          \ ? s:T().name : s:F.short_cwd(N, s:Sets.tab_format)
+  endif
 endfun "}}}
 
 
