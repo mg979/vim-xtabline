@@ -179,16 +179,17 @@ endfun "}}}
 
 fun! s:Funcs.short_path(bnr, h) abort
   " A shortened file path, see :h xtabline-paths {{{1
-  if !filereadable(bufname(a:bnr))
-    let bname = bufname(a:bnr)
+  let bname = bufname(a:bnr)
+
+  if !filereadable(bname)
     return empty(bname) && &buftype != ''
           \ ? '[Volatile]'
           \ : empty(bname) ? '...' : bname
   endif
 
-  let H = fnamemodify(bufname(a:bnr), ":~:.")
+  let H = fnamemodify(bname, ":~:.")
 
-  if !a:h | return fnamemodify(path, ":t")       | endif
+  if !a:h | return fnamemodify(bname, ":t")      | endif
   if empty(bufname(H)) | return ''               | endif
   if s:v.winOS         | let H = tr(H, '\', '/') | endif
   if match(H, '/') < 0 | return H                | endif
@@ -198,8 +199,8 @@ fun! s:Funcs.short_path(bnr, h) abort
   let h       = min([len(splits), abs(a:h)])
 
   if a:h < 0
-    let head = split(fnamemodify(bufname(a:bnr), ":~:h"), '/')
-    let tail = [fnamemodify(bufname(a:bnr), ":t")]
+    let head = split(fnamemodify(bname, ":~:h"), '/')
+    let tail = [fnamemodify(bname, ":t")]
     return join(head[-h:] + tail, '/')
   else
     let head = splits[:-(h+1)]
