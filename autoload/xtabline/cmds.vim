@@ -45,7 +45,7 @@ fun! xtabline#cmds#next_buffer(nr, last) abort
   " Switch to next visible/pinned buffer. "{{{1
   if s:F.not_enough_buffers(0) | return | endif
   let max = min([len(s:oB()) - 1, s:Sets.recent_buffers - 1])
-  let nr = a:nr > max + 1 ? a:nr % (max + 1) : a:nr
+  let nr = a:nr > max + 1 ? a:nr % (max + 1) : a:nr ? a:nr : 1
 
   if a:last
     let target = max - 1
@@ -68,7 +68,7 @@ fun! xtabline#cmds#prev_buffer(nr, first) abort
   " Switch to previous visible/pinned buffer. "{{{1
   if s:F.not_enough_buffers(0) | return | endif
   let max = min([len(s:oB()) - 1, s:Sets.recent_buffers - 1])
-  let nr = a:nr > max + 1 ? a:nr % (max + 1) : a:nr
+  let nr = a:nr > max + 1 ? a:nr % (max + 1) : a:nr ? a:nr : 1
 
   if a:first
     let target = 0
@@ -81,7 +81,6 @@ fun! xtabline#cmds#prev_buffer(nr, first) abort
     endif
   endif
 
-  echom target
   exe "buffer " . s:oB()[target]
 endfun "}}}
 
