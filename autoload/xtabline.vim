@@ -363,6 +363,7 @@ augroup plugin-xtabline
   autocmd BufEnter      * call s:Do('bufenter')
   autocmd BufWritePost  * call s:Do('bufwrite')
   autocmd BufDelete     * call xtabline#update()
+  autocmd OptionSet     * call xtabline#update()
   autocmd VimLeavePre   * call xtabline#update_this_session()
 
   autocmd SessionLoadPost * call s:restore_session_info()
