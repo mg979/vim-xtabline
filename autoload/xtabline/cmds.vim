@@ -202,9 +202,9 @@ fun! s:reopen_last_tab() abort
   endfor
 
   if buflisted(s:v.tab_properties.active_buffer)
-    exe "$tabnew" bufname(tab.active_buffer)
+    exe "$tabnew" fnameescape(bufname(tab.active_buffer))
   else
-    exe "$tabnew" bufname(good_buf)
+    exe "$tabnew" fnameescape(bufname(good_buf))
   endif
   call s:F.change_wd(tab.cwd)
   call xtabline#update()

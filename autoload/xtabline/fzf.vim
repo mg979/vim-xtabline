@@ -78,7 +78,7 @@ if s:use_finder
   let s:Find = funcref('xtabline#finder#open')
   fun! xtabline#fzf#list_buffers(args)
     let b = s:Find(s:tab_buffers(), 'Open Tab Buffer')
-    if b != '' | exe 'e' b | endif
+    if b != '' | exe 'e' fnameescape(b) | endif
   endfun
 
   fun! xtabline#fzf#list_tabs(args)
@@ -88,7 +88,7 @@ if s:use_finder
 
   fun! xtabline#fzf#delete_buffers(args)
     let bufs = s:Find(s:tab_buffers(), 'Delete Tab Buffer', {'multi':1})
-    for b in bufs | exe 'bd' b | endfor
+    for b in bufs | exe 'bd' bufnr(b) | endfor
   endfun
 
   fun! xtabline#fzf#load_session(args)
