@@ -111,8 +111,7 @@ fun! s:Hi.themes.default() abort
   hi! link XTHidden         TabLine
   hi! link XTExtra          Visual
   hi! link XTSpecial        IncSearch
-  hi! link XTFill           TabLineFill
-  hi! link XTVisibleTab     TabLineSel
+  hi! link XTFill           Folded
   hi! link XTNumSel         TabLineSel
   hi! link XTNum            TabLineSel
   
