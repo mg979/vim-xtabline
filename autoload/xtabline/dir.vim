@@ -83,7 +83,7 @@ fun! xtabline#dir#info() abort
     let d = exists('*FugitiveGitDir')
           \ ? substitute(FugitiveGitDir(), '/\.git$', '', '') : getcwd()
     let gitdir = systemlist('git -C '.d.' rev-parse --show-toplevel 2>/dev/null')[0]
-    if gitdir != ''
+    if gitdir != '' && dir !~ 'fatal:'
       echo printf("%-20s %s", 'Current git dir:', gitdir)
     endif
   catch
@@ -251,7 +251,9 @@ fun! s:Dir.find_root_dir(...) abort
 
   let current = a:0 ? a:1 : expand("%:h")
   let dir = system('git -C '.current.' rev-parse --show-toplevel 2>/dev/null')[:-2]
-  return !empty(dir) ? dir : a:0 ? a:1 : current
+  return !empty(dir) && dir !~ 'fatal:' ? dir
+        \: a:0 ? a:1
+        \: isdirectory(current) ? current : getcwd()
 endfun "}}}
 
 
