@@ -43,6 +43,7 @@ fun! xtabline#dir#cd(count) abort
   call s:F.manual_cwd(dir, 'working')
 endfun "}}}
 
+
 fun! xtabline#dir#set(...) abort
   " Set new working/local/tab directory. {{{1
 
@@ -65,6 +66,7 @@ fun! xtabline#dir#set(...) abort
 
   call xtabline#update()
 endfun "}}}
+
 
 fun! xtabline#dir#info() abort
   " Print current repo/cwd/tagfiles information. {{{1
@@ -96,9 +98,6 @@ fun! xtabline#dir#info() abort
 endfun "}}}
 
 
-
-
-
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Main functions
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -123,6 +122,7 @@ fun! s:Dir.manual_cwd(dir, type) abort
   call self.msg ([[ out." directory: ", 'Label' ], [ dir, 'None' ]])
   return 1
 endfun "}}}
+
 
 "------------------------------------------------------------------------------
 
@@ -244,14 +244,15 @@ fun! s:Dir.try_auto_change(dir) abort
   call xtabline#update_this_session()
 endfun "}}}
 
+
 "------------------------------------------------------------------------------
 
 fun! s:Dir.find_root_dir(...) abort
   " Look for a VCS dir below current directory {{{1
 
   let current = a:0 ? a:1 : expand("%:h")
-  let dir = system('git -C '.current.' rev-parse --show-toplevel 2>/dev/null')[:-2]
-  return !empty(dir) && dir !~ 'fatal:' ? dir
+  let dir = system('git -C '.current.' rev-parse --show-toplevel')[:-2]
+  return !empty(dir) && !v:shell_error ? dir
         \: a:0 ? a:1
         \: isdirectory(current) ? current : getcwd()
 endfun "}}}
@@ -284,8 +285,10 @@ fun s:Dir.no_difference(type, dir)
         \ || (a:type == 'working' && !window && !tab && getcwd() ==# a:dir)
 endfun "}}}
 
+
 fun! s:Dir.get_cd_cmd() abort
   " Return the most appropriate command for automatic mode. {{{1
   return self.is_local_dir() ? 'lcd' : self.is_tab_dir() ? 'tcd' : 'cd'
 endfun "}}}
+
 
