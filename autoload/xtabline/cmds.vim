@@ -191,6 +191,9 @@ fun! s:reopen_last_tab() abort
   let tab = remove(s:X.closed_tabs, -1)
   let s:v.tab_properties = tab
 
+  " ensure list isn't empty
+  let tab.buffers.valid = get(tab.buffers, 'valid', [-1])
+
   for good_buf in tab.buffers.valid
     if buflisted(good_buf)
       break
