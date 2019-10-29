@@ -245,9 +245,9 @@ fun! s:tab_load(...) abort
     let cwd = s:F.fullpath(saved['cwd'])
 
     if isdirectory(cwd) && empty(saved.buffers)        "no valid buffers
-      call s:abort_load(name, bm, 'buffers') | return
+      return s:abort_load(name, bm, 'buffers')
     elseif !isdirectory(cwd)                           "invalid directory
-      call s:abort_load(name, bm, 'dir')     | return
+      return s:abort_load(name, bm, 'dir')
     endif
 
     "tab properties defined here will be applied by new_tab(), run by autocommand
@@ -261,7 +261,6 @@ fun! s:tab_load(...) abort
     $tabnew | let newbuf = bufnr("%")
 
     if cwd !=# getcwd()
-      call map(saved['buffers'], 'v:val =~ "^/" ? v:val : cwd."/".v:val')
       if s:F.has_tcd()
         exe 'tcd' cwd
         let l:has_set_cd = 1
@@ -269,6 +268,11 @@ fun! s:tab_load(...) abort
         exe 'lcd' cwd
         let l:has_set_cd = 2
       endif
+    endif
+
+    if empty(filter(saved.buffers, 'filereadable(v:val)'))
+      tabclose
+      return s:abort_load(name, bm, 'buffers')
     endif
 
     "add buffers
