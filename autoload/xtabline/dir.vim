@@ -71,13 +71,19 @@ endfun "}}}
 fun! xtabline#dir#info() abort
   " Print current repo/cwd/tagfiles information. {{{1
 
-  " show global/local cwd
-  let cwd = haslocaldir(winnr(), tabpagenr())? 'local cwd:' : 'cwd:'
-  echo printf("%-20s %s", 'Current '.cwd, getcwd())
+  " show window cwd, if present
+  if s:Dir.is_local_dir()
+    echo printf("%-20s %s", 'Current local cwd:', getcwd(winnr(), tabpagenr()))
+  endif
 
   " show tab cwd, if present
-  if exists(':tcd') == 2 && haslocaldir(-1, 0)
-    echo printf("%-20s %s", 'Current tab cwd', getcwd(-1, 0))
+  if s:Dir.is_tab_dir()
+    echo printf("%-20s %s", 'Current tab cwd:', getcwd(-1, 0))
+  endif
+
+  " show global cwd otherwise
+  if !s:Dir.is_tab_dir() && !s:Dir.is_local_dir()
+    echo printf("%-20s %s", 'Current cwd:', getcwd(-1, 0))
   endif
 
   " show git dir
@@ -266,7 +272,7 @@ endfun "}}}
 
 fun! s:Dir.is_local_dir() abort
   "Check if there is a window-local directory. {{{1
-  return haslocaldir(winnr(), tabpagenr())
+  return haslocaldir(winnr(), tabpagenr()) == 1
 endfun "}}}
 
 
