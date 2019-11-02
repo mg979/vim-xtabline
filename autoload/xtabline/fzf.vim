@@ -243,6 +243,7 @@ fun! s:tab_load(...) abort
     let name = substitute(bm, '\(\w*\)\s*\t.*', '\1', '')
     let saved = json[name]
     let cwd = s:F.fullpath(saved['cwd'])
+    let has_set_cd = 0
 
     if isdirectory(cwd) && empty(saved.buffers)        "no valid buffers
       return s:abort_load(name, bm, 'buffers')
@@ -263,10 +264,10 @@ fun! s:tab_load(...) abort
     if cwd !=# getcwd()
       if s:F.has_tcd()
         exe 'tcd' cwd
-        let l:has_set_cd = 1
+        let has_set_cd = 1
       else
         exe 'lcd' cwd
-        let l:has_set_cd = 2
+        let has_set_cd = 2
       endif
     endif
 
@@ -289,14 +290,15 @@ fun! s:tab_load(...) abort
     " purge the empty buffer that was created
     execute "bwipe ".newbuf
   endfor
-  let s:v.halt = 0
-  call xtabline#update()
-  if exists('l:has_set_cd')
-    let cd = l:has_set_cd == 1 ? 'tab-local' : 'window-local'
-    unlet l:has_set_cd
+
+  if has_set_cd
+    let cd = has_set_cd == 1 ? 'tab-local' : 'window-local'
     call s:F.msg([['[xtabline] ', 'Label'],
           \       [cd.' cwd has been set to: '.cwd, 'None']])
   endif
+
+  let s:v.halt = 0
+  call xtabline#update()
 endfun
 
 fun! s:abort_load(name, fzf_line, error_type) abort
@@ -574,11 +576,11 @@ fun! s:tab_nerd_bookmarks_load(...) abort
     let bm = expand(bm, ":p")
     if isdirectory(bm)
       tabnew
-      call s:F.change_wd(bm)
+      call s:F.auto_change_dir(bm)
       exe "NERDTree ".bm
     elseif filereadable(bm)
       exe "tabedit ".bm
-      call s:F.change_wd(fnamemodify(bm, ":p:h"))
+      call s:F.auto_change_dir(fnamemodify(bm, ":p:h"))
     endif
   endfor
   call xtabline#update()

@@ -83,7 +83,7 @@ fun! xtabline#dir#info() abort
 
   " show global cwd otherwise
   if !s:Dir.is_tab_dir() && !s:Dir.is_local_dir()
-    echo printf("%-20s %s", 'Current cwd:', getcwd(-1, 0))
+    echo printf("%-20s %s", 'Current cwd:', getcwd())
   endif
 
   " show git dir
@@ -130,17 +130,10 @@ fun! s:Dir.manual_cwd(dir, type) abort
 endfun "}}}
 
 
-"------------------------------------------------------------------------------
-
-fun! s:Dir.change_wd(dir, ...) abort
+fun! s:Dir.change_wd(dir, type) abort
   " Change working directory, update tab cwd and session data. {{{1
 
-  if !a:0   " automatic attempt to change working directory
-    return self.try_auto_change(a:dir)
-  else
-    let type = a:1
-    let [error, out] = [0, type]
-  endif
+  let [type, error, out] = [a:type, 0, a:type]
 
   if s:Dir.no_difference(type, a:dir)
       let [error, out] = [1, 'no difference']
@@ -208,12 +201,28 @@ fun! s:Dir.change_wd(dir, ...) abort
     exe 'cd' a:dir
   endif
 
-  if !self.is_local_dir()
-    call self.set_tab_wd()
-  endif
-
+  call self.set_tab_wd()
   call xtabline#update_this_session()
   return [error, out]
+endfun "}}}
+
+
+fun! s:Dir.auto_change_dir(dir) abort
+  " Not a manual cwd change, it will be applied if a local cwd is already set. "{{{1
+  let T = s:T()
+
+  if getcwd() ==# a:dir
+    return
+  endif
+
+  if self.is_local_dir()
+    exe 'lcd' a:dir
+  elseif self.is_tab_dir()
+    exe 'tcd' a:dir
+  endif
+
+  call self.set_tab_wd()
+  call xtabline#update_this_session()
 endfun "}}}
 
 
@@ -224,34 +233,9 @@ endfun "}}}
 
 fun! s:Dir.set_tab_wd() abort
   " Update the tab object's working directory. {{{1
-
-  let T = s:T()
-  if self.has_tcd()
-    let T.cwd = self.fullpath(getcwd(-1, tabpagenr()))
-  elseif !haslocaldir()
-    let T.cwd = self.fullpath(getcwd())
-  endif
+  let s:X.Tabs[tabpagenr()-1].cwd = self.fullpath(getcwd())
 endfun "}}}
 
-
-fun! s:Dir.try_auto_change(dir) abort
-  " Not a manual cwd change, check if it must be applied. "{{{1
-
-  if getcwd() ==# a:dir
-    return
-  endif
-
-  if self.is_local_dir()
-    exe 'lcd' a:dir
-  " elseif self.is_tab_dir() && getcwd(-1, 0) !=# a:dir
-  "   exe 'tcd' a:dir
-  endif
-  call self.set_tab_wd()
-  call xtabline#update_this_session()
-endfun "}}}
-
-
-"------------------------------------------------------------------------------
 
 fun! s:Dir.find_root_dir(...) abort
   " Look for a VCS dir below current directory {{{1

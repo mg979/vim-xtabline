@@ -89,7 +89,7 @@ fun! s:Funcs.todo_path() abort
   return fnameescape(getcwd() . self.sep() . s:Sets.todo.file)
 endfun "}}}
 
-fun! s:Funcs.tab_buffers() abort  
+fun! s:Funcs.tab_buffers() abort
   " Return a list of buffers names for this tab. {{{1
   return map(copy(s:vB()), 'bufname(v:val)')
 endfun "}}}

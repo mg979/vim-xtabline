@@ -514,7 +514,7 @@ fun! s:reset_tab(...) abort
 
   let cwd = a:0? fnamemodify(expand(a:1), :p) : s:F.find_root_dir()
   let s:X.Tabs[tabpagenr()-1] = xtabline#tab#new({'cwd': cwd})
-  call s:F.change_wd(cwd)
+  call s:F.auto_change_dir(cwd)
 endfun "}}}
 
 fun! s:reset_buffer(...) abort
