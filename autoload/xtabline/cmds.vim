@@ -209,7 +209,11 @@ fun! s:reopen_last_tab() abort
   else
     exe "$tabnew" fnameescape(bufname(good_buf))
   endif
-  call s:F.change_wd(tab.cwd)
+  if tab.wd_cmd == 2
+    lcd `=tab.cwd`
+  elseif tab.wd_cmd == 1
+    tcd `=tab.cwd`
+  endif
   call xtabline#update()
 endfun "}}}
 
