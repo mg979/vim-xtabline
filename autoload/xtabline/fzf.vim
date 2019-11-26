@@ -471,7 +471,7 @@ fun! s:session_load(file) abort
   "-----------------------------------------------------------
   " upadate and pause Obsession
 
-  if ObsessionStatus() == "[$]"
+  if exists('g:this_obsession') && ObsessionStatus() == "[$]"
     exe "silent Obsession ".fnameescape(g:this_obsession)
     silent Obsession
   endif
