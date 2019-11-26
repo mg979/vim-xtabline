@@ -163,8 +163,7 @@ fun! s:render_buffers() abort
     let buf = { 'nr': bnr,
           \ 'n': n,
           \ 'has_icon': 0,
-          \ 'path': &columns < 150 || !Tab.rpaths ? fnamemodify(bufname(bnr), ':t')
-          \                                       : s:F.short_path(bnr, Tab.rpaths),
+          \ 'path': s:bufpath(bnr, Tab),
           \ 'hilite':   is_currentbuf && special  ? 'Special' :
           \             is_currentbuf             ? 'Select' :
           \             special || extra          ? 'Extra' :
@@ -464,13 +463,14 @@ fun! s:tab_label(tabnr) abort
   " @param tabnr: the tab number
   " Returns: the formatted tab label
 
-  let buf = s:tab_buffer(a:tabnr)
-  if s:is_special(buf)
-    return s:B()[buf].name
+  let bnr = s:tab_buffer(a:tabnr)
+
+  if s:is_special(bnr)
+    return s:B()[bnr].name
   endif
 
   return s:Sets.tabs_show_bufname
-        \ ? s:F.short_path(buf, s:Tn(a:tabnr).rpaths)
+        \ ? s:bufpath(bnr, s:T())
         \ : s:F.short_cwd(a:tabnr, s:Sets.tab_format)
 endfun "}}}
 
@@ -572,6 +572,11 @@ endfun "}}}
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Helpers
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+fun! s:bufpath(nr, T) abort
+  return index(s:vB(), a:nr) < 0 || &columns < 150 || !a:T.rpaths ?
+        \ fnamemodify(bufname(a:nr), ':t') : s:F.short_path(a:nr, a:T.rpaths)
+endfun
 
 fun! s:fmt_chars(fmt) abort
   " Return a split string with the formatting option in use. {{{1
