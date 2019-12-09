@@ -69,24 +69,31 @@ fun! s:Funcs.set_buffer_var(var, ...) abort
   return bufs[B]
 endfun "}}}
 
-fun! s:Funcs.fullpath(path, ...) abort
-  " OS-specific modified path. {{{1
+fun! s:Funcs.fullpath(path) abort
+  " Resolve full path. {{{1
   let path = expand(a:path)
-  let path = empty(path) ? a:path : path        "expand can fail
-  let mod = a:0 ? a:1 : ":p"
-  let path = s:v.winOS ?
-        \tr(fnamemodify(path, mod), '\', '/') : fnamemodify(path, mod)
-  return resolve(path)
+  let path = empty(path) ? a:path : path "expand can fail
+  return resolve(fnamemodify(path, ':p'))
 endfun "}}}
 
-fun! s:Funcs.sep() abort
-  " OS-specific directory separator. {{{1
-  return s:v.winOS ? '\' : '/'
+if has('win32')
+  fun! s:Funcs.fullpath(path) abort
+    " Resolve full path. {{{1
+    let path = expand(a:path)
+    let path = empty(path) ? a:path : path "expand can fail
+    return resolve(tr(fnamemodify(path, ':p'), '\', '/'))
+  endfun "}}}
+endif
+
+fun! s:Funcs.fulldir(path)
+  " Resolve full directory with trailing slash. {{{1
+  let path = self.fullpath(a:path)
+  return path[-1:] != '/' ? path.'/' : path
 endfun "}}}
 
 fun! s:Funcs.todo_path() abort
   " Return path for todo file for the current tab. {{{1
-  return fnameescape(getcwd() . self.sep() . s:Sets.todo.file)
+  return fnameescape(getcwd() . '/' . s:Sets.todo.file)
 endfun "}}}
 
 fun! s:Funcs.tab_buffers() abort

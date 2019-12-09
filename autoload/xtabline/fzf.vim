@@ -12,7 +12,7 @@ let s:B =  { -> s:X.Buffers             }       "customized buffers
 let s:vB = { -> s:T().buffers.valid     }       "valid buffers for tab
 let s:oB = { -> s:T().buffers.order     }       "ordered buffers for tab
 
-let s:sessions_path = { -> s:F.fullpath(s:Sets.sessions_path) }
+let s:sessions_path = { -> s:F.fulldir(s:Sets.sessions_path) }
 let s:use_finder    = !exists('g:loaded_fzf') || get(s:Sets, 'use_builtin_finder', 0)
 let s:lastmodified  = { f -> str2nr(system('date -r '.f.' +%s')) }
 
@@ -393,7 +393,7 @@ fun! s:sessions_list(...) abort
   let sessions = split(globpath(s:sessions_path(), "*"), '\n')
 
   "remove __LAST__ session
-  let last = s:sessions_path() . s:F.sep() . '__LAST__'
+  let last = s:sessions_path() . '__LAST__'
   silent! call remove(sessions, index(sessions, last))
 
   if !s:v.winOS
@@ -452,10 +452,11 @@ fun! s:session_load(file) abort
 
   let session = a:file
   if match(session, "\t") | let session = substitute(session, " *\t.*", "", "") | endif
-  let file = s:sessions_path() . s:F.sep() . session
+  let file = s:sessions_path() . session
+  let this = tr(v:this_session, '\', '/')
 
-  if !filereadable(file)     | call s:F.msg("Session file doesn't exist.", 1) | return | endif
-  if file ==# v:this_session | call s:F.msg("Session is already loaded.", 1)  | return | endif
+  if !filereadable(file) | call s:F.msg("Session file doesn't exist.", 1) | return | endif
+  if file ==# this       | call s:F.msg("Session is already loaded.", 1)  | return | endif
 
   "-----------------------------------------------------------
   " confirm session unloading
@@ -488,7 +489,7 @@ fun! s:session_delete(file) abort
   let session = a:file
   if match(session, "\t")
     let session = substitute(session, " *\t.*", "", "") | endif
-  let file = s:sessions_path() . s:F.sep() . session
+  let file = s:sessions_path() . session
 
   if !filereadable(file)
     call s:F.msg("Session file doesn't exist.", 1) | return | endif
@@ -543,7 +544,7 @@ fun! xtabline#fzf#session_save(...) abort
         execute "silent! %bdelete"
       endif
       call writefile([json_encode(data)], s:Sets.sessions_data)
-      let file = expand(sdir . s:F.sep().name, ":p")
+      let file = sdir . name
       silent execute "Obsession ".fnameescape(file)
       call s:F.msg("Session '".file."' has been saved.", 0)
       return
