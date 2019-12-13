@@ -240,7 +240,7 @@ endfun "}}}
 fun! s:Dir.find_root_dir(...) abort
   " Look for a VCS dir below current directory {{{1
 
-  let current = a:0 ? a:1 : expand("%:h")
+  let current = a:0 ? a:1 : shellescape(expand("%:h"))
   let dir = system('git -C '.current.' rev-parse --show-toplevel')[:-2]
   return !empty(dir) && !v:shell_error ? dir
         \: a:0 ? a:1
