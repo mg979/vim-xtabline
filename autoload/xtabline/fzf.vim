@@ -262,7 +262,7 @@ fun! s:tab_load(...) abort
     $tabnew | let newbuf = bufnr("%")
 
     if cwd !=# getcwd()
-      if s:F.has_tcd()
+      if exists(':tcd') == 2
         exe 'tcd' cwd
         let has_set_cd = 1
       else
@@ -461,12 +461,9 @@ fun! s:session_load(file) abort
   "-----------------------------------------------------------
   " confirm session unloading
 
-  if get(s:Sets, 'unload_session_ask_confirm', 1)
-    call s:F.msg ([[ "Current session will be unloaded.", 'WarningMsg' ],
-          \[ " Confirm (y/n)? ", 'Type' ]])
-
-    if nr2char(getchar()) !=? 'y'
-      call s:F.msg ([[ "Canceled.", 'WarningMsg' ]]) | return | endif
+  if get(s:Sets, 'unload_session_ask_confirm', 1) &&
+        \ !s:F.confirm("Current session will be unloaded. Confirm?")
+      return s:F.msg ("Canceled.", 1)
   endif
 
   "-----------------------------------------------------------
@@ -492,15 +489,9 @@ fun! s:session_delete(file) abort
   let file = s:sessions_path() . session
 
   if !filereadable(file)
-    call s:F.msg("Session file doesn't exist.", 1) | return | endif
+    return s:F.msg("Session file doesn't exist.", 1) | endif
 
-  "-----------------------------------------------------------
-
-  call s:F.msg ([[ "Selected session will be deleted.", 'WarningMsg' ],
-        \[ " Confirm (y/n)? ", 'Type' ]])
-
-  if nr2char(getchar()) !=? 'y'
-    call s:F.msg ([[ "Canceled.", 'WarningMsg' ]]) | return | endif
+  if !s:F.confirm('Delete Selected session?') | return | endif
 
   "-----------------------------------------------------------
 
@@ -517,7 +508,7 @@ fun! xtabline#fzf#session_save(...) abort
   " Save a session.  {{{1
   let sdir = s:sessions_path()
   if !isdirectory(sdir)
-    if confirm('Directory '.sdir.' does not exist, create?', "&Yes\n&No") == 1
+    if s:F.confirm('Directory '.sdir.' does not exist, create?')
       call mkdir(sdir, 'p')
     else
       return s:F.msg("Session not saved.", 1)
@@ -534,8 +525,7 @@ fun! xtabline#fzf#session_save(...) abort
 
   if !empty(name)
     let data[name] = input('Enter an optional description:   ', defdesc)
-    call s:F.msg("\nConfirm (y/n)\t", 0)
-    if nr2char(getchar()) ==? 'y'
+    if s:F.confirm('Save session '.name.'?')
       if a:0
         "update and pause Obsession, then clean buffers
         if ObsessionStatus() == "[$]"

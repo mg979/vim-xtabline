@@ -55,6 +55,11 @@ fun! s:Funcs.msg(txt, ...) abort
   endfor
 endfun "}}}
 
+fun! s:Funcs.confirm(txt) abort
+  " Ask for confirmation (y/n). {{{1
+  return confirm(a:txt, "&Yes\n&No") == 1
+endfun "}}}
+
 fun! s:Funcs.set_buffer_var(var, ...) abort
   " Init buffer variable in Tabs dict to 0 or a given value. {{{1
   " Return buffer dict if successful

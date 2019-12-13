@@ -4,7 +4,7 @@
 let s:X    = g:xtabline
 let s:v    = s:X.Vars
 let s:Sets = g:xtabline_settings
-let s:T    =  { -> s:X.Tabs[tabpagenr()-1] }       "current tab
+let s:T    = { -> s:X.Tabs[tabpagenr()-1] } "current tab
 
 let s:Dir  = {}
 
@@ -90,8 +90,8 @@ fun! xtabline#dir#info() abort
   try
     let d = exists('*FugitiveGitDir')
           \ ? substitute(FugitiveGitDir(), '/\.git$', '', '') : getcwd()
-    let gitdir = systemlist('git -C '.d.' rev-parse --show-toplevel 2>/dev/null')[0]
-    if gitdir != '' && dir !~ 'fatal:'
+    let gitdir = self.find_root_dir('')
+    if gitdir != ''
       echo printf("%-20s %s", 'Current git dir:', gitdir)
     endif
   catch
@@ -160,7 +160,8 @@ fun! s:Dir.change_wd(dir, type) abort
 
   elseif self.is_local_dir()
     " there is a window-local directory that would be overwritten, ask {{{2
-    let action = confirm('Overwrite window-local directory ' .getcwd(). '?', "&Yes\n&No\n&Clear")
+    let action = confirm('Overwrite window-local directory ' .getcwd(). '?',
+          \"&Yes\n&No\n&Clear")
 
     if action == 1
       exe 'lcd' a:dir
@@ -185,7 +186,8 @@ fun! s:Dir.change_wd(dir, type) abort
 
   elseif self.is_tab_dir()
     " there is a tab-local directory that would be overwritten, ask {{{2
-    let action = confirm('Overwrite tab-local directory ' .getcwd(-1, 0). '?', "&Yes\n&No\n&Clear")
+    let action = confirm('Overwrite tab-local directory ' .getcwd(-1, 0). '?',
+          \"&Yes\n&No\n&Clear")
 
     if action == 1
       exe 'tcd' a:dir
@@ -248,12 +250,6 @@ fun! s:Dir.find_root_dir(...) abort
 endfun "}}}
 
 
-fun! s:Dir.has_tcd() abort
-  " Check if :tcd can be used. {{{1
-  return exists(':tcd') == 2
-endfun "}}}
-
-
 fun! s:Dir.is_local_dir() abort
   "Check if there is a window-local directory. {{{1
   return haslocaldir(winnr(), tabpagenr()) == 1
@@ -270,15 +266,10 @@ fun s:Dir.no_difference(type, dir)
   " Check if the the requested directory and type match the current ones. {{{1
   let [window, tab] = [self.is_local_dir(), self.is_tab_dir()]
 
-  return     (a:type == 'window-local' && window && getcwd(0, 0) ==# a:dir)
-        \ || (a:type == 'tab-local'    && tab    && getcwd(-1, 0) ==# a:dir)
-        \ || (a:type == 'working' && !window && !tab && getcwd() ==# a:dir)
+  return     (a:type == 'window-local'  && window  && getcwd(0, 0) ==# a:dir)
+        \ || (a:type == 'tab-local'     && tab     && getcwd(-1, 0) ==# a:dir)
+        \ || (a:type == 'working'       && !window && !tab && getcwd() ==# a:dir)
 endfun "}}}
 
 
-fun! s:Dir.get_cd_cmd() abort
-  " Return the most appropriate command for automatic mode. {{{1
-  return self.is_local_dir() ? 'lcd' : self.is_tab_dir() ? 'tcd' : 'cd'
-endfun "}}}
-
-
+" vim: et sw=2 ts=2 sts=2 fdm=marker
