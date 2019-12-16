@@ -40,16 +40,16 @@ The tabline can be rendered in three different modes:
 
 |||
 -|-
-buffers  | up to a max of N (default 10) recent buffers 
 tabs     | tab name, CWD, or buffer name 
+buffers  | up to a max of N (default 10) recent buffers 
 arglist  | buffers contained in the arglist 
+
+In *tabs-mode*, the tabline will show the numbered tabs. The label can be
+customized as well (to show buffer name, tab cwd, etc).
 
 In *buffer-mode*, the tabline will show a filtered list of buffers that belong
 to the tab's CWD, or any open buffer inside the window. Formatting and number
 of (recently accessed) buffers can be customized.
-
-In *tabs-mode*, the tabline will show the numbered tabs. The label can be
-customized as well (to show buffer name, tab cwd, etc).
 
 In *arglist-mode*, the tabline will show the files defined in the arglist. You
 can switch file with the usual commands (`:next`, etc).

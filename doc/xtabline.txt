@@ -6,11 +6,12 @@ XTABLINE - TABLE OF CONTENTS                                        *xtabline*
   Introduction                                   |xtabline-introduction|
   Features                                       |xtabline-features|
   Tabline rendering                              |xtabline-rendering|
-  Tabline paths                                  |xtabline-paths|
+  Main mappings                                  |xtabline-basic|
   Initialization                                 |xtabline-init|
   Tabline modes                                  |xtabline-modes|
+  Tabline paths                                  |xtabline-paths|
+  Tab working directories                        |xtabline-directories|
   Tab buffers                                    |xtabline-buffers|
-  Tab working and base directories               |xtabline-directories|
   Managing tabs and buffers                      |xtabline-manage|
   Session management                             |xtabline-sessions|
   Other commands                                 |xtabline-other|
@@ -84,10 +85,11 @@ The tabline can be rendered in three different modes:
 - 'arglist':  buffers contained in the arglist
 - 'buffers':  up to a max of N (default 10) recent buffers
 
-Default order is ['tabs', 'arglist'], with 'buffers' disabled.
+Default order is ['tabs', 'buffers', 'arglist'].
 
 In |tabs-mode|, the tabline will show the numbered tabs. The label can be
-customized as well (to show buffer name, tab cwd, etc).
+customized as well (to show buffer name, tab cwd, etc). This is the closest to
+vim default tabline, and it's the default mode.
 
 In |arglist-mode|, the tabline will show the files included in the arglist.
 You can switch file with the usual commands (|:next|, etc). Note that if the
@@ -97,40 +99,24 @@ In |buffer-mode|, the tabline will show a list of the most recently accessed
 buffers (10 by default). This list will be filtered on the base of the current
 tab's CWD, if |buffer_filtering| is active.
 
-These modes can be cycled with a mapping (<F5> by default). You can also
-define which modes to cycle with a setting (|tabline_modes|).
 
 
 
 
-TABLINE PATHS                                                 *xtabline-paths*
+MAIN MAPPINGS                                                 *xtabline-basic*
 ==============================================================================
 
-Both in 'tabs' and 'buffers' mode, the path can be displayed in several ways.
-Vim's default is to show a shortened version of the file's path, with
-directory names reduced to a single letter. I don't find this format to be
-very readable, but it generally gives you an idea of the file position. This
-is still the default in xtabline.
+These are the default mappings for the most common functionalities. Mappings
+can be disabled or redefined.
 
-There are alternatives, though, controlled by a command (|XTabRelativePaths|),
-and by a setting (|xtabline-relative_paths|). The setting defines the default
-for new tabs, while the command defines a tab-specific value for this setting.
+<F5>        cycle among the modes described above. You can also define which
+            modes to cycle with a setting (|tabline_modes|).
 
-Without a [count], the command toggles between basename and relative path in
-the tabline. With a count, the text displayed will vary for positive or
-negative values. For example, with a path: >
+[count]<BS> will be used to select tabs or buffers.
+            See |xtabline-select-buffer|.
 
-  long/path/to/file.ext
-
-different values will display the path in the following ways:
->
-     -2  ->   path/to/file.ext
-     -1  ->   to/file.ext
-      0  ->   file.ext
-      1  ->   l/p/t/file.ext      (default)
-      2  ->   l/p/to/file.ext
-
-Mappings are also provided. See |XTabRelativePaths|.
+cd...       a series of mappings used to change/display working directories
+            and related stuff. See |xtabline-directories|.
 
 
 
@@ -210,6 +196,70 @@ XTabFiltering           *f
 
 
 
+TABLINE PATHS                                                 *xtabline-paths*
+==============================================================================
+
+Both in 'tabs' and 'buffers' mode, the path can be displayed in several ways.
+Vim's default is to show a shortened version of the file's path, with
+directory names reduced to a single letter. I don't find this format to be
+very readable, but it generally gives you an idea of the file position. This
+is still the default in xtabline.
+
+There are alternatives, though, controlled by a command (|XTabRelativePaths|),
+and by a setting (|xtabline-relative_paths|). The setting defines the default
+for new tabs, while the command defines a tab-specific value for this setting.
+
+---------------------------------------------------------- *XTabRelativePaths* 
+Command                           Mapping~
+XTabRelativePaths                 *+
+XTabRelativePaths!                *-
+
+Without a [count], the command toggles between basename and relative path in
+the tabline. With a count, the text displayed will vary for positive or
+negative values. For example, with a path: >
+
+  long/path/to/file.ext
+
+different values will display the path in the following ways:
+>
+     -2  ->   path/to/file.ext
+     -1  ->   to/file.ext
+      0  ->   file.ext
+      1  ->   l/p/t/file.ext      (default)
+      2  ->   l/p/to/file.ext
+
+Notice that there are two mappings, *+ and *-, with the second one that sets
+a negative value.
+
+
+
+
+
+
+TAB WORKING DIRECTORIES                                 *xtabline-directories*
+==============================================================================
+
+Mappings are provided to set a tab's working directory.
+
+Command          Mapping~
+*XTabWD* [!]        cdw     Set the tab CWD, automatically with <bang>
+*XTabLD* [!]        cdl     Set a window-local WD, automatically with <bang>
+*XTabTD* [!]        cdt     Set a tab-local WD, automatically with <bang>
+*XTabCdCurrent*     cdc     |:cd| relative to the currently open buffer
+*XTabCdDown*        cdd     |:cd| [count1] directories below current buffer
+*XTabInfo*          cd?     show current cwd (global/local/tab), git dir, tags
+
+Note that |:tcd| is only available in neovim and the most recent vim versions
+(>= 8.1).
+
+|XTabCdCurrent| and |XTabCdDown|, as |XTabWD| will use either |:cd|, or |:lcd|
+or |:tcd|, depending on the type of directory that is currently set for the
+tab/window, and they will prompt for confirmation if needed.
+
+
+
+
+
 TAB BUFFERS                                                 *xtabline-buffers*
 ==============================================================================
 
@@ -225,14 +275,6 @@ XTabMoveBuffer                    *m
 XTabMoveBufferNext                *]
 XTabMoveBufferPrev                *[
 XTabPinBuffer                     *p
-XTabRelativePaths                 *+
-XTabRelativePaths!                *-
-
-------------------------------------------------------------------------------
-
-*XTabNextBuffer* and *XTabPrevBuffer* accept a [count], to move to ±N buffer,
-as they are shown in the tabline.  If moving beyond the limit, it will start
-from the start (or the end).
 
 ------------------------------------------------------------------------------
 
@@ -243,6 +285,15 @@ from the start (or the end).
 
 Define this command by setting the |select_buffer_alt_action| variable.
 Default is `:buffer #` (go to alternate buffer).
+
+When in |tabs-mode|, [count]<BS> can still be used, and will bring you to the
+N tab (<BS> is an alias for |gt| in this case).
+
+------------------------------------------------------------------------------
+
+*XTabNextBuffer* and *XTabPrevBuffer* accept a [count], to move to ±N buffer,
+as they are shown in the tabline.  If moving beyond the limit, it will start
+from the start (or the end).
 
 ------------------------------------------------------------------------------
 
@@ -275,35 +326,6 @@ considered valid for the current tab.
 
 *XTabPinBuffer* pins a buffer, so that it will be visible in all tabs.
 
-------------------------------------------------------------------------------
-
-*XTabRelativePaths* is discussed in |xtabline-paths|. Notice that there are
-two mappings, *+ and *-, with the second one that sets a negative value.
-
-
-
-
-
-
-TAB WORKING DIRECTORIES                                 *xtabline-directories*
-==============================================================================
-
-Mappings are provided to set a tab's working directory.
-
-Command          Mapping~
-*XTabWD* [!]        cdw     Set the tab CWD, automatically with <bang>
-*XTabLD* [!]        cdl     Set a window-local WD, automatically with <bang>
-*XTabTD* [!]        cdt     Set a tab-local WD, automatically with <bang>
-*XTabCdCurrent*     cdc     |:cd| relative to the currently open buffer
-*XTabCdDown*        cdd     |:cd| [count1] directories below current buffer
-*XTabInfo*          cd?     show current cwd (global/local/tab), git dir, tags
-
-Note that |:tcd| is only available in neovim and the most recent vim versions
-(>= 8.1).
-
-|XTabCdCurrent| and |XTabCdDown|, as |XTabWD| will use either |:cd|, or |:lcd|
-or |:tcd|, depending on the type of directory that is currently set for the
-tab/window, and they will prompt for confirmation if needed.
 
 
 

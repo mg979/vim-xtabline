@@ -25,6 +25,7 @@ XTabResetTab	xtabline.txt	/*XTabResetTab*
 XTabTD	xtabline.txt	/*XTabTD*
 XTabWD	xtabline.txt	/*XTabWD*
 xtabline	xtabline.txt	/*xtabline*
+xtabline-basic	xtabline.txt	/*xtabline-basic*
 xtabline-buffer_filtering	xtabline.txt	/*xtabline-buffer_filtering*
 xtabline-buffer_format	xtabline.txt	/*xtabline-buffer_format*
 xtabline-buffers	xtabline.txt	/*xtabline-buffers*
