@@ -87,15 +87,15 @@ fun! xtabline#dir#info() abort
   endif
 
   " show git dir
-  try
-    let d = exists('*FugitiveGitDir')
-          \ ? substitute(FugitiveGitDir(), '/\.git$', '', '') : getcwd()
-    let gitdir = self.find_root_dir('')
-    if gitdir != ''
-      echo printf("%-20s %s", 'Current git dir:', gitdir)
-    endif
-  catch
-  endtry
+  if exists('*FugitiveGitDir')
+    let gitdir = substitute(FugitiveGitDir(), '/\.git$', '', '')
+    let gitdir = has('win32') ? substitute(gitdir, '\\\ze[^ ]', '/', 'g') : gitdir
+  else
+    let gitdir = s:Dir.find_root_dir()
+  endif
+  if gitdir != ''
+    echo printf("%-20s %s", 'Current git dir:', gitdir)
+  endif
 
   " show current tagfiles
   if !empty(tagfiles())
