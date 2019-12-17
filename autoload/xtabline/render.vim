@@ -469,7 +469,7 @@ fun! s:tab_label(tabnr) abort
     return s:B()[bnr].name
   endif
 
-  return s:Sets.tabs_show_bufname
+  return s:Sets.tabs_show_bufname || empty(bufname(bnr))
         \ ? s:bufpath(bnr, s:T())
         \ : s:F.short_cwd(a:tabnr, s:Sets.tab_format)
 endfun "}}}
@@ -574,9 +574,17 @@ endfun "}}}
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:bufpath(nr, T) abort
-  return index(s:vB(), a:nr) < 0 || &columns < 150 || !a:T.rpaths ?
-        \ fnamemodify(bufname(a:nr), ':t') : s:F.short_path(a:nr, a:T.rpaths)
-endfun
+  " Return the buffer path as it is to be shown in the tabline. {{{1
+  let bname = bufname(a:nr)
+  return !filereadable(bname)
+        \ ? empty(bname) && &buftype != ''
+        \     ? '[Volatile]'
+        \     : empty(bname) ? '...' : bname
+        \
+        \ : index(s:vB(), a:nr) < 0 || &columns < 150 || !a:T.rpaths
+        \     ? fnamemodify(bname, ':t')
+        \     : s:F.short_path(a:nr, a:T.rpaths)
+endfun " }}}
 
 fun! s:fmt_chars(fmt) abort
   " Return a split string with the formatting option in use. {{{1

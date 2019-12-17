@@ -193,12 +193,6 @@ fun! s:Funcs.short_path(bnr, h) abort
   " A shortened file path, see :h xtabline-paths {{{1
   let bname = bufname(a:bnr)
 
-  if !filereadable(bname)
-    return empty(bname) && &buftype != ''
-          \ ? '[Volatile]'
-          \ : empty(bname) ? '...' : bname
-  endif
-
   let H = fnamemodify(bname, ":~:.")
 
   if !a:h | return fnamemodify(bname, ":t")      | endif
