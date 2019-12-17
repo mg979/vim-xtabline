@@ -44,7 +44,6 @@ com!                           XTabLock                call xtabline#cmds#run("l
 com! -nargs=?                  XTabPinBuffer           call xtabline#cmds#run("toggle_pin_buffer", <q-args>)
 com!                           XTabCycleMode           call xtabline#cmds#run("cycle_mode")
 com!                           XTabFiltering           call xtabline#cmds#run("toggle_filtering")
-com!                           XTabConfig              call xtabline#config#start()
 
 com! -nargs=?                  XTabMove                call xtabline#cmds#run("move_tab", <q-args>)
 com!                           XTabMenu                call xtabline#maps#menu()

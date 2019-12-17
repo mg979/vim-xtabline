@@ -70,7 +70,6 @@ fun! s:do_map() abort
   call s:mapkey0(X.'+',  'RelativePaths')
   call s:mapkey0(X.'-',  'RelativePaths!')
   call s:mapkey_(X.'?',  'Menu')
-  call s:mapkey_(X.'C',  'Config')
   call s:mapkeys(X.'T',  'Theme')
   call s:mapkey_(X.'tr', 'ResetTab')
   call s:mapkeys(X.'ti', 'Icon')
@@ -141,10 +140,6 @@ let s:leader = [
       \['k',    'Clean up tabs',                "XTabCleanUp"],
       \['x',    'Purge tab',                    "XTabPurge"],
       \['K',    'Clean up! tabs',               "XTabCleanUp!"],
-      \['', '', ''],
-      \['', '', ''],
-      \['', '', ''],
-      \['C',    'Configure',                    "XTabConfig"],
       \['T',    'Select theme',                 "XTabTheme  "],
       \]
 

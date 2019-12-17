@@ -118,6 +118,7 @@ can be disabled or redefined.
 cd...       a series of mappings used to change/display working directories
             and related stuff. See |xtabline-directories|.
 
+<leader>x?  show all default mappings
 
 
 
@@ -390,7 +391,6 @@ XTabPurge              *x
 XTabCleanUp            *k
 XTabCleanUp!           *K
 XTabTodo               *d
-XTabConfig             *C
 XTabTheme              *T
 
 *XTabNERDBookmarks*   opens the list of |NERDTreeBookmarks|
@@ -560,8 +560,7 @@ OTHER OPTIONS                                               *xtabline-options*
 ==============================================================================
 
 You can add any of these to your *.vimrc*, after having initialized the
-`g:xtabline_settings` dictionary. Some of these options can be set in the
-configurator.
+`g:xtabline_settings` dictionary.
 
     let g:xtabline_settings = {}
     let g:xtabline_settings.option_name = option_value
