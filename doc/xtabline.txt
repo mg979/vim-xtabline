@@ -246,16 +246,10 @@ Command          Mapping~
 *XTabWD* [!]        cdw     Set the tab CWD, automatically with <bang>
 *XTabLD* [!]        cdl     Set a window-local WD, automatically with <bang>
 *XTabTD* [!]        cdt     Set a tab-local WD, automatically with <bang>
-*XTabCdCurrent*     cdc     |:cd| relative to the currently open buffer
-*XTabCdDown*        cdd     |:cd| [count1] directories below current buffer
 *XTabInfo*          cd?     show current cwd (global/local/tab), git dir, tags
 
 Note that |:tcd| is only available in neovim and the most recent vim versions
 (>= 8.1).
-
-|XTabCdCurrent| and |XTabCdDown|, as |XTabWD| will use either |:cd|, or |:lcd|
-or |:tcd|, depending on the type of directory that is currently set for the
-tab/window, and they will prompt for confirmation if needed.
 
 
 
