@@ -481,6 +481,18 @@ Persistance is enabled by default.
 Set this value to 0 to remove the label on the right corner of the tabline.
 
 
+------------------------------------------------- *xtabline-wd_type_indicator*
+>
+    let g:xtabline_settings.wd_type_indicator = 0
+<
+Disabled by default, if enabled it adds an indicator in the right corner:
+
+- `W`: there is a window-local directory set for the current buffer
+- `T`: there is a tab-local directory set for the current tab
+
+Only one letter will be shown, and window-local directories override tab-local
+ones.
+
 ---------------------------------------------------- *xtabline-recent_buffers*
 >
     let g:xtabline_settings.recent_buffers = 10

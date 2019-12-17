@@ -511,24 +511,32 @@ fun! s:format_right_corner() abort
   " Label for the upper right corner. {{{1
   let N = tabpagenr()
 
+  " tab-local/window-local working directory indicator
+  if s:Sets.wd_type_indicator
+    let lcd   = haslocaldir(winnr(), tabpagenr()) == 1    ? '%#XTSpecial# W '
+          \   : exists(':tcd') == 2 && haslocaldir(-1, 0) ? '%#XTSpecial# T ' : ''
+  else
+    let lcd = ''
+  endif
+
   if has_key(s:T(), 'corner')
     " special right corner with its own label
     return s:T().corner
 
   elseif s:v.tabline_mode == 'arglist'
     " the number of the files in the arglist, in form n/N
-    return s:right_corner_label() . "%#XTSelect# arglist "
+    return s:right_corner_label() . "%#XTSelect# arglist " . lcd
 
   elseif !s:Sets.show_right_corner
     " no label, just the tab number in form n/N
-    return s:tab_num(N)
+    return s:tab_num(N) . lcd
 
   elseif s:v.tabline_mode == 'tabs'
     " no number, just the name or the cwd
     let icon  = "%#XTNumSel# " . s:get_tab_icon(N, 1)
     let label = "%#XTVisible# " . s:right_corner_label() . ' '
     let mod   = s:tab_mod_flag(N, 1)
-    return icon . label . mod
+    return icon . label . mod . lcd
 
   elseif s:v.tabline_mode == 'buffers'
     " tab number in form n/N, plus tab name or cwd
@@ -536,7 +544,7 @@ fun! s:format_right_corner() abort
     let icon      = s:get_tab_icon(N, 1)
     let mod       = s:tab_mod_flag(N, 1)
     let label     = s:right_corner_label()
-    return printf("%s %s%s %s", nr, icon, label, mod)
+    return printf("%s %s%s %s", nr, icon, label, mod) . lcd
   endif
 endfun "}}}
 
@@ -654,15 +662,15 @@ fun! s:ready() abort
  endfun "}}}
 
 fun! s:reuse_last_tabline() abort
-  " Check if it's time to update the tabline or not {{{1
+  " Check if it's time to update the tabline or not. {{{1
   " Returns: bool
   let currentbuf = winbufnr(0)
 
-  let changed_modified_state =
-        \ !has_key(s:last_modified_state, currentbuf) ||
-        \ &modified != s:last_modified_state[currentbuf]
+  " Update if flag is set, or buffer has been modified
+  if exists('s:v.time_to_update')
+        \|| !has_key(s:last_modified_state, currentbuf)
+        \|| &modified != s:last_modified_state[currentbuf]
 
-  if changed_modified_state || exists('s:v.time_to_update')
     let s:last_modified_state[currentbuf] = &modified
     silent! unlet s:v.time_to_update
   else

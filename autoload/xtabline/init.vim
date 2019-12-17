@@ -108,6 +108,7 @@ let s:S = {
       \ 'select_buffer_alt_action':   "buffer #",
       \ 'superscript_unicode_nrs':    0,
       \ 'buffer_filtering':           1,
+      \ 'wd_type_indicator':          0,
       \ 'theme':                      'default',
       \ 'show_right_corner':          1,
       \ 'last_open_first':            0,
