@@ -12,6 +12,12 @@
 * [Credits](#credits)
 * [License](#license)
 
+**Note**: you may need some patched font for icons. In a Debian-based
+distribution you can install the following packages:
+
+- ttf-ancient-fonts-symbola
+- fonts-powerline
+
 ----------------------------------------------------------------------------
  
 ### Introduction
@@ -19,12 +25,14 @@
 This plugin tries to give you full control on the tabline:
 
 * buffer filtering on the base of the current CWD
-* three tabline modes: (filtered) buffers, tabs, arglist
+* three tabline modes: tabs, (filtered) buffers, arglist
 * limit rendered buffers to the N most recently accessed (default 10)
 * persistance in sessions
 
-More advanced features:
+More features:
 
+* tab CWD/name is shown in the right corner of the tabline
+* commands to quickly set/change (tab/window) working directory
 * buffers quick navigation (next, previous, with count)
 * reopen closed tabs
 * clean up buffers across all tabs

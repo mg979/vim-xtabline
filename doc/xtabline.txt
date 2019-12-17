@@ -29,12 +29,14 @@ INTRODUCTION                                           *xtabline-introduction*
 This plugin tries to give you full control on the tabline:
 
 * buffer filtering on the base of the current CWD, or other directories
-* three tabline modes: (filtered) buffers, tabs, |arglist|
+* three tabline modes: tabs, (filtered) buffers, |arglist|
 * limit rendered buffers to the N most recently accessed (default 10)
 * persistance in sessions
 
-More advanced features:
+More features:
 
+* tab CWD/name is shown in the right corner of the tabline
+* commands to quickly set/change (tab/window) working directory
 * buffers quick navigation (next, previous, with [count])
 * reopen closed tabs
 * clean up buffers across all tabs
@@ -107,13 +109,13 @@ MAIN MAPPINGS                                                 *xtabline-basic*
 ==============================================================================
 
 These are the default mappings for the most common functionalities. Mappings
-can be disabled or redefined.
+can be disabled (|xtabline-enable_mappings|) or redefined (by directly mapping
+ex commands).
 
 <F5>        cycle among the modes described above. You can also define which
-            modes to cycle with a setting (|tabline_modes|).
+            modes to cycle with a setting. See |xtabline-tabline_modes|.
 
-[count]<BS> will be used to select tabs or buffers.
-            See |xtabline-select-buffer|.
+[count]<BS> used to select tabs or buffers. See |xtabline-select-buffer|.
 
 cd...       a series of mappings used to change/display working directories
             and related stuff. See |xtabline-directories|.
@@ -210,7 +212,7 @@ There are alternatives, though, controlled by a command (|XTabRelativePaths|),
 and by a setting (|xtabline-relative_paths|). The setting defines the default
 for new tabs, while the command defines a tab-specific value for this setting.
 
----------------------------------------------------------- *XTabRelativePaths* 
+---------------------------------------------------------- *XTabRelativePaths*
 Command                           Mapping~
 XTabRelativePaths                 *+
 XTabRelativePaths!                *-
@@ -257,9 +259,9 @@ Note that |:tcd| is only available in neovim and the most recent vim versions
 
 TAB BUFFERS                                                 *xtabline-buffers*
 ==============================================================================
-
+                                                      *xtabline-select-buffer*
 Plug                              Mapping~
-<Plug>(XT-Select-Buffer)          [count] <BS>        *xtabline-select-buffer*
+<Plug>(XT-Select-Buffer)          [count] <BS>
 
 Command                           Mapping~
 XTabNextBuffer                    [count] ]b
@@ -620,6 +622,12 @@ Note that |vim-obsession| isn't mandatory: the only caveat is that, if you
 have it installed, xtabline will not touch session files by itself, and
 persistance will not be enabled on sessions that aren't handled by
 |vim-obsession|. Persistance can be disabled (|xtabline-enable_persistance|).
+
+You may need some patched font for icons. In a Debian-based distribution you
+can install the following packages:
+
+- ttf-ancient-fonts-symbola
+- fonts-powerline
 
 
 
