@@ -204,6 +204,10 @@ fun! s:fit_tabline(centerlabel, tabs) abort
   let currentside = L
   for tab in Tabs
     let tab.width = s:strwidth(tab.label)
+    if tab.width >= limit
+      let tab.label = tab.label[:limit-1] . '…'
+      let tab.width = s:strwidth(tab.label)
+    endif
     if a:centerlabel == tab.nr
       let halfwidth = tab.width / 2
       let L.width += halfwidth
