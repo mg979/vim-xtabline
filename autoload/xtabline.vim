@@ -61,11 +61,12 @@ fun! xtabline#persistance() abort
   " {{{1
   if !get(s:Sets, 'persistance', 1) | return | endif
   let session = 'let g:xtabline = get(g:, "xtabline", {})'.
-        \' | try | let g:xtabline.Tabs = '.string(s:X.Tabs).
+        \' | if exists("*xtabline#session_loaded")'.
+        \' | let g:xtabline.Tabs = '.string(s:X.Tabs).
         \' | let g:xtabline.Buffers = '.string(s:X.Buffers).
         \' | let g:xtabline.pinned_buffers = '.string(s:X.pinned_buffers).
         \' | call xtabline#session_loaded()'.
-        \' | catch | endtry'
+        \' | endif'
   if exists('g:loaded_obsession')
     if !exists('g:obsession_append')
       let g:obsession_append = [session]
