@@ -66,7 +66,7 @@ fun! s:Funcs.set_buffer_var(var, ...) abort
   let B = bufnr('%') | let bufs = s:X.Buffers | let val = a:0 ? a:1 : 0
 
   if !self.is_tab_buffer(B)
-    return self.msg ([[ "Invalid buffer.", 'WarningMsg']]) | endif
+    return self.msg([[ "Invalid buffer.", 'WarningMsg']]) | endif
 
   if has_key(bufs, B) | let bufs[B][a:var] = val
   else                | let bufs[B] = {a:var: val, 'path': expand("%:p")}
@@ -86,7 +86,8 @@ if has('win32')
     " Resolve full path. {{{1
     let path = expand(a:path)
     let path = empty(path) ? a:path : path "expand can fail
-    return resolve(tr(fnamemodify(path, ':p'), '\', '/'))
+    let path = resolve(fnamemodify(path, ':p'))
+    return substitute(path, '\\\ze[^ ]', '/', 'g')
   endfun "}}}
 endif
 
@@ -95,6 +96,17 @@ fun! s:Funcs.fulldir(path)
   let path = self.fullpath(a:path)
   return path[-1:] != '/' ? path.'/' : path
 endfun "}}}
+
+if has('win32')
+  fun! s:Funcs.fulldir(path)
+  " Resolve full directory with trailing slash. {{{1
+    let path = expand(a:path)
+    let path = empty(path) ? a:path : path "expand can fail
+    let path = resolve(fnamemodify(path, ':p'))
+    let path = substitute(path, '\\\ze\%([^ ]\|$\)', '/', 'g')
+    return path[-1:] != '/' ? path.'/' : path
+  endfun "}}}
+endif
 
 fun! s:Funcs.todo_path() abort
   " Return path for todo file for the current tab. {{{1

@@ -27,7 +27,7 @@ fun! s:template() abort
   " {{{1
     return {
           \ 'name':    '',
-          \ 'cwd':     s:F.fullpath(getcwd()),
+          \ 'cwd':     s:F.fulldir(getcwd()),
           \ 'locked':  0,
           \ 'rpaths':  s:Sets.relative_paths,
           \ 'icon':    '',

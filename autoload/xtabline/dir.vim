@@ -36,7 +36,7 @@ fun! xtabline#dir#cd(count) abort
   for c in range(max([a:count, 0]))
     let path .= ':h'
   endfor
-  let dir = s:F.fullpath(expand("%"), path)
+  let dir = s:F.fulldir(expand("%"), path)
   if !empty(expand("%")) && empty(dir)
     let dir = '/'
   endif
@@ -50,10 +50,10 @@ fun! xtabline#dir#set(...) abort
   let [ type, bang, dir ] = [ a:1, a:2, a:3 ]
 
   if !bang && empty(dir)
-    let base = s:F.fullpath(s:F.find_root_dir())
+    let base = s:F.fulldir(s:F.find_root_dir())
     let dir = s:F.input("Enter a new ".type." directory: ", base, "file")
   else
-    let dir = s:F.fullpath(dir)
+    let dir = s:F.fulldir(dir)
   endif
 
   if empty(dir)
@@ -235,7 +235,7 @@ endfun "}}}
 
 fun! s:Dir.set_tab_wd() abort
   " Update the tab object's working directory. {{{1
-  let s:X.Tabs[tabpagenr()-1].cwd = self.fullpath(getcwd())
+  let s:X.Tabs[tabpagenr()-1].cwd = self.fulldir(getcwd())
 endfun "}}}
 
 

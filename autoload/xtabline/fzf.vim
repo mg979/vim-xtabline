@@ -242,7 +242,7 @@ fun! s:tab_load(...) abort
   for bm in a:000
     let name = substitute(bm, '\(\w*\)\s*\t.*', '\1', '')
     let saved = json[name]
-    let cwd = s:F.fullpath(saved['cwd'])
+    let cwd = s:F.fulldir(saved['cwd'])
     let has_set_cd = 0
 
     if isdirectory(cwd) && empty(saved.buffers)        "no valid buffers
