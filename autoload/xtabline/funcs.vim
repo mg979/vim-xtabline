@@ -7,16 +7,18 @@ fun! xtabline#funcs#init() abort "{{{1
   let s:vB = { -> s:T().buffers.valid     }       "valid buffers for tab
   let s:oB = { -> s:T().buffers.order     }       "ordered buffers for tab
   return xtabline#dir#init(s:Funcs)
-endfun "}}}
+endfun
 
 let s:Funcs = {}
 
 let s:Funcs.wins    = {   -> tabpagebuflist(tabpagenr()) }
 let s:Funcs.has_win = { b -> index(s:Funcs.wins(), b) >= 0 }
+"}}}
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Misc functions
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
 
 fun! s:Funcs.delay(time, func) abort
   " Call a function with a timer {{{1
@@ -30,6 +32,7 @@ fun! s:Funcs._delay(timer) abort
   exe "call" s:delayed_func
 endfun "}}}
 
+
 fun! s:Funcs.input(prompt, ...) abort
   " Input with colored prompt. {{{1
   echohl Label
@@ -38,6 +41,7 @@ fun! s:Funcs.input(prompt, ...) abort
   echohl None
   return i
 endfun "}}}
+
 
 fun! s:Funcs.msg(txt, ...) abort
   " Print a message with highlighting. {{{1
@@ -55,10 +59,12 @@ fun! s:Funcs.msg(txt, ...) abort
   endfor
 endfun "}}}
 
+
 fun! s:Funcs.confirm(txt) abort
   " Ask for confirmation (y/n). {{{1
   return confirm(a:txt, "&Yes\n&No") == 1
 endfun "}}}
+
 
 fun! s:Funcs.set_buffer_var(var, ...) abort
   " Init buffer variable in Tabs dict to 0 or a given value. {{{1
@@ -75,49 +81,52 @@ fun! s:Funcs.set_buffer_var(var, ...) abort
   return bufs[B]
 endfun "}}}
 
+
 fun! s:Funcs.fullpath(path) abort
   " Resolve full path. {{{1
   let path = expand(a:path)
   let path = empty(path) ? a:path : path "expand can fail
   return resolve(fnamemodify(path, ':p'))
-endfun "}}}
+endfun
 
 if has('win32')
   fun! s:Funcs.fullpath(path) abort
-    " Resolve full path. {{{1
     let path = expand(a:path)
     let path = empty(path) ? a:path : path "expand can fail
     let path = resolve(fnamemodify(path, ':p'))
     return substitute(path, '\\\ze[^ ]', '/', 'g')
-  endfun "}}}
-endif
+  endfun
+endif " }}}
+
 
 fun! s:Funcs.fulldir(path)
   " Resolve full directory with trailing slash. {{{1
   let path = self.fullpath(a:path)
   return path[-1:] != '/' ? path.'/' : path
-endfun "}}}
+endfun
 
 if has('win32')
   fun! s:Funcs.fulldir(path)
-  " Resolve full directory with trailing slash. {{{1
     let path = expand(a:path)
     let path = empty(path) ? a:path : path "expand can fail
     let path = resolve(fnamemodify(path, ':p'))
     let path = substitute(path, '\\\ze\%([^ ]\|$\)', '/', 'g')
     return path[-1:] != '/' ? path.'/' : path
-  endfun "}}}
-endif
+  endfun
+endif "}}}
+
 
 fun! s:Funcs.todo_path() abort
   " Return path for todo file for the current tab. {{{1
   return fnameescape(getcwd() . '/' . s:Sets.todo.file)
 endfun "}}}
 
+
 fun! s:Funcs.tab_buffers() abort
   " Return a list of buffers names for this tab. {{{1
   return map(copy(s:vB()), 'bufname(v:val)')
 endfun "}}}
+
 
 fun! s:Funcs.add_ordered(buf, ...) abort
   " Add a buffer to the Tab.buffers.order list. {{{1
@@ -131,6 +140,7 @@ fun! s:Funcs.add_ordered(buf, ...) abort
   elseif i < 0  | call add(bufs, b)
   endif
 endfun "}}}
+
 
 fun! s:Funcs.uniq(list) abort
   " Make sure an element appears only once in the list. {{{1
@@ -147,10 +157,12 @@ fun! s:Funcs.uniq(list) abort
   return a:list
 endfun "}}}
 
+
 fun! s:Funcs.is_tab_buffer(...) abort
   " Verify that the buffer belongs to the tab {{{1
   return (index(s:vB(), a:1) != -1)
 endfun "}}}
+
 
 fun! s:Funcs.all_valid_buffers(...) abort
   " Return all valid buffers for all tabs. {{{1
@@ -166,6 +178,7 @@ fun! s:Funcs.all_valid_buffers(...) abort
   return valid
 endfun "}}}
 
+
 fun! s:Funcs.all_open_buffers() abort
   " Return all open buffers for all tabs. {{{1
 
@@ -178,6 +191,7 @@ endfun "}}}
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Shortened paths
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
 
 fun! s:Funcs.short_cwd(tabnr, h, ...) abort
   " A shortened CWD, 'h' is the number of non-collapsed directory names. {{{1
@@ -201,6 +215,7 @@ fun! s:Funcs.short_cwd(tabnr, h, ...) abort
   endif
   return H
 endfun "}}}
+
 
 fun! s:Funcs.short_path(bnr, h) abort
   " A shortened file path, see :h xtabline-paths {{{1
@@ -235,6 +250,7 @@ fun! s:Funcs.short_path(bnr, h) abort
   return H
 endfun "}}}
 
+
 fun! s:Funcs.bdelete(buf) abort
   " Delete buffer if unmodified and not pinned. {{{1
 
@@ -254,6 +270,7 @@ fun! s:Funcs.bdelete(buf) abort
   endif
 endfun "}}}
 
+
 fun! s:Funcs.not_enough_buffers(pinned) abort
   " Just return if there aren't enough buffers. {{{1
 
@@ -271,7 +288,6 @@ fun! s:Funcs.not_enough_buffers(pinned) abort
     return 1
   endif
 endfun "}}}
-
 
 
 " vim: et sw=2 ts=2 sts=2 fdm=marker
