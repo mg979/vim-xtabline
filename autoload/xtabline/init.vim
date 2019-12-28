@@ -60,7 +60,6 @@ com! -count                    XTabHideBuffer          call xtabline#cmds#run('h
 com!                           XTabLastTab             call xtabline#cmds#run('goto_last_tab')
 com!                           XTabInfo                call xtabline#dir#info()
 com!                           XTablineUpdate          call xtabline#update()
-com!                           XTablineRefresh         call xtabline#refresh()
 
 com! -nargs=? -bang  -complete=file                  XTabWD              call xtabline#dir#set('working', <bang>0, <q-args>)
 com! -nargs=? -bang  -complete=file                  XTabLD              call xtabline#dir#set('window-local', <bang>0, <q-args>)

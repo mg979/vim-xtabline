@@ -155,15 +155,6 @@ endfun "}}}
 " Update tabline
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! xtabline#refresh() abort
-  " Perform a full tabline refresh. This should only be called manually. {{{1
-  for buf in range(1, bufnr("$"))
-    if s:existing(buf) | continue | endif
-    call xtabline#buffer#update(buf)
-  endfor
-  call xtabline#update()
-endfun "}}}
-
 fun! xtabline#update(...) abort
   " Set the variable that triggers tabline update. {{{1
   if !s:Sets.enabled || ( exists('b:no_xtabline') && b:no_xtabline )
@@ -275,13 +266,6 @@ fun! s:ordered_buffers() abort
   for buf in B.valid
     call s:F.add_ordered(buf)
   endfor
-endfun "}}}
-
-fun! s:existing(buf) abort
-  " Check if buffer exists, clean up the buffers dict if not. {{{1
-  if bufexists(a:buf)             | return 1                  | endif
-  if has_key(s:X.Buffers, a:buf)  | unlet s:X.Buffers[a:buf]  | endif
-  if has_key(s:X._buffers, a:buf) | unlet s:X._buffers[a:buf] | endif
 endfun "}}}
 
 
