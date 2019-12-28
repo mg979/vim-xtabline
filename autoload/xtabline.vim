@@ -14,7 +14,6 @@ let s:v.custom_tabs    = 1                      "tabline shows custom names/icon
 let s:v.halt           = 0                      "used to temporarily halt some functions
 
 let s:T  = { -> s:X.Tabs[tabpagenr()-1] }       "current tab
-let s:B  = { -> s:X.Buffers             }       "customized buffers
 let s:vB = { -> s:T().buffers.valid     }       "valid buffers for tab
 let s:eB = { -> s:T().buffers.extra     }       "extra buffers for tab
 let s:pB = { -> s:X.pinned_buffers      }       "pinned buffers list
@@ -22,7 +21,7 @@ let s:oB = { -> s:T().buffers.order     }       "ordered buffers for tab
 let s:rB = { -> s:T().buffers.recent    }       "recent buffers for tab
 
 let s:invalid    = { b -> !buflisted(b) || getbufvar(b, "&buftype") == 'quickfix' }
-let s:is_special = { b -> s:F.has_win(b) && s:B()[b].special }
+let s:is_special = { b -> s:F.has_win(b) && s:X._buffers[b].special }
 let s:is_open    = { b -> s:F.has_win(b) && getbufvar(b, "&ma") }
 let s:ready      = { -> !(exists('g:SessionLoad') || s:v.halt) }
 let s:v.slash    = exists('+shellslash') && !&shellslash ? '\' : '/'
@@ -280,8 +279,9 @@ endfun "}}}
 
 fun! s:existing(buf) abort
   " Check if buffer exists, clean up the buffers dict if not. {{{1
-  if bufexists(a:buf)            | return 1                 | endif
-  if has_key(s:X.Buffers, a:buf) | unlet s:X.Buffers[a:buf] | endif
+  if bufexists(a:buf)             | return 1                  | endif
+  if has_key(s:X.Buffers, a:buf)  | unlet s:X.Buffers[a:buf]  | endif
+  if has_key(s:X._buffers, a:buf) | unlet s:X._buffers[a:buf] | endif
 endfun "}}}
 
 
@@ -313,6 +313,13 @@ function! s:Do(action, ...)
   elseif a:action == 'bufenter'
 
     call xtabline#buffer#add(B)
+
+    " if variable for buffer customization has been set, pick it up
+    if !empty(s:v.buffer_properties)
+      let s:X.Buffers[a:nr] = extend(copy(s:X._buffers[a:nr]), s:v.buffer_properties)
+      let s:v.buffer_properties = {}
+    endif
+
     call xtabline#tab#recent_buffers(B)
     call xtabline#update()
 
@@ -321,6 +328,20 @@ function! s:Do(action, ...)
   elseif a:action == 'bufwrite'
 
     call xtabline#buffer#update(B)
+    call xtabline#update()
+
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+  elseif a:action == 'buffilepost'
+
+    call xtabline#buffer#reset(B)
+    call xtabline#update()
+
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+  elseif a:action == 'filetype'
+
+    call xtabline#buffer#check_special(B)
     call xtabline#update()
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -360,7 +381,9 @@ augroup plugin-xtabline
   autocmd TabEnter      * call s:Do('enter')
   autocmd TabLeave      * call s:Do('leave')
   autocmd TabClosed     * call s:Do('close')
+  autocmd FileType      * call s:Do('filetype')
   autocmd BufEnter      * call s:Do('bufenter')
+  autocmd BufFilePost   * call s:Do('buffilepost')
   autocmd BufWritePost  * call s:Do('bufwrite')
   autocmd BufDelete     * call xtabline#update()
   autocmd OptionSet     * call xtabline#update()

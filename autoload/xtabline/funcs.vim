@@ -68,9 +68,10 @@ fun! s:Funcs.set_buffer_var(var, ...) abort
   if !self.is_tab_buffer(B)
     return self.msg([[ "Invalid buffer.", 'WarningMsg']]) | endif
 
-  if has_key(bufs, B) | let bufs[B][a:var] = val
-  else                | let bufs[B] = {a:var: val, 'path': expand("%:p")}
-  endif
+  " create key in custom buffers dict if buffer wasn't customized yet
+  if !has_key(bufs, B) | let s:X.Buffers[B] = copy(a:X._buffers[B]) | endif
+
+  let bufs[B][a:var] = val
   return bufs[B]
 endfun "}}}
 

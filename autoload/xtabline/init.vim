@@ -88,7 +88,7 @@ endfun
 
 let g:xtabline = {'Tabs': [], 'Vars': {}, 'Buffers': {}, 'Funcs': {},
                  \'pinned_buffers': [], 'closed_tabs': [],
-                 \'last_tabline': ''}
+                 \'_buffers': {}, 'last_tabline': ''}
 
 let g:xtabline.Vars = {
       \'winOS': has("win16") || has("win32") || has("win64"),

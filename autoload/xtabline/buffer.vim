@@ -37,32 +37,47 @@ endfun "}}}
 
 fun! xtabline#buffer#get(nr) abort
   " Generate/update buffer properties while filtering. {{{1
-  if !has_key(s:X.Buffers, a:nr)
-    call xtabline#buffer#add(a:nr)
-    call extend(s:X.Buffers[a:nr], s:buf_var(a:nr))
-  else
-    call s:check_special(a:nr)
-    call extend(s:X.Buffers[a:nr], s:buf_var(a:nr))
-  endif
-  return s:X.Buffers[a:nr]
+  call xtabline#buffer#add(a:nr) " ensure buffer is indexed
+
+  " if a buffer variable for customization has been set, pick it up
+  call s:xbuf_var(a:nr)
+
+  " update buffer path, unless it's a special buffer
+  let bufdict = has_key(s:X.Buffers, a:nr) ? s:X.Buffers : s:X._buffers
+  let bufdict[a:nr].path = s:bufpath(bufname(a:nr))
+  return bufdict[a:nr]
 endfun "}}}
 
 fun! xtabline#buffer#add(nr) abort
-  " For new buffers, apply s:v.buffer_properties and update tabline. {{{1
-  if !has_key(s:X.Buffers, a:nr)
-    let s:X.Buffers[a:nr] = s:template(a:nr)
-    if !empty(s:v.buffer_properties)
-      call extend(s:X.Buffers[a:nr], s:v.buffer_properties)
-      let s:v.buffer_properties = {}
-    endif
+  " Index buffer in xtabline dictionary. {{{1
+  if !has_key(s:X._buffers, a:nr)
+    " clean up any lingering customization, if present
+    if has_key(s:X.Buffers, a:nr) | unlet s:X.Buffers[a:nr] | endif
+    let s:X._buffers[a:nr] = s:template(a:nr)
   endif
 endfun "}}}
 
 fun! xtabline#buffer#update(nr) abort
   " Refresh buffer informations. Called on BufWrite and XTablineRefresh. {{{1
-  if has_key(s:X.Buffers, a:nr) && !s:X.Buffers[a:nr].special
-    let s:X.Buffers[a:nr].path = s:bufpath(bufname(a:nr))
+  let bufdict = has_key(s:X.Buffers, a:nr) ? s:X.Buffers : s:X._buffers
+  let bufdict[a:nr].path = s:bufpath(bufname(a:nr))
+endfun "}}}
+
+fun! xtabline#buffer#check_special(nr) abort
+  " Check if a buffer is special. {{{1
+  call xtabline#buffer#add(a:nr) " ensure buffer is indexed
+
+  let bufdict = has_key(s:X.Buffers, a:nr) ? s:X.Buffers : s:X._buffers
+  if !bufdict[a:nr].special
+    call extend(bufdict[a:nr], s:is_special(a:nr))
   endif
+endfun "}}}
+
+fun! xtabline#buffer#reset(nr) abort
+  " Reset buffer entry. Called on BufFilePost. {{{1
+  silent! unlet s:X.Buffers[a:n]
+  silent! unlet s:X._buffers[a:n]
+  call xtabline#buffer#add(a:nr)
 endfun "}}}
 
 
@@ -71,23 +86,12 @@ endfun "}}}
 " Helpers
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:check_special(nr) abort
-  " If a buffer hasn't been marked as special, check if it actually is. {{{1
-  " NOTE: this function should be totally redundant...
-  let B = s:X.Buffers[a:nr]
-  if !B.special
-    call extend(B, s:is_special(a:nr))
-  endif
-endfun "}}}
-
-fun! s:buf_var(nr) abort
-  " If b:XTbuf has been set, it will extend the buffer dict. {{{1
-  if empty(getbufvar(a:nr, 'XTbuf'))
-    return {}
-  else
-    let bv = getbufvar(a:nr, 'XTbuf')
+fun! s:xbuf_var(nr) abort
+  " If b:XTbuf has been set, it will extend the custom buffers dict. {{{1
+  if !empty(getbufvar(a:nr, 'XTbuf'))
+    let bv = extend(getbufvar(a:nr, 'XTbuf'), { 'special': 1 }, 'keep')
     call setbufvar(a:nr, "XTbuf", {})
-    return extend(bv, { 'special': get(bv, 'special', 1) })
+    let s:X.Buffers[a:nr] = extend(copy(s:X._buffers[a:nr]), bv)
   endif
 endfun "}}}
 

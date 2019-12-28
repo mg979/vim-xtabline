@@ -9,19 +9,19 @@ let s:Sets = g:xtabline_settings
 
 let s:T  = { -> s:X.Tabs[tabpagenr()-1] }       "current tab
 let s:Tn = { n -> s:X.Tabs[n-1]         }       "tab n
-let s:B  = { -> s:X.Buffers             }       "customized buffers
 let s:vB = { -> s:T().buffers.valid     }       "valid buffers for tab
 let s:eB = { -> s:T().buffers.extra     }       "extra buffers for tab
 let s:oB = { -> s:T().buffers.order     }       "ordered buffers for tab
 
-let s:is_special = { nr -> s:B()[nr].special }
+let s:buf        = { nr -> get(s:X.Buffers, nr, s:X._buffers[nr]) }
+let s:is_special = { nr -> s:buf(nr).special }
 let s:is_open    = { n -> s:F.has_win(n) && index(s:vB(), n) < 0 && getbufvar(n, "&ma") }
 let s:is_extra   = { n -> index(s:eB(), n) >= 0 }
 
 let s:scratch           = { nr -> index(['nofile','acwrite'], getbufvar(nr, '&buftype')) >= 0 }
 let s:pinned            = { -> s:X.pinned_buffers                                             }
-let s:buffer_has_format = { buf -> has_key(s:B()[buf.nr], 'format')                           }
-let s:has_buf_icon      = { nr -> !empty(get(s:B()[nr], 'icon', ''))                          }
+let s:buffer_has_format = { buf -> has_key(s:buf(buf.nr), 'format')                           }
+let s:has_buf_icon      = { nr -> !empty(get(s:buf(nr), 'icon', ''))                          }
 let s:extraHi           = { b -> s:is_extra(b) || s:is_open(b) || index(s:pinned(), b) >= 0   }
 let s:strwidth          = { label -> strwidth(substitute(label, '%#\w*#\|%\d\+T', '', 'g'))   }
 let s:tab_buffer        = { t -> tabpagebuflist(t)[tabpagewinnr(t)-1]                         }
@@ -112,7 +112,7 @@ fun! s:render_buffers() abort
     "include special buffers (upfront)
     let front = [] | let specials = []
     for b in s:F.wins()
-      if s:B()[b].special
+      if s:buf(b).special
         call add(specials, b)
       elseif s:is_open(b)
         call add(front, b)
@@ -332,7 +332,7 @@ fun! s:format_buffer(bufdict) abort
   let [ B, fmt ] = [ a:bufdict, s:default_buffer_format ]
 
   if s:buffer_has_format(B)
-    let chars = s:fmt_chars(s:B()[B.nr].format)
+    let chars = s:fmt_chars(s:buf(B.nr).format)
 
   elseif fmt.flat
     return s:flat_buffer(B)
@@ -371,13 +371,13 @@ endfun "}}}
 
 fun! s:buf_separators(nr) abort
   " Use custom separators if defined in buffer entry. {{{1
-  let B = s:B()[a:nr]
+  let B = s:buf(a:nr)
   return has_key(B, 'separators') ? B.separators : s:Sets.bufline_separators
 endfun "}}}
 
 fun! s:get_buf_name(buf) abort
   " Return custom buffer name, if it has been set, otherwise the filename. {{{1
-  let B = s:B()[a:buf.nr]
+  let B = s:buf(a:buf.nr)
   return !empty(B.name)       ? B.name :
         \ empty( a:buf.path ) ? s:Sets.unnamed_buffer : a:buf.path
 endfun "}}}
@@ -387,7 +387,7 @@ fun! s:get_buf_icon(buf) abort
   let nr = a:buf.nr
   if s:has_buf_icon(nr)
     let a:buf.has_icon = 1
-    let icon = s:B()[nr].icon.' '
+    let icon = s:buf(nr).icon.' '
   else
     try
       let icon = WebDevIconsGetFileTypeSymbol(bufname(a:buf.nr)).' '
@@ -470,7 +470,7 @@ fun! s:tab_label(tabnr) abort
   let bnr = s:tab_buffer(a:tabnr)
 
   if s:is_special(bnr)
-    return s:B()[bnr].name
+    return s:buf(bnr).name
   endif
 
   return s:Sets.tabs_show_bufname || empty(bufname(bnr))
