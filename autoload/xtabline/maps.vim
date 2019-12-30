@@ -46,6 +46,7 @@ fun! s:do_map() abort
   call s:mapkey_('<F5>', 'CycleMode')
   call s:mapkeyc(']b',   'NextBuffer')
   call s:mapkeyc('[b',   'PrevBuffer')
+  call s:mapkey0('cdc',  'CD')
   call s:mapkey_('cdw',  'WD')
   call s:mapkey_('cd?',  'Info')
   call s:mapkey_('cdl',  'LD')
@@ -108,6 +109,7 @@ let s:cd = [
       \['cdw',  'Working directory',            "XTabWD"],
       \['cd?',  'Directory info',               "XTabInfo"],
       \['cdl',  'Window-local directory',       "XTabLD"],
+      \['cdc',  'Cd to current directory',      "XTabCD"],
       \]
 
 let s:leader = [

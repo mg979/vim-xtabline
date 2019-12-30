@@ -32,13 +32,18 @@ endfun "}}}
 fun! xtabline#dir#cd(count) abort
   " Set cwd relatively to directory of current file.  {{{1
 
+  " a full path has been given as argument
+  if strlen(a:count) > 1 && !a:count
+    return s:F.manual_cwd(dir, 'working')
+  endif
+
   let path = ':p:h'
   for c in range(max([a:count, 0]))
     let path .= ':h'
   endfor
-  let dir = s:F.fulldir(expand("%"), path)
-  if !empty(expand("%")) && empty(dir)
-    let dir = '/'
+  let dir = s:F.fulldir(fnamemodify(expand('%'), path))
+  if empty(dir)
+    let dir = expand('~')
   endif
   call s:F.manual_cwd(dir, 'working')
 endfun "}}}
