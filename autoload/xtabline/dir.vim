@@ -22,14 +22,13 @@ endfun "}}}
 " Mappings are:
 "
 "   CDW: prompts for a global directory, confirm if a :tcd or :lcd is found
-"   CDC: automatic (cd directory of current file), confirm as above
-"   CDD: automatic (cd N directories below current file), confirm as above
 "   CDT: prompts for a tab-local directory, no confirmation
 "   CDL: prompts for a window-local directory, no confirmation
+"   CDC: prompts for directory, type is the same of current buffer/tab
 "
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! xtabline#dir#cd(count) abort
+fun! xtabline#dir#cd(count, bang) abort
   " Set cwd relatively to directory of current file.  {{{1
 
   " a full path has been given as argument
@@ -45,7 +44,11 @@ fun! xtabline#dir#cd(count) abort
   if empty(dir)
     let dir = expand('~')
   endif
-  call s:F.manual_cwd(dir, 'working')
+
+  let type = s:F.is_local_dir() ? 'window-local'
+        \  : s:F.is_tab_dir()   ? 'tab-local' : 'working'
+
+  call xtabline#dir#set(type, a:bang, dir)
 endfun "}}}
 
 
@@ -56,15 +59,16 @@ fun! xtabline#dir#set(...) abort
 
   if !bang && empty(dir)
     let base = s:F.fulldir(s:F.find_root_dir())
-    let dir = s:F.input("Enter a new ".type." directory: ", base, "file")
-  else
-    let dir = s:F.fulldir(dir)
+    let dir = s:F.input("Enter a new ".type." directory: ", base, "dir")
+  elseif !bang
+    let dir = s:F.input("Enter a new ".type." directory: ", dir, "dir")
   endif
 
   if empty(dir)
-    call s:F.msg ([[ "Canceled.", 'WarningMsg' ]])
+    return s:F.msg([[ "Canceled.", 'WarningMsg' ]])
+  endif
 
-  elseif s:F.manual_cwd(dir, type)
+  if s:F.manual_cwd(s:F.fulldir(dir), type)
     " reset tab name if directory change was successful
     let s:X.Tabs[tabpagenr()-1].name = ''
   endif

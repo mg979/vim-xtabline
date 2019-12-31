@@ -242,13 +242,14 @@ a negative value.
 TAB WORKING DIRECTORIES                                 *xtabline-directories*
 ==============================================================================
 
-Mappings are provided to set a tab's working directory.
+Mappings and commands are provided to set a tab's working directory.
+If the command is used with <bang>, directory prompt is skipped.
 
 Command          Mapping~
-*XTabWD* [!]        cdw     Set the tab CWD, automatically with <bang>
-*XTabLD* [!]        cdl     Set a window-local WD, automatically with <bang>
-*XTabTD* [!]        cdt     Set a tab-local WD, automatically with <bang>
-*XTabCdCurrent*     cdc     |:cd| to dir of open buffer, or <count> down
+*XTabWD* [!] <dir>  cdw     Set the tab CWD
+*XTabLD* [!] <dir>  cdl     Set a window-local WD
+*XTabTD* [!] <dir>  cdt     Set a tab-local WD
+*XTabCD* [!] <dir>  cdc     |:cd| to dir of open buffer, or <count> down
 *XTabInfo*          cd?     show current cwd (global/local/tab), git dir, tags
 
 Note that |:tcd| is only available in neovim and the most recent vim versions

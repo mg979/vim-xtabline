@@ -61,9 +61,9 @@ com!                           XTabLastTab             call xtabline#cmds#run('g
 com!                           XTabInfo                call xtabline#dir#info()
 com!                           XTablineUpdate          call xtabline#update()
 
-com! -nargs=?        -complete=file                  XTabCD              call xtabline#dir#cd(<q-args>)
-com! -nargs=? -bang  -complete=file                  XTabWD              call xtabline#dir#set('working', <bang>0, <q-args>)
-com! -nargs=? -bang  -complete=file                  XTabLD              call xtabline#dir#set('window-local', <bang>0, <q-args>)
+com! -nargs=? -bang  -complete=dir                   XTabCD              call xtabline#dir#cd(<q-args>, <bang>0)
+com! -nargs=? -bang  -complete=dir                   XTabWD              call xtabline#dir#set('working', <bang>0, <q-args>)
+com! -nargs=? -bang  -complete=dir                   XTabLD              call xtabline#dir#set('window-local', <bang>0, <q-args>)
 com! -nargs=? -bang  -complete=customlist,<sid>icons XTabIcon            call xtabline#cmds#run("tab_icon", <bang>0, <q-args>)
 com! -nargs=? -bang  -complete=customlist,<sid>icons XTabBufferIcon      call xtabline#cmds#run("buffer_icon", <bang>0, <q-args>)
 com! -nargs=? -bang  -complete=customlist,<sid>theme XTabTheme           call xtabline#hi#load_theme(<bang>0, <q-args>)
