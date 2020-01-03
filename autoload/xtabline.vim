@@ -300,7 +300,7 @@ function! s:Do(action, ...)
 
     " if variable for buffer customization has been set, pick it up
     if !empty(s:v.buffer_properties)
-      let s:X.Buffers[a:nr] = extend(copy(s:X._buffers[a:nr]), s:v.buffer_properties)
+      let s:X.Buffers[B] = extend(copy(s:X._buffers[B]), s:v.buffer_properties)
       let s:v.buffer_properties = {}
     endif
 
