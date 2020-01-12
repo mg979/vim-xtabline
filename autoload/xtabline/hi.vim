@@ -116,9 +116,25 @@ fun! s:Hi.themes.default() abort
   hi! link XTNum            TabLineSel
   
   let pat = has('gui_running') || &termguicolors ? 'guibg=\S\+' : 'ctermbg=\S\+'
-  exe 'hi XTSelectMod'  matchstr(execute('hi PmenuSel'), pat) 'guifg=#af0000 gui=bold cterm=bold'
-  exe 'hi XTVisibleMod' matchstr(execute('hi Special'), pat) 'guifg=#af0000 gui=bold cterm=bold'
-  exe 'hi XTHiddenMod'  matchstr(execute('hi TabLine'), pat) 'guifg=#af0000 gui=bold cterm=bold'
-  exe 'hi XTExtraMod'   matchstr(execute('hi Visual'), pat) 'guifg=#af0000 gui=bold cterm=bold'
+  try
+    exe 'hi XTSelectMod'  matchstr(execute('hi PmenuSel'), pat) 'guifg=#af0000 gui=bold cterm=bold'
+  catch
+    hi! link XTSelectMod PmenuSel
+  endtry
+  try
+    exe 'hi XTVisibleMod' matchstr(execute('hi Special'), pat) 'guifg=#af0000 gui=bold cterm=bold'
+  catch
+    hi! link XTVisibleMod Special
+  endtry
+  try
+    exe 'hi XTHiddenMod'  matchstr(execute('hi TabLine'), pat) 'guifg=#af0000 gui=bold cterm=bold'
+  catch
+    hi! link XTHiddenMod TabLine
+  endtry
+  try
+    exe 'hi XTExtraMod'   matchstr(execute('hi Visual'), pat) 'guifg=#af0000 gui=bold cterm=bold'
+  catch
+    hi! link XTExtraMod Visual
+  endtry
 endfun
 

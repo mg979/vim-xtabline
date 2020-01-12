@@ -169,6 +169,7 @@ fun! xtabline#maps#menu() abort
 
   let X = substitute(g:xtabline_settings.map_prefix, '<leader>', get(g:, 'mapleader', '\'), 'g')
   vnew +setlocal\ bt=nofile\ bh=wipe\ noswf\ nobl
+  80wincmd |
   file xtabline mappings
   let text = []
   for group in [[basic, 'basic'], [cd, 'cd'], [leader, X], [manage, X.' tabs/buffer/session']]
