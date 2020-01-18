@@ -83,24 +83,24 @@ endfun "}}}
 
 
 fun! s:Funcs.fullpath(path) abort
-  " Resolve full path. {{{1
+  " Return full path. {{{1
   let path = expand(a:path)
   let path = empty(path) ? a:path : path "expand can fail
-  return fnamemodify(resolve(path), ':p')
+  return fnamemodify(path, ':p')
 endfun
 
 if has('win32')
   fun! s:Funcs.fullpath(path) abort
     let path = expand(a:path)
     let path = empty(path) ? a:path : path "expand can fail
-    let path = fnamemodify(resolve(path), ':p')
+    let path = fnamemodify(path, ':p')
     return substitute(path, '\\\ze[^ ]', '/', 'g')
   endfun
 endif " }}}
 
 
 fun! s:Funcs.fulldir(path)
-  " Resolve full directory with trailing slash. {{{1
+  " Return full directory with trailing slash. {{{1
   let path = self.fullpath(a:path)
   return path[-1:] != '/' ? path.'/' : path
 endfun
@@ -109,7 +109,7 @@ if has('win32')
   fun! s:Funcs.fulldir(path)
     let path = expand(a:path)
     let path = empty(path) ? a:path : path "expand can fail
-    let path = resolve(fnamemodify(path, ':p'))
+    let path = fnamemodify(path, ':p')
     let path = substitute(path, '\\\ze\%([^ ]\|$\)', '/', 'g')
     return path[-1:] != '/' ? path.'/' : path
   endfun
