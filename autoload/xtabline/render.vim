@@ -591,9 +591,9 @@ fun! s:bufpath(nr, T) abort
   return !filereadable(bname)
         \ ? empty(bname) && &buftype != ''
         \     ? '[Volatile]'
-        \     : empty(bname) ? '...' : bname
+        \     : empty(bname) ? '...' : s:F.short_path(a:nr, 1)
         \
-        \ : index(s:vB(), a:nr) < 0 || &columns < 150 || !a:T.rpaths
+        \ : ( index(s:vB(), a:nr) < 0 || &columns < 150 || !a:T.rpaths )
         \     ? fnamemodify(bname, ':t')
         \     : s:F.short_path(a:nr, a:T.rpaths)
 endfun " }}}

@@ -199,6 +199,8 @@ fun! xtabline#filter_buffers(...) abort
   let T.buffers.valid = T.locked? T.buffers.valid : []
   let use_files = !empty(get(T, 'files', []))
 
+  let tabDir = has_key(T, 'dir') ? T.dir : T.cwd
+
   " /////////////////// ITERATE BUFFERS //////////////////////
 
   for buf in range(1, bufnr("$"))
@@ -222,7 +224,7 @@ fun! xtabline#filter_buffers(...) abort
 
       else
         " to be accepted, buffer's path must be valid for this tab
-        let valid = B.path =~ '^' . ( has_key(T, 'dir') ? T.dir : T.cwd )
+        let valid = B.path =~ '^' . tabDir
       endif
 
       if valid

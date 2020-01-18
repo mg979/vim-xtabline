@@ -86,14 +86,14 @@ fun! s:Funcs.fullpath(path) abort
   " Resolve full path. {{{1
   let path = expand(a:path)
   let path = empty(path) ? a:path : path "expand can fail
-  return resolve(fnamemodify(path, ':p'))
+  return fnamemodify(resolve(path), ':p')
 endfun
 
 if has('win32')
   fun! s:Funcs.fullpath(path) abort
     let path = expand(a:path)
     let path = empty(path) ? a:path : path "expand can fail
-    let path = resolve(fnamemodify(path, ':p'))
+    let path = fnamemodify(resolve(path), ':p')
     return substitute(path, '\\\ze[^ ]', '/', 'g')
   endfun
 endif " }}}
