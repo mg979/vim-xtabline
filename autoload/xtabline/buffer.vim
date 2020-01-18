@@ -11,7 +11,6 @@ let s:Sets = g:xtabline_settings
 let s:T           = { -> s:X.Tabs[tabpagenr()-1] }
 let s:bufpath     = { f -> filereadable(f) ? s:F.fullpath(f) : '' }
 let s:set_special = { name, dict -> extend({ 'name': name, 'special': 1 }, dict) }
-let s:Is          = { n,s -> match(bufname(n), '\C'.s) == 0 }
 let s:Ft          = { n,s -> getbufvar(n, "&ft")       == s }
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -115,15 +114,14 @@ fun! s:is_special(nr, ...) abort
     let gitn   = ['Commit', 'Magit', 'Git', 'Status']
     return s:set_special(gitn[git], { 'icon': s:Sets.icons.git })
 
-  elseif s:Is(n, "fugitive")
+  elseif bufname(n) =~ '^\Cfugitive'
     return s:set_special('fugitive', { 'icon': s:Sets.icons.git })
 
-  elseif s:Is(n, "Kronos")
-    let i = ' '.s:Sets.icons.arrow.' '
-    if exists('t:original_tab')
-      call xtabline#tab#lock([n], {'name': 'Kronos', 'icon': i})
-    endif
-    return s:set_special(bufname(n), { 'icon': i })
+  elseif bufname(n) =~ ';#FZF$'
+    return s:set_special('FZF', {})
+
+  elseif bufname(n) =~ '^\CKronos'
+    return s:set_special('Kronos', { 'icon': s:Sets.icons.arrow })
 
   elseif s:Ft(n, "netrw")
     let i = ' '.s:Sets.icons.netrw.' '

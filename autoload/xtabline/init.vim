@@ -155,6 +155,7 @@ let g:xtabline_settings.icons = extend({
       \'git':     '',      'git2':    '⎇ ',    'palette': '🎨',     'lens':    '🔍',
       \'flag':    '⚑',      'flag2':   '🏁',    'fire':    '🔥',     'bomb':    '💣',
       \'home':    '🏠',     'mail':    '✉ ',    'netrw':   '🖪 ',     'arrow':   '➤',
+      \'terminal':'',
       \}, get(g:xtabline_settings, 'icons', {}))
 
 " \'folder_open': '📂',
