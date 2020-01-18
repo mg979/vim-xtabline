@@ -180,8 +180,8 @@ endfun "}}}
 fun! xtabline#filter_buffers(...) abort
   " Filter buffers so that only valid buffers for this tab will be shown. {{{1
 
-  if      exists('s:v.force_update')          | unlet s:v.force_update
-  elseif  !s:ready()                          | return
+  if      exists('s:v.force_update') | unlet s:v.force_update
+  elseif  !s:ready()                 | return
   endif
 
   " Types of tab buffers:
@@ -298,7 +298,7 @@ function! s:Do(action, ...)
 
   elseif a:action == 'bufenter'
 
-    call xtabline#buffer#add(B)
+    call xtabline#buffer#update(B)
 
     " if variable for buffer customization has been set, pick it up
     if !empty(s:v.buffer_properties)
@@ -327,8 +327,9 @@ function! s:Do(action, ...)
 
   elseif a:action == 'filetype'
 
-    call xtabline#buffer#check_special(B)
-    call xtabline#update()
+    if xtabline#buffer#is_special(B)
+      call xtabline#update()
+    endif
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 

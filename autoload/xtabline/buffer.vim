@@ -2,7 +2,7 @@
 " Initialize buffer object
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-" Script variables and lambdas {{{1
+" Script variables and lambdas
 let s:X = g:xtabline
 let s:F = s:X.Funcs
 let s:v = s:X.Vars
@@ -13,14 +13,13 @@ let s:bufpath     = { f -> filereadable(f) ? s:F.fullpath(f) : '' }
 let s:set_special = { name, dict -> extend({ 'name': name, 'special': 1 }, dict) }
 let s:Is          = { n,s -> match(bufname(n), '\C'.s) == 0 }
 let s:Ft          = { n,s -> getbufvar(n, "&ft")       == s }
-"}}}
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Template
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:template(nr) abort
-  " {{{1
+  " Template for buffer entry.
   let buf = {
         \ 'name':    '',
         \ 'path':    s:bufpath(bufname(a:nr)),
@@ -31,54 +30,59 @@ fun! s:template(nr) abort
     call extend(buf, s:is_special(a:nr))
   endif
   return buf
-endfun "}}}
+endfun
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! xtabline#buffer#get(nr) abort
-  " Generate/update buffer properties while filtering. {{{1
-  call xtabline#buffer#add(a:nr) " ensure buffer is indexed
-
-  " if a buffer variable for customization has been set, pick it up
-  call s:xbuf_var(a:nr)
-
-  " update buffer path, unless it's a special buffer
-  let bufdict = has_key(s:X.Buffers, a:nr) ? s:X.Buffers : s:X._buffers
-  let bufdict[a:nr].path = s:bufpath(bufname(a:nr))
-  return bufdict[a:nr]
-endfun "}}}
 
 fun! xtabline#buffer#add(nr) abort
-  " Index buffer in xtabline dictionary. {{{1
+  " Index buffer in xtabline dictionary.
   if !has_key(s:X._buffers, a:nr)
     " clean up any lingering customization, if present
     if has_key(s:X.Buffers, a:nr) | unlet s:X.Buffers[a:nr] | endif
     let s:X._buffers[a:nr] = s:template(a:nr)
   endif
-endfun "}}}
+endfun
+
+
+fun! xtabline#buffer#get(nr) abort
+  " Get buffer properties while filtering.
+  call xtabline#buffer#add(a:nr) " ensure buffer is indexed
+  let bufdict = has_key(s:X.Buffers, a:nr) ? s:X.Buffers : s:X._buffers
+  return bufdict[a:nr]
+endfun
+
 
 fun! xtabline#buffer#update(nr) abort
-  " Refresh buffer informations. Called on BufWrite and XTablineRefresh. {{{1
+  " Refresh buffer informations.
+  call xtabline#buffer#add(a:nr) " ensure buffer is indexed
+
+  " if a buffer variable for customization has been set, pick it up
+  call s:xbuf_var(a:nr)
+
   let bufdict = has_key(s:X.Buffers, a:nr) ? s:X.Buffers : s:X._buffers
   let bufdict[a:nr].path = s:bufpath(bufname(a:nr))
-endfun "}}}
+endfun
 
-fun! xtabline#buffer#check_special(nr) abort
-  " Check if a buffer is special. {{{1
+
+fun! xtabline#buffer#is_special(nr) abort
+  " Check if a buffer is special.
   call xtabline#buffer#add(a:nr) " ensure buffer is indexed
 
   let bufdict = has_key(s:X.Buffers, a:nr) ? s:X.Buffers : s:X._buffers
   if !bufdict[a:nr].special
     call extend(bufdict[a:nr], s:is_special(a:nr))
   endif
-endfun "}}}
+  return bufdict[a:nr].special
+endfun
+
 
 fun! xtabline#buffer#reset(nr) abort
-  " Reset buffer entry. Called on BufFilePost. {{{1
+  " Reset buffer entry. Called on BufFilePost.
   silent! unlet s:X.Buffers[a:n]
   silent! unlet s:X._buffers[a:n]
   call xtabline#buffer#add(a:nr)
-endfun "}}}
+endfun
 
 
 
@@ -86,17 +90,19 @@ endfun "}}}
 " Helpers
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
+
 fun! s:xbuf_var(nr) abort
-  " If b:XTbuf has been set, it will extend the custom buffers dict. {{{1
+  " If b:XTbuf has been set, it will extend the custom buffers dict.
   if !empty(getbufvar(a:nr, 'XTbuf'))
     let bv = extend(getbufvar(a:nr, 'XTbuf'), { 'special': 1 }, 'keep')
     call setbufvar(a:nr, "XTbuf", {})
     let s:X.Buffers[a:nr] = extend(copy(s:X._buffers[a:nr]), bv)
   endif
-endfun "}}}
+endfun
+
 
 fun! s:is_special(nr, ...) abort
-  " Customize special buffers, if visible in a window. {{{1
+  " Customize special buffers, if visible in a window.
   let n = a:nr | if !s:F.has_win(n) | return { 'special': 0 } | endif
 
   let git = index(['gitcommit', 'magit', 'git', 'fugitive'], getbufvar(n, "&ft"))
@@ -135,15 +141,11 @@ fun! s:is_special(nr, ...) abort
     let i = ' '.s:Sets.icons.lens.' '
     return s:set_special(i.'CtrlSF'.i, { 'format': 'l' })
 
-  elseif s:Ft(n, "colortemplate-info")
-    let i = ' '.s:Sets.icons.palette.' '
-    return s:set_special(i.'Colortemplate'.i, { 'format': 'l' })
-
   else
     return { 'special': 0 }
   endif
-endfun "}}}
+endfun
 
 
 
-" vim: et sw=2 ts=2 sts=2 fdm=marker
+" vim: et sw=2 ts=2 sts=2 fdm=indent fdn=1
