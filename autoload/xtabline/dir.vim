@@ -134,7 +134,7 @@ fun! s:Dir.manual_cwd(dir, type) abort
   endif
 
   call xtabline#update()
-  call self.msg ([[ out." directory: ", 'Label' ], [ dir, 'None' ]])
+  call self.msg([[ out." directory: ", 'Label' ], [ dir, 'None' ]])
   return 1
 endfun "}}}
 

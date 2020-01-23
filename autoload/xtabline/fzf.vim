@@ -304,10 +304,10 @@ fun! s:abort_load(name, fzf_line, error_type) abort
   " Invalid saved tab, abort operation.
   let s:v.halt = 0
   if a:error_type == 'buffers'
-    call s:F.msg ([[ a:name, 'Type' ],
+    call s:F.msg([[ a:name, 'Type' ],
           \[ ": no saved buffers. Remove entry?\t", 'WarningMsg' ]])
   else
-    call s:F.msg ([[ a:name, 'Type' ],
+    call s:F.msg([[ a:name, 'Type' ],
           \[ ": invalid directory. Remove entry?\t", 'WarningMsg' ]])
   endif
   if nr2char(getchar()) == 'y'
@@ -326,7 +326,7 @@ fun! s:tab_delete(...) abort
 
   "write the file
   call writefile([json_encode(json)],s:Sets.bookmarks_file)
-  call s:F.msg ([[ "Tab bookmark ", 'WarningMsg' ],
+  call s:F.msg([[ "Tab bookmark ", 'WarningMsg' ],
         \[ name, 'Type' ],
         \[ " deleted.", 'WarningMsg' ]])
 endfun "}}}
@@ -462,7 +462,7 @@ fun! s:session_load(file) abort
 
   if get(s:Sets, 'unload_session_ask_confirm', 1) &&
         \ !s:F.confirm("Current session will be unloaded. Confirm?")
-      return s:F.msg ("Canceled.", 1)
+      return s:F.msg("Canceled.", 1)
   endif
 
   "-----------------------------------------------------------
@@ -498,7 +498,7 @@ fun! s:session_delete(file) abort
   else                      | silent exe "!rm ".file | endif
 
   redraw!
-  call s:F.msg ([[ "Session ", 'WarningMsg' ],
+  call s:F.msg([[ "Session ", 'WarningMsg' ],
         \[ file, 'Type' ],
         \[ " has been deleted.", 'WarningMsg' ]])
 endfun "}}}

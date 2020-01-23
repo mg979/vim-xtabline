@@ -111,7 +111,7 @@ fun! s:cycle_mode() abort
     let s:v.tabline_mode = modes[current]
   endif
 
-  call s:F.msg ([[ "Showing " . s:v.tabline_mode, 'StorageClass' ]])
+  call s:F.msg([[ "Showing " . s:v.tabline_mode, 'StorageClass' ]])
 
   call xtabline#update()
 endfun "}}}
@@ -120,9 +120,9 @@ fun! s:toggle_filtering() abort
   " Toggle buffer filtering in the tabline. "{{{1
 
   if s:Sets.buffer_filtering
-    call s:F.msg ([[ "Buffer filtering turned off", 'WarningMsg' ]])
+    call s:F.msg([[ "Buffer filtering turned off", 'WarningMsg' ]])
   else
-    call s:F.msg ([[ "Buffer filtering turned on", 'StorageClass' ]])
+    call s:F.msg([[ "Buffer filtering turned on", 'StorageClass' ]])
   endif
   let s:Sets.buffer_filtering = !s:Sets.buffer_filtering
   call xtabline#update()
@@ -254,7 +254,7 @@ fun! s:close_buffer() abort
     quit
 
   else
-    call s:F.msg ("There is only one tab.", 1)
+    call s:F.msg("There is only one tab.", 1)
   endif
 endfun "}}}
 
@@ -272,10 +272,10 @@ fun! s:relative_paths(bang, cnt) abort
 
   call xtabline#update()
   if T.rpaths
-    call s:F.msg ([[ "Bufferline shows relative paths [".T.rpaths."]",
+    call s:F.msg([[ "Bufferline shows relative paths [".T.rpaths."]",
           \       'StorageClass']])
   else
-    call s:F.msg ([[ "Bufferline shows filename only.", 'WarningMsg']])
+    call s:F.msg([[ "Bufferline shows filename only.", 'WarningMsg']])
   endif
 endfun "}}}
 
@@ -334,7 +334,7 @@ fun! s:move_buffer_to(cnt, ...) abort
   elseif i == max && nr >= max | return | endif
 
   let new = min([nr, max])
-  call remove (oB, i)
+  call remove(oB, i)
   if new < max
     call insert(oB, b, new)
   else
@@ -388,8 +388,7 @@ fun! s:get_icon(ico) abort
   elseif strchars(a:ico) == 1
     return a:ico
   else
-    call s:F.msg ([[ "Invalid icon.", 'WarningMsg']])
-    return
+    return s:F.msg([[ "Invalid icon.", 'WarningMsg']])
   endif
 endfun "}}}
 
@@ -456,7 +455,7 @@ fun! s:move_tab(...) abort
   let first = arg[0] == '0'
 
   if ! (forward || backward || bottom || first)
-    call s:F.msg('Wrong arguments.', 1) | return
+    return s:F.msg('Wrong arguments.', 1)
   endif
 
   "find destination index
@@ -502,7 +501,7 @@ fun! s:format_buffer() abort
   echohl None
 
   if !empty(new) | call s:F.set_buffer_var('format', new)
-  else           | call s:F.msg ([[ "Canceled.", 'WarningMsg' ]])
+  else           | call s:F.msg([[ "Canceled.", 'WarningMsg' ]])
   endif
 
   let &ch = och
@@ -546,7 +545,8 @@ endfun "}}}
 
 fun! s:invalid_buffer(b) abort
   if !s:F.is_tab_buffer(a:b)
-    call s:F.msg ([[ "Invalid buffer.", 'WarningMsg']]) | return 1
+    call s:F.msg([[ "Invalid buffer.", 'WarningMsg']])
+    return 1
   endif
 endfun
 
