@@ -97,7 +97,7 @@ In |arglist-mode|, the tabline will show the files included in the arglist.
 You can switch file with the usual commands (|:next|, etc). Note that if the
 arglist is empty, this mode won't be available.
 
-In |buffer-mode|, the tabline will show a list of the most recently accessed
+In |buffers-mode|, the tabline will show a list of the most recently accessed
 buffers (10 by default). This list will be filtered on the base of the current
 tab's CWD, if |buffer_filtering| is active.
 
@@ -166,16 +166,6 @@ The modes can be cycled with <F5> (default).
 Set this value to 0 to disable directory-based buffer filtering.
 
 
----------------------------------------------------- *xtabline-relative_paths*
->
-    let g:xtabline_settings.relative_paths = 1
-
-Note that this setting is both global and specific to tabs. This means that
-when a tab is created, it inherits the global setting, but if you want to
-change it with the |XTabRelativePaths| command, the other tabs won't be
-affected.
-
-
 
 
 
@@ -201,39 +191,44 @@ XTabFiltering           *f
 
 TABLINE PATHS                                                 *xtabline-paths*
 ==============================================================================
+                                                      *xtabline-buffers_paths*
+                                                         *xtabline-tabs_paths*
 
 Both in 'tabs' and 'buffers' mode, the path can be displayed in several ways.
 Vim's default is to show a shortened version of the file's path, with
-directory names reduced to a single letter. I don't find this format to be
-very readable, but it generally gives you an idea of the file position. This
-is still the default in xtabline.
+directory names reduced to a single letter. It generally gives you an idea of
+the file position, and it's still the default in xtabline.
 
-There are alternatives, though, controlled by a command (|XTabRelativePaths|),
-and by a setting (|xtabline-relative_paths|). The setting defines the default
-for new tabs, while the command defines a tab-specific value for this setting.
-
----------------------------------------------------------- *XTabRelativePaths*
-Command                           Mapping~
-XTabRelativePaths                 *+
-XTabRelativePaths!                *-
-
-Without a [count], the command toggles between basename and relative path in
-the tabline. With a count, the text displayed will vary for positive or
-negative values. For example, with a path: >
-
-  long/path/to/file.ext
-
-different values will display the path in the following ways:
+You can change this behaviour by altering the following settings:
 >
-     -2  ->   path/to/file.ext
-     -1  ->   to/file.ext
-      0  ->   file.ext
-      1  ->   l/p/t/file.ext      (default)
-      2  ->   l/p/to/file.ext
+    let g:xtabline_settings.buffers_paths = 1
+    let g:xtabline_settings.tabs_paths = 1
+
+As the names suggest, the first one is used in |buffers-mode|, the other one in
+|tabs-mode|. They both follow the same loginc, for example, given a path
+`long/path/to/file.ext`, this is how different values would look:
+
+     `-2`  ->   path/to/file.ext
+     `-1`  ->   to/file.ext
+     ` 0`  ->   file.ext
+     ` 1`  ->   l/p/t/file.ext      (default)
+     ` 2`  ->   l/p/to/file.ext
+
+These settings can be changed with a command and its relative mapping.
+Note that this command will change a different setting, based the mode you're
+currently in (|tabs-mode| or |buffers-mode|), and that any change is
+temporary.
+
+------------------------------------------------------------------ *XTabPaths*
+Command                           Mapping~
+XTabPaths                         *+
+XTabPaths!                        *-
 
 Notice that there are two mappings, *+ and *-, with the second one that sets
 a negative value.
 
+Without a [count], the command toggles between a value of 0 (basename only)
+and +1/-1 (respectively).
 
 
 
@@ -484,18 +479,6 @@ informations such as custom tabs labels or pinned buffers.
 Set this value to 0 to remove the label on the right corner of the tabline.
 
 
-------------------------------------------------- *xtabline-wd_type_indicator*
->
-    let g:xtabline_settings.wd_type_indicator = 0
-<
-Disabled by default, if enabled it adds an indicator in the right corner:
-
-- `W`: there is a window-local directory set for the current buffer
-- `T`: there is a tab-local directory set for the current tab
-
-Only one letter will be shown, and window-local directories override tab-local
-ones.
-
 ---------------------------------------------------- *xtabline-recent_buffers*
 >
     let g:xtabline_settings.recent_buffers = 10
@@ -536,24 +519,17 @@ Function example:
     let g:xtabline_settings.buffer_format = function('MyBuflineFormat')
 
 
--------------------------------------------------------- *xtabline-tab_format*
+------------------------------------------------- *xtabline-wd_type_indicator*
 >
-    let g:xtabline_settings.tab_format = 1
+    let g:xtabline_settings.wd_type_indicator = 0
+<
+Disabled by default, if enabled it adds an indicator in the right corner:
 
-    = 0  ->  long/path/to/file.ext  ->   file.ext
-    = 1  ->  long/path/to/file.ext  ->   l/p/t/file.ext
-    = 2  ->  long/path/to/file.ext  ->   l/p/to/file.ext
+- `W`: there is a window-local directory set for the current buffer
+- `T`: there is a tab-local directory set for the current tab
 
-As above, but for tabs mode. The value must be an integer.
-If a tab has a custom name, this will have higher priority.
-
-
-------------------------------------------------- *xtabline-tabs_show_bufname*
->
-    let g:xtabline_settings.tabs_show_bufname = 0
-
-If enabled, tabs will always show the buffer name, not the directory name.
-
+Only one letter will be shown, and window-local directories override tab-local
+ones.
 
 ---------------------------------------- *xtabline-close_buffer_can_close_tab*
                                           *xtabline-close_buffer_can_quit_vim*
@@ -592,9 +568,9 @@ FORMATTING                                             *xtabline-formatting*
 ---------------------------+--------------------------------------------------
 Option                     | Default ~
 ---------------------------+--------------------------------------------------
-relative_paths             | 0
+buffers_paths              | 1
+tabs_paths                 | 1
 buffer_format              | 2
-tab_format                 | 1
 modified_flag              | '* '
 tab_icon                   | ["📂", "📁"]
 

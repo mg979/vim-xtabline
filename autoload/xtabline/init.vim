@@ -38,7 +38,7 @@ com! -nargs=1                  XTabRenameTab           call xtabline#cmds#run("r
 com! -nargs=1                  XTabRenameBuffer        call xtabline#cmds#run("rename_buffer", <q-args>)
 com!                           XTabResetTab            call xtabline#cmds#run("reset_tab")
 com!                           XTabResetBuffer         call xtabline#cmds#run("reset_buffer")
-com! -count -bang              XTabRelativePaths       call xtabline#cmds#run("relative_paths", <bang>0, <count>)
+com! -count -bang              XTabPaths               call xtabline#cmds#run("paths_style", <bang>0, <count>)
 com!                           XTabCustomLabels        call xtabline#cmds#run("toggle_tab_names")
 com!                           XTabLock                call xtabline#cmds#run("lock_tab")
 com! -nargs=?                  XTabPinBuffer           call xtabline#cmds#run("toggle_pin_buffer", <q-args>)
@@ -114,12 +114,10 @@ let s:S = {
       \ 'last_open_first':            0,
       \ 'enable_mappings':            1,
       \ 'no_icons':                   0,
-      \ 'relative_paths':             1,
-      \ 'tab_path_format':            0,
+      \ 'buffers_paths':              1,
+      \ 'tabs_paths':                 1,
       \ 'bufline_separators':         ['|', '|'],
       \ 'buffer_format':              2,
-      \ 'tab_format':                 1,
-      \ 'tabs_show_bufname':          1,
       \ 'recent_buffers':             10,
       \ 'unnamed_buffer':             '...',
       \ 'unnamed_tab':                "[no name]",

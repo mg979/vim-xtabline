@@ -258,22 +258,41 @@ fun! s:close_buffer() abort
   endif
 endfun "}}}
 
-fun! s:relative_paths(bang, cnt) abort
-  " Toggle between full relative path and tail only, in the bufline. "{{{1
+fun! s:paths_style(bang, cnt) abort
+  " Change paths displaying format. "{{{1
+  " without a count, toggle between 0 and (+1 * -bang)
 
   let T = s:T()
 
-  let T.rpaths = a:cnt ? a:cnt
-        \      : a:bang && T.rpaths == 1 ? 1
-        \      : !a:bang && T.rpaths == -1 ? 1
-        \      : T.rpaths ? 0
-        \      : s:Sets.relative_paths ? s:Sets.relative_paths : 1
-  let T.rpaths = T.rpaths * (a:bang ? -1 : 1)
+  " find out which setting we're going to change
+  if s:v.tabline_mode == 'tabs'
+    let format  = T.tfmt
+    let default = s:Sets.tabs_paths
+  else
+    let format = T.bfmt
+    let default = s:Sets.buffers_paths
+  endif
+
+  " find out the new value
+  let format = a:cnt                   ? a:cnt
+        \    : a:bang && format == 1   ? 1
+        \    : !a:bang && format == -1 ? 1
+        \    : format                  ? 0
+        \    : default                 ? default : 1
+
+  let format = format * (a:bang ? -1 : 1)
+
+  " update back the right setting with the new value
+  if s:v.tabline_mode == 'tabs'
+    let T.tfmt = format
+  else
+    let T.bfmt = format
+  endif
 
   call xtabline#update()
-  if T.rpaths
-    call s:F.msg([[ "Bufferline shows relative paths [".T.rpaths."]",
-          \       'StorageClass']])
+
+  if format
+    call s:F.msg([[ "Bufferline shows relative paths [".format."]", 'StorageClass']])
   else
     call s:F.msg([[ "Bufferline shows filename only.", 'WarningMsg']])
   endif

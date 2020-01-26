@@ -173,7 +173,7 @@ fun! s:render_buffers() abort
     if !s:buffer_has_format(buf) && type(s:Sets.buffer_format) == v:t_number
       let buf.path = s:get_buf_name(buf)
     else
-      let buf.path = fnamemodify(bufname(bnr), (Tab.rpaths ? ':p:~:.' : ':t'))
+      let buf.path = fnamemodify(bufname(bnr), (Tab.bfmt ? ':p:~:.' : ':t'))
       let buf.separators = s:buf_separators(bnr)
       let buf.indicator = s:buf_indicator(bnr)
     endif
@@ -473,9 +473,7 @@ fun! s:tab_label(tabnr) abort
     return s:buf(bnr).name
   endif
 
-  return s:Sets.tabs_show_bufname || empty(bufname(bnr))
-        \ ? s:bufpath(bnr, a:tabnr)
-        \ : s:F.short_cwd(a:tabnr, s:Sets.tab_format)
+  return s:bufpath(bnr, a:tabnr)
 endfun "}}}
 
 fun! s:get_tab_icon(tabnr, right_corner) abort
@@ -492,13 +490,10 @@ fun! s:get_tab_icon(tabnr, right_corner) abort
   if a:right_corner
     let icon = s:Sets.tab_icon
 
-  elseif s:Sets.tabs_show_bufname
+  else
     let bnr  = s:tab_buffer(a:tabnr)
     let buf  = {'nr': bnr, 'has_icon': 0}
     let icon = s:get_buf_icon(buf)
-
-  else
-    return ''
   endif
 
   return type(icon) == v:t_string ? icon : icon[a:tabnr != tabpagenr()] . ' '
@@ -574,7 +569,7 @@ fun! s:right_corner_label() abort
 
   elseif s:v.tabline_mode == 'buffers'
     return s:v.custom_tabs && !empty(s:T().name)
-          \ ? s:T().name : s:F.short_cwd(N, s:Sets.tab_format)
+          \ ? s:T().name : s:F.short_cwd(N, 1)
   endif
 endfun "}}}
 
@@ -589,7 +584,6 @@ fun! s:bufpath(bnr, tnr) abort
   " Return the buffer path as it is to be shown in the tabline. {{{1
   let bname = bufname(a:bnr)
   let minimal = &columns < 150 " window is small
-  let T = s:X.Tabs[a:tnr - 1]
 
   if !filereadable(bname)                           " new files/scratch buffers
     return empty(bname)
@@ -601,12 +595,13 @@ fun! s:bufpath(bnr, tnr) abort
   elseif minimal
     return fnamemodify(bname, ':t')
 
-  elseif a:tnr == tabpagenr()                       " label for current tab
-    return index(s:vB(), a:bnr) < 0
-          \ ? fnamemodify(bname, ':t')
-          \ : s:F.short_path(a:bnr, T.rpaths)
-  else                                              " label for other tabs
-    return s:F.short_path(a:bnr, s:Sets.tab_format)
+  else
+    if s:v.tabline_mode == 'tabs'
+      let format = s:X.Tabs[a:tnr - 1].tfmt
+    else
+      let format = s:X.Tabs[a:tnr - 1].bfmt
+    endif
+    return s:F.short_path(a:bnr, format)
   endif
 endfun " }}}
 

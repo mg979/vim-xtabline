@@ -66,8 +66,8 @@ fun! s:do_map() abort
   call s:mapkey_(X.'d',  'Todo')
   call s:mapkey_(X.'.',  'CustomLabels')
   call s:mapkey_(X.'/',  'Filtering')
-  call s:mapkey0(X.'+',  'RelativePaths')
-  call s:mapkey0(X.'-',  'RelativePaths!')
+  call s:mapkey0(X.'+',  'Paths')
+  call s:mapkey0(X.'-',  'Paths!')
   call s:mapkey_(X.'?',  'Menu')
   call s:mapkeys(X.'T',  'Theme')
   call s:mapkey_(X.'tr', 'ResetTab')
@@ -115,9 +115,9 @@ fun! xtabline#maps#menu() abort
 
   let leader = [
         \['\',    'Go to last tab',               "XTabLastTab"],
-        \['+',    'Relative paths (+)',           "XTabRelativePaths"],
+        \['+',    'Paths format (+)',             "XTabPaths"],
         \['/',    'Toggle filtering',             "XTabFiltering"],
-        \['-',    'Relative paths (-)',           "XTabRelativePaths!"],
+        \['-',    'Paths format (-)',             "XTabPaths!"],
         \['.',    'Toggle custom tabs',           "XTabCustomLabels"],
         \['', '', ''],
         \['', '', ''],

@@ -21,7 +21,8 @@ let s:T = { -> g:xtabline.Tabs[tabpagenr()-1] } "current tab
 "buffers: (dict)    with accepted and ordered buffer numbers lists
 "index:   (int)     tabpagenr() - 1, when tab is set
 "locked:  (bool)    when filtering is independent from cwd
-"rpaths:  (int)     whether the bufferline shows relative paths or filenames
+"bfmt:    (int)     paths displaying format in buffers mode
+"tfmt:    (int)     paths displaying format in tabs mode
 
 fun! s:template() abort
   " {{{1
@@ -29,7 +30,8 @@ fun! s:template() abort
           \ 'name':    '',
           \ 'cwd':     s:F.fulldir(getcwd()),
           \ 'locked':  0,
-          \ 'rpaths':  s:Sets.relative_paths,
+          \ 'bfmt':    s:Sets.buffers_paths,
+          \ 'tfmt':    s:Sets.tabs_paths,
           \ 'icon':    '',
           \ 'files':   [],
           \ 'buffers': {'valid': [], 'order': [], 'extra': [], 'recent': []},
