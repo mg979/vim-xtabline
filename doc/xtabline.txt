@@ -215,19 +215,26 @@ As the names suggest, the first one is used in |buffers-mode|, the other one in
      ` 2`  ->   l/p/to/file.ext
 
 These settings can be changed with a command and its relative mapping.
-Note that this command will change a different setting, based the mode you're
+
+Note: this command will change a different setting, based the mode you're
 currently in (|tabs-mode| or |buffers-mode|), and that any change is
 temporary.
+
+Note: the settings are inherited by each tab at their creation, and each tab
+will use its own setting. The following commands can be used to change the
+format for the current tab, or all tabs at once.
 
 ------------------------------------------------------------------ *XTabPaths*
 Command                           Mapping~
 XTabPaths                         *+
 XTabPaths!                        *-
+XTabPathsAll
+XTabPathsAll!
 
-Notice that there are two mappings, *+ and *-, with the second one that sets
-a negative value.
+There are two mappings, *+ and *-, with the second one that sets a negative
+value.
 
-Without a [count], the command toggles between a value of 0 (basename only)
+Without a [count], the commands toggle between a value of 0 (basename only)
 and +1/-1 (respectively).
 
 

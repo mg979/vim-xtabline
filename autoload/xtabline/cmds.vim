@@ -258,7 +258,7 @@ fun! s:close_buffer() abort
   endif
 endfun "}}}
 
-fun! s:paths_style(bang, cnt) abort
+fun! s:paths_style(bang, cnt, all) abort
   " Change paths displaying format. "{{{1
   " without a count, toggle between 0 and (+1 * -bang)
 
@@ -266,10 +266,10 @@ fun! s:paths_style(bang, cnt) abort
 
   " find out which setting we're going to change
   if s:v.tabline_mode == 'tabs'
-    let format  = T.tfmt
+    let format  = a:all ? s:Sets.tabs_paths : T.tfmt
     let default = s:Sets.tabs_paths
   else
-    let format = T.bfmt
+    let format = a:all ? s:Sets.buffers_paths : T.bfmt
     let default = s:Sets.buffers_paths
   endif
 
@@ -284,17 +284,29 @@ fun! s:paths_style(bang, cnt) abort
 
   " update back the right setting with the new value
   if s:v.tabline_mode == 'tabs'
-    let T.tfmt = format
+    if a:all
+      for n in range(tabpagenr('$'))
+        let s:X.Tabs[n].tfmt = format
+      endfor
+    else
+      let T.tfmt = format
+    endif
   else
-    let T.bfmt = format
+    if a:all
+      for n in range(tabpagenr('$'))
+        let s:X.Tabs[n].bfmt = format
+      endfor
+    else
+      let T.bfmt = format
+    endif
   endif
 
   call xtabline#update()
 
   if format
-    call s:F.msg([[ "Bufferline shows relative paths [".format."]", 'StorageClass']])
+    call s:F.msg([["Tabline shows paths with format [".format."]", 'StorageClass']])
   else
-    call s:F.msg([[ "Bufferline shows filename only.", 'WarningMsg']])
+    call s:F.msg([["Tabline shows filename only.", 'WarningMsg']])
   endif
 endfun "}}}
 
