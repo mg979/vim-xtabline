@@ -163,7 +163,7 @@ fun! s:render_buffers() abort
     let buf = { 'nr': bnr,
           \ 'n': n,
           \ 'has_icon': 0,
-          \ 'path': s:bufpath(bnr, Tab),
+          \ 'path': s:bufpath(bnr, tabpagenr()),
           \ 'hilite':   is_currentbuf && special  ? 'Special' :
           \             is_currentbuf             ? 'Select' :
           \             special || extra          ? 'Extra' :
@@ -474,7 +474,7 @@ fun! s:tab_label(tabnr) abort
   endif
 
   return s:Sets.tabs_show_bufname || empty(bufname(bnr))
-        \ ? s:bufpath(bnr, s:T())
+        \ ? s:bufpath(bnr, a:tabnr)
         \ : s:F.short_cwd(a:tabnr, s:Sets.tab_format)
 endfun "}}}
 
@@ -585,17 +585,29 @@ endfun "}}}
 " Helpers
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:bufpath(nr, T) abort
+fun! s:bufpath(bnr, tnr) abort
   " Return the buffer path as it is to be shown in the tabline. {{{1
-  let bname = bufname(a:nr)
-  return !filereadable(bname)
-        \ ? empty(bname) && &buftype != ''
-        \     ? '[Volatile]'
-        \     : empty(bname) ? '...' : s:F.short_path(a:nr, 1)
-        \
-        \ : ( index(s:vB(), a:nr) < 0 || &columns < 150 || !a:T.rpaths )
-        \     ? fnamemodify(bname, ':t')
-        \     : s:F.short_path(a:nr, a:T.rpaths)
+  let bname = bufname(a:bnr)
+  let minimal = &columns < 150 " window is small
+  let T = s:X.Tabs[a:tnr - 1]
+
+  if !filereadable(bname)                           " new files/scratch buffers
+    return empty(bname)
+          \ ? &buftype != '' ? '[Volatile]'
+          \                  : '...'
+          \ : minimal ? fnamemodify(bname, ':t')
+          \ : s:F.short_path(a:bnr, 1)              " shortened buffer path
+
+  elseif minimal
+    return fnamemodify(bname, ':t')
+
+  elseif a:tnr == tabpagenr()                       " label for current tab
+    return index(s:vB(), a:bnr) < 0
+          \ ? fnamemodify(bname, ':t')
+          \ : s:F.short_path(a:bnr, T.rpaths)
+  else                                              " label for other tabs
+    return s:F.short_path(a:bnr, s:Sets.tab_format)
+  endif
 endfun " }}}
 
 fun! s:fmt_chars(fmt) abort
