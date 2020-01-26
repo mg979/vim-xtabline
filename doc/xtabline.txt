@@ -31,7 +31,7 @@ This plugin tries to give you full control on the tabline:
 * buffer filtering on the base of the current CWD, or other directories
 * three tabline modes: tabs, (filtered) buffers, |arglist|
 * limit rendered buffers to the N most recently accessed (default 10)
-* persistance in sessions
+* optional persistance in sessions
 
 More features:
 
@@ -46,7 +46,7 @@ More features:
 
 With the help of:
 
-* |vim-obsession| for automatic CWDs persistance across sessions
+* |vim-obsession| for persistance of customizations across sessions
 
 
 
@@ -471,9 +471,10 @@ Mappings are enabled by default.
 
 ------------------------------------------------ *xtabline-enable_persistance*
 >
-    let g:xtabline_settings.enable_persistance = 1
+    let g:xtabline_settings.enable_persistance = 0
 
-Persistance is enabled by default.
+Persistance is disabled by default. It is used to save in current session file
+informations such as custom tabs labels or pinned buffers.
 
 
 ------------------------------------------------- *xtabline-show_right_corner*
@@ -635,13 +636,18 @@ ADDITIONAL NOTES                                              *xtabline-notes*
 Note that |vim-obsession| isn't mandatory: the only caveat is that, if you
 have it installed, xtabline will not touch session files by itself, and
 persistance will not be enabled on sessions that aren't handled by
-|vim-obsession|. Persistance can be disabled (|xtabline-enable_persistance|).
+|vim-obsession|.
 
 You may need some patched font for icons. In a Debian-based distribution you
 can install the following packages:
 
 - ttf-ancient-fonts-symbola
 - fonts-powerline
+
+In Windows, one of the pre-patched `nerd-fonts` is recommended. For gVim
+I recommend the 1.2.0 release.
+
+     https://github.com/ryanoasis/nerd-fonts/releases
 
 
 

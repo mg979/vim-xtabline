@@ -49,7 +49,6 @@ endfun "}}}
 " NOTE: if vim-obsession is installed, it is expected to be used for sessions.
 " xtabline will never touch session files if obsession is present, not even in
 " the case that obsession isn't handling the current session.
-" This may change in the future but I couldn't get them to work well together.
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
@@ -58,7 +57,7 @@ endfun "}}}
 
 fun! xtabline#persistance() abort
   " {{{1
-  if !get(s:Sets, 'persistance', 1) | return | endif
+  if !get(s:Sets, 'persistance', 0) | return | endif
   let session = 'let g:xtabline = get(g:, "xtabline", {})'.
         \' | if exists("*xtabline#session_loaded")'.
         \' | let g:xtabline.Tabs = '.string(s:X.Tabs).

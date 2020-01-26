@@ -77,8 +77,9 @@ fun! xtabline#tab#lock(bufs, ...) abort
 endfun "}}}
 
 fun! xtabline#tab#check() abort
-  " Ensure all tab dict keys are present. {{{1
+  " Ensure all tab dict keys are present, and update tab CWD. {{{1
   let Tab = s:T()
+  let Tab.cwd = s:F.fulldir(getcwd())
   call extend(Tab, s:template(), 'keep')
   if !has_key(t:, 'xtab')
     let t:xtab = Tab

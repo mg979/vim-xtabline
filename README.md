@@ -27,7 +27,7 @@ This plugin tries to give you full control on the tabline:
 * buffer filtering on the base of the current CWD
 * three tabline modes: tabs, (filtered) buffers, arglist
 * limit rendered buffers to the N most recently accessed (default 10)
-* persistance in sessions
+* optional persistance in sessions
 
 More features:
 
@@ -80,7 +80,7 @@ The last two are a series of commands that allow you to save/restore tabs and
 sessions, using a fuzzy finder ([fzf-vim](https://github.com/junegunn/fzf.vim)
 or a built-in one).
 
-[vim-obsession](https://github.com/tpope/vim-obsession) is required for persistance.  
+[vim-obsession](https://github.com/tpope/vim-obsession) is recommended for persistance.  
 
 ----------------------------------------------------------------------------
  
