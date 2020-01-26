@@ -219,33 +219,39 @@ endfun "}}}
 
 fun! s:Funcs.short_path(bnr, h) abort
   " A shortened file path, see :h xtabline-paths {{{1
-  let bname = bufname(a:bnr)
+  if !a:h
+    return fnamemodify(bufname(a:bnr), ":t")
+  elseif empty(bufname(a:bnr))
+    return ''
+  endif
 
-  let H = fnamemodify(bname, ":~:.")
+  let H = fnamemodify(bufname(a:bnr), ":~:.")
 
-  if !a:h | return fnamemodify(bname, ":t")      | endif
-  if empty(bufname(H)) | return ''               | endif
-  if s:v.winOS         | let H = tr(H, '\', '/') | endif
-  if match(H, '/') < 0 | return H                | endif
+  if s:v.winOS
+    let H = tr(H, '\', '/')
+  else
+    let is_root = H[:0] == '/'
+  endif
 
-  let is_root = H[:0] == '/'
+  if H !~ '/' | return H | endif
+
   let splits  = split(H, '/')
   let h       = min([len(splits), abs(a:h)])
 
   if a:h < 0
-    let head = split(fnamemodify(bname, ":~:h"), '/')
-    let tail = [fnamemodify(bname, ":t")]
-    return join(head[-h:] + tail, '/')
+    let head = splits[:-2]
+    let tail = splits[-1:]
+    return join(head[-h:] + tail, '\')
   else
     let head = splits[:-(h+1)]
     let tail = splits[-h:]
   endif
   call map(head, "substitute(v:val, '\\(.\\).*', '\\1', '')")
   let H = join(head + tail, '/')
-  if is_root
-    let H = '/' . H
-  elseif s:v.winOS
+  if s:v.winOS
     let H = tr(H, '/', '\')
+  elseif is_root
+    let H = '/' . H
   endif
   return H
 endfun "}}}
