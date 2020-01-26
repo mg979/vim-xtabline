@@ -258,47 +258,29 @@ fun! s:close_buffer() abort
   endif
 endfun "}}}
 
-fun! s:paths_style(bang, cnt, all) abort
+fun! s:paths_style(bang, cnt) abort
   " Change paths displaying format. "{{{1
   " without a count, toggle between 0 and (+1 * -bang)
 
   let T = s:T()
 
   " find out which setting we're going to change
-  if s:v.tabline_mode == 'tabs'
-    let format  = a:all ? s:Sets.tabs_paths : T.tfmt
-    let default = s:Sets.tabs_paths
-  else
-    let format = a:all ? s:Sets.buffers_paths : T.bfmt
-    let default = s:Sets.buffers_paths
-  endif
+  let format = s:v.tabline_mode == 'tabs'
+        \    ? s:Sets.tabs_paths : s:Sets.buffers_paths
 
   " find out the new value
   let format = a:cnt                   ? a:cnt
         \    : a:bang && format == 1   ? 1
         \    : !a:bang && format == -1 ? 1
-        \    : format                  ? 0
-        \    : default                 ? default : 1
+        \    : format                  ? 0 : 1
 
   let format = format * (a:bang ? -1 : 1)
 
   " update back the right setting with the new value
   if s:v.tabline_mode == 'tabs'
-    if a:all
-      for n in range(tabpagenr('$'))
-        let s:X.Tabs[n].tfmt = format
-      endfor
-    else
-      let T.tfmt = format
-    endif
+    let s:Sets.tabs_paths = format
   else
-    if a:all
-      for n in range(tabpagenr('$'))
-        let s:X.Tabs[n].bfmt = format
-      endfor
-    else
-      let T.bfmt = format
-    endif
+    let s:Sets.buffers_paths = format
   endif
 
   call xtabline#update()

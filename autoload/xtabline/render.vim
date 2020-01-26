@@ -173,7 +173,7 @@ fun! s:render_buffers() abort
     if !s:buffer_has_format(buf) && type(s:Sets.buffer_format) == v:t_number
       let buf.path = s:get_buf_name(buf)
     else
-      let buf.path = fnamemodify(bufname(bnr), (Tab.bfmt ? ':p:~:.' : ':t'))
+      let buf.path = fnamemodify(bufname(bnr), (s:Sets.buffers_paths ? ':p:~:.' : ':t'))
       let buf.separators = s:buf_separators(bnr)
       let buf.indicator = s:buf_indicator(bnr)
     endif
@@ -596,11 +596,8 @@ fun! s:bufpath(bnr, tnr) abort
     return fnamemodify(bname, ':t')
 
   else
-    if s:v.tabline_mode == 'tabs'
-      let format = s:X.Tabs[a:tnr - 1].tfmt
-    else
-      let format = s:X.Tabs[a:tnr - 1].bfmt
-    endif
+    let format = s:v.tabline_mode == 'tabs'
+          \    ? s:Sets.tabs_paths : s:Sets.buffers_paths
     return s:F.short_path(a:bnr, format)
   endif
 endfun " }}}
