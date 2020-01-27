@@ -105,7 +105,7 @@ fun! s:is_special(nr, ...) abort
 
   if ft == "GV"
 
-    call xtabline#tab#lock([n], {'icon': s:Sets.icons.git})
+    call xtabline#tab#lock(tabpagenr(), [n], {'icon': s:Sets.icons.git})
     let ret = {'name': 'GV', 'icon': s:Sets.icons.git, 'refilter': 1 }
 
   elseif git >= 0

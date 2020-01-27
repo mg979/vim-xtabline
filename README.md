@@ -24,7 +24,7 @@ distribution you can install the following packages:
 
 This plugin tries to give you full control on the tabline:
 
-* buffer filtering on the base of the current CWD
+* buffer filtering on the base of the CWD (also local)
 * three tabline modes: tabs, (filtered) buffers, arglist
 * limit rendered buffers to the N most recently accessed (default 10)
 * optional persistance in sessions
@@ -80,7 +80,7 @@ The last two are a series of commands that allow you to save/restore tabs and
 sessions, using a fuzzy finder ([fzf-vim](https://github.com/junegunn/fzf.vim)
 or a built-in one).
 
-[vim-obsession](https://github.com/tpope/vim-obsession) is recommended for persistance.  
+[vim-obsession](https://github.com/tpope/vim-obsession) is recommended for persistance.
 
 ----------------------------------------------------------------------------
  
@@ -148,11 +148,8 @@ Here used with default bufferline formatter, and with empty formatter:
 ### Credits
 
 Bram Moolenaar for Vim  
-[Buftabline](https://github.com/ap/vim-buftabline) for the bufferline rendering  
-[Taboo](https://github.com/gcmt/taboo.vim) for the tabline rendering  
-Junegunn Choi for [fzf-vim](https://github.com/junegunn/fzf.vim)  
-Tim Pope for [vim-obsession](https://github.com/tpope/vim-obsession)  
-Kana Natsuno for [tabpagecd](https://github.com/kana/vim-tabpagecd)  
+Aristotle Pagaltzis for [Buftabline](https://github.com/ap/vim-buftabline)  
+Giacomo Comitti for [Taboo](https://github.com/gcmt/taboo.vim)  
 
 ----------------------------------------------------------------------------
  

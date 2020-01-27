@@ -245,7 +245,7 @@ fun! s:close_buffer() abort
     call s:F.msg("Last buffer for this tab.", 1)
 
   elseif getbufvar(current, '&modified')
-    call s:F.msg("Not closing because of unsaved changes", 1)
+    call s:F.msg("Not deleting because of unsaved changes", 1)
 
   elseif tabpagenr() > 1 || tabpagenr("$") != tabpagenr()
     call s:F.bdelete(current)
