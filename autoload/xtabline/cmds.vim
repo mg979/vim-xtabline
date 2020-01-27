@@ -547,8 +547,10 @@ endfun "}}}
 fun! s:goto_last_tab() abort
   " Go back to the previously opened tab. "{{{1
 
+  let this = tabpagenr() - 1
   let n = index(s:X.Tabs, s:v.last_tab)
   exe "normal!" (n + 1)."gt"
+  let s:v.last_tab = s:X.Tabs[this]
 endfun "}}}
 
 
