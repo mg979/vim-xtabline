@@ -8,10 +8,8 @@ let s:F = s:X.Funcs
 let s:v = s:X.Vars
 let s:Sets = g:xtabline_settings
 
-let s:T           = { -> s:X.Tabs[tabpagenr()-1] }
-let s:bufpath     = { f -> filereadable(f) ? s:F.fullpath(f) : '' }
-let s:set_special = { name, dict -> extend({ 'name': name, 'special': 1 }, dict) }
-let s:Ft          = { n,s -> getbufvar(n, "&ft")       == s }
+let s:T       = { -> s:X.Tabs[tabpagenr()-1] }
+let s:bufpath = { f -> filereadable(f) ? s:F.fullpath(f) : '' }
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Template
@@ -56,9 +54,6 @@ fun! xtabline#buffer#update(nr) abort
   " Refresh buffer informations.
   call xtabline#buffer#add(a:nr) " ensure buffer is indexed
 
-  " if a buffer variable for customization has been set, pick it up
-  call s:xbuf_var(a:nr)
-
   let bufdict = has_key(s:X.Buffers, a:nr) ? s:X.Buffers : s:X._buffers
   let bufdict[a:nr].path = s:bufpath(bufname(a:nr))
 endfun
@@ -84,64 +79,66 @@ fun! xtabline#buffer#reset(nr) abort
 endfun
 
 
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Helpers
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-
-fun! s:xbuf_var(nr) abort
-  " If b:XTbuf has been set, it will extend the custom buffers dict.
-  if !empty(getbufvar(a:nr, 'XTbuf'))
-    let bv = extend(getbufvar(a:nr, 'XTbuf'), { 'special': 1 }, 'keep')
-    call setbufvar(a:nr, "XTbuf", {})
-    let s:X.Buffers[a:nr] = extend(copy(s:X._buffers[a:nr]), bv)
-  endif
+fun! xtabline#buffer#set(nr, opts) abort
+  " Customize a buffer, assigning name, icons, special status.
+  try
+    let s:X.Buffers[a:nr] = extend(copy(s:X._buffers[a:nr]), a:opts)
+  catch
+    echoerr '[xtabline] error while trying to apply custom properties to'
+          \ 'buffer n.'.a:nr
+  endtry
 endfun
+
+
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+" Special buffers
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 
 fun! s:is_special(nr, ...) abort
   " Customize special buffers, if visible in a window.
-  let n = a:nr | if !s:F.has_win(n) | return { 'special': 0 } | endif
+  if !s:F.has_win(a:nr) | return { 'special': 0 } | endif
 
-  let git = index(['gitcommit', 'magit', 'git', 'fugitive'], getbufvar(n, "&ft"))
+  let [ n, ft, ret ] = [ a:nr, getbufvar(a:nr, "&ft"), {} ]
 
-  if s:Ft(n, "GV")
+  let git = index(['gitcommit', 'magit', 'git', 'fugitive'], ft)
+
+  if ft == "GV"
+
     call xtabline#tab#lock([n], {'icon': s:Sets.icons.git})
-    return s:set_special('GV', { 'icon': s:Sets.icons.git, 'refilter': 1 })
+    let ret = {'name': 'GV', 'icon': s:Sets.icons.git, 'refilter': 1 }
 
   elseif git >= 0
-    let gitn   = ['Commit', 'Magit', 'Git', 'Status']
-    return s:set_special(gitn[git], { 'icon': s:Sets.icons.git })
+    let nam = ['Commit', 'Magit', 'Git', 'Status']
+    let ret = {'name': nam[git], 'icon': s:Sets.icons.git}
 
   elseif bufname(n) =~ '^\Cfugitive'
-    return s:set_special('fugitive', { 'icon': s:Sets.icons.git })
+    let ret = {'name': 'fugitive', 'icon': s:Sets.icons.git}
 
   elseif bufname(n) =~ ';#FZF$'
-    return s:set_special('FZF', {})
+    let ret = {'name': 'FZF'}
 
-  elseif bufname(n) =~ '^\CKronos'
-    return s:set_special('Kronos', { 'icon': s:Sets.icons.arrow })
+  elseif ft == "help" && getbufvar(n, '&modifiable') == 0
+    let ret = {'name': 'HELP', 'icon': s:Sets.icons.book}
 
-  elseif s:Ft(n, "netrw")
-    let i = ' '.s:Sets.icons.netrw.' '
-    return s:set_special(i.'Netrw'.i, { 'format': 'l' })
+  elseif ft == "netrw"
+    let ico = ' '.s:Sets.icons.netrw.' '
+    let ret = {'name': ico.'Netrw'.ico}
 
-  elseif s:Ft(n, "dirvish")
-    let i = ' '.s:Sets.icons.netrw.' '
-    return s:set_special(i.'Dirvish'.i, { 'format': 'l' })
+  elseif ft == "dirvish"
+    let ico = ' '.s:Sets.icons.netrw.' '
+    let ret = {'name': ico.'Dirvish'.ico}
 
-  elseif s:Ft(n, "startify")
-    let i = ' '.s:Sets.icons.flag2.' '
-    return s:set_special(i.'Startify'.i, { 'format': 'l' })
+  elseif ft == "startify"
+    let ico = ' '.s:Sets.icons.flag2.' '
+    let ret = {'name': ico.'Startify'.ico}
 
-  elseif s:Ft(n, "ctrlsf")
-    let i = ' '.s:Sets.icons.lens.' '
-    return s:set_special(i.'CtrlSF'.i, { 'format': 'l' })
-
-  else
-    return { 'special': 0 }
+  elseif ft == "ctrlsf"
+    let ico = ' '.s:Sets.icons.lens.' '
+    let ret = {'name': ico.'CtrlSF'.ico}
   endif
+
+  return empty(ret) ? {'special': 0} : extend(ret, {'special': 1})
 endfun
 
 
