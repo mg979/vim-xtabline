@@ -16,11 +16,13 @@ let s:scratch =  { nr -> index(['nofile','acwrite','help'], getbufvar(nr, '&buft
 let s:badpath =  { nr -> !filereadable(bufname(nr)) && !getbufvar(nr, "&mod") }
 let s:pinned  =  { b  -> index(s:X.pinned_buffers, b) }
 
+
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Select buffers
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 let s:most_recent = -1
+
 
 fun! xtabline#cmds#select_buffer(cnt) abort
   " Select buffer with count. {{{1
@@ -40,6 +42,7 @@ fun! xtabline#cmds#select_buffer(cnt) abort
   endif
   return ":\<C-U>silent! buffer ".b."\<cr>"
 endfun "}}}
+
 
 fun! xtabline#cmds#next_buffer(nr, last) abort
   " Switch to next visible/pinned buffer. "{{{1
@@ -64,6 +67,7 @@ fun! xtabline#cmds#next_buffer(nr, last) abort
   exe "buffer " . s:oB()[target]
 endfun "}}}
 
+
 fun! xtabline#cmds#prev_buffer(nr, first) abort
   " Switch to previous visible/pinned buffer. "{{{1
   if s:F.not_enough_buffers(0) | return | endif
@@ -84,14 +88,19 @@ fun! xtabline#cmds#prev_buffer(nr, first) abort
   exe "buffer " . s:oB()[target]
 endfun "}}}
 
+
+
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Other commands
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
+
 fun! xtabline#cmds#run(cmd, ...) abort
+  " Command entry point. "{{{1
   let args = a:0 ? join(map(copy(a:000), 'string(v:val)'), ',') : ''
   exe "call s:".a:cmd."(".args.")"
-endfun
+endfun " }}}
+
 
 fun! s:cycle_mode() abort
   " Cycle the active tabline mode. "{{{1
@@ -116,6 +125,7 @@ fun! s:cycle_mode() abort
   call xtabline#update()
 endfun "}}}
 
+
 fun! s:toggle_filtering() abort
   " Toggle buffer filtering in the tabline. "{{{1
 
@@ -127,6 +137,7 @@ fun! s:toggle_filtering() abort
   let s:Sets.buffer_filtering = !s:Sets.buffer_filtering
   call xtabline#update()
 endfun "}}}
+
 
 fun! s:purge_buffers() abort
   " Remove unmodified buffers with invalid paths. "{{{1
@@ -159,6 +170,7 @@ fun! s:purge_buffers() abort
   let s = "Purged ".bcnt." buffer" | let s .= bcnt!=1 ? "s." : "." | echo s
 endfun "}}}
 
+
 fun! s:clean_up(bang) abort
   " Remove all invalid/not open(!) buffers in all tabs. "{{{1
 
@@ -180,6 +192,7 @@ fun! s:clean_up(bang) abort
   let s = "Cleaned ".nr." buffer" | let s .= nr!=1 ? "s." : "."
   call s:F.msg([[s, 'WarningMsg']])
 endfun "}}}
+
 
 fun! s:reopen_last_tab() abort
   " Reopen the last closed tab. "{{{1
@@ -217,6 +230,7 @@ fun! s:reopen_last_tab() abort
   call xtabline#update()
 endfun "}}}
 
+
 fun! s:lock_tab() abort
   " Lock a tab, including currently displayed buffers as valid buffers. "{{{1
 
@@ -229,6 +243,7 @@ fun! s:lock_tab() abort
   redraw!
   call s:F.msg('Tab has been '.un.'locked', T.locked)
 endfun "}}}
+
 
 fun! s:close_buffer() abort
   " Close and delete a buffer, without closing the tab. "{{{1
@@ -257,6 +272,7 @@ fun! s:close_buffer() abort
     call s:F.msg("There is only one tab.", 1)
   endif
 endfun "}}}
+
 
 fun! s:paths_style(bang, cnt) abort
   " Change paths displaying format. "{{{1
@@ -292,6 +308,7 @@ fun! s:paths_style(bang, cnt) abort
   endif
 endfun "}}}
 
+
 fun! s:tab_todo() abort
   " Open or close the Tab todo file. "{{{1
 
@@ -314,6 +331,7 @@ fun! s:tab_todo() abort
   nnoremap <silent><nowait> <buffer> \q :update<bar>bwipeout<cr>
 endfun "}}}
 
+
 fun! s:move_buffer(next, cnt) abort
   " Move buffer by [count] steps. {{{1
   let b = bufnr("%") | let max = len(s:oB()) - 1 | let nr = (max([a:cnt, 1]))
@@ -333,6 +351,7 @@ fun! s:move_buffer(next, cnt) abort
   call insert(s:oB(), remove(s:oB(), i), new_index)
   call xtabline#update()
 endfun "}}}
+
 
 fun! s:move_buffer_to(cnt, ...) abort
   " Move buffer in the bufferline to a new position. "{{{1
@@ -356,6 +375,7 @@ fun! s:move_buffer_to(cnt, ...) abort
   call xtabline#update()
 endfun "}}}
 
+
 fun! s:hide_buffer(new) abort
   " Move buffer to the last position, then select another one. "{{{1
 
@@ -377,12 +397,14 @@ fun! s:hide_buffer(new) abort
   call xtabline#update()
 endfun "}}}
 
+
 fun! s:rename_tab(label) abort
   " Rename the current tab. "{{{1
 
   let s:X.Tabs[tabpagenr()-1].name = a:label
   call xtabline#update()
 endfun "}}}
+
 
 fun! s:rename_buffer(label) abort
   " Rename the current buffer. "{{{1
@@ -391,6 +413,7 @@ fun! s:rename_buffer(label) abort
   if empty(B) | return | endif
   call xtabline#update()
 endfun "}}}
+
 
 fun! s:get_icon(ico) abort
   " Get current icon for this tab. "{{{1
@@ -404,6 +427,7 @@ fun! s:get_icon(ico) abort
     return s:F.msg([[ "Invalid icon.", 'WarningMsg']])
   endif
 endfun "}}}
+
 
 fun! s:tab_icon(...) abort
   " Set an icon for this tab. "{{{1
@@ -421,6 +445,7 @@ fun! s:tab_icon(...) abort
   endif
   call xtabline#update()
 endfun "}}}
+
 
 fun! s:buffer_icon(...) abort
   " Set an icon for this buffer. "{{{1
@@ -440,6 +465,7 @@ fun! s:buffer_icon(...) abort
   call xtabline#update()
 endfun "}}}
 
+
 fun! s:toggle_pin_buffer(...) abort
   " Pin this buffer, so that it will be shown in all tabs. Optionally rename. "{{{1
 
@@ -456,6 +482,7 @@ fun! s:toggle_pin_buffer(...) abort
   endif
   call xtabline#update()
 endfun "}}}
+
 
 fun! s:move_tab(...) abort
   " Move a tab to a new position. "{{{1
@@ -493,6 +520,7 @@ fun! s:move_tab(...) abort
   call xtabline#update()
 endfun "}}}
 
+
 fun! s:format_buffer() abort
   " Specify a custom format for this buffer. "{{{1
 
@@ -521,6 +549,7 @@ fun! s:format_buffer() abort
   call xtabline#update()
 endfun "}}}
 
+
 fun! s:reset_tab(...) abort
   " Reset the tab to a pristine state. "{{{1
 
@@ -528,6 +557,7 @@ fun! s:reset_tab(...) abort
   let s:X.Tabs[tabpagenr()-1] = xtabline#tab#new({'cwd': cwd})
   call s:F.auto_change_dir(cwd)
 endfun "}}}
+
 
 fun! s:reset_buffer(...) abort
   " Reset the buffer to a pristine state. "{{{1
@@ -537,12 +567,14 @@ fun! s:reset_buffer(...) abort
   call xtabline#update()
 endfun "}}}
 
+
 fun! s:toggle_tab_names() abort
   " Toggle between custom icon/name and short path/folder icons. "{{{1
 
   let s:v.custom_tabs = !s:v.custom_tabs
   call xtabline#update()
 endfun "}}}
+
 
 fun! s:goto_last_tab() abort
   " Go back to the previously opened tab. "{{{1
@@ -558,11 +590,13 @@ endfun "}}}
 " Helpers
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
+
 fun! s:invalid_buffer(b) abort
+  " {{{1
   if !s:F.is_tab_buffer(a:b)
     call s:F.msg([[ "Invalid buffer.", 'WarningMsg']])
     return 1
   endif
-endfun
+endfun " }}}
 
 " vim: et sw=2 ts=2 sts=2 fdm=marker

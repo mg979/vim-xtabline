@@ -73,12 +73,12 @@ if exists(':tcd') == 2
 endif
 
 fun! s:icons(A,L,P) abort
-  """Icons completions for commands.
+  " Icons completions for commands.
   return keys(g:xtabline_settings.icons)
 endfun
 
 fun! s:theme(A,L,P) abort
-  """Theme names completion.
+  " Theme names completion.
   return xtabline#themes#list()
 endfun
 
@@ -195,3 +195,5 @@ endif
 
 let &cpo = s:save_cpo
 unlet s:save_cpo
+
+" vim: et sw=2 ts=2 sts=2 fdm=indent

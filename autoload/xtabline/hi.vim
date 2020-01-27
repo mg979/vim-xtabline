@@ -1,18 +1,18 @@
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Highlight
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 let s:Hi   = g:xtabline_highlight
 let s:Sets = g:xtabline_settings
+
 
 fun! xtabline#hi#init() abort
   let s:last_theme = s:Sets.theme
   call xtabline#hi#apply_theme(s:Sets.theme)
 endfun
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! xtabline#hi#apply_theme(theme) abort
-  """Apply a theme."""
+  " Apply a theme.
 
   call s:clear_groups()
 
@@ -39,23 +39,20 @@ fun! xtabline#hi#apply_theme(theme) abort
   let s:last_theme = a:theme
 endfun
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! xtabline#hi#load_theme(bang, theme) abort
-  """Load a theme."""
-  if a:bang
-    call xtabline#hi#apply_theme(s:last_theme)
-    echo "[xtabline] " | echohl Special | echon "Theme reloaded: " s:last_theme | echohl None
-  elseif !empty(a:theme)
+  " Load a theme.
+  if !empty(a:theme)
     call xtabline#hi#apply_theme(a:theme)
-    echo "[xtabline] " | echohl Special | echon "Theme switched to " a:theme | echohl None
+  elseif a:bang
+    call xtabline#hi#apply_theme(s:last_theme)
   else
     echo "[xtabline] " | echohl WarningMsg | echon "No theme specified." | echohl None
   endif
 endfun
 
 fun! s:clear_groups() abort
-  """Clear highlight before applying a theme."""
+  " Clear highlight before applying a theme.
   silent! hi clear XTSelect
   silent! hi clear XTSelectMod
   silent! hi clear XTVisible
@@ -70,16 +67,15 @@ fun! s:clear_groups() abort
   silent! hi clear XTFill
 endfun
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! s:style(k) abort
-  let s = !a:k ? "NONE" : a:k==1 ? "BOLD" : a:k==2 ? "ITALIC" : "UNDERLINE"
-  return ("term=".s." cterm=".s." gui=".s)
-endfun
 
 fun! xtabline#hi#generate(name, theme) abort
-  """Create an entry in g:xtabline_highlight.themes for the give theme."""
+  " Create an entry in g:xtabline_highlight.themes for the given theme.
   let t = a:theme | let T = {}
+
+  fun! s:style(k) abort
+    let s = !a:k ? "NONE" : a:k==1 ? "BOLD" : a:k==2 ? "ITALIC" : "UNDERLINE"
+    return ("term=".s." cterm=".s." gui=".s)
+  endfun
 
   for h in keys(t)
     let T[h] = [printf(
@@ -89,10 +85,9 @@ fun! xtabline#hi#generate(name, theme) abort
   let s:Hi.themes[a:name] = T
 endfun
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! xtabline#hi#update_theme() abort
-  """Reload theme on colorscheme switch."""
+  " Reload theme on colorscheme switch.
   try
     if g:xtabline_settings.theme == s:last_theme
       call xtabline#hi#apply_theme(g:xtabline_settings.theme)
@@ -101,11 +96,15 @@ fun! xtabline#hi#update_theme() abort
   endtry
 endfun
 
+
+
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Default theme
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:Hi.themes.default() abort
+  " Apply default theme, based on highlight linking.
+
   hi! link XTSelect         PmenuSel
   hi! link XTVisible        Special
   hi! link XTHidden         TabLine
@@ -114,7 +113,7 @@ fun! s:Hi.themes.default() abort
   hi! link XTFill           Folded
   hi! link XTNumSel         TabLineSel
   hi! link XTNum            TabLineSel
-  
+
   let pat = has('gui_running') || &termguicolors ? 'guibg=\S\+' : 'ctermbg=\S\+'
   try
     exe 'hi XTSelectMod'  matchstr(execute('hi PmenuSel'), pat) 'guifg=#af0000 gui=bold cterm=bold'
@@ -138,3 +137,5 @@ fun! s:Hi.themes.default() abort
   endtry
 endfun
 
+
+" vim: et sw=2 ts=2 sts=2 fdm=indent

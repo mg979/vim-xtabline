@@ -3,7 +3,6 @@
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:do_map() abort
-
   let S = g:xtabline_settings
   let X = S.map_prefix
 
@@ -90,6 +89,7 @@ fun! s:do_map() abort
   endif
 endfun
 
+
 function! xtabline#maps#init()
   nnoremap <unique> <silent> <expr> <Plug>(XT-Select-Buffer) v:count
         \ ? xtabline#cmds#select_buffer(v:count-1)
@@ -97,7 +97,6 @@ function! xtabline#maps#init()
   if g:xtabline_settings.enable_mappings | call s:do_map() | endif
 endfunction
 
-"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! xtabline#maps#menu() abort
   let basic = [
@@ -190,3 +189,5 @@ fun! xtabline#maps#menu() abort
   hi default link XtablineMappings Title
 endfun
 
+
+" vim: et sw=2 ts=2 sts=2 fdm=indent

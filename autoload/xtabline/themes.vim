@@ -40,6 +40,8 @@ let s:Themes = {}
 
 let s:fill_dark = [ 248, 233, '#a9a9a9',   '#171717', 0 ]
 let s:fill_lite = [ 231, 241, '#f8f8f2',   '#616161', 0 ]
+let s:tm_dark   = [ 241, 236, '#666666',   '#2d2d2d', 0 ]
+let s:tm_lite   = [ 252, 241, '#cccccc',   '#666666', 0 ]
 let s:bg        = { c1, c2 -> &background=='light' ? c1 : c2 }
 
 let s:Themes.seoul = { -> {
@@ -57,9 +59,6 @@ let s:Themes.seoul = { -> {
       \"XTFill":        s:bg(s:fill_lite, s:fill_dark),
       \}}
 
-
-let s:tm_dark = [ 241, 236, '#666666',   '#2d2d2d', 0 ]
-let s:tm_lite = [ 252, 241, '#cccccc',   '#666666', 0 ]
 
 let s:Themes.tomorrow = { -> {
       \"XTSelect":      [ 235, 151, '#262626',   '#99cc99',   1 ],
@@ -150,6 +149,7 @@ fun! xtabline#themes#init(theme) abort
   endif
 endfun
 
+
 fun! xtabline#themes#list() abort
   let themes = keys(g:xtabline_highlight.themes)
   for t in keys(s:Themes)
@@ -159,3 +159,6 @@ fun! xtabline#themes#list() abort
   endfor
   return themes
 endfun
+
+
+" vim: et sw=2 ts=2 sts=2 fdm=indent
