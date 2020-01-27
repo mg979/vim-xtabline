@@ -192,7 +192,8 @@ XTabFiltering           *f
 TABLINE PATHS                                                 *xtabline-paths*
 ==============================================================================
                                                       *xtabline-buffers_paths*
-                                                         *xtabline-tabs_paths*
+                                                  *xtabline-current_tab_paths*
+                                                   *xtabline-other_tabs_paths*
 
 Both in 'tabs' and 'buffers' mode, the path can be displayed in several ways.
 Vim's default is to show a shortened version of the file's path, with
@@ -202,10 +203,11 @@ the file position, and it's still the default in xtabline.
 You can change this behaviour by altering the following settings:
 >
     let g:xtabline_settings.buffers_paths = 1
-    let g:xtabline_settings.tabs_paths = 1
+    let g:xtabline_settings.current_tab_paths = 1
+    let g:xtabline_settings.other_tabs_paths = 1
 
-As the names suggest, the first one is used in |buffers-mode|, the other one in
-|tabs-mode|. They both follow the same loginc, for example, given a path
+As the names suggest, the first one is used in |buffers-mode|, the other ones
+in |tabs-mode|. They follow the same logic, for example, given a path
 `long/path/to/file.ext`, this is how different values would look:
 
      `-2`  ->   path/to/file.ext
@@ -214,16 +216,25 @@ As the names suggest, the first one is used in |buffers-mode|, the other one in
      ` 1`  ->   l/p/t/file.ext      (default)
      ` 2`  ->   l/p/to/file.ext
 
-These settings can be changed with a command and its relative mapping.
-
-Note: this command will change a different setting, based the mode you're
-currently in (|tabs-mode| or |buffers-mode|), and any change is temporary.
+For |tabs-mode| there are two different settings, because I personally prefer
+to show only the basename for tabs other than the current one, and not the
+shortened full path, as is Vim default. This can be achieved by setting:
+>
+    let g:xtabline_settings.other_tabs_paths = 0
 
 
 ------------------------------------------------------------------ *XTabPaths*
 Command                           Mapping~
-XTabPaths                         *+
-XTabPaths!                        *-
+XTabPaths  [count]                *+
+XTabPaths! [count]                *-
+
+These commands (and relative mappings) can be used to temporarily change the
+settings described above.
+
+Note that they will change a different setting, based on the current mode:
+
+  |tabs-mode|     ->   `current_tab_paths`
+  |buffers-mode|  ->   `buffers_paths`
 
 There are two mappings, *+ and *-, with the second one that sets a negative
 value.
@@ -570,7 +581,8 @@ FORMATTING                                             *xtabline-formatting*
 Option                     | Default ~
 ---------------------------+--------------------------------------------------
 buffers_paths              | 1
-tabs_paths                 | 1
+current_tab_paths          | 1
+other_tabs_paths           | 1
 buffer_format              | 2
 modified_flag              | '* '
 tab_icon                   | ["📂", "📁"]

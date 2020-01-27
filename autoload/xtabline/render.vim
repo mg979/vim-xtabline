@@ -597,7 +597,9 @@ fun! s:bufpath(bnr, tnr) abort
 
   else
     let format = s:v.tabline_mode == 'tabs'
-          \    ? s:Sets.tabs_paths : s:Sets.buffers_paths
+          \    ? a:tnr == tabpagenr() ? s:Sets.current_tab_paths
+          \                           : s:Sets.other_tabs_paths
+          \    : s:Sets.buffers_paths
     return s:F.short_path(a:bnr, format)
   endif
 endfun " }}}

@@ -266,7 +266,7 @@ fun! s:paths_style(bang, cnt) abort
 
   " find out which setting we're going to change
   let format = s:v.tabline_mode == 'tabs'
-        \    ? s:Sets.tabs_paths : s:Sets.buffers_paths
+        \    ? s:Sets.current_tab_paths : s:Sets.buffers_paths
 
   " find out the new value
   let format = a:cnt                   ? a:cnt
@@ -278,7 +278,7 @@ fun! s:paths_style(bang, cnt) abort
 
   " update back the right setting with the new value
   if s:v.tabline_mode == 'tabs'
-    let s:Sets.tabs_paths = format
+    let s:Sets.current_tab_paths = format
   else
     let s:Sets.buffers_paths = format
   endif
