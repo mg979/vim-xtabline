@@ -40,8 +40,7 @@ if exists('g:loaded_fzf') && !s:use_finder
     call s:fzf_statusline("Open Tab Buffer")
     call fzf#run({
           \ 'source': s:tab_buffers(),
-          \ 'sink': { line -> execute('exe "sp" fnameescape(bufname('.
-          \                   matchstr(line, '^\s*\[\zs\d\+\ze\]').'))') },
+          \ 'sink': { line -> execute('b '.matchstr(line, '^\s*\[\zs\d\+\ze\]')) },
           \ 'down': '30%',
           \ 'options': '--ansi --multi'})
     au! xt_fzf | aug! xt_fzf
