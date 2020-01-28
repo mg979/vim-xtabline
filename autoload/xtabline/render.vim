@@ -163,7 +163,7 @@ fun! s:render_buffers() abort
     let buf = { 'nr': bnr,
           \ 'n': n,
           \ 'has_icon': 0,
-          \ 'path': s:bufpath(bnr, tabpagenr()),
+          \ 'path': s:bufpath(bnr),
           \ 'hilite':   is_currentbuf && special  ? 'Special' :
           \             is_currentbuf             ? 'Select' :
           \             special || extra          ? 'Extra' :
@@ -288,6 +288,26 @@ fun! s:flat_buffer(buf) abort
 
   return number . hi . icon . B.path . mod
 endfun "}}}
+
+fun! s:bufpath(bnr) abort
+  " Return the path for the label in buffers mode. {{{1
+  let bname = bufname(a:bnr)
+  let minimal = &columns < 150 " window is small
+
+  if !filereadable(bname)                           " new files/scratch buffers
+    return empty(bname)
+          \ ? &buftype != '' ? '[Volatile]'
+          \                  : '...'
+          \ : minimal ? fnamemodify(bname, ':t')
+          \ : s:F.short_path(a:bnr, 1)              " shortened buffer path
+
+  elseif minimal
+    return fnamemodify(bname, ':t')
+
+  else
+    return s:F.short_path(a:bnr, s:Sets.buffers_paths)
+  endif
+endfun " }}}
 
 fun! s:custom_buffer_label(bufdict, chars) abort
   " Buffer label, using a custom formatter {{{1
@@ -473,8 +493,35 @@ fun! s:tab_label(tabnr) abort
     return s:buf(bnr).name
   endif
 
-  return s:bufpath(bnr, a:tabnr)
+  return s:tabpath(bnr, a:tabnr)
 endfun "}}}
+
+fun! s:tabpath(bnr, tnr) abort
+  " Return the path for the label in tabs mode. {{{1
+  let bname = bufname(a:bnr)
+  let minimal = &columns < 150 " window is small
+  let current = a:tnr == tabpagenr()
+
+  " not current tab, and has custom name
+  if !current && !empty(s:X.Tabs[a:tnr-1].name)
+    return s:X.Tabs[a:tnr-1].name
+  endif
+
+  if !filereadable(bname)                           " new files/scratch buffers
+    return empty(bname)
+          \ ? &buftype != '' ? '[Volatile]'
+          \                  : '...'
+          \ : minimal ? fnamemodify(bname, ':t')
+          \ : s:F.short_path(a:bnr, 1)              " shortened buffer path
+
+  elseif minimal
+    return fnamemodify(bname, ':t')
+
+  else
+    return s:F.short_path(a:bnr, current ? s:Sets.current_tab_paths
+          \                              : s:Sets.other_tabs_paths)
+  endif
+endfun " }}}
 
 fun! s:get_tab_icon(tabnr, right_corner) abort
   " The icon for the tab label. {{{1
@@ -579,30 +626,6 @@ endfun "}}}
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Helpers
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! s:bufpath(bnr, tnr) abort
-  " Return the buffer path as it is to be shown in the tabline. {{{1
-  let bname = bufname(a:bnr)
-  let minimal = &columns < 150 " window is small
-
-  if !filereadable(bname)                           " new files/scratch buffers
-    return empty(bname)
-          \ ? &buftype != '' ? '[Volatile]'
-          \                  : '...'
-          \ : minimal ? fnamemodify(bname, ':t')
-          \ : s:F.short_path(a:bnr, 1)              " shortened buffer path
-
-  elseif minimal
-    return fnamemodify(bname, ':t')
-
-  else
-    let format = s:v.tabline_mode == 'tabs'
-          \    ? a:tnr == tabpagenr() ? s:Sets.current_tab_paths
-          \                           : s:Sets.other_tabs_paths
-          \    : s:Sets.buffers_paths
-    return s:F.short_path(a:bnr, format)
-  endif
-endfun " }}}
 
 fun! s:fmt_chars(fmt) abort
   " Return a split string with the formatting option in use. {{{1
