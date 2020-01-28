@@ -14,65 +14,103 @@ let s:oB = { -> s:T().buffers.order     }       "ordered buffers for tab
 let s:sessions_path = { -> s:F.fulldir(s:Sets.sessions_path) }
 let s:use_finder    = !exists('g:loaded_fzf') || get(s:Sets, 'use_builtin_finder', 0)
 let s:lastmodified  = { f -> str2nr(system('date -r '.f.' +%s')) }
+let s:obsession     = { -> exists('g:loaded_obsession') && exists('g:this_obsession') }
 
+" fzf/finder functions  {{{1
 
-" Commands definition  {{{1
+" If fzf is loaded and not using built-in finder, then define fzf functions
 
-fun! xtabline#fzf#list_buffers()
-  call fzf#vim#buffers('', {
-        \ 'source': s:tab_buffers(),
-        \ 'options': '--multi --prompt "Open Tab Buffer >>>  "'})
-endfun
+if exists('g:loaded_fzf') && !s:use_finder
+  if $TERM !~ "256color"
+    highlight! xt_fzf1 ctermfg=1 ctermbg=8 guifg=#E12672 guibg=#565656
+    highlight! xt_fzf2 ctermfg=252 ctermbg=238 guifg=#D9D9D9 guibg=#565656
+  else
+    highlight! xt_fzf1 ctermfg=161 ctermbg=238 guifg=#E12672 guibg=#565656
+    highlight! xt_fzf2 ctermfg=252 ctermbg=238 guifg=#D9D9D9 guibg=#565656
+  endif
 
-fun! xtabline#fzf#list_tabs()
-  call fzf#vim#files('', {
-        \ 'source': s:tablist(), 'sink': function('s:tabopen'),
-        \ 'options': '--header-lines=1 --no-preview --ansi --prompt "Go to Tab >>>  "'})
-endfun
+  fun! s:fzf_statusline(prompt) abort
+    augroup xt_fzf
+      au!
+      exe 'au FileType fzf setlocal statusline=%#xt_fzf1#\ >\ %#xt_fzf2#' . escape(a:prompt, ' ')
+    augroup END
+  endfun
 
-fun! xtabline#fzf#delete_buffers()
-  call fzf#vim#files('', {
-        \ 'source': s:tab_buffers(),
-        \ 'sink': function('s:bufdelete'), 'down': '30%',
-        \ 'options': '--multi --no-preview --ansi --prompt "Delete Tab Buffer >>>  "'})
-endfun
+  fun! xtabline#fzf#list_buffers()
+    call s:fzf_statusline("Open Tab Buffer")
+    call fzf#run({
+          \ 'source': s:tab_buffers(),
+          \ 'sink': { line -> execute('exe "sp" fnameescape(bufname('.
+          \                   matchstr(line, '^\s*\[\zs\d\+\ze\]').'))') },
+          \ 'down': '30%',
+          \ 'options': '--ansi --multi'})
+    au! xt_fzf | aug! xt_fzf
+  endfun
 
-fun! xtabline#fzf#load_session()
-  call fzf#vim#files('', {
-        \ 'source': s:sessions_list(),
-        \ 'sink': function('s:session_load'), 'down': '30%',
-        \ 'options': '--header-lines=1 --no-preview --ansi --prompt "Load Session >>>  "'})
-endfun
+  fun! xtabline#fzf#list_tabs()
+    call s:fzf_statusline("Go to Tab")
+    call fzf#run({
+          \ 'source': s:tablist(), 'sink': function('s:tabopen'), 'down': '30%',
+          \ 'options': '--ansi --header-lines=1 --no-preview'})
+    au! xt_fzf | aug! xt_fzf
+  endfun
 
-fun! xtabline#fzf#delete_session()
-  call fzf#vim#files('', {
-        \ 'source': s:sessions_list(),
-        \ 'sink': function('s:session_delete'), 'down': '30%',
-        \ 'options': '--header-lines=1 --no-multi --no-preview --ansi --prompt "Delete Session >>>  "'})
-endfun
+  fun! xtabline#fzf#delete_buffers()
+    call s:fzf_statusline("Delete Tab Buffer")
+    call fzf#run({
+          \ 'source': s:tab_buffers(),
+          \ 'sink': function('s:bufdelete'), 'down': '30%',
+          \ 'options': '--ansi --multi --no-preview'})
+    au! xt_fzf | aug! xt_fzf
+  endfun
 
-fun! xtabline#fzf#load_tab()
-  call fzf#vim#files('', {
-        \ 'source': s:tabs(),
-        \ 'sink': function('s:tab_load'), 'down': '30%',
-        \ 'options': '--header-lines=1 --multi --no-preview --ansi --prompt "Load Tab Bookmark >>>  "'})
-endfun
+  fun! xtabline#fzf#load_session()
+    call s:fzf_statusline("Load Session")
+    call fzf#run({
+          \ 'source': s:sessions_list(),
+          \ 'sink': function('s:session_load'), 'down': '30%',
+          \ 'options': '--ansi --header-lines=1 --no-preview'})
+    au! xt_fzf | aug! xt_fzf
+  endfun
 
-fun! xtabline#fzf#delete_tab()
-  call fzf#vim#files('', {
-        \ 'source': s:tabs(),
-        \ 'sink': function('s:tab_delete'), 'down': '30%',
-        \ 'options': '--header-lines=1 --multi --no-preview --ansi --prompt "Delete Tab Bookmark >>>  "'})
-endfun
+  fun! xtabline#fzf#delete_session()
+    call s:fzf_statusline("Delete Session")
+    call fzf#run({
+          \ 'source': s:sessions_list(),
+          \ 'sink': function('s:session_delete'), 'down': '30%',
+          \ 'options': '--ansi --header-lines=1 --no-multi --no-preview'})
+    au! xt_fzf | aug! xt_fzf
+  endfun
 
-fun! xtabline#fzf#nerd_bookmarks()
-  call fzf#vim#files('', {
-        \ 'source': s:tab_nerd_bookmarks(),
-        \ 'sink': function('s:tab_nerd_bookmarks_load'), 'down': '30%',
-        \ 'options': '--multi --no-preview --ansi --prompt "Load NERD Bookmark >>>  "'})
-endfun
+  fun! xtabline#fzf#load_tab()
+    call s:fzf_statusline("Load Tab Bookmark")
+    call fzf#run({
+          \ 'source': s:tabs(),
+          \ 'sink': function('s:tab_load'), 'down': '30%',
+          \ 'options': '--ansi --header-lines=1 --multi --no-preview'})
+    au! xt_fzf | aug! xt_fzf
+  endfun
 
-if s:use_finder
+  fun! xtabline#fzf#delete_tab()
+    call s:fzf_statusline("Delete Tab Bookmark")
+    call fzf#run({
+          \ 'source': s:tabs(),
+          \ 'sink': function('s:tab_delete'), 'down': '30%',
+          \ 'options': '--ansi --header-lines=1 --multi --no-preview'})
+    au! xt_fzf | aug! xt_fzf
+  endfun
+
+  fun! xtabline#fzf#nerd_bookmarks()
+    call s:fzf_statusline("Load NERD Bookmark")
+    call fzf#run({
+          \ 'source': s:tab_nerd_bookmarks(),
+          \ 'sink': function('s:tab_nerd_bookmarks_load'), 'down': '30%',
+          \ 'options': '--ansi --multi --no-preview'})
+    au! xt_fzf | aug! xt_fzf
+  endfun
+
+else " using built-in finder instead
+
   silent! call xtabline#finder#open()
   let s:Find = funcref('xtabline#finder#open')
   fun! xtabline#fzf#list_buffers()
@@ -464,13 +502,13 @@ fun! s:session_load(file) abort " {{{1
 
   if get(s:Sets, 'unload_session_ask_confirm', 1) &&
         \ !s:F.confirm("Current session will be unloaded. Confirm?")
-      return s:F.msg("Canceled.", 1)
+    return s:F.msg("Canceled.", 1)
   endif
 
   "-----------------------------------------------------------
   " upadate and pause Obsession
 
-  if exists('g:this_obsession') && ObsessionStatus() == "[$]"
+  if s:obsession() && ObsessionStatus() == "[$]"
     exe "silent Obsession ".fnameescape(g:this_obsession)
     silent Obsession
   endif
@@ -484,7 +522,7 @@ endfun
 
 
 fun! s:session_delete(file) abort " {{{1
-  " Delete a session file. 
+  " Delete a session file.
   let session = a:file
   if match(session, "\t")
     let session = substitute(session, " *\t.*", "", "") | endif
@@ -493,23 +531,27 @@ fun! s:session_delete(file) abort " {{{1
   if !filereadable(file)
     return s:F.msg("Session file doesn't exist.", 1) | endif
 
-  if !s:F.confirm('Delete Selected session?') | return | endif
+  if !s:F.confirm('Delete session '.session.'?') | return | endif
 
   "-----------------------------------------------------------
 
-  if file == v:this_session | silent Obsession!
-  else                      | silent exe "!rm ".file | endif
+
+  if s:obsession() && file == v:this_session
+    silent Obsession!
+  else
+    exe "silent !rm ".fnameescape(file)
+  endif
 
   redraw!
   call s:F.msg([[ "Session ", 'WarningMsg' ],
-        \[ file, 'Type' ],
+        \[ file, 'None' ],
         \[ " has been deleted.", 'WarningMsg' ]])
 endfun
 
 
 fun! s:update_current_session() abort " {{{1
   " Update current session.
-  if exists('g:loaded_obsession') && exists('g:this_obsession')
+  if s:obsession()
     if ObsessionStatus() == "[$]"
       exe "silent Obsession ".fnameescape(g:this_obsession)
       silent Obsession
@@ -522,7 +564,7 @@ endfun
 
 fun! s:save_session(file) abort " {{{1
   " Finalize session save.
-  if exists('g:loaded_obsession')
+  if s:obsession()
     silent execute "Obsession ".fnameescape(a:file)
   else
     silent execute "mksession! ".fnameescape(a:file)
