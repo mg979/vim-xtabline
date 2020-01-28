@@ -521,35 +521,6 @@ fun! s:move_tab(...) abort
 endfun "}}}
 
 
-fun! s:format_buffer() abort
-  " Specify a custom format for this buffer. "{{{1
-
-  let och = &ch
-  set ch=2
-
-  let n = bufnr("%")
-  if s:invalid_buffer(n) | return | endif
-
-  let fmt = s:Sets.buffer_format
-  let default = type(fmt) == v:t_string ? fmt : ' n I< l +'
-
-  let has_format = has_key(s:B(), n) && has_key(s:B()[n], 'format')
-  let current = has_format? s:B()[n].format : default
-
-  echohl Label   | echo "Current  │"
-  echohl Special | echon current
-  echohl Label   | let new = input("New      │", current)
-  echohl None
-
-  if !empty(new) | call s:F.set_buffer_var('format', new)
-  else           | call s:F.msg([[ "Canceled.", 'WarningMsg' ]])
-  endif
-
-  let &ch = och
-  call xtabline#update()
-endfun "}}}
-
-
 fun! s:reset_tab(...) abort
   " Reset the tab to a pristine state. "{{{1
 

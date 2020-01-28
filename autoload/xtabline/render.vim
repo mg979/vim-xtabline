@@ -20,7 +20,6 @@ let s:is_extra   = { n -> index(s:eB(), n) >= 0 }
 
 let s:scratch           = { nr -> index(['nofile','acwrite'], getbufvar(nr, '&buftype')) >= 0 }
 let s:pinned            = { -> s:X.pinned_buffers                                             }
-let s:buffer_has_format = { buf -> has_key(s:buf(buf.nr), 'format')                           }
 let s:has_buf_icon      = { nr -> !empty(get(s:buf(nr), 'icon', ''))                          }
 let s:extraHi           = { b -> s:is_extra(b) || s:is_open(b) || index(s:pinned(), b) >= 0   }
 let s:strwidth          = { label -> strwidth(substitute(label, '%#\w*#\|%\d\+T', '', 'g'))   }
@@ -276,14 +275,10 @@ fun! s:format_buffer(bufdict) abort
   ""
   let [ B, fmt ] = [ a:bufdict, s:default_buffer_format ]
 
-  if s:buffer_has_format(B)                       " generally unused
-    let chars = s:fmt_chars(s:buf(B.nr).format)
-    return s:custom_buffer_label(B, chars)
-
-  elseif fmt.flat                                 " default format
+  if fmt.flat                  " default format
     return s:flat_buffer(B)
 
-  elseif fmt.func                                 " user-defined funcref
+  elseif fmt.func              " user-defined funcref
     return fmt.content(B.nr)
   endif
 endfun "}}}
@@ -297,11 +292,11 @@ fun! s:flat_buffer(buf) abort
   let curbuf = winbufnr(0) == B.nr
 
   let mod = index(s:pinned(), B.nr) >= 0
-        \ ? ' '.s:Sets.bufline_indicators.pinned.' ' : ' '
+        \ ? ' '.s:Sets.indicators.pinned.' ' : ' '
 
   if getbufvar(B.nr, "&modified")
-    let mod .= printf("%%#XT%sMod#%s",
-          \    (curbuf ? "Select" : "Hidden"), s:Sets.modified_flag)
+    let mod .= printf("%%#XT%sMod#%s ",
+          \    (curbuf ? "Select" : "Hidden"), s:Sets.indicators.modified)
   endif
 
   let hi     = printf(" %%#XT%s# ", B.hilite)
@@ -391,14 +386,14 @@ fun! s:tab_mod_flag(tabnr, corner) abort
   " @param corner: if the flag is for the right corner
   " Returns: the formatted flag
 
-  let flag = s:Sets.modified_flag
+  let flag = s:Sets.indicators.modified
   for buf in tabpagebuflist(a:tabnr)
     if getbufvar(buf, "&mod")
       return a:corner
             \ ? "%#XTVisibleMod#" . flag
             \ : a:tabnr == tabpagenr()
-            \   ? "%#XTSelectMod#" . flag
-            \   : "%#XTHiddenMod#" . flag
+            \   ? "%#XTSelectMod#" . flag . ' '
+            \   : "%#XTHiddenMod#" . flag . ' '
     endif
   endfor
   return ""
@@ -549,147 +544,28 @@ endfun "}}}
 
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Special formatting
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Note: this kind of formatter isn't used by default, and I'd like to drop it
-" entirely, it adds a lot of complexity and is too difficult to use. The
-" default formatter seems better in all cases I can think of.
-" Why is it here? It was inherited by buftabline and Taboo, when I was using
-" their code. Why don't I just delete it? it can still be accessed if a buffer
-" has a 'format' key, so I have to see where it can be used.
-
-fun! s:custom_buffer_label(bufdict, chars) abort
-  " Buffer label, using a custom formatter {{{1
-  "
-  " @param bufdict: a buffer object, as generated in s:render_buffers()
-  " @param chars: the formatter, as a list of characters
-  " Returns: the formatted label
-  let out = []
-  let B = a:bufdict
-  let B.separators = s:buf_separators(bnr)
-  let B.indicator = s:buf_indicator(bnr)
-  for c in a:chars
-    let C = c
-    "custom tab icon, if tab has a name and/or icon has been defined
-    if     C == 32  | let C = ' '
-    elseif C == 108 | let C = s:get_buf_name(B)                             "l
-    elseif C == 117 | let C = s:unicode_nrs(B.n)                            "u
-    elseif C == 78  | let C = B.n                                           "N
-    elseif C == 110 | let C = B.nr                                          "n
-    elseif C == 43  | let C = B.indicator                                   "+
-    elseif C == 102 | let C = s:bufpath(B.nr)                               "f
-    elseif C == 73  | let C = s:get_buf_icon(B)                             "i
-    elseif C == 60  | let C = empty(B.icon) ? B.separators[0] : ''          "<
-    elseif C == 62  | let C = B.separators[1]                               ">
-    endif
-    call add(out, C)
-  endfor
-  let st = join(out, '')
-  let hi = '%#XT' . B.hilite . '#'
-  return hi.st
-endfun "}}}
-
-fun! s:get_buf_name(buf) abort
-  " Return custom buffer name, if it has been set, otherwise the filename. {{{1
-  return !empty(a:buf.name) ? a:buf.name : s:Sets.unnamed_buffer
-endfun "}}}
-
-fun! s:buf_indicator(bnr) abort
-  " Different kinds of indicators: modified, pinned {{{1
-  let [ nr, mods ] = [ a:bnr, s:Sets.bufline_indicators ]
-  let current_buf  = nr == winbufnr(0)
-  let has_window   = bufwinnr(nr) > 0
-
-  let mod = index(s:pinned(), nr) >= 0 ? mods.pinned : ''
-  let modHi = current_buf      ? "%#XTSelectMod#" :
-        \     s:extraHi(nr)    ? "%#XTExtraMod#" :
-        \     has_window       ? "%#XTVisibleMod#" : "%#XTHiddenMod#"
-  if s:is_special(nr)
-    return ''
-  elseif getbufvar(nr, '&mod')
-    return (mod . modHi . mods.modified)
-  elseif s:scratch(nr)
-    return (mod . modHi . mods.scratch)
-  elseif !getbufvar(nr, '&ma')
-    return (mod . modHi . mods.readonly)
-  else
-    return mod
-  endif
-endfun "}}}
-
-fun! s:buf_separators(nr) abort
-  " Use custom separators if defined in buffer entry. {{{1
-  let B = s:buf(a:nr)
-  return has_key(B, 'separators') ? B.separators : s:Sets.bufline_separators
-endfun "}}}
-
-
-
-
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Helpers
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-fun! s:fmt_chars(fmt) abort
-  " Return a split string with the formatting option in use. {{{1
-  let chars = []
-  for i in range(strchars(a:fmt))
-    call add(chars, strgetchar(a:fmt, i))
-  endfor
-  return chars
-endfun "}}}
 
 fun! s:get_default_buffer_format() abort
   " Get the default buffer format, and set its type {{{1
   " It can be either:
+  " - 1 bufnr
+  " - 2 buffer order
   " - funcref
-  " - format string (TODO: remove this kind of formatter)
-  " - number (1 to show bufnr, 2 to show buffer order)
   let fmt = { 'func': 0, 'flat': 0 }
+
   if type(s:Sets.buffer_format) == v:t_func
     let fmt.func = 1
     let fmt.content = s:Sets.buffer_format
-  elseif type(s:Sets.buffer_format) == v:t_string
-    let fmt.content = s:fmt_chars(s:Sets.buffer_format)
+
   elseif type(s:Sets.buffer_format) == v:t_number
     let fmt.flat = s:Sets.buffer_format
+
+  else
+    let fmt.flat = 1
   endif
   return fmt
-endfun "}}}
-
-let s:unr1 = [ '₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉', '₁₀',
-      \'₁₁', '₁₂', '₁₃', '₁₄', '₁₅', '₁₆', '₁₇', '₁₈', '₁₉', '₂₀',
-      \'₂₁', '₂₂', '₂₃', '₂₄', '₂₅', '₂₆', '₂₇', '₂₈', '₂₉', '₃₀' ]
-
-let s:unr2 = [ '¹', '²', '³', '⁴', '⁵', '⁶', '⁷', '⁸', '⁹', '¹⁰',
-      \'¹¹', '¹²', '¹³', '¹⁴', '¹⁵', '¹⁶', '¹⁷', '¹⁸', '¹⁹', '²⁰',
-      \'²¹', '²²', '²³', '²⁴', '²⁵', '²⁶', '²⁷', '²⁸', '²⁹', '³⁰' ]
-
-fun! s:unicode_nrs(nr) abort
-  " Adapted from Vim-CtrlSpace (https://github.com/szw/vim-ctrlspace) {{{1
-  let u_nr = ""
-
-  if !s:Sets.superscript_unicode_nrs && a:nr < 31
-    return s:unr1[a:nr-1]
-  elseif a:nr < 31
-    return s:unr2[a:nr-1]
-  elseif !s:Sets.superscript_unicode_nrs
-    let small_numbers = ["₀", "₁", "₂", "₃", "₄", "₅", "₆", "₇", "₈", "₉"]
-  else
-    let small_numbers = ["⁰", "¹", "²", "³", "⁴", "⁵", "⁶", "⁷", "⁸", "⁹"]
-  endif
-  let number_str = string(a:nr)
-
-  for i in range(0, len(number_str) - 1)
-    let u_nr .= small_numbers[str2nr(number_str[i])]
-  endfor
-
-  return u_nr
-endfun "}}}
-
-fun! s:extra_padding(l_r, limit) abort
-  " Padding before the right corner {{{1
-  return a:l_r < a:limit ? '%#XTFill#'.repeat(' ', a:limit - a:l_r) : ''
 endfun "}}}
 
 fun! s:ready() abort

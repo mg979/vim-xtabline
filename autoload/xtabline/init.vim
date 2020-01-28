@@ -120,17 +120,16 @@ let s:S = {
       \ 'recent_buffers':             10,
       \ 'unnamed_buffer':             '...',
       \ 'volatile_buffer':            '[Volatile]',
-      \ 'modified_flag':              "* ",
       \ 'tab_icon':                   ["📂", "📁"],
       \ 'bufline_separators':         ['|', '|'],
       \ 'superscript_unicode_nrs':    0,
       \}
 
 
-let s:S.bufline_indicators = {
-      \ 'modified': s:S.no_icons ? '[+]'  : '✛ ',
+let s:S.indicators = {
+      \ 'modified': s:S.no_icons ? '[+]'  : '*',
       \ 'readonly': s:S.no_icons ? '[RO]' : '🔒',
-      \ 'scratch': s:S.no_icons ?  '[!]'  : '💣',
+      \ 'scratch': s:S.no_icons ?  '[!]'  : '✓',
       \ 'pinned': s:S.no_icons ?   '[^]'  : '[📌]',
       \}
 

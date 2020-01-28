@@ -640,16 +640,13 @@ buffers_paths              | 1
 current_tab_paths          | 1
 other_tabs_paths           | 1
 buffer_format              | 2
-modified_flag              | '* '
 tab_icon                   | ["📂", "📁"]
 
 `icons` are the ones that can be used when assigning an icon to a tab/buffer,
 and can be used in other contexts (special buffers icon).
 >
-  let g:xtabline_settings.bufline_indicators = {
+  let g:xtabline_settings.indicators = {
       \ 'modified': '[+]',
-      \ 'readonly': '[🔒]',
-      \ 'scratch': '[!]',
       \ 'pinned': '[📌]',
       \}
 
