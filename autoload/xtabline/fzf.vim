@@ -18,55 +18,55 @@ let s:lastmodified  = { f -> str2nr(system('date -r '.f.' +%s')) }
 
 " Commands definition  {{{1
 
-fun! xtabline#fzf#list_buffers(args)
-  call fzf#vim#buffers(a:args, {
+fun! xtabline#fzf#list_buffers()
+  call fzf#vim#buffers('', {
         \ 'source': s:tab_buffers(),
         \ 'options': '--multi --prompt "Open Tab Buffer >>>  "'})
 endfun
 
-fun! xtabline#fzf#list_tabs(args)
-  call fzf#vim#files(a:args, {
+fun! xtabline#fzf#list_tabs()
+  call fzf#vim#files('', {
         \ 'source': s:tablist(), 'sink': function('s:tabopen'),
         \ 'options': '--header-lines=1 --no-preview --ansi --prompt "Go to Tab >>>  "'})
 endfun
 
-fun! xtabline#fzf#delete_buffers(args)
-  call fzf#vim#files(a:args, {
+fun! xtabline#fzf#delete_buffers()
+  call fzf#vim#files('', {
         \ 'source': s:tab_buffers(),
         \ 'sink': function('s:bufdelete'), 'down': '30%',
         \ 'options': '--multi --no-preview --ansi --prompt "Delete Tab Buffer >>>  "'})
 endfun
 
-fun! xtabline#fzf#load_session(args)
-  call fzf#vim#files(a:args, {
+fun! xtabline#fzf#load_session()
+  call fzf#vim#files('', {
         \ 'source': s:sessions_list(),
         \ 'sink': function('s:session_load'), 'down': '30%',
         \ 'options': '--header-lines=1 --no-preview --ansi --prompt "Load Session >>>  "'})
 endfun
 
-fun! xtabline#fzf#delete_session(args)
-  call fzf#vim#files(a:args, {
+fun! xtabline#fzf#delete_session()
+  call fzf#vim#files('', {
         \ 'source': s:sessions_list(),
         \ 'sink': function('s:session_delete'), 'down': '30%',
         \ 'options': '--header-lines=1 --no-multi --no-preview --ansi --prompt "Delete Session >>>  "'})
 endfun
 
-fun! xtabline#fzf#load_tab(args)
-  call fzf#vim#files(a:args, {
+fun! xtabline#fzf#load_tab()
+  call fzf#vim#files('', {
         \ 'source': s:tabs(),
         \ 'sink': function('s:tab_load'), 'down': '30%',
         \ 'options': '--header-lines=1 --multi --no-preview --ansi --prompt "Load Tab Bookmark >>>  "'})
 endfun
 
-fun! xtabline#fzf#delete_tab(args)
-  call fzf#vim#files(a:args, {
+fun! xtabline#fzf#delete_tab()
+  call fzf#vim#files('', {
         \ 'source': s:tabs(),
         \ 'sink': function('s:tab_delete'), 'down': '30%',
         \ 'options': '--header-lines=1 --multi --no-preview --ansi --prompt "Delete Tab Bookmark >>>  "'})
 endfun
 
-fun! xtabline#fzf#nerd_bookmarks(args)
-  call fzf#vim#files(a:args, {
+fun! xtabline#fzf#nerd_bookmarks()
+  call fzf#vim#files('', {
         \ 'source': s:tab_nerd_bookmarks(),
         \ 'sink': function('s:tab_nerd_bookmarks_load'), 'down': '30%',
         \ 'options': '--multi --no-preview --ansi --prompt "Load NERD Bookmark >>>  "'})
@@ -75,46 +75,46 @@ endfun
 if s:use_finder
   silent! call xtabline#finder#open()
   let s:Find = funcref('xtabline#finder#open')
-  fun! xtabline#fzf#list_buffers(args)
+  fun! xtabline#fzf#list_buffers()
     let b = s:Find(s:tab_buffers(), 'Open Tab Buffer')
     if b != '' | exe 'e' fnameescape(b) | endif
   endfun
 
-  fun! xtabline#fzf#list_tabs(args)
+  fun! xtabline#fzf#list_tabs()
     let T = s:Find(s:tablist(), 'Open Tab')
     if T != '' | call s:tabopen(T) | endif
   endfun
 
-  fun! xtabline#fzf#delete_buffers(args)
+  fun! xtabline#fzf#delete_buffers()
     let bufs = s:Find(s:tab_buffers(), 'Delete Tab Buffer', {'multi':1})
     for b in bufs | exe 'bd' bufnr(b) | endfor
   endfun
 
-  fun! xtabline#fzf#load_session(args)
+  fun! xtabline#fzf#load_session()
     let t = '      '
     let header = printf("Session%s%s%s%sTimestamp%sDescription",t,t,t,t,t)
     let s = s:Find(s:sessions_list(1), header)
     if s != '' | call s:session_load(s) | endif
   endfun
 
-  fun! xtabline#fzf#delete_session(args)
+  fun! xtabline#fzf#delete_session()
     let t = '    '
     let header = printf("Session%s%s%s%sTimestamp%sDescription",t,t,t,t,t)
     let s = s:Find(s:sessions_list(1), header)
     if s != '' | call s:session_delete(s) | endif
   endfun
 
-  fun! xtabline#fzf#load_tab(args)
+  fun! xtabline#fzf#load_tab()
     let T = s:Find(s:tabs(), 'Load Tab Bookmark')
     if T != '' | call s:tab_load(T) | endif
   endfun
 
-  fun! xtabline#fzf#delete_tab(args)
+  fun! xtabline#fzf#delete_tab()
     let T = s:Find(s:tabs(), 'Delete Tab Bookmark')
     if T != '' | call s:tab_delete(T) | endif
   endfun
 
-  fun! xtabline#fzf#nerd_bookmarks(args)
+  fun! xtabline#fzf#nerd_bookmarks()
     let T = s:Find(s:tab_nerd_bookmarks(), 'Load Nerd Bookmark')
     if T != '' | call s:tab_nerd_bookmarks_load(T) | endif
   endfun

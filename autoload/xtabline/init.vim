@@ -17,14 +17,14 @@ endfun
 " Commands
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-com! -nargs=? -complete=buffer XTabListBuffers       call xtabline#fzf#list_buffers(<q-args>)
-com! -nargs=? -complete=buffer XTabListTabs          call xtabline#fzf#list_tabs(<q-args>)
-com! -nargs=? -complete=buffer XTabDeleteBuffers     call xtabline#fzf#delete_buffers(<q-args>)
-com! -nargs=?                  XTabLoadSession       call xtabline#fzf#load_session(<q-args>)
-com! -nargs=?                  XTabDeleteSession     call xtabline#fzf#delete_session(<q-args>)
-com! -nargs=?                  XTabLoadTab           call xtabline#fzf#load_tab(<q-args>)
-com! -nargs=?                  XTabDeleteTab         call xtabline#fzf#delete_tab(<q-args>)
-com! -nargs=?                  XTabNERDBookmarks     call xtabline#fzf#nerd_bookmarks(<q-args>)
+com! -complete=buffer          XTabListBuffers       call xtabline#fzf#list_buffers()
+com! -complete=buffer          XTabListTabs          call xtabline#fzf#list_tabs()
+com! -complete=buffer          XTabDeleteBuffers     call xtabline#fzf#delete_buffers()
+com!                           XTabLoadSession       call xtabline#fzf#load_session()
+com!                           XTabDeleteSession     call xtabline#fzf#delete_session()
+com!                           XTabLoadTab           call xtabline#fzf#load_tab()
+com!                           XTabDeleteTab         call xtabline#fzf#delete_tab()
+com!                           XTabNERDBookmarks     call xtabline#fzf#nerd_bookmarks()
 com!                           XTabSaveTab           call xtabline#fzf#tab_save()
 com!                           XTabSaveSession       call xtabline#fzf#session_save()
 com! -nargs=?                  XTabNewSession        call xtabline#fzf#session_save(<q-args>)
@@ -74,12 +74,12 @@ endif
 
 fun! s:icons(A,L,P) abort
   " Icons completions for commands.
-  return keys(g:xtabline_settings.icons)
+  return filter(g:xtabline_settings.icons, 'v:val=~#a:A')
 endfun
 
 fun! s:theme(A,L,P) abort
   " Theme names completion.
-  return xtabline#themes#list()
+  return filter(xtabline#themes#list(), 'v:val=~#a:A')
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
