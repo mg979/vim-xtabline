@@ -74,7 +74,7 @@ endif
 
 fun! s:icons(A,L,P) abort
   " Icons completions for commands.
-  return filter(g:xtabline_settings.icons, 'v:val=~#a:A')
+  return filter(keys(g:xtabline_settings.icons), 'v:val=~#a:A')
 endfun
 
 fun! s:theme(A,L,P) abort
