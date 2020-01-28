@@ -474,7 +474,7 @@ Example:
 
 ------------------------------------------------------------------------------
 
-For `buffers`, you should use the function `xtabline#buffer#set`( nr, opts ) 
+For `buffers`, you should use the function `xtabline#buffer#set`( nr, opts )
 For example in a |ftplugin|:
 >
   if exists('g:loaded_xtabline')
@@ -620,7 +620,18 @@ bookmarks_file             | `~/.vim/.XTablineBookmarks`
 sessions_data              | `~/.vim/.XTablineSessions`
 
 
-FORMATTING                                             *xtabline-formatting*
+LAZY LOADING                                                   *xtabline-lazy*
+
+If you want to lazy load the plugin (since it can affect your startup time),
+set: >
+      let g:xtabline_lazy = 1
+
+The plugin will then load after you add/create a buffer after the first one,
+or you can initialize it with the command `XTablineInit`. Until then, mappings
+and commands will not work.
+
+
+FORMATTING                                               *xtabline-formatting*
 
 ---------------------------+--------------------------------------------------
 Option                     | Default ~
