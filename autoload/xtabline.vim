@@ -375,6 +375,10 @@ augroup plugin-xtabline
   autocmd OptionSet     * call xtabline#update()
   autocmd VimLeavePre   * call xtabline#update_this_session()
 
+  if exists('##DirChanged')
+    autocmd DirChanged  * call xtabline#update()
+  endif
+
   autocmd SessionLoadPost * call s:restore_session_info()
   autocmd ColorScheme   * if s:ready() | call xtabline#hi#update_theme() | endif
 augroup END
