@@ -385,8 +385,8 @@ endfun "}}}
 " Sessions
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:sessions_list(...) abort
-  " Generate a formatted list of sessions {{{1
+fun! s:sessions_list(...) abort " {{{1
+  " Generate a formatted list of sessions.
   let data = a:0 ? [] : ["Session\t\t\t\tTimestamp\tDescription"]
   let sfile = json_decode(readfile(s:Sets.sessions_data)[0])
   let sessions = split(globpath(s:sessions_path(), "*"), '\n')
@@ -420,7 +420,8 @@ fun! s:sessions_list(...) abort
   return data
 endfun
 
-fun! s:desc_string(s, n, sfile, color) abort
+
+fun! s:desc_string(s, n, sfile, color) abort " {{{1
   let active_mark = (a:s ==# v:this_session) ? a:color ? s:green(" [%]  ") : " [%]  " : '      '
   let description = get(a:sfile, a:n, '')
   let spaces = 30 - len(a:n)
@@ -436,10 +437,11 @@ fun! s:desc_string(s, n, sfile, color) abort
   else
     return a:n.spaces."\t".time.pad.active_mark.description
   endif
-endfun "}}}
+endfun
 
-fun! s:session_load(file) abort
-  " Load a session, but abort if there are unsaved changes. {{{1
+
+fun! s:session_load(file) abort " {{{1
+  " Load a session, but abort if there are unsaved changes.
   for b in range(1, bufnr("$"))
     if getbufvar(b, '&modified')
       call s:F.msg("Some buffer has unsaved changes. Aborting.", 1)
@@ -478,10 +480,11 @@ fun! s:session_load(file) abort
 
   execute "silent! %bdelete"
   execute "source ".fnameescape(file)
-endfun "}}}
+endfun
 
-fun! s:session_delete(file) abort
-  " Delete a session file.  {{{1
+
+fun! s:session_delete(file) abort " {{{1
+  " Delete a session file. 
   let session = a:file
   if match(session, "\t")
     let session = substitute(session, " *\t.*", "", "") | endif
@@ -501,45 +504,78 @@ fun! s:session_delete(file) abort
   call s:F.msg([[ "Session ", 'WarningMsg' ],
         \[ file, 'Type' ],
         \[ " has been deleted.", 'WarningMsg' ]])
+endfun
+
+
+fun! s:update_current_session() abort " {{{1
+  " Update current session.
+  if exists('g:loaded_obsession') && exists('g:this_obsession')
+    if ObsessionStatus() == "[$]"
+      exe "silent Obsession ".fnameescape(g:this_obsession)
+      silent Obsession
+    endif
+  elseif !empty(v:this_session)
+    exe "silent mksession! ".fnameescape(v:this_session)
+  endif
+endfun
+
+
+fun! s:save_session(file) abort " {{{1
+  " Finalize session save.
+  if exists('g:loaded_obsession')
+    silent execute "Obsession ".fnameescape(a:file)
+  else
+    silent execute "mksession! ".fnameescape(a:file)
+  endif
+  call s:F.msg("Session '".a:file."' has been saved.", 0)
 endfun "}}}
 
-fun! xtabline#fzf#session_save(...) abort
-  " Save a session.  {{{1
+
+fun! xtabline#fzf#session_save(new_session) abort
+  " Save a session. {{{1
   let sdir = s:sessions_path()
   if !isdirectory(sdir)
     if s:F.confirm('Directory '.sdir.' does not exist, create?')
       call mkdir(sdir, 'p')
     else
-      return s:F.msg("Session not saved.", 1)
+      return s:F.msg("Canceled.", 1)
     endif
   endif
 
   let data = json_decode(readfile(s:Sets.sessions_data)[0])
 
-  let defname = a:0 || empty(v:this_session)
-        \ ? '' : fnamemodify(v:this_session, ":t")
-  let defdesc = get(data, defname, '')
-  let name = !a:0 || empty(a:1)
-        \ ? input('Enter a name for this session:   ', defname) : a:1
+  " get description of current session, if already registered
+  let _name = a:new_session || empty(v:this_session)
+        \   ? '' : fnamemodify(v:this_session, ":t")
+  let _desc = get(data, _name, '')
 
-  if !empty(name)
-    let data[name] = input('Enter an optional description:   ', defdesc)
-    if s:F.confirm('Save session '.name.'?')
-      if a:0
-        "update and pause Obsession, then clean buffers
-        if ObsessionStatus() == "[$]"
-          exe "silent Obsession ".fnameescape(g:this_obsession)
-          silent Obsession | endif
-        execute "silent! %bdelete"
-      endif
-      call writefile([json_encode(data)], s:Sets.sessions_data)
-      let file = sdir . name
-      silent execute "Obsession ".fnameescape(file)
-      call s:F.msg("Session '".file."' has been saved.", 0)
-      return
-    endif
+  let name = input('Enter a name for this session: ', _name)
+
+  if empty(name)
+    return s:F.msg("Session not saved.", 1)
   endif
-  call s:F.msg("Session not saved.", 1)
+
+  let data[name] = input('Enter an optional description: ', _desc)
+
+  let prompt = a:new_session ? 'New' : 'Save'
+
+  if s:F.confirm(printf("%s session %s?", prompt, name))
+    " saving current session with a new name, update current first
+    if ( _name != '' ) && ( name !=# _name )
+      call s:update_current_session()
+    endif
+
+    if a:new_session
+      execute "silent! %bdelete"
+      cd `=$HOME`
+    endif
+
+    call writefile([json_encode(data)], s:Sets.sessions_data)
+    call s:save_session( sdir. name )
+
+  else
+    call s:F.msg("Session not saved.", 1)
+  endif
 endfun "}}}
 
 
