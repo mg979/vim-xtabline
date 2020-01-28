@@ -106,7 +106,6 @@ let s:S = {
       \ 'close_buffer_can_close_tab': 0,
       \ 'close_buffer_can_quit_vim':  0,
       \ 'select_buffer_alt_action':   "buffer #",
-      \ 'superscript_unicode_nrs':    0,
       \ 'buffer_filtering':           1,
       \ 'wd_type_indicator':          0,
       \ 'theme':                      'default',
@@ -117,13 +116,14 @@ let s:S = {
       \ 'buffers_paths':              1,
       \ 'current_tab_paths':          1,
       \ 'other_tabs_paths':           1,
-      \ 'bufline_separators':         ['|', '|'],
       \ 'buffer_format':              2,
       \ 'recent_buffers':             10,
       \ 'unnamed_buffer':             '...',
-      \ 'unnamed_tab':                "[no name]",
+      \ 'volatile_buffer':            '[Volatile]',
       \ 'modified_flag':              "* ",
       \ 'tab_icon':                   ["📂", "📁"],
+      \ 'bufline_separators':         ['|', '|'],
+      \ 'superscript_unicode_nrs':    0,
       \}
 
 
