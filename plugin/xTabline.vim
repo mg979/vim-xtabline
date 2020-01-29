@@ -56,7 +56,7 @@ if get(g:, 'xtabline_lazy', 0)
       let mod     = '(getbufvar(v:val, "&modified") ? " [+] " : " ")'
       let cwd     = "%#TabLineFill#%T%=%#TabLineSel# 📂 %#TabLine# %<% " . fnamemodify(getcwd(), ':~')
       let bufline = join(map(bufs, num . hi . bufname . mod))
-      return bufline . cwd . "%999X"
+      return bufline . cwd . " %999X"
     endfun
     set tabline=%!Bufline()
   endif
