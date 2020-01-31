@@ -123,7 +123,7 @@ fun! s:render_buffers() abort
       call s:F.add_ordered(b, 1)
     endfor
   else
-    let labels = map(argv(), 'bufnr(v:val)')
+    let labels = filter(map(argv(), 'bufnr(v:val)'), 'v:val > 0')
   endif
 
   "no need to render more than 20 buffers at a time, since they'll be offscreen
