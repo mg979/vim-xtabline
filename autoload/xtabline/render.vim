@@ -412,6 +412,7 @@ fun! s:tab_label(tnr) abort
 
   let bnr = s:tab_buffer(a:tnr)
   let buf = s:buf(bnr)            " a buffer object in the xtabline dicts
+  let tab = s:X.Tabs[a:tnr-1]     " the tab object in the xtabline dicts
 
   if s:is_special(bnr)
     return buf.name
@@ -422,8 +423,12 @@ fun! s:tab_label(tnr) abort
   let current = a:tnr == tabpagenr()
 
   " not current tab, and has custom name
-  if !current && !empty(buf.name)
-    return buf.name
+  if !current
+    if !empty(tab.name)
+      return tab.name
+    elseif !empty(buf.name)
+      return buf.name
+    endif
   endif
 
   if !filereadable(fname)                           " new files/scratch buffers

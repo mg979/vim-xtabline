@@ -686,8 +686,7 @@ can install the following packages:
 - ttf-ancient-fonts-symbola
 - fonts-powerline
 
-In Windows, one of the pre-patched `nerd-fonts` is recommended. For gVim
-I recommend the 1.2.0 release.
+In Windows, one of the pre-patched `nerd-fonts` is recommended.
 
      https://github.com/ryanoasis/nerd-fonts/releases
 

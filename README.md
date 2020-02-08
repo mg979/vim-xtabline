@@ -18,6 +18,8 @@ distribution you can install the following packages:
 - ttf-ancient-fonts-symbola
 - fonts-powerline
 
+In Windows, one of the pre-patched [nerd-fonts](https://github.com/ryanoasis/nerd-fonts/releases) is recommended.
+
 ----------------------------------------------------------------------------
  
 ### Introduction
@@ -73,8 +75,8 @@ Other features, besides the tabline rendering, are:
 - tabs management
 - sessions management
 
-*Buffer filtering* means that in *buffer-mode*, only buffers that are valid
-for the tab's CWD will be listed.
+*Buffer filtering* means that in *buffer-mode*, only buffers that are valid for
+the tab's CWD will be listed.
 
 The last two are a series of commands that allow you to save/restore tabs and
 sessions, using a fuzzy finder ([fzf-vim](https://github.com/junegunn/fzf.vim)
