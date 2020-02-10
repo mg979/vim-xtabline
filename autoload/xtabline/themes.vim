@@ -56,6 +56,7 @@ let s:Themes.seoul = { -> {
       \"XTSpecial":     [ 239, 223, '#3C4C55',   '#F2C38F',   1 ],
       \"XTNumSel":      [ 239, 150, '#3C4C55',   '#A8CE93',   0 ],
       \"XTNum":         [ 223, 233, '#F2C38F',   '#171717',   0 ],
+      \"XTCorner":      [ 223, 233, '#F2C38F',   '#171717',   0 ],
       \"XTFill":        s:bg(s:fill_lite, s:fill_dark),
       \}}
 
@@ -72,6 +73,7 @@ let s:Themes.tomorrow = { -> {
       \"XTSpecial":     [ 239, 222, '#3C4C55',   '#ffcc66',   1 ],
       \"XTNumSel":      [ 239, 150, '#3C4C55',   '#A8CE93',   0 ],
       \"XTNum":         [ 222, 238, '#ffcc66',   '#444444',   0 ],
+      \"XTCorner":      [ 222, 238, '#ffcc66',   '#444444',   0 ],
       \"XTFill":        s:bg(s:tm_lite, s:tm_dark),
       \}}
 
@@ -88,6 +90,7 @@ let s:Themes.dracula = { -> {
       \"XTSpecial":     [ 238, 84,  '#44475a',   '#50fa7b', 0 ],
       \"XTNumSel":      [ 238, 84,  '#44475a',   '#50fa7b', 0 ],
       \"XTNum":         [ 228, 235, '#f1fa8c',   '#282a36', 0 ],
+      \"XTCorner":      [ 231, 60,  '#f8f8f2',   '#6272a4', 0 ],
       \"XTFill":        s:bg(s:fill_lite, [ 248, 235, '#a9a9a9', '#282a36', 0 ]),
       \}}
 
@@ -104,6 +107,7 @@ let s:Themes.molokai = { -> {
       \"XTSpecial":     [ 244, 84,  '#808080',   '#50fa7b', 0 ],
       \"XTNumSel":      [ 235, 185, '#232526',   '#e6db74', 1 ],
       \"XTNum":         [ 185, 235, '#e6db74',   '#232526', 0 ],
+      \"XTCorner":      [ 185, 235, '#e6db74',   '#444444', 1 ],
       \"XTFill":        s:bg(s:fill_lite, [ 248, 235, '#a9a9a9', '#232526', 0 ]),
       \}}
 
@@ -120,6 +124,7 @@ let s:Themes.codedark = { -> {
       \"XTSpecial":     [ 239, 150, '#3C4C55',   '#A8CE93', 0 ],
       \"XTNumSel":      [ 234, 39,  '#1e1e1e',   '#569cd6', 1 ],
       \"XTNum":         [ 39,  236, '#569cd6',   '#333333', 1 ],
+      \"XTCorner":      [ 39,  234, '#569cd6',   '#1e1e1e', 1 ],
       \"XTFill":        s:bg(s:fill_lite, [ 248, 236, '#a9a9a9', '#333333', 0 ]),
       \}}
 
@@ -136,6 +141,7 @@ let s:Themes.slate = { -> {
       \"XTSpecial":     [ 239, 150, '#3C4C55',   '#A8CE93', 0 ],
       \"XTNumSel":      [ 24,  174, '#073655',   '#DF8C8C', 1 ],
       \"XTNum":         [ 39,  239, '#569cd6',   '#4c4e50', 1 ],
+      \"XTCorner":      [ 39,  234, '#569cd6',   '#1e1e1e', 1 ],
       \"XTFill":        s:bg(s:fill_lite, [ 248, 236, '#a9a9a9', '#333333', 0 ]),
       \}}
 
@@ -161,4 +167,4 @@ fun! xtabline#themes#list() abort
 endfun
 
 
-" vim: et sw=2 ts=2 sts=2 fdm=indent
+" vim: et sw=2 ts=2 sts=2 fdm=indent fdn=1

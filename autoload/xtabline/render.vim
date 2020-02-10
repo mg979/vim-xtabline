@@ -68,11 +68,8 @@ fun! s:render_tabs() abort
   let labels = range(1, tabpagenr('$'))
 
   for tnr in labels
-    if tnr == tabpagenr() | let center = tnr | endif
-
-    let hi     = tnr == tabpagenr() ? 'TabActive' : 'TabInactive'
-    let label  = printf('%%#XT%s#', hi) . '%' . tnr . 'T'
-    let label .= s:format_tab_label(tnr)
+    let hi     = tnr == tabpagenr() ? 'Select' : 'Hidden'
+    let label  = '%' . tnr . 'T' . s:format_tab_label(tnr)
 
     call add(tabs, {'label': label, 'nr': tnr, 'hilite': hi})
   endfor
@@ -374,8 +371,7 @@ fun! s:tab_num(tabnr) abort
   " Returns: the formatted tab number
 
   if s:v.tabline_mode != 'tabs'
-    let hi = has_key(s:T(), 'dir') ? " %#XTNumSel#" : " %#XTVisible#"
-    return "%#XTNumSel# " . a:tabnr .'/' . tabpagenr('$') . hi
+    return "%#XTNumSel# " . a:tabnr .'/' . tabpagenr('$')
   else
     return a:tabnr == tabpagenr() ?
           \   "%#XTNumSel# " . a:tabnr . " %#XTSelect#"
@@ -509,17 +505,18 @@ fun! s:format_right_corner() abort
   elseif s:v.tabline_mode == 'tabs'
     " no number, just the name or the cwd
     let icon  = "%#XTNumSel# " . s:get_tab_icon(N, 1)
-    let label = "%#XTVisible# " . s:right_corner_label() . ' '
+    let label = "%#XTCorner# " . s:right_corner_label() . ' '
     let mod   = s:tab_mod_flag(N, 1)
     return icon . label . mod . lcd
 
   elseif s:v.tabline_mode == 'buffers'
     " tab number in form n/N, plus tab name or cwd
-    let nr        = s:tab_num(N)
-    let icon      = s:get_tab_icon(N, 1)
-    let mod       = s:tab_mod_flag(N, 1)
-    let label     = s:right_corner_label()
-    return printf("%s %s%s %s", nr, icon, label, mod) . lcd
+    let hi    = "%#XTCorner#"
+    let nr    = s:tab_num(N)
+    let icon  = s:get_tab_icon(N, 1)
+    let mod   = s:tab_mod_flag(N, 1)
+    let label = s:right_corner_label()
+    return printf("%s %s %s%s %s", nr, hi, icon, label, mod) . lcd
   endif
 endfun "}}}
 

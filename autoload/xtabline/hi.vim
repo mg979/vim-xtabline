@@ -65,6 +65,7 @@ fun! s:clear_groups() abort
   silent! hi clear XTNumSel
   silent! hi clear XTNum
   silent! hi clear XTFill
+  silent! hi clear XTCorner
 endfun
 
 
@@ -113,6 +114,7 @@ fun! s:Hi.themes.default() abort
   hi! link XTFill           Folded
   hi! link XTNumSel         TabLineSel
   hi! link XTNum            TabLineSel
+  hi! link XTCorner         Special
 
   let pat = has('gui_running') || &termguicolors ? 'guibg=\S\+' : 'ctermbg=\S\+'
   try
