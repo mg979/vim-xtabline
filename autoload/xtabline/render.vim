@@ -233,13 +233,17 @@ fun! s:fit_tabline(center, tabs) abort
         let L.width -= remove(Tabs, 0).width
       endif
     endwhile
-    if left_has_been_cut
-      let lab = substitute(Tabs[0].label, '%#X\w*#', '', 'g')
-      let Tabs[0].label = printf('%%#DiffDelete# < %%#XT%s#%s', Tabs[0].hilite, strcharpart(lab, 3))
-    endif
-    if right_has_been_cut
-      let Tabs[-1].label = printf('%s%%#DiffDelete# > ', Tabs[-1].label[:-4])
-    endif
+    try
+      if left_has_been_cut
+        let lab = substitute(Tabs[0].label, '%#X\w*#', '', 'g')
+        let Tabs[0].label = printf('%%#DiffDelete# < %%#XT%s#%s', Tabs[0].hilite, strcharpart(lab, 3))
+      endif
+      if right_has_been_cut
+        let Tabs[-1].label = printf('%s%%#DiffDelete# > ', Tabs[-1].label[:-4])
+      endif
+    catch
+      return corner_label
+    endtry
   endif
 
   let labels = map(Tabs,'v:val.label')
@@ -310,7 +314,7 @@ endfun "}}}
 fun! s:bufpath(bnr) abort
   " Return the path for the label in buffers mode. {{{1
   let bname = bufname(a:bnr)
-  let minimal = &columns < 150 " window is small
+  let minimal = &columns < 100 " window is small
 
   if !filereadable(bname)                           " new files/scratch buffers
     return empty(bname)
@@ -419,7 +423,7 @@ fun! s:tab_label(tnr) abort
   endif
 
   let fname = bufname(bnr)
-  let minimal = &columns < 150 " window is small
+  let minimal = &columns < 100 " window is small
   let current = a:tnr == tabpagenr()
 
   " not current tab, and has custom name
