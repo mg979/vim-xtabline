@@ -1,6 +1,6 @@
 ## xtabline
 
-![Imgur](https://i.imgur.com/yU6qbU5.gif)
+![Imgur](https://i.imgur.com/idI7U7P.gif)
 
 ----------------------------------------------------------------------------
 
@@ -110,37 +110,37 @@ Here used with default bufferline formatter, and with empty formatter:
 
 #### codedark
  
-![Imgur](https://i.imgur.com/GY7Dxph.gif)
+![Imgur](https://i.imgur.com/WP2zyPR.png)
  
 ----------------------------------------------------------------------------
  
 #### slate
  
-![Imgur](https://i.imgur.com/ph3pRE4.gif)
+![Imgur](https://i.imgur.com/XAlDmqP.png)
  
 ----------------------------------------------------------------------------
  
 #### monokai
  
-![Imgur](https://i.imgur.com/9jEi0SH.gif)
+![Imgur](https://i.imgur.com/9QDyCFf.png)
  
 ----------------------------------------------------------------------------
  
 #### seoul
  
-![Imgur](https://i.imgur.com/jlhZGNc.gif)
+![Imgur](https://i.imgur.com/umHi9zb.png)
  
 ----------------------------------------------------------------------------
  
 #### tomorrow
  
-![Imgur](https://i.imgur.com/zNAAPtT.gif)
+![Imgur](https://i.imgur.com/q28L8YX.png)
  
 ----------------------------------------------------------------------------
  
 #### dracula
  
-![Imgur](https://i.imgur.com/orsM1bK.gif)
+![Imgur](https://i.imgur.com/nLkV47A.png)
  
 
 
