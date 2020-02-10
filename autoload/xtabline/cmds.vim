@@ -522,11 +522,9 @@ endfun "}}}
 
 
 fun! s:reset_tab(...) abort
-  " Reset the tab to a pristine state. "{{{1
-
-  let cwd = a:0? fnamemodify(expand(a:1), :p) : s:F.find_root_dir()
-  let s:X.Tabs[tabpagenr()-1] = xtabline#tab#new({'cwd': cwd})
-  call s:F.auto_change_dir(cwd)
+  " Reset the tab and its cwd. "{{{1
+  let s:X.Tabs[tabpagenr()-1] = xtabline#tab#new({'cwd': getcwd()})
+  call xtabline#update()
 endfun "}}}
 
 
