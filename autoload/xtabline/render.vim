@@ -533,7 +533,7 @@ fun! s:right_corner_label() abort
   let N = tabpagenr()
 
   if s:v.tabline_mode == 'tabs'
-    return s:v.custom_tabs && !empty(s:T().name)
+    return s:v.user_labels && !empty(s:T().name)
           \   ? s:T().name : s:F.short_cwd(N, 1)
 
   elseif s:v.tabline_mode == 'arglist'
@@ -541,7 +541,7 @@ fun! s:right_corner_label() abort
     return "%#XTNumSel# " . n .'/' . N . " "
 
   elseif s:v.tabline_mode == 'buffers'
-    return s:v.custom_tabs && !empty(s:T().name)
+    return s:v.user_labels && !empty(s:T().name)
           \ ? s:T().name : s:F.short_cwd(N, 1)
   endif
 endfun "}}}

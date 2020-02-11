@@ -540,7 +540,7 @@ endfun "}}}
 fun! s:toggle_tab_names() abort
   " Toggle between custom icon/name and short path/folder icons. "{{{1
 
-  let s:v.custom_tabs = !s:v.custom_tabs
+  let s:v.user_labels = !s:v.user_labels
   call xtabline#update()
 endfun "}}}
 

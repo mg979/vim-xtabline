@@ -39,7 +39,7 @@ com! -nargs=1         XTabRenameBuffer        call xtabline#cmds#run("rename_buf
 com!                  XTabResetTab            call xtabline#cmds#run("reset_tab")
 com!                  XTabResetBuffer         call xtabline#cmds#run("reset_buffer")
 com! -nargs=? -bang   XTabPaths               call xtabline#cmds#run("paths_style", <bang>0, <q-args>)
-com!                  XTabCustomLabels        call xtabline#cmds#run("toggle_tab_names")
+com!                  XTabToggleLabels        call xtabline#cmds#run("toggle_tab_names")
 com!                  XTabLock                call xtabline#cmds#run("lock_tab")
 com! -nargs=?         XTabPinBuffer           call xtabline#cmds#run("toggle_pin_buffer", <q-args>)
 com!                  XTabCycleMode           call xtabline#cmds#run("cycle_mode")

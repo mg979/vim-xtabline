@@ -63,7 +63,7 @@ fun! s:do_map() abort
   call s:mapkey_(X.'k',  'CleanUp')
   call s:mapkey_(X.'K',  'CleanUp!')
   call s:mapkey_(X.'d',  'Todo')
-  call s:mapkey_(X.'.',  'CustomLabels')
+  call s:mapkey_(X.'.',  'ToggleLabels')
   call s:mapkey_(X.'/',  'Filtering')
   call s:mapkey0(X.'+',  'Paths')
   call s:mapkey0(X.'-',  'Paths!')
@@ -117,7 +117,7 @@ fun! xtabline#maps#menu() abort
         \['+',    'Paths format (+)',             "XTabPaths"],
         \['/',    'Toggle filtering',             "XTabFiltering"],
         \['-',    'Paths format (-)',             "XTabPaths!"],
-        \['.',    'Toggle custom tabs',           "XTabCustomLabels"],
+        \['.',    'Toggle user labels',           "XTabToggleLabels"],
         \['', '', ''],
         \['', '', ''],
         \['', '', ''],

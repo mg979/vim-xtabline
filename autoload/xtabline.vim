@@ -10,7 +10,7 @@ let s:Sets = g:xtabline_settings
 
 let s:v.tab_properties = {}                     "if not empty, newly created tab will inherit them
 let s:v.buffer_properties = {}                  "if not empty, newly created tab will inherit them
-let s:v.custom_tabs    = 1                      "tabline shows custom names/icons
+let s:v.user_labels    = 1                      "tabline shows custom names/icons
 let s:v.halt           = 0                      "used to temporarily halt some functions
 
 let s:T  = { -> s:X.Tabs[tabpagenr()-1] }       "current tab
