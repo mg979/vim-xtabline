@@ -398,7 +398,7 @@ fun! s:hide_buffer(new) abort
 endfun "}}}
 
 
-fun! s:rename_tab(label) abort
+fun! s:name_tab(label) abort
   " Rename the current tab. "{{{1
   if empty(a:label) | return | endif
   let s:X.Tabs[tabpagenr()-1].name = a:label
@@ -406,7 +406,7 @@ fun! s:rename_tab(label) abort
 endfun "}}}
 
 
-fun! s:rename_buffer(label) abort
+fun! s:name_buffer(label) abort
   " Rename the current buffer. "{{{1
   if empty(a:label) | return | endif
   let B = s:F.set_buffer_var('name', a:label)
@@ -429,15 +429,14 @@ fun! s:get_icon(ico) abort
 endfun "}}}
 
 
-fun! s:tab_icon(...) abort
+fun! s:tab_icon(bang, icon) abort
   " Set an icon for this tab. "{{{1
 
-  let [ bang, icon ] = [ a:1, a:2 ]
   let T = s:T()
-  if bang
+  if a:bang
     let T.icon = ''
   else
-    let icon = s:get_icon(icon)
+    let icon = s:get_icon(a:icon)
     if !empty(icon)
       let T = s:T()
       let T.icon = icon
@@ -447,17 +446,16 @@ fun! s:tab_icon(...) abort
 endfun "}}}
 
 
-fun! s:buffer_icon(...) abort
+fun! s:buffer_icon(bang, icon) abort
   " Set an icon for this buffer. "{{{1
 
-  let [ bang, icon ] = [ a:1, a:2 ]
   let B = s:F.set_buffer_var('icon')
   if empty(B) | return | endif
 
-  if bang
+  if a:bang
     let B.icon = ''
   else
-    let icon = s:get_icon(icon)
+    let icon = s:get_icon(a:icon)
     if !empty(icon)
       let B.icon = icon
     endif
@@ -480,43 +478,6 @@ fun! s:toggle_pin_buffer(...) abort
   else
     call add(s:X.pinned_buffers, B)
   endif
-  call xtabline#update()
-endfun "}}}
-
-
-fun! s:move_tab(...) abort
-  " Move a tab to a new position. "{{{1
-
-  let max = tabpagenr("$") - 1 | let arg = a:1
-
-  let forward = arg[0] == '+' || empty(arg)
-  let backward = arg[0] == '-'
-  let bottom = arg[0] == '$'
-  let first = arg[0] == '0'
-
-  if ! (forward || backward || bottom || first)
-    return s:F.msg('Wrong arguments.', 1)
-  endif
-
-  "find destination index
-  let current = tabpagenr() - 1
-  let dest    = forward?  ( (current + 1) < max ? current + 1 : max ) :
-        \ backward? ( (current - 1) > 0   ? current - 1 : 0 ) :
-        \ bottom? max : 0
-
-  "rearrange tabs dicts
-  let this_tab = copy(s:T())
-  call remove(s:X.Tabs, current)
-  call insert(s:X.Tabs, this_tab, dest)
-
-  "define command range
-  let dest    = dest == max ? '$' :
-        \ dest == 0   ? '0' :
-        \ forward? '+' :
-        \ backward? '-' :
-        \ bottom? '$' : '0'
-
-  exe dest . "tabmove"
   call xtabline#update()
 endfun "}}}
 

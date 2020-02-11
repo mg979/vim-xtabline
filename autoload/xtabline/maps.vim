@@ -70,10 +70,10 @@ fun! s:do_map() abort
   call s:mapkey_(X.'?',  'Menu')
   call s:mapkeys(X.'T',  'Theme')
   call s:mapkey_(X.'tr', 'ResetTab')
-  call s:mapkeys(X.'ti', 'Icon')
-  call s:mapkeys(X.'tn', 'RenameTab')
-  call s:mapkeys(X.'bi', 'BufferIcon')
-  call s:mapkeys(X.'bn', 'RenameBuffer')
+  call s:mapkeys(X.'ti', 'IconTab')
+  call s:mapkeys(X.'tn', 'NameTab')
+  call s:mapkeys(X.'bi', 'IconBuffer')
+  call s:mapkeys(X.'bn', 'NameBuffer')
   call s:mapkey_(X.'br', 'ResetBuffer')
   call s:mapkey_(X.'bd', 'DeleteBuffers')
   call s:mapkey_(X.'tl', 'LoadTab')
@@ -143,8 +143,8 @@ fun! xtabline#maps#menu() abort
 
   let manage = [
         \['bd',   'Delete tab buffers',           "XTabDeleteBuffers"],
-        \['bi',   'Change buffer icon',           "XTabBufferIcon "],
-        \['bn',   'Rename buffer',                "XTabRenameBuffer "],
+        \['bi',   'Change buffer icon',           "XTabIconBuffer "],
+        \['bn',   'Name buffer',                  "XTabRenameBuffer "],
         \['br',   'Reset buffer',                 "XTabResetBuffer"],
         \['', '', ''],
         \['', '', ''],
@@ -155,9 +155,9 @@ fun! xtabline#maps#menu() abort
         \['', '', ''],
         \['', '', ''],
         \['td',   'Delete tab',                   "XTabDeleteTab"],
-        \['ti',   'Change tab icon',              "XTabIcon  "],
+        \['ti',   'Change tab icon',              "XTabIconTab "],
         \['tl',   'Load tab',                     "XTabLoadTab"],
-        \['tn',   'Rename tab',                   "XTabRenameTab "],
+        \['tn',   'Name tab',                     "XTabRenameTab "],
         \['tr',   'Reset tab',                    "XTabResetTab"],
         \['ts',   'Save tab',                     "XTabSaveTab"],
         \]

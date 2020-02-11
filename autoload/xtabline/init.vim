@@ -34,8 +34,8 @@ com!                  XTabPurge               call xtabline#cmds#run('purge_buff
 com!                  XTabReopen              call xtabline#cmds#run('reopen_last_tab')
 com!                  XTabCloseBuffer         call xtabline#cmds#run('close_buffer')
 com! -bang            XTabCleanUp             call xtabline#cmds#run('clean_up', <bang>0)
-com! -nargs=1         XTabRenameTab           call xtabline#cmds#run("rename_tab", <q-args>)
-com! -nargs=1         XTabRenameBuffer        call xtabline#cmds#run("rename_buffer", <q-args>)
+com! -nargs=1         XTabNameTab             call xtabline#cmds#run("name_tab", <q-args>)
+com! -nargs=1         XTabNameBuffer          call xtabline#cmds#run("name_buffer", <q-args>)
 com!                  XTabResetTab            call xtabline#cmds#run("reset_tab")
 com!                  XTabResetBuffer         call xtabline#cmds#run("reset_buffer")
 com! -nargs=? -bang   XTabPaths               call xtabline#cmds#run("paths_style", <bang>0, <q-args>)
@@ -45,7 +45,6 @@ com! -nargs=?         XTabPinBuffer           call xtabline#cmds#run("toggle_pin
 com!                  XTabCycleMode           call xtabline#cmds#run("cycle_mode")
 com!                  XTabFiltering           call xtabline#cmds#run("toggle_filtering")
 
-com! -nargs=?         XTabMove                call xtabline#cmds#run("move_tab", <q-args>)
 com!                  XTabMenu                call xtabline#maps#menu()
 com!                  XTabLast                call xtabline#cmds#run('goto_last_tab')
 
@@ -64,8 +63,8 @@ com!                  XTablineUpdate          call xtabline#update()
 com! -nargs=? -bang  -complete=dir                   XTabCD              call xtabline#dir#cd(<q-args>, <bang>0)
 com! -nargs=? -bang  -complete=dir                   XTabWD              call xtabline#dir#set('working', <bang>0, <q-args>)
 com! -nargs=? -bang  -complete=dir                   XTabLD              call xtabline#dir#set('window-local', <bang>0, <q-args>)
-com! -nargs=? -bang  -complete=customlist,<sid>icons XTabIcon            call xtabline#cmds#run("tab_icon", <bang>0, <q-args>)
-com! -nargs=? -bang  -complete=customlist,<sid>icons XTabBufferIcon      call xtabline#cmds#run("buffer_icon", <bang>0, <q-args>)
+com! -nargs=? -bang  -complete=customlist,<sid>icons XTabIconTab         call xtabline#cmds#run("tab_icon", <bang>0, <q-args>)
+com! -nargs=? -bang  -complete=customlist,<sid>icons XTabIconBuffer      call xtabline#cmds#run("buffer_icon", <bang>0, <q-args>)
 com! -nargs=? -bang  -complete=customlist,<sid>theme XTabTheme           call xtabline#hi#load_theme(<bang>0, <q-args>)
 
 if exists(':tcd') == 2

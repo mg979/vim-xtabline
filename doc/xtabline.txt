@@ -451,17 +451,13 @@ CUSTOMIZING TABS AND BUFFERS                          *xtabline-customization*
 You can customize tabs and buffers to give them a special name or icon.
 You can do this with the following commands:
 
-Command                Mapping~
-XTabRenameTab          *tn
-XTabRenameBuffer       *bn
-XTabIcon               *ti
-XTabBufferIcon         *bi
-XTabResetTab           *tr
-XTabResetBuffer        *br
-
-*XTabResetTab*        reset tab customizations
-*XTabRenameBuffer*    it doesn't rename the REAL buffer!
-*XTabResetBuffer*     reset buffer customization
+Command                Mapping    Note~
+XTabNameTab            *tn        custom label for tab
+XTabNameBuffer         *bn                     ... buffer
+XTabIconTab            *ti        icon for tab
+XTabIconBuffer         *bi             ... buffer
+XTabResetTab           *tr        remove label/icon for tab
+XTabResetBuffer        *br                          ... buffer
 
 ------------------------------------------------------------------------------
 
