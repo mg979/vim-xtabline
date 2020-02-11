@@ -400,7 +400,7 @@ endfun "}}}
 
 fun! s:rename_tab(label) abort
   " Rename the current tab. "{{{1
-
+  if empty(a:label) | return | endif
   let s:X.Tabs[tabpagenr()-1].name = a:label
   call xtabline#update()
 endfun "}}}
@@ -408,7 +408,7 @@ endfun "}}}
 
 fun! s:rename_buffer(label) abort
   " Rename the current buffer. "{{{1
-
+  if empty(a:label) | return | endif
   let B = s:F.set_buffer_var('name', a:label)
   if empty(B) | return | endif
   call xtabline#update()

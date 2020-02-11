@@ -590,7 +590,8 @@ fun! xtabline#fzf#session_save(new_session) abort
         \   ? '' : fnamemodify(v:this_session, ":t")
   let _desc = get(data, _name, '')
 
-  let name = input('Enter a name for this session: ', _name)
+  let _ = a:new_session ? 'the new' : 'this'
+  let name = input('Enter a name for '. _ .' session: ', _name)
 
   if empty(name)
     return s:F.msg("Session not saved.", 1)
@@ -627,6 +628,9 @@ endfun "}}}
 
 fun! s:tab_nerd_bookmarks() abort
   " List NERD bookmarks  {{{1
+  if !exists('g:NERDTreeBookmarksFile')
+    return
+  endif
   let bfile = readfile(g:NERDTreeBookmarksFile)
   let bookmarks = []
   "skip last emty line
