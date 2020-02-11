@@ -17,6 +17,8 @@ endfun
 " Commands
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
+com! -nargs=1 -bang -complete=customlist,<sid>cmds  XTab call xtabline#cmds#cmd(<bang>0, <q-args>)
+
 com!                  XTabListBuffers         call xtabline#fzf#list_buffers()
 com!                  XTabListTabs            call xtabline#fzf#list_tabs()
 com!                  XTabDeleteBuffers       call xtabline#fzf#delete_buffers()
@@ -79,6 +81,14 @@ endfun
 fun! s:theme(A,L,P) abort
   " Theme names completion.
   return filter(xtabline#themes#list(), 'v:val=~#a:A')
+endfun
+
+fun! s:cmds(A,L,P) abort
+  " Xtabline commands completion.
+  if !has_key(g:xtabline, 'commands')
+    let g:xtabline.commands = xtabline#cmds#init()
+  endif
+  return filter(keys(g:xtabline.commands), 'v:val=~#a:A')
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

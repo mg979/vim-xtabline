@@ -95,10 +95,70 @@ endfun "}}}
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 
+fun! xtabline#cmds#init()
+  " Initialize list of xtabline commands for XT completion.
+  return {
+        \ 'list_buffers':     'xtabline#fzf#list_buffers()',
+        \ 'list_tabs':        'xtabline#fzf#list_tabs()',
+        \ 'delete_buffers':   'xtabline#fzf#delete_buffers()',
+        \ 'load_session':     'xtabline#fzf#load_session()',
+        \ 'delete_session':   'xtabline#fzf#delete_session()',
+        \ 'load_tab':         'xtabline#fzf#load_tab()',
+        \ 'delete_tab':       'xtabline#fzf#delete_tab()',
+        \ 'nerd_bookmarks':   'xtabline#fzf#nerd_bookmarks()',
+        \ 'save_tab':         'xtabline#fzf#tab_save()',
+        \ 'save_session':     'xtabline#fzf#session_save(0)',
+        \ 'new_session':      'xtabline#fzf#session_save(1)',
+        \ 'todo':             's:tab_todo()',
+        \ 'purge':            's:purge_buffers()',
+        \ 'reopen':           's:reopen_last_tab()',
+        \ 'close_buffer':     's:close_buffer()',
+        \ 'clean_up':         's:clean_up(bang)',
+        \ 'name_tab':         's:name_tab(args)',
+        \ 'name_buffer':      's:name_buffer(args)',
+        \ 'reset_tab':        's:reset_tab(args)',
+        \ 'reset_buffer':     's:reset_buffer(args)',
+        \ 'paths':            's:paths_style(bang, args)',
+        \ 'toggle_labels':    's:toggle_tab_names()',
+        \ 'lock':             's:lock_tab()',
+        \ 'pin_buffer':       's:toggle_pin_buffer(args)',
+        \ 'cycle_mode':       's:cycle_mode()',
+        \ 'filtering':        's:toggle_filtering()',
+        \ 'menu':             'xtabline#maps#menu()',
+        \ 'next_buffer':      'xtabline#cmds#next_buffer(args, 0)',
+        \ 'prev_buffer':      'xtabline#cmds#prev_buffer(args, 0)',
+        \ 'last_buffer':      'xtabline#cmds#next_buffer(args, 1)',
+        \ 'first_buffer':     'xtabline#cmds#prev_buffer(args, 1)',
+        \ 'move_buffer_next': 's:move_buffer(1, args)',
+        \ 'move_buffer_prev': 's:move_buffer(0, args)',
+        \ 'move_buffer':      's:move_buffer_to(args)',
+        \ 'hide_buffer':      's:hide_buffer(args)',
+        \ 'last_tab':         's:goto_last_tab()',
+        \ 'info':             'xtabline#dir#info()',
+        \ 'update':           'xtabline#update()',
+        \ }
+endfun
+
+fun! xtabline#cmds#cmd(bang, ...) abort
+  " Command entry point. "{{{1
+  if !has_key(g:xtabline, 'commands')
+    let g:xtabline.commands = xtabline#cmds#init()
+  endif
+  let bang = a:bang
+  let all = split(a:1)
+  let cmd = all[0]
+  let args = join(all[1:], ',')
+  exe 'call' s:X.commands[cmd]
+endfun " }}}
+
+
 fun! xtabline#cmds#run(cmd, ...) abort
   " Command entry point. "{{{1
   let args = a:0 ? join(map(copy(a:000), 'string(v:val)'), ',') : ''
   exe "call s:".a:cmd."(".args.")"
+  echohl WarningMsg
+  echo '[xtabline] deprecated command, use XTab {COMMAND}'
+  echohl None
 endfun " }}}
 
 
