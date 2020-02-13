@@ -41,7 +41,7 @@ let s:Themes = {}
 let s:fill_dark = [ 248, 233, '#a9a9a9',   '#171717', 0 ]
 let s:fill_lite = [ 231, 241, '#f8f8f2',   '#616161', 0 ]
 let s:tm_dark   = [ 241, 236, '#666666',   '#2d2d2d', 0 ]
-let s:tm_lite   = [ 252, 241, '#cccccc',   '#666666', 0 ]
+let s:tm_lite   = [ 252, 242, '#cccccc',   '#666666', 0 ]
 let s:bg        = { c1, c2 -> &background=='light' ? c1 : c2 }
 
 let s:Themes.seoul = { -> {
@@ -96,18 +96,18 @@ let s:Themes.dracula = { -> {
 
 
 let s:Themes.molokai = { -> {
-      \"XTSelect":      [ 235, 185, '#e6db74',   '#616161', 0 ],
-      \"XTSelectMod":   [ 235, 185, '#ff0000',   '#616161', 0 ],
-      \"XTVisible":     [ 185, 235, '#e6db74',   '#444444', 1 ],
-      \"XTVisibleMod":  [ 160, 235, '#ff0000',   '#444444', 1 ],
+      \"XTSelect":      [ 185, 241, '#e6db74',   '#616161', 0 ],
+      \"XTSelectMod":   [ 9,   241, '#ff0000',   '#616161', 0 ],
+      \"XTVisible":     [ 185, 238, '#e6db74',   '#444444', 1 ],
+      \"XTVisibleMod":  [ 9,   238, '#ff0000',   '#444444', 1 ],
       \"XTHidden":      [ 248, 236, '#a9a9a9',   '#333333', 0 ],
-      \"XTHiddenMod":   [ 160, 236, '#ff0000',   '#333333', 0 ],
+      \"XTHiddenMod":   [ 9,   236, '#ff0000',   '#333333', 0 ],
       \"XTExtra":       [ 197, 235, '#f92672',   '#232526', 1 ],
-      \"XTExtraMod":    [ 160, 235, '#e6db74',   '#232526', 1 ],
-      \"XTSpecial":     [ 244, 84,  '#808080',   '#50fa7b', 0 ],
+      \"XTExtraMod":    [ 185, 235, '#e6db74',   '#232526', 1 ],
+      \"XTSpecial":     [ 8,   84,  '#808080',   '#50fa7b', 0 ],
       \"XTNumSel":      [ 235, 185, '#232526',   '#e6db74', 1 ],
       \"XTNum":         [ 185, 235, '#e6db74',   '#232526', 0 ],
-      \"XTCorner":      [ 185, 235, '#e6db74',   '#444444', 1 ],
+      \"XTCorner":      [ 185, 238, '#e6db74',   '#444444', 1 ],
       \"XTFill":        s:bg(s:fill_lite, [ 248, 235, '#a9a9a9', '#232526', 0 ]),
       \}}
 
@@ -130,7 +130,7 @@ let s:Themes.codedark = { -> {
 
 
 let s:Themes.slate = { -> {
-      \"XTSelect":      [ 221, 234, '#f2c38f',   '#1e1e1e', 1 ],
+      \"XTSelect":      [ 223, 234, '#f2c38f',   '#1e1e1e', 1 ],
       \"XTSelectMod":   [ 160, 234, '#cf0000',   '#1e1e1e', 1 ],
       \"XTVisible":     [ 39,  234, '#569cd6',   '#1e1e1e', 1 ],
       \"XTVisibleMod":  [ 160, 234, '#cf0000',   '#1e1e1e', 1 ],
