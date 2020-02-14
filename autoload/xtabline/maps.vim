@@ -2,9 +2,10 @@
 " Mappings
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:do_map() abort
-  let S = g:xtabline_settings
-  let X = S.map_prefix
+fun! s:xtabline_base_mappings() abort
+  if !hasmapto('<Plug>(XT-Select-Buffer)')
+    silent! nmap <BS> <Plug>(XT-Select-Buffer)
+  endif
 
   fun! s:mapkey_(keys, cmd) abort
     let cmd = ':<c-u>XTab'.a:cmd.'<CR>'
@@ -34,14 +35,6 @@ fun! s:do_map() abort
     endif
   endfun
 
-  if !hasmapto('<Plug>(XT-Select-Buffer)')
-    silent! nmap <BS> <Plug>(XT-Select-Buffer)
-  endif
-
-  if maparg(X, 'n') == ''
-    exe 'nnoremap' X '<Nop>'
-  endif
-
   call s:mapkey_('<F5>', 'CycleMode')
   call s:mapkeyc(']b',   'NextBuffer')
   call s:mapkeyc('[b',   'PrevBuffer')
@@ -49,6 +42,17 @@ fun! s:do_map() abort
   call s:mapkey_('cdw',  'WD')
   call s:mapkey_('cd?',  'Info')
   call s:mapkey_('cdl',  'LD')
+
+  if exists(':tcd') == 2
+    call s:mapkey_('cdt',  'TD')
+  endif
+endfun
+
+
+fun! s:xtabline_prefix_mappings() abort
+  let S = g:xtabline_settings
+  let X = substitute(S.map_prefix, '<leader>', get(g:, 'mapleader', '\'), 'g')
+
   call s:mapkey_(X.'q',  'CloseBuffer')
   call s:mapkey_(X.'a',  'ListTabs')
   call s:mapkey_(X.'z',  'ListBuffers')
@@ -84,9 +88,8 @@ fun! s:do_map() abort
   call s:mapkey_(X.'sd', 'DeleteSession')
   call s:mapkey_(X.'sn', 'NewSession')
 
-  if exists(':tcd') == 2
-    call s:mapkey_('cdt',  'TD')
-  endif
+  exe 'nnoremap' X '<Nop>'
+  call feedkeys(X)
 endfun
 
 
@@ -94,76 +97,82 @@ function! xtabline#maps#init()
   nnoremap <unique> <silent> <expr> <Plug>(XT-Select-Buffer) v:count
         \ ? xtabline#cmds#select_buffer(v:count-1)
         \ : ":\<C-U>".g:xtabline_settings.select_buffer_alt_action."\<cr>"
-  if g:xtabline_settings.enable_mappings | call s:do_map() | endif
+  if g:xtabline_settings.enable_mappings
+    call s:xtabline_base_mappings()
+    let x = g:xtabline_settings.map_prefix
+    if empty(mapcheck(x, 'n'))
+      exe 'nnoremap <silent>' x ':<c-u>call <sid>xtabline_prefix_mappings()<cr>'
+    endif
+  endif
 endfunction
 
 
 fun! xtabline#maps#menu() abort
   let basic = [
-        \['<F5>', 'Cycle mode',                   "XTabCycleMode"],
-        \[']b',   'Next Buffer',                  "XTabNextBuffer"],
-        \['[b',   'Prev Buffer',                  "XTabPrevBuffer"],
+        \['<F5>', 'Cycle mode'],
+        \[']b',   'Next Buffer'],
+        \['[b',   'Prev Buffer'],
         \]
 
   let cd = [
-        \['cdw',  'Working directory',            "XTabWD"],
-        \['cd?',  'Directory info',               "XTabInfo"],
-        \['cdl',  'Window-local directory',       "XTabLD"],
-        \['cdc',  'Cd to current directory',      "XTabCD"],
+        \['cdw',  'Working directory'],
+        \['cd?',  'Directory info'],
+        \['cdl',  'Window-local directory'],
+        \['cdc',  'Cd to current directory'],
         \]
 
   let leader = [
-        \['\',    'Go to last tab',               "XTabLastTab"],
-        \['+',    'Paths format (+)',             "XTabPaths"],
-        \['/',    'Toggle filtering',             "XTabFiltering"],
-        \['-',    'Paths format (-)',             "XTabPaths!"],
-        \['.',    'Toggle user labels',           "XTabToggleLabels"],
-        \['', '', ''],
-        \['', '', ''],
-        \['', '', ''],
-        \['a',    'List tabs',                    "XTabListTabs"],
-        \[']',    'Move buffer forwards',         "XTabMoveBufferNext"],
-        \['z',    'List buffers',                 "XTabListBuffers"],
-        \['[',    'Move buffer backwards',        "XTabMoveBufferPrev"],
-        \['', '', ''],
-        \['', '', ''],
-        \['m',    'Move buffer to...',            "XTabMoveBuffer"],
-        \['h',    'Hide buffer',                  "XTabHideBuffer"],
-        \['q',    'Close buffer',                 "XTabCloseBuffer"],
-        \['u',    'Reopen last tab',              "XTabReopen"],
-        \['p',    'Pin buffer',                   "XTabPinBuffer"],
-        \['d',    'Tab todo',                     "XTabTodo"],
-        \['', '', ''],
-        \['', '', ''],
-        \['k',    'Clean up tabs',                "XTabCleanUp"],
-        \['x',    'Purge tab',                    "XTabPurge"],
-        \['K',    'Clean up! tabs',               "XTabCleanUp!"],
-        \['T',    'Select theme',                 "XTabTheme  "],
+        \['\',    'Go to last tab'],
+        \['+',    'Paths format (+)'],
+        \['/',    'Toggle filtering'],
+        \['-',    'Paths format (-)'],
+        \['.',    'Toggle user labels'],
+        \['', ''],
+        \['', ''],
+        \['', ''],
+        \['a',    'List tabs'],
+        \[']',    'Move buffer forwards'],
+        \['z',    'List buffers'],
+        \['[',    'Move buffer backwards'],
+        \['', ''],
+        \['', ''],
+        \['m',    'Move buffer to...'],
+        \['h',    'Hide buffer'],
+        \['q',    'Close buffer'],
+        \['u',    'Reopen last tab'],
+        \['p',    'Pin buffer'],
+        \['d',    'Tab todo'],
+        \['', ''],
+        \['', ''],
+        \['k',    'Clean up tabs'],
+        \['x',    'Purge tab'],
+        \['K',    'Clean up! tabs'],
+        \['T',    'Select theme'],
         \]
 
   let manage = [
-        \['bd',   'Delete tab buffers',           "XTabDeleteBuffers"],
-        \['bi',   'Change buffer icon',           "XTabIconBuffer "],
-        \['bn',   'Name buffer',                  "XTabRenameBuffer "],
-        \['br',   'Reset buffer',                 "XTabResetBuffer"],
-        \['', '', ''],
-        \['', '', ''],
-        \['sd',   'Delete session',               "XTabDeleteSession"],
-        \['sl',   'Load session',                 "XTabLoadSession"],
-        \['sn',   'New session',                  "XTabNewSession"],
-        \['ss',   'Save session',                 "XTabSaveSession"],
-        \['', '', ''],
-        \['', '', ''],
-        \['td',   'Delete tab',                   "XTabDeleteTab"],
-        \['ti',   'Change tab icon',              "XTabIconTab "],
-        \['tl',   'Load tab',                     "XTabLoadTab"],
-        \['tn',   'Name tab',                     "XTabRenameTab "],
-        \['tr',   'Reset tab',                    "XTabResetTab"],
-        \['ts',   'Save tab',                     "XTabSaveTab"],
+        \['bd',   'Delete tab buffers'],
+        \['bi',   'Change buffer icon'],
+        \['bn',   'Name buffer'],
+        \['br',   'Reset buffer'],
+        \['', ''],
+        \['', ''],
+        \['sd',   'Delete session'],
+        \['sl',   'Load session'],
+        \['sn',   'New session'],
+        \['ss',   'Save session'],
+        \['', ''],
+        \['', ''],
+        \['td',   'Delete tab'],
+        \['ti',   'Change tab icon'],
+        \['tl',   'Load tab'],
+        \['tn',   'Name tab'],
+        \['tr',   'Reset tab'],
+        \['ts',   'Save tab'],
         \]
 
   if exists(':tcd') == 2
-    call insert(cd, ['cdt', 'Tab-local directory', "XTabTD"], 1)
+    call insert(cd, ['cdt', 'Tab-local directory'], 1)
   endif
 
   let X = substitute(g:xtabline_settings.map_prefix, '<leader>', get(g:, 'mapleader', '\'), 'g')
@@ -190,4 +199,4 @@ fun! xtabline#maps#menu() abort
 endfun
 
 
-" vim: et sw=2 ts=2 sts=2 fdm=indent
+" vim: et sw=2 ts=2 sts=2 fdm=indent fdn=1
