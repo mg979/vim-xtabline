@@ -6,7 +6,6 @@ let s:Sets = g:xtabline_settings
 
 
 fun! xtabline#hi#init() abort
-  let s:last_theme = s:Sets.theme
   call xtabline#hi#apply_theme(s:Sets.theme)
 endfun
 
@@ -17,7 +16,7 @@ fun! xtabline#hi#apply_theme(theme) abort
   call s:clear_groups()
 
   if a:theme == 'default'
-    let s:last_theme = a:theme
+    let s:Sets.theme = a:theme
     return s:Hi.themes.default()
   endif
 
@@ -36,7 +35,6 @@ fun! xtabline#hi#apply_theme(theme) abort
   endfor
 
   let s:Sets.theme = a:theme
-  let s:last_theme = a:theme
 endfun
 
 
@@ -45,9 +43,9 @@ fun! xtabline#hi#load_theme(bang, theme) abort
   if !empty(a:theme)
     call xtabline#hi#apply_theme(a:theme)
   elseif a:bang
-    call xtabline#hi#apply_theme(s:last_theme)
+    call xtabline#hi#apply_theme(s:Sets.theme)
   else
-    echo "[xtabline] " | echohl WarningMsg | echon "No theme specified." | echohl None
+    echo "[xtabline] current theme is" s:Sets.theme
   endif
 endfun
 
@@ -90,10 +88,9 @@ endfun
 fun! xtabline#hi#update_theme() abort
   " Reload theme on colorscheme switch.
   try
-    if g:xtabline_settings.theme == s:last_theme
-      call xtabline#hi#apply_theme(g:xtabline_settings.theme)
-    endif
+    call xtabline#hi#apply_theme(g:xtabline_settings.theme)
   catch
+    call xtabline#hi#apply_theme('default')
   endtry
 endfun
 
