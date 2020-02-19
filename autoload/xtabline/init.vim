@@ -112,6 +112,7 @@ let s:S = {
       \ 'last_open_first':            0,
       \ 'enable_mappings':            1,
       \ 'no_icons':                   0,
+      \ 'special_tabs':               0,
       \ 'buffers_paths':              1,
       \ 'current_tab_paths':          1,
       \ 'other_tabs_paths':           1,

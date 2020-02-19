@@ -68,10 +68,7 @@ fun! s:render_tabs() abort
   let labels = range(1, tabpagenr('$'))
 
   for tnr in labels
-    let hi     = tnr == tabpagenr() ? 'Select' : 'Hidden'
-    let label  = '%' . tnr . 'T' . s:format_tab_label(tnr)
-
-    call add(tabs, {'label': label, 'nr': tnr, 'hilite': hi})
+    call add(tabs, s:format_tab_label(tnr))
   endfor
 
   return s:fit_tabline(center, tabs)
@@ -350,18 +347,21 @@ endfun "}}}
 " Tab label formatting
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:format_tab_label(tabnr) abort
+fun! s:format_tab_label(tnr) abort
   " Format the tab label in 'tabs' mode {{{1
   "
-  " @param tabnr: the tab's number
-  " Returns: the formatted tab label
+  " @param tnr: the tab's number
+  " Returns: a tab 'object' with label and highlight groups
 
-  let nr    = s:tab_num(a:tabnr)
-  let icon  = s:get_tab_icon(a:tabnr, 0)
-  let mod   = s:tab_mod_flag(a:tabnr, 0)
-  let label = s:tab_label(a:tabnr)
+  let nr    = '%' . a:tnr . 'T' . s:tab_num(a:tnr)
+  let hi    = s:tab_hi(a:tnr)
+  let icon  = s:get_tab_icon(a:tnr, 0)
+  let label = s:tab_label(a:tnr)
+  let mod   = s:tab_mod_flag(a:tnr, 0)
 
-  return printf("%s %s%s %s", nr, icon, label, mod)
+  let label = printf("%s %%#XT%s# %s%s %s", nr, hi, icon, label, mod)
+
+  return {'label': label, 'nr': a:tnr, 'hilite': hi}
 endfun "}}}
 
 fun! s:tab_num(tabnr) abort
@@ -374,29 +374,39 @@ fun! s:tab_num(tabnr) abort
     return "%#XTNumSel# " . a:tabnr .'/' . tabpagenr('$')
   else
     return a:tabnr == tabpagenr() ?
-          \   "%#XTNumSel# " . a:tabnr . " %#XTSelect#"
-          \ : "%#XTNum# "    . a:tabnr . " %#XTHidden#"
+          \   "%#XTNumSel# " . a:tabnr
+          \ : "%#XTNum# "    . a:tabnr
   endif
 endfun "}}}
 
-fun! s:tab_mod_flag(tabnr, corner) abort
-  " Flag for the 'modified' state for a tab label. {{{1
-  "
-  " @param tabnr:  the tab number
-  " @param corner: if the flag is for the right corner
-  " Returns: the formatted flag
+fun! s:tab_hi(tnr) abort
+  " The highlight group for the tab label {{{1
+  let special = s:Sets.special_tabs && s:is_special(s:tab_buffer(a:tnr))
+  return a:tnr == tabpagenr() ? special ? 'Special' : 'Select' : 'Hidden'
+endfun "}}}
 
-  let flag = s:Sets.indicators.modified
-  for buf in tabpagebuflist(a:tabnr)
-    if getbufvar(buf, "&mod")
-      return a:corner
-            \ ? "%#XTVisibleMod#" . flag
-            \ : a:tabnr == tabpagenr()
-            \   ? "%#XTSelectMod#" . flag . ' '
-            \   : "%#XTHiddenMod#" . flag . ' '
-    endif
-  endfor
-  return ""
+fun! s:get_tab_icon(tabnr, right_corner) abort
+  " The icon for the tab label. {{{1
+  "
+  " @param tabnr: the tab number
+  " @param right_corner: if it's for the right corner
+  " Returns: the icon
+
+  if !empty(get(s:Tn(a:tabnr), 'icon', ''))
+    return s:Tn(a:tabnr).icon . ' '
+  endif
+
+  if a:right_corner
+    let icon = s:Sets.tab_icon
+
+  else
+    let bnr  = s:tab_buffer(a:tabnr)
+    let B    = s:buf(bnr)
+    let buf  = {'nr': bnr, 'icon': B.icon, 'name': B.name}
+    let icon = s:get_buf_icon(buf)
+  endif
+
+  return type(icon) == v:t_string ? icon : icon[a:tabnr != tabpagenr()] . ' '
 endfun "}}}
 
 fun! s:tab_label(tnr) abort
@@ -447,28 +457,24 @@ fun! s:tab_label(tnr) abort
   endif
 endfun " }}}
 
-fun! s:get_tab_icon(tabnr, right_corner) abort
-  " The icon for the tab label. {{{1
+fun! s:tab_mod_flag(tabnr, corner) abort
+  " Flag for the 'modified' state for a tab label. {{{1
   "
-  " @param tabnr: the tab number
-  " @param right_corner: if it's for the right corner
-  " Returns: the icon
+  " @param tabnr:  the tab number
+  " @param corner: if the flag is for the right corner
+  " Returns: the formatted flag
 
-  if !empty(get(s:Tn(a:tabnr), 'icon', ''))
-    return s:Tn(a:tabnr).icon . ' '
-  endif
-
-  if a:right_corner
-    let icon = s:Sets.tab_icon
-
-  else
-    let bnr  = s:tab_buffer(a:tabnr)
-    let B    = s:buf(bnr)
-    let buf  = {'nr': bnr, 'icon': B.icon, 'name': B.name}
-    let icon = s:get_buf_icon(buf)
-  endif
-
-  return type(icon) == v:t_string ? icon : icon[a:tabnr != tabpagenr()] . ' '
+  let flag = s:Sets.indicators.modified
+  for buf in tabpagebuflist(a:tabnr)
+    if getbufvar(buf, "&mod")
+      return a:corner
+            \ ? "%#XTVisibleMod#" . flag
+            \ : a:tabnr == tabpagenr()
+            \   ? "%#XTSelectMod#" . flag . ' '
+            \   : "%#XTHiddenMod#" . flag . ' '
+    endif
+  endfor
+  return ""
 endfun "}}}
 
 

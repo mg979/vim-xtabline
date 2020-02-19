@@ -540,6 +540,14 @@ The number of buffers that can be shown in the tabline is limited (by default)
 to the 10 most recently accessed buffers.
 
 
+------------------------------------------------------ *xtabline-special_tabs*
+>
+    let g:xtabline_settings.special_tabs = 0
+
+In |tabs-mode|, special buffers don't have a special highlighting by default.
+Set to 1 if you want it also in tabs mode.
+
+
 --------------------------------------------------- *xtabline-last_open_first*
 >
     let g:xtabline_settings.last_open_first = 0
