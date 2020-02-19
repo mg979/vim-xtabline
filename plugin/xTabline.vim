@@ -46,6 +46,10 @@ if get(g:, 'xtabline_lazy', 0)
     au TabNew,SessionLoadPost,BufAdd * call xtabline#init#start()
   augroup END
 
+  if empty(mapcheck('<bs>', 'n'))
+    nnoremap <expr> <BS> v:count ? ":\<C-u>b ".v:count . "\e" : ":ls\<cr>:b\<space>"
+  endif
+
   " setup a temporary tabline
   if empty(&tabline)
     fun! Bufline()
