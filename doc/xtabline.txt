@@ -13,9 +13,9 @@ XTABLINE - TABLE OF CONTENTS                                        *xtabline*
   Tab working directories                        |xtabline-directories|
   Tab commands                                   |xtabline-tabs|
   Tab buffers                                    |xtabline-buffers|
+  Rename tabs and buffers                        |xtabline-rename|
   Session management                             |xtabline-sessions|
   Other commands                                 |xtabline-other|
-  Customizing tabs and buffers                   |xtabline-customization|
   Settings                                       |xtabline-settings|
   Other options                                  |xtabline-options|
   Additional notes                               |xtabline-notes|
@@ -32,7 +32,8 @@ This plugin tries to give you full control on the tabline:
 * buffer filtering on the base of the CWD (also local)
 * three tabline modes: tabs, (filtered) buffers, |arglist|
 * limit rendered buffers to the N most recently accessed (default 10)
-* optional persistance in sessions
+* rename tabs and/or buffers, and assign them icons
+* optional persistance in sessions (for custom names and icons)
 
 More features:
 
@@ -60,6 +61,7 @@ The main features of the plugin are:
 
 - custom tabline rendering    |xtabline-rendering|
 - buffer filtering            |xtabline-buffer_filtering|
+- rename tabs/buffers         |xtabline-rename|
 - tabs management             |xtabline-manage|
 - sessions management         |xtabline-sessions|
 
@@ -71,10 +73,12 @@ Buffer filtering makes sense if per-tab CWD is being used, either via |:tcd|
 or |:lcd|. It means that in the tabline, only buffers that are valid for the
 tab's CWD will be listed.
 
+You can rename tabs/buffers, and assing them custom icons.
+|vim-obsession| is recommended for (optional) persistance.
+
 The last two are a series of commands that allow you to save/restore tabs and
 sessions.
 
-|vim-obsession| {1} is recommended for persistance.
 
 
 
@@ -254,10 +258,10 @@ Mappings and commands are provided to set a tab's working directory.
 If the command is used with <bang>, directory prompt is skipped.
 
 Command          Mapping~
-*XTabWD* [!] <dir>  cdw     Set the tab CWD
-*XTabLD* [!] <dir>  cdl     Set a window-local WD
-*XTabTD* [!] <dir>  cdt     Set a tab-local WD
-*XTabCD* [!] <dir>  cdc     |:cd| to dir of open buffer, or <count> down
+*XTabWD* [!] [dir]  cdw     Set the tab CWD
+*XTabLD* [!] [dir]  cdl     Set a window-local WD
+*XTabTD* [!] [dir]  cdt     Set a tab-local WD
+*XTabCD* [!] [dir]  cdc     |:cd| to dir of open buffer, or <count> down
 *XTabInfo*          cd?     show current cwd (global/local/tab), git dir, tags
 
 Note that |:tcd| is only available in neovim and the most recent vim versions
@@ -271,21 +275,16 @@ TAB COMMANDS                                                   *xtabline-tabs*
 ==============================================================================
 
 
-Command                Mapping~
-XTabLast               *\
-XTabReopen             *u
+Command                Mapping    Notes~
+*XTabLast*               *\         brings you back to the last visited tab
+*XTabReopen*             *u         reopen a previosly closed tab
 
-*XTabLast*    brings you back to the last visited tab
-*XTabReopen*  reopen a previosly closed tab
-
-
-Command                Mapping~
-XTabListTabs           *a           (mnemonic: 'all tabs')
-XTabListBuffers        *z           (mnemonic: just below previous)
-XTabLoadTab            *tl
-XTabSaveTab            *ts
-XTabDeleteTab          *td
-XTabDeleteBuffers      *bd
+*XTabListTabs*           *a         (mnemonic: 'all tabs')
+*XTabListBuffers*        *z         (mnemonic: just below previous)
+*XTabLoadTab*            *tl
+*XTabSaveTab*            *ts
+*XTabDeleteTab*          *td
+*XTabDeleteBuffers*      *bd
 
 Saved tabs are stored in `$HOME/.vim/.XTablineTabs`.
 
@@ -364,14 +363,32 @@ considered valid for the current tab.
 
 
 
+RENAME TABS AND BUFFERS                                      *xtabline-rename*
+==============================================================================
+
+You can customize tabs and buffers to give them a special name or icon.
+You can do this with the following commands:
+
+Command                Mapping    Notes~
+*XTabNameTab*            *tn        custom label for tab
+*XTabNameBuffer*         *bn                     ... buffer
+*XTabIconTab*            *ti        icon for tab
+*XTabIconBuffer*         *bi             ... buffer
+*XTabResetTab*           *tr        remove label/icon for tab
+*XTabResetBuffer*        *br                          ... buffer
+*XTabToggleLabels*       *.         visibility of custom names/icons
+
+
+
+
 SESSION MANAGEMENT                                         *xtabline-sessions*
 ==============================================================================
 
 Command                Mapping ~
-XTabLoadSession        *sl
-XTabSaveSession        *ss
-XTabDeleteSession      *sd
-XTabNewSession         *sn
+*XTabLoadSession*        *sl
+*XTabSaveSession*        *ss
+*XTabDeleteSession*      *sd
+*XTabNewSession*         *sn
 
 Descriptions are saved in `$HOME/.vim/.XTablineSessions`.
 
@@ -388,24 +405,14 @@ the description and the symbol `[%]` that marks the active session (if any).
 
 
 
-OTHER COMMANDS                                                *xtabline-other*
+BUFFERS CLEAN-UP                                           *xtabline-clean-up*
 ==============================================================================
 
 Command                Mapping~
-XTabToggleLabels       *.
 XTabPurge              *x
 XTabCleanUp            *k
 XTabCleanUp!           *K
-XTabTodo               *d
-XTabTheme              *T
 
-*XTabNERDBookmarks*   opens the list of |NERDTreeBookmarks|
-*XTabToggleLabels*    toggles visibility of tab customizations (name, icon)
-
-
-------------------------------------------------------------------------------
-
-BUFFERS CLEAN-UP                                           *xtabline-clean-up*
 
 *XTabPurge*
 
@@ -422,11 +429,17 @@ With a bang, it also deletes tab buffers, leaving only the currently open
 windows/buffers for each tab.
 
 
-------------------------------------------------------------------------------
 
-TAB-TODO                                                   *xtabline-tab-todo*
 
-This command opens a todo file at the tab's CWD.
+OTHER COMMANDS                                                *xtabline-other*
+==============================================================================
+
+Command                Mapping    Notes~
+*XTabTodo*               *d
+*XTabTheme*  [theme]     *T
+*XTabNERDBookmarks*
+
+Th |XTabTodo| command opens a todo file at the tab's CWD.
 
 Inside the todo buffer, `\q` does |:update| and closes the buffer.
 
@@ -439,63 +452,10 @@ You can define the filename and other options:
 `command` : eg. `below 20sp`, `vs`, `edit`, etc, check |opening-window|
 `syntax`  : the filetype that will be assigned
 
-------------------------------------------------------------------------------
 
+|XTabTheme| prints the current theme, or sets the given one.
 
-
-
-
-CUSTOMIZING TABS AND BUFFERS                          *xtabline-customization*
-==============================================================================
-
-You can customize tabs and buffers to give them a special name or icon.
-You can do this with the following commands:
-
-Command                Mapping    Note~
-XTabNameTab            *tn        custom label for tab
-XTabNameBuffer         *bn                     ... buffer
-XTabIconTab            *ti        icon for tab
-XTabIconBuffer         *bi             ... buffer
-XTabResetTab           *tr        remove label/icon for tab
-XTabResetBuffer        *br                          ... buffer
-
-------------------------------------------------------------------------------
-
-You can also do it in a more automated way.
-
-For `tabs`, you should use the function `xtabline#tab#set`( tabnr, opts )
-Example:
->
-  call xtabline#tab#set( 1, {'name': 'MyTab', 'icon': '@'} )
-
-------------------------------------------------------------------------------
-
-For `buffers`, you should use the function `xtabline#buffer#set`( nr, opts )
-For example in a |ftplugin|:
->
-  if exists('g:loaded_xtabline')
-    let opts         = {}
-    let opts.name    = 'MyBuffer'
-    let opts.icon    = '#'
-    " for scratch buffers, this is needed!
-    let opts.special = 1
-    call xtabline#buffer#set(bufnr(''), opts)
-  endif
-
-------------------------------------------------------------------------------
-
-You can also lock a tab, so that only certain buffers will be visible
->
-  xtabline#tab#lock( tabnr, [buffers for tab], {tab options})
-
-Example:
->
-  call xtabline#tab#lock(tabpagenr(), [bufnr('')], {'name': 'MyTab', 'icon': '^'})
-
-------------------------------------------------------------------------------
-
-
-
+|XTabNERDBookmarks| opens the list of |NERDTreeBookmarks| with fzf.
 
 
 
@@ -672,6 +632,46 @@ and can be used in other contexts (special buffers icon).
       \'lens': '🔍',
       \'flag': '🏁',
       \}
+
+
+
+
+FUNCTIONS                                                 *xtabline-functions*
+==============================================================================
+
+
+You can customize tabs/buffers through functions.
+
+For `tabs`, you can use the function `xtabline#tab#set( tabnr, opts )`
+Example:
+>
+  call xtabline#tab#set( 1, {'name': 'MyTab', 'icon': '@'} )
+
+------------------------------------------------------------------------------
+
+For `buffers`, you should use the function `xtabline#buffer#set`( nr, opts )
+For example in a |ftplugin|:
+>
+  if exists('g:loaded_xtabline')
+    let opts         = {}
+    let opts.name    = 'MyBuffer'
+    let opts.icon    = '#'
+    " scratch buffers must be flagged as special or they will be ignored
+    let opts.special = 1
+    call xtabline#buffer#set(bufnr(''), opts)
+  endif
+
+------------------------------------------------------------------------------
+
+You can also lock a tab, so that only certain buffers will be visible
+>
+  xtabline#tab#lock( tabnr, [buffers for tab], {tab options})
+
+Example:
+>
+  call xtabline#tab#lock(tabpagenr(), [bufnr('')], {'name': 'MyTab', 'icon': '^'})
+
+
 
 
 

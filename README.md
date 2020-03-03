@@ -29,7 +29,8 @@ This plugin tries to give you full control on the tabline:
 * buffer filtering on the base of the CWD (also local)
 * three tabline modes: tabs, (filtered) buffers, arglist
 * limit rendered buffers to the N most recently accessed (default 10)
-* optional persistance in sessions
+* rename tabs and/or buffers, and assign them icons
+* optional persistance in sessions (for custom names and icons)
 
 More features:
 
@@ -72,17 +73,20 @@ which modes to cycle with a setting.
 Other features, besides the tabline rendering, are:
 
 - buffer filtering
+- rename tabs/buffers
 - tabs management
 - sessions management
 
 *Buffer filtering* means that in *buffer-mode*, only buffers that are valid for
 the tab's CWD will be listed.
 
+You can rename tabs/buffers, and assing them custom icons.
+[vim-obsession](https://github.com/tpope/vim-obsession) is recommended for (optional) persistance.
+
 The last two are a series of commands that allow you to save/restore tabs and
 sessions, using a fuzzy finder ([fzf-vim](https://github.com/junegunn/fzf.vim)
 or a built-in one).
 
-[vim-obsession](https://github.com/tpope/vim-obsession) is recommended for persistance.
 
 ----------------------------------------------------------------------------
  
