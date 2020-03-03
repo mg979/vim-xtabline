@@ -175,11 +175,11 @@ TABLINE MODES                                                 *xtabline-modes*
 ==============================================================================
 
 Command                Mapping~
-XTabCycleMode           <F5>
+XTabMode [mode]        <F5>
 XTabFiltering           *f
 
-*XTabCycleMode*     will cycle the tabline among the modes defined by the
-                  |xtabline-tabline_modes| setting.
+*XTabMode*          will cycle the tabline among the modes defined by the
+                  |xtabline-tabline_modes| setting, or set the chosen mode.
 
 *XTabFiltering*     will toggle buffer filtering, based on either the tab's
                   CWD or base directory.

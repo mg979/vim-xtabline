@@ -102,15 +102,30 @@ fun! xtabline#cmds#run(cmd, ...) abort
 endfun " }}}
 
 
-fun! s:cycle_mode() abort
+fun! s:change_mode(mode) abort
   " Cycle the active tabline mode. "{{{1
 
-  let modes = copy(s:Sets.tabline_modes)
+  if !empty(a:mode)
+    if index(['tabs', 'buffers', 'arglist'], a:mode) >= 0
+      let modes = [a:mode]
+    else
+      return s:F.msg('[xtabline] wrong mode', 1)
+    endif
+  else
+    let modes = copy(s:Sets.tabline_modes)
+  endif
 
   " only allow arglist as mode, if the arglist isn't empty
   let nargs = len(map(argv(), 'bufnr(v:val)'))
   if !nargs && index(modes, 'arglist') >= 0
     call remove(modes, index(modes, 'arglist'))
+    if empty(modes)
+      return s:F.msg('[xtabline] arglist is empty', 1)
+    endif
+  endif
+
+  if empty(modes)
+    return
   endif
 
   let current = index(modes, s:v.tabline_mode) + 1

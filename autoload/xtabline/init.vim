@@ -42,7 +42,6 @@ com! -nargs=? -bang   XTabPaths               call xtabline#cmds#run("paths_styl
 com!                  XTabToggleLabels        call xtabline#cmds#run("toggle_tab_names")
 com!                  XTabLock                call xtabline#cmds#run("lock_tab")
 com! -nargs=?         XTabPinBuffer           call xtabline#cmds#run("toggle_pin_buffer", <q-args>)
-com!                  XTabCycleMode           call xtabline#cmds#run("cycle_mode")
 com!                  XTabFiltering           call xtabline#cmds#run("toggle_filtering")
 
 com!                  XTabMenu                call xtabline#maps#menu()
@@ -66,6 +65,7 @@ com! -nargs=? -bang  -complete=dir                   XTabLD              call xt
 com! -nargs=? -bang  -complete=customlist,<sid>icons XTabIconTab         call xtabline#cmds#run("tab_icon", <bang>0, <q-args>)
 com! -nargs=? -bang  -complete=customlist,<sid>icons XTabIconBuffer      call xtabline#cmds#run("buffer_icon", <bang>0, <q-args>)
 com! -nargs=? -bang  -complete=customlist,<sid>theme XTabTheme           call xtabline#hi#load_theme(<bang>0, <q-args>)
+com! -nargs=?        -complete=customlist,<sid>mode  XTabMode            call xtabline#cmds#run("change_mode", <q-args>)
 
 if exists(':tcd') == 2
   com! -nargs=? -bang  -complete=file XTabTD call xtabline#dir#set('tab-local', <bang>0, <q-args>)
@@ -79,6 +79,16 @@ endfun
 fun! s:theme(A,L,P) abort
   " Theme names completion.
   return filter(xtabline#themes#list(), 'v:val=~#a:A')
+endfun
+
+fun! s:mode(A,L,P) abort
+  " Tabline mode completion.
+  if len(map(argv(), 'bufnr(v:val)'))
+    let modes = ['tabs', 'buffers', 'arglist']
+  else
+    let modes = ['tabs', 'buffers']
+  endif
+  return filter(modes, 'v:val=~#a:A')
 endfun
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""

@@ -35,7 +35,7 @@ fun! s:xtabline_base_mappings() abort
     endif
   endfun
 
-  call s:mapkey_('<F5>', 'CycleMode')
+  call s:mapkey_('<F5>', 'Mode')
   call s:mapkeyc(']b',   'NextBuffer')
   call s:mapkeyc('[b',   'PrevBuffer')
   call s:mapkey0('cdc',  'CD')
