@@ -112,8 +112,6 @@ let s:S = {
       \ 'enabled':                    1,
       \ 'map_prefix' :                '<leader>x',
       \ 'tabline_modes':              ['tabs', 'buffers', 'arglist'],
-      \ 'close_buffer_can_close_tab': 0,
-      \ 'close_buffer_can_quit_vim':  0,
       \ 'select_buffer_alt_action':   "buffer #",
       \ 'buffer_filtering':           1,
       \ 'wd_type_indicator':          0,

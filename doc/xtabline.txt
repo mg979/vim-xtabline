@@ -552,13 +552,6 @@ Disabled by default, if enabled it adds an indicator in the right corner:
 Only one letter will be shown, and window-local directories override tab-local
 ones.
 
----------------------------------------- *xtabline-close_buffer_can_close_tab*
-                                          *xtabline-close_buffer_can_quit_vim*
-Default: 0
-
-They affect whether the |XTabCloseBuffer| command can close a tab or even quit
-vim, respectively.
-
 
 
 
@@ -578,8 +571,6 @@ Option                     | Default ~
 ---------------------------+--------------------------------------------------
 select_buffer_alt_action   | `buffer #`
 sessions_path              | `~/.vim/session`
-close_buffer_can_close_tab | 0
-close_buffer_can_quit_vim  | 0
 bookmarks_file             | `~/.vim/.XTablineBookmarks`
 sessions_data              | `~/.vim/.XTablineSessions`
 

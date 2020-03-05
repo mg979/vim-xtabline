@@ -271,17 +271,11 @@ fun! s:close_buffer() abort
   elseif ( tbufs > 1 ) || ( tbufs && !s:F.is_tab_buffer(current) )
     execute "normal \<Plug>(XT-Prev-Buffer)" | call s:F.bdelete(current)
 
-  elseif !s:Sets.close_buffer_can_close_tab
-    call s:F.msg("Last buffer for this tab.", 1)
-
   elseif getbufvar(current, '&modified')
     call s:F.msg("Not deleting because of unsaved changes", 1)
 
   elseif tabpagenr() > 1 || tabpagenr("$") != tabpagenr()
     call s:F.bdelete(current)
-
-  elseif s:Sets.close_buffer_can_quit_vim
-    quit
 
   else
     call s:F.msg("There is only one tab.", 1)
