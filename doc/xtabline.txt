@@ -6,15 +6,15 @@ XTABLINE - TABLE OF CONTENTS                                        *xtabline*
   Introduction                                   |xtabline-introduction|
   Features                                       |xtabline-features|
   Tabline rendering                              |xtabline-rendering|
-  Main mappings                                  |xtabline-basic|
-  Initialization                                 |xtabline-init|
+  Main mappings and commands                     |xtabline-mappings|
+  Main settings                                  |xtabline-init|
   Tabline modes                                  |xtabline-modes|
-  Tabline paths                                  |xtabline-paths|
-  Tab working directories                        |xtabline-directories|
-  Tab commands                                   |xtabline-tabs|
-  Tab buffers                                    |xtabline-buffers|
+  Buffers mode                                   |xtabline-buffers|
   Rename tabs and buffers                        |xtabline-rename|
+  Tabs commands                                  |xtabline-tabs|
   Session management                             |xtabline-sessions|
+  Buffers clean-up                               |xtabline-clean-up|
+  Tabline paths                                  |xtabline-paths|
   Other commands                                 |xtabline-other|
   Settings                                       |xtabline-settings|
   Other options                                  |xtabline-options|
@@ -29,26 +29,21 @@ INTRODUCTION                                           *xtabline-introduction*
 
 This plugin tries to give you full control on the tabline:
 
-* buffer filtering on the base of the CWD (also local)
 * three tabline modes: tabs, (filtered) buffers, |arglist|
-* limit rendered buffers to the N most recently accessed (default 10)
+* buffer filtering on the base of the CWD (also local)
 * rename tabs and/or buffers, and assign them icons
-* optional persistance in sessions (for custom names and icons)
 
-More features:
+Also:
 
 * tab CWD/name is shown in the right corner of the tabline
 * commands to quickly set/change (tab/window) working directory
-* buffers quick navigation (next, previous, with [count])
 * reopen closed tabs
 * clean up buffers across all tabs
-* session management: load/save/delete sessions, with dates/descriptions
-* tabs bookmarks: load/save customized tabs from/to disk
-* tab-todo: customizable command to open a todo file for that tab
+* session management and tabs bookmarks
 
 With the help of:
 
-* |vim-obsession| for optional persistance
+* |vim-obsession| for optional persistance (for custom names and icons)
 
 
 
@@ -60,24 +55,9 @@ FEATURES LIST                                             *xtabline-features*
 The main features of the plugin are:
 
 - custom tabline rendering    |xtabline-rendering|
-- buffer filtering            |xtabline-buffer_filtering|
+- |:cd| mappings                |xtabline-directories|
 - rename tabs/buffers         |xtabline-rename|
-- tabs management             |xtabline-manage|
 - sessions management         |xtabline-sessions|
-
-By default, only tabline rendering is enabled: more specific options must be
-enabled manually. Without any option set, you will see a different tabline,
-but the rest works normally.
-
-Buffer filtering makes sense if per-tab CWD is being used, either via |:tcd|
-or |:lcd|. It means that in the tabline, only buffers that are valid for the
-tab's CWD will be listed.
-
-You can rename tabs/buffers, and assing them custom icons.
-|vim-obsession| is recommended for (optional) persistance.
-
-The last two are a series of commands that allow you to save/restore tabs and
-sessions.
 
 
 
@@ -94,43 +74,73 @@ The tabline can be rendered in three different modes:
 
 Default order is ['tabs', 'buffers', 'arglist'].
 
-In |tabs-mode|, the tabline will show the numbered tabs. The label can be
+In *tabs-mode* , the tabline will show the numbered tabs. The label can be
 customized as well (to show buffer name, tab cwd, etc). This is the closest to
 vim default tabline, and it's the default mode.
 
-In |arglist-mode|, the tabline will show the files included in the arglist.
+In *arglist-mode* , the tabline will show the files included in the arglist.
 You can switch file with the usual commands (|:next|, etc). Note that if the
 arglist is empty, this mode won't be available.
 
-In |buffers-mode|, the tabline will show a list of the most recently accessed
+In *buffers-mode* , the tabline will show a list of the most recently accessed
 buffers (10 by default). This list will be filtered on the base of the current
 tab's CWD, if |buffer_filtering| is active.
 
+Buffer filtering makes sense if per-tab CWD is being used, either via |:tcd|
+or |:lcd|. It means that in the tabline, only buffers whose path is within the
+current CWD will be listed.
 
 
 
 
-MAIN MAPPINGS                                                 *xtabline-basic*
+
+MAIN MAPPINGS AND COMMANDS                                 *xtabline-mappings*
 ==============================================================================
 
-These are the default mappings for the most common functionalities. Mappings
-can be disabled (|xtabline-enable_mappings|) or redefined (by directly mapping
-ex commands).
+The following are used to change tabline mode and to toggle filtering:
 
-<F5>        cycle among the modes described above. You can also define which
-            modes to cycle with a setting. See |xtabline-tabline_modes|.
+*XTabMode*  [mode]  will cycle the tabline among the modes defined by the
+                  |xtabline-tabline_modes| setting, or set the chosen mode.
 
-[count]<BS> used to select tabs or buffers. See |xtabline-select-buffer|.
+*XTabFiltering*     will toggle buffer filtering, based on either the tab's
+                  CWD or base directory.
 
-cd...       a series of mappings used to change/display working directories
-            and related stuff. See |xtabline-directories|.
+There is also a set of commands to quickly change the CWD, with mappings that
+start with `cd`. The default directory is either a git repository or the
+directory of the current file.
 
-<leader>x?  show all default mappings
+If the command is used with <bang>, directory prompt is skipped.
+
+Command            Mapping~
+*XTabWD* [!] [dir]    cdw     Set the tab CWD
+*XTabLD* [!] [dir]    cdl     Set a window-local WD
+*XTabTD* [!] [dir]    cdt     Set a tab-local WD (where supported)
+*XTabCD* [!] [dir]    cdc     |:cd| to dir of open buffer, or <count> down
+*XTabInfo*            cd?     show current cwd (global/local/tab), git dir, tags
+
+------------------------------------------------------------------------------
+
+Mappings can be disabled (|xtabline-enable_mappings|) or redefined (by
+directly mapping ex commands).
+
+
+    <F5>        mapping for |XTabMode|.
+
+    [count]<BS> used to select tabs or buffers. See |xtabline-select-buffer|.
+
+    cd...       mappings for setting the CWD, as described above.
+
+
+Most other mappings use a |map_prefix|, default is <leader>x:
+
+    <leader>x?  show all default mappings.
 
 
 
 
-INITIALIZATION                                                 *xtabline-init*
+
+
+MAIN SETTINGS                                                  *xtabline-init*
 ==============================================================================
 
 Here are described the most important settings, for the full list read
@@ -145,7 +155,7 @@ First you have to initialize the settings dictionary:
 >
     let g:xtabline_settings.map_prefix = '<leader>x'
 
-Most of xtabline mappings can be associated to a prefix.
+Most xtabline mappings are associated to a prefix.
 This means that most commands will be mapped to `<leader>x` + a modifier.
 You can change the prefix and all mappings will be changed accordingly.
 Most mappings presented are meant prefixed by <prefix>, when preceded by *.
@@ -175,124 +185,7 @@ Set this value to 0 to disable directory-based buffer filtering.
 
 
 
-TABLINE MODES                                                 *xtabline-modes*
-==============================================================================
-
-Command                Mapping~
-XTabMode [mode]        <F5>
-XTabFiltering           *f
-
-*XTabMode*          will cycle the tabline among the modes defined by the
-                  |xtabline-tabline_modes| setting, or set the chosen mode.
-
-*XTabFiltering*     will toggle buffer filtering, based on either the tab's
-                  CWD or base directory.
-
-
-
-
-
-
-
-TABLINE PATHS                                                 *xtabline-paths*
-==============================================================================
-                                                      *xtabline-buffers_paths*
-                                                  *xtabline-current_tab_paths*
-                                                   *xtabline-other_tabs_paths*
-
-Both in 'tabs' and 'buffers' mode, the path can be displayed in several ways.
-Vim's default is to show a shortened version of the file's path, with
-directory names reduced to a single letter. It generally gives you an idea of
-the file position, and it's still the default in xtabline.
-
-You can change this behaviour by altering the following settings:
->
-    let g:xtabline_settings.buffers_paths = 1
-    let g:xtabline_settings.current_tab_paths = 1
-    let g:xtabline_settings.other_tabs_paths = 1
-
-As the names suggest, the first one is used in |buffers-mode|, the other ones
-in |tabs-mode|. They follow the same logic, for example, given a path
-`long/path/to/file.ext`, this is how different values would look:
-
-     `-2`  ->   path/to/file.ext
-     `-1`  ->   to/file.ext
-     ` 0`  ->   file.ext
-     ` 1`  ->   l/p/t/file.ext      (default)
-     ` 2`  ->   l/p/to/file.ext
-
-For |tabs-mode| there are two different settings, because I personally prefer
-to show only the basename for tabs other than the current one, and not the
-shortened full path, as is Vim default. This can be achieved by setting:
->
-    let g:xtabline_settings.other_tabs_paths = 0
-
-
------------------------------------------------------------------- *XTabPaths*
-Command                           Mapping~
-XTabPaths  [count]                *+
-XTabPaths! [count]                *-
-
-These commands (and relative mappings) can be used to temporarily change the
-settings described above.
-
-Note that they will change a different setting, based on the current mode:
-
-  |tabs-mode|     ->   `current_tab_paths`
-  |buffers-mode|  ->   `buffers_paths`
-
-There are two mappings, *+ and *-, with the second one that sets a negative
-value.
-
-Without a [count], the commands toggle between a value of 0 (basename only)
-and +1/-1 (respectively).
-
-
-
-
-
-TAB WORKING DIRECTORIES                                 *xtabline-directories*
-==============================================================================
-
-Mappings and commands are provided to set a tab's working directory.
-If the command is used with <bang>, directory prompt is skipped.
-
-Command          Mapping~
-*XTabWD* [!] [dir]  cdw     Set the tab CWD
-*XTabLD* [!] [dir]  cdl     Set a window-local WD
-*XTabTD* [!] [dir]  cdt     Set a tab-local WD
-*XTabCD* [!] [dir]  cdc     |:cd| to dir of open buffer, or <count> down
-*XTabInfo*          cd?     show current cwd (global/local/tab), git dir, tags
-
-Note that |:tcd| is only available in neovim and the most recent vim versions
-(>= 8.1).
-
-
-
-
-
-TAB COMMANDS                                                   *xtabline-tabs*
-==============================================================================
-
-
-Command                Mapping    Notes~
-*XTabLast*               *\         brings you back to the last visited tab
-*XTabReopen*             *u         reopen a previosly closed tab
-
-*XTabListTabs*           *a         (mnemonic: 'all tabs')
-*XTabListBuffers*        *z         (mnemonic: just below previous)
-*XTabLoadTab*            *tl
-*XTabSaveTab*            *ts
-*XTabDeleteTab*          *td
-*XTabDeleteBuffers*      *bd
-
-Saved tabs are stored in `$HOME/.vim/.XTablineTabs`.
-
-
-
-
-
-TAB BUFFERS                                                 *xtabline-buffers*
+BUFFERS-MODE                                                *xtabline-buffers*
 ==============================================================================
                                                       *xtabline-select-buffer*
 Plug                              Mapping~
@@ -376,7 +269,32 @@ Command                Mapping    Notes~
 *XTabIconBuffer*         *bi             ... buffer
 *XTabResetTab*           *tr        remove label/icon for tab
 *XTabResetBuffer*        *br                          ... buffer
+*XTabDeleteBuffers*      *bd        delete buffer(s) with fzf
 *XTabToggleLabels*       *.         visibility of custom names/icons
+
+
+
+
+
+
+TABS COMMANDS                                                  *xtabline-tabs*
+==============================================================================
+
+
+Command                Mapping    Notes~
+*XTabLast*               *\         brings you back to the last visited tab
+*XTabReopen*             *u         reopen a previosly closed tab
+
+*XTabListTabs*           *a         list tabs with CWDs of their active window
+*XTabListBuffers*        *z         list valid buffers for this tab
+
+*XTabLoadTab*            *tl        load a tab bookmark
+*XTabSaveTab*            *ts        save   ,,   ,,
+*XTabDeleteTab*          *td        delete ,,   ,,
+
+Saved tab bookmarks are stored in `.XTablineBookmarks`, located in your user
+vim (or neovim) directory.
+
 
 
 
@@ -390,12 +308,8 @@ Command                Mapping ~
 *XTabDeleteSession*      *sd
 *XTabNewSession*         *sn
 
-Descriptions are saved in `$HOME/.vim/.XTablineSessions`.
-
-Session commands operate on sessions found in the specified directory.
-Default:
->
-  let g:xtabline_settings.sessions_path = '$HOME/.vim/session'
+Session descriptions are stored in `.XTablineSessions`, located in your user
+vim (or neovim) directory.
 
 When loading sessions, the last modification date will be shown, along with
 the description and the symbol `[%]` that marks the active session (if any).
@@ -431,6 +345,64 @@ windows/buffers for each tab.
 
 
 
+
+TABLINE PATHS                                                 *xtabline-paths*
+==============================================================================
+                                                      *xtabline-buffers_paths*
+                                                  *xtabline-current_tab_paths*
+                                                   *xtabline-other_tabs_paths*
+
+Both in 'tabs' and 'buffers' mode, the path can be displayed in several ways.
+Vim's default is to show a shortened version of the file's path, with
+directory names reduced to a single letter. It generally gives you an idea of
+the file position, and it's still the default in xtabline.
+
+You can change this behaviour by altering the following settings:
+>
+    let g:xtabline_settings.buffers_paths = 1
+    let g:xtabline_settings.current_tab_paths = 1
+    let g:xtabline_settings.other_tabs_paths = 1
+
+As the names suggest, the first one is used in |buffers-mode|, the other ones
+in |tabs-mode|. They follow the same logic, for example, given a path
+`long/path/to/file.ext`, this is how different values would look:
+
+     `-2`  ->   path/to/file.ext
+     `-1`  ->   to/file.ext
+     ` 0`  ->   file.ext
+     ` 1`  ->   l/p/t/file.ext      (default)
+     ` 2`  ->   l/p/to/file.ext
+
+For |tabs-mode| there are two different settings, because I personally prefer
+to show only the basename for tabs other than the current one, and not the
+shortened full path, as is Vim default. This can be achieved by setting:
+>
+    let g:xtabline_settings.other_tabs_paths = 0
+
+
+------------------------------------------------------------------ *XTabPaths*
+Command                           Mapping~
+XTabPaths  [count]                *+
+XTabPaths! [count]                *-
+
+These commands (and relative mappings) can be used to temporarily change the
+settings described above.
+
+Note that they will change a different setting, based on the current mode:
+
+  |tabs-mode|     ->   `current_tab_paths`
+  |buffers-mode|  ->   `buffers_paths`
+
+There are two mappings, *+ and *-, with the second one that sets a negative
+value.
+
+Without a [count], the commands toggle between a value of 0 (basename only)
+and +1/-1 (respectively).
+
+
+
+
+
 OTHER COMMANDS                                                *xtabline-other*
 ==============================================================================
 
@@ -456,6 +428,8 @@ You can define the filename and other options:
 |XTabTheme| prints the current theme, or sets the given one.
 
 |XTabNERDBookmarks| opens the list of |NERDTreeBookmarks| with fzf.
+
+
 
 
 
@@ -560,19 +534,22 @@ ones.
 OTHER OPTIONS                                               *xtabline-options*
 ==============================================================================
 
-You can add any of these to your *.vimrc*, after having initialized the
+You can add any of these to your `.vimrc`, after having initialized the
 `g:xtabline_settings` dictionary.
 
     let g:xtabline_settings = {}
     let g:xtabline_settings.option_name = option_value
 
+{USERDIR} is the default directory that will be searched for sessions and data
+files is either `/.vim`, `/vimfiles` or the neovim data directory.
+
 ---------------------------+--------------------------------------------------
 Option                     | Default ~
 ---------------------------+--------------------------------------------------
 select_buffer_alt_action   | `buffer #`
-sessions_path              | `~/.vim/session`
-bookmarks_file             | `~/.vim/.XTablineBookmarks`
-sessions_data              | `~/.vim/.XTablineSessions`
+sessions_path              | {USERDIR}`/session`
+bookmarks_file             | {USERDIR}`/.XTablineBookmarks`
+sessions_data              | {USERDIR}`/.XTablineSessions`
 
 
 LAZY LOADING                                                   *xtabline-lazy*

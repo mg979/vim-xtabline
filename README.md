@@ -26,22 +26,17 @@ In Windows, one of the pre-patched [nerd-fonts](https://github.com/ryanoasis/ner
 
 This plugin tries to give you full control on the tabline:
 
+* three tabline modes: tabs, (filtered) buffers, |arglist|
 * buffer filtering on the base of the CWD (also local)
-* three tabline modes: tabs, (filtered) buffers, arglist
-* limit rendered buffers to the N most recently accessed (default 10)
-* rename tabs and/or buffers, and assign them icons
-* optional persistance in sessions (for custom names and icons)
+* you can rename tabs and/or buffers, and assign them icons
 
-More features:
+Also:
 
 * tab CWD/name is shown in the right corner of the tabline
 * commands to quickly set/change (tab/window) working directory
-* buffers quick navigation (next, previous, with count)
 * reopen closed tabs
 * clean up buffers across all tabs
-* session management: load/save/delete sessions, with timestamping/descriptions
-* tabs bookmarks: load/save customized tabs from/to disk
-* tab-todo: customizable command to open a todo file for that tab
+* session management and tabs bookmarks
 
 ----------------------------------------------------------------------------
  
@@ -67,26 +62,6 @@ can switch file with the usual commands (`:next`, etc).
 
 These modes can be cycled with a mapping (*F5* by default). You can also define
 which modes to cycle with a setting.
-
-------------------------------------------------------------------------------
-
-Other features, besides the tabline rendering, are:
-
-- buffer filtering
-- rename tabs/buffers
-- tabs management
-- sessions management
-
-*Buffer filtering* means that in *buffer-mode*, only buffers that are valid for
-the tab's CWD will be listed.
-
-You can rename tabs/buffers, and assing them custom icons.
-[vim-obsession](https://github.com/tpope/vim-obsession) is recommended for (optional) persistance.
-
-The last two are a series of commands that allow you to save/restore tabs and
-sessions, using a fuzzy finder ([fzf-vim](https://github.com/junegunn/fzf.vim)
-or a built-in one).
-
 
 ----------------------------------------------------------------------------
  

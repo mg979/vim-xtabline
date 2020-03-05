@@ -103,9 +103,6 @@ let g:xtabline.Vars = {
       \'winOS': has("win16") || has("win32") || has("win64"),
       \}
 
-let s:vimdir = ( has('win32unix') || g:xtabline.Vars.winOS ) &&
-      \        isdirectory(expand('$HOME/vimfiles')) ? '$HOME/vimfiles' : '$HOME/.vim'
-
 let g:xtabline_highlight = get(g:, 'xtabline_highlight', {'themes': {}})
 
 let s:S = {
@@ -142,10 +139,13 @@ let s:S.indicators = {
       \}
 
 
-let s:S.sessions_path  = !has('nvim') ? expand(s:vimdir . '/session') :
-      \                                 expand(stdpath('data') . '/session')
-let s:S.sessions_data  = expand(s:vimdir . '/.XTablineSessions')
-let s:S.bookmarks_file = expand(s:vimdir . '/.XTablineBookmarks')
+let s:datadir = has('nvim') ? expand(stdpath('data'))
+      \      : !has('win32unix') && !has('win32') ? '$HOME/.vim'
+      \      : isdirectory(expand('$HOME/vimfiles')) ? '$HOME/vimfiles' : '$HOME/.vim'
+
+let s:S.sessions_path  = expand(s:datadir . '/session')
+let s:S.sessions_data  = expand(s:datadir . '/.XTablineSessions')
+let s:S.bookmarks_file = expand(s:datadir . '/.XTablineBookmarks')
 
 let g:xtabline_settings  = extend(s:S, get(g:, 'xtabline_settings', {}))
 let g:xtabline.Vars.tabline_mode = g:xtabline_settings.tabline_modes[0]
