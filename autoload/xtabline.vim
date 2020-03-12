@@ -157,11 +157,6 @@ endfun "}}}
 fun! xtabline#update(...) abort
   "
   " Set the variable that triggers tabline update. {{{1
-
-  " @param ...: 0 if a timer should be started and the tabline updated after it
-  "             >0 if it's the timer callback
-  if a:0 && !s:timer_finished(a:1) | return | endif
-
   if !s:Sets.enabled || ( exists('b:no_xtabline') && b:no_xtabline )
     return
   elseif empty(s:Sets.tabline_modes)
@@ -275,21 +270,6 @@ fun! s:ordered_buffers() abort
   endfor
 endfun "}}}
 
-
-fun! s:timer_finished(callback) abort
-  " Update the tabline only after a timer has run out. {{{1 
-  if !exists('s:update_timer') " timer should be started
-    let s:update_timer = 1
-    call timer_start(a:0 > 1 ? a:2 : 500, 'xtabline#update')
-    return 0
-
-  elseif a:callback            " timer callback, the timerID is > 0
-    silent! unlet s:update_timer
-    return 1
-  else                         " timer is still running
-    return 0
-  endif
-endfun " }}}
 
 
 
