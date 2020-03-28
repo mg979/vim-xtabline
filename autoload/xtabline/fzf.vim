@@ -14,7 +14,7 @@ let s:oB = { -> s:T().buffers.order     }       "ordered buffers for tab
 let s:sessions_path = { -> s:F.fulldir(s:Sets.sessions_path) }
 let s:use_finder    = !exists('g:loaded_fzf') || get(s:Sets, 'use_builtin_finder', 0)
 let s:lastmodified  = { f -> str2nr(system('date -r '.f.' +%s')) }
-let s:obsession     = { -> exists('g:loaded_obsession') && exists('g:this_obsession') }
+let s:obsession     = { -> exists('g:loaded_obsession') }
 
 " fzf/finder functions  {{{1
 
@@ -505,16 +505,9 @@ fun! s:session_load(file) abort " {{{1
   endif
 
   "-----------------------------------------------------------
-  " upadate and pause Obsession
-
-  if s:obsession() && ObsessionStatus() == "[$]"
-    exe "silent Obsession ".fnameescape(g:this_obsession)
-    silent Obsession
-  endif
-
-  "-----------------------------------------------------------
   " unload current session and load new one
 
+  call s:update_current_session()
   execute "silent! %bdelete"
   execute "source ".fnameescape(file)
 endfun
@@ -524,18 +517,17 @@ fun! s:session_delete(file) abort " {{{1
   " Delete a session file.
   let session = a:file
   if match(session, "\t")
-    let session = substitute(session, " *\t.*", "", "") | endif
+    let session = substitute(session, " *\t.*", "", "")
+  endif
   let file = s:sessions_path() . session
 
   if !filereadable(file)
-    return s:F.msg("Session file doesn't exist.", 1) | endif
+    return s:F.msg("Session file doesn't exist.", 1)
+  endif
 
   if !s:F.confirm('Delete session '.session.'?') | return | endif
 
-  "-----------------------------------------------------------
-
-
-  if s:obsession() && file == v:this_session
+  if s:obsession() && file == get(g:, 'this_obsession', '')
     silent Obsession!
   else
     exe "silent !rm ".fnameescape(file)
@@ -550,13 +542,14 @@ endfun
 
 fun! s:update_current_session() abort " {{{1
   " Update current session.
+  let file = get(g:, 'this_obsession', v:this_session)
+  if !filereadable(file) | return | endif
+
   if s:obsession()
-    if ObsessionStatus() == "[$]"
-      exe "silent Obsession ".fnameescape(g:this_obsession)
-      silent Obsession
-    endif
-  elseif !empty(v:this_session)
-    exe "silent mksession! ".fnameescape(v:this_session)
+    exe "silent Obsession ".fnameescape(fiile)
+    silent Obsession
+  elseif !empty(file)
+    exe "silent mksession! ".fnameescape(fiile)
   endif
 endfun
 
