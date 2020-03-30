@@ -514,6 +514,14 @@ Function example:
     let g:xtabline_settings.buffer_format = function('MyBuflineFormat')
 
 
+------------------------------------------------------ *xtabline-use_devicons*
+>
+    let g:xtabline_settings.use_devicons = 1
+<
+Enabled by default, if |vim-devicons| is installed, labels will use the
+filetype icon provided by said plugin. A custom icon has higher precedence.
+
+
 ------------------------------------------------- *xtabline-wd_type_indicator*
 >
     let g:xtabline_settings.wd_type_indicator = 0

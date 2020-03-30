@@ -330,7 +330,7 @@ fun! s:get_buf_icon(buf) abort
   let nr = a:buf.nr
   if !empty(a:buf.icon)
     return a:buf.icon.' '
-  else
+  elseif get(s:Sets, 'use_devicons', 1)
     try
       let icon = WebDevIconsGetFileTypeSymbol(bufname(a:buf.nr)).' '
       return icon
