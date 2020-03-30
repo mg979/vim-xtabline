@@ -126,8 +126,6 @@ let s:S = {
       \ 'unnamed_buffer':             '...',
       \ 'volatile_buffer':            '[Volatile]',
       \ 'tab_icon':                   ["📂", "📁"],
-      \ 'bufline_separators':         ['|', '|'],
-      \ 'superscript_unicode_nrs':    0,
       \}
 
 

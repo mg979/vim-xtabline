@@ -46,8 +46,12 @@ if get(g:, 'xtabline_lazy', 0)
     au TabNew,SessionLoadPost,BufAdd * call xtabline#init#start()
   augroup END
 
-  if empty(mapcheck('<bs>', 'n'))
-    nnoremap <expr> <BS> v:count ? ":\<C-u>b ".v:count . "\e" : ":ls\<cr>:b\<space>"
+  let maps = !empty(get(g:, 'xtabline_settings', {})) &&
+        \    get(g:xtabline_settings, 'enable_mappings', 1)
+  if maps
+    if empty(mapcheck('<bs>', 'n'))
+      nnoremap <expr> <BS> v:count ? ":\<C-u>b ".v:count . "\e" : ":ls\<cr>:b\<space>"
+    endif
   endif
 
   " setup a temporary tabline
