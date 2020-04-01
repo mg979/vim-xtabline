@@ -26,7 +26,7 @@ In Windows, one of the pre-patched [nerd-fonts](https://github.com/ryanoasis/ner
 
 This plugin tries to give you full control on the tabline:
 
-* three tabline modes: tabs, (filtered) buffers, |arglist|
+* three tabline modes: tabs, buffers, arglist
 * buffer filtering on the base of the CWD (also local)
 * you can rename tabs and/or buffers, and assign them icons
 
@@ -50,18 +50,20 @@ tabs     | tab name, CWD, or buffer name
 buffers  | up to a max of N (default 10) recent buffers 
 arglist  | buffers contained in the arglist 
 
-In *tabs-mode*, the tabline will show the numbered tabs. The label can be
-customized as well (to show buffer name, tab cwd, etc).
+In *tabs-mode*, the tabline will show the numbered tabs. This looks a lot like
+vim default tabline, but the CWD is shown in the top-right corner.
 
 In *buffer-mode*, the tabline will show a filtered list of buffers that belong
-to the tab's CWD, or any open buffer inside the window. Formatting and number
-of (recently accessed) buffers can be customized.
+to the tab's CWD, or any open buffer inside the window. By default, only the 10
+most recently accessed buffers are displayed.
 
 In *arglist-mode*, the tabline will show the files defined in the arglist. You
 can switch file with the usual commands (`:next`, etc).
 
 These modes can be cycled with a mapping (*F5* by default). You can also define
 which modes to cycle with a setting.
+
+Buffers and tabs can be renamed, and also given a custom icon.
 
 ----------------------------------------------------------------------------
  
@@ -78,6 +80,17 @@ With vim-plug:
 ### Usage
 
 `:help xtabline.txt`
+
+Some quick tips, assuming you are using default mappings:
+
+|||
+-|-
+<kbd>F5</kbd> | change tabline mode
+_N_ <kbd>BS</kbd> | go to _N_ tab (in tabs mode) or _N_ buffer (in buffers mode)
+<kbd>[b</kbd>/<kbd>]b</kbd> | go to _count_ next/previous buffer
+<kbd>cdw</kbd>/<kbd>cdl</kbd>/<kbd>cdt</kbd> | set working directory (tab/local)
+<kbd>cd?</kbd> | show tab informations (cwd, git dir, tag files)
+<kbd>\x?</kbd> | a list of all mappings
 
 ----------------------------------------------------------------------------
  

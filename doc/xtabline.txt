@@ -74,8 +74,7 @@ The tabline can be rendered in three different modes:
 
 Default order is ['tabs', 'buffers', 'arglist'].
 
-In *tabs-mode* , the tabline will show the numbered tabs. The label can be
-customized as well (to show buffer name, tab cwd, etc). This is the closest to
+In *tabs-mode* , the tabline will show the numbered tabs. This is the closest to
 vim default tabline, and it's the default mode.
 
 In *arglist-mode* , the tabline will show the files included in the arglist.
@@ -90,6 +89,7 @@ Buffer filtering makes sense if per-tab CWD is being used, either via |:tcd|
 or |:lcd|. It means that in the tabline, only buffers whose path is within the
 current CWD will be listed.
 
+Buffers and tabs can be renamed, and also given a custom icon.
 
 
 
