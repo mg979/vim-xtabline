@@ -359,7 +359,7 @@ fun! s:format_tab_label(tnr) abort
   let label = s:tab_label(a:tnr)
   let mod   = s:tab_mod_flag(a:tnr, 0)
 
-  let label = printf("%s %%#XT%s# %s%s %s", nr, hi, icon, label, mod)
+  let label = printf("%s%%#XT%s# %s%s %s", nr, hi, icon, label, mod)
 
   return {'label': label, 'nr': a:tnr, 'hilite': hi}
 endfun "}}}
@@ -371,11 +371,11 @@ fun! s:tab_num(tabnr) abort
   " Returns: the formatted tab number
 
   if s:v.tabline_mode != 'tabs'
-    return "%#XTNumSel# " . a:tabnr .'/' . tabpagenr('$')
+    return printf("%s %d/%d ", "%#XTNumSel#", a:tabnr, tabpagenr('$'))
   else
     return a:tabnr == tabpagenr() ?
-          \   "%#XTNumSel# " . a:tabnr
-          \ : "%#XTNum# "    . a:tabnr
+          \   printf("%s %d ", "%#XTNumSel#", a:tabnr)
+          \ : printf("%s %d ", "%#XTNum#", a:tabnr)
   endif
 endfun "}}}
 
@@ -506,30 +506,25 @@ fun! s:format_right_corner() abort
 
   elseif !s:Sets.show_right_corner
     " no label, just the tab number in form n/N
-    return s:tab_num(N) . lcd
+    return s:v.tabline_mode == 'tabs' || s:hide_tab_number()
+          \ ? lcd : s:tab_num(N) . lcd
 
-  elseif s:v.tabline_mode == 'tabs'
+  elseif s:v.tabline_mode == 'tabs' || s:hide_tab_number()
     " no number, just the name or the cwd
+    let hi    = "%#XTCorner#"
     let icon  = "%#XTNumSel# " . s:get_tab_icon(N, 1)
-    let label = "%#XTCorner# " . s:right_corner_label() . ' '
-    let mod   = s:tab_mod_flag(N, 1)
-    return icon . label . mod . lcd
-
-  elseif s:v.tabline_mode == 'buffers'
-    " tab number in form n/N, plus tab name or cwd
-    let hi = "%#XTCorner#"
-    if tabpagenr('$') == 1 && !get(s:Sets, 'tab_number_in_buffers_mode', 1)
-      let nr   = ''
-      let icon = "%#XTNumSel# " . s:get_tab_icon(N, 1)
-      let left = printf("%s%s ", icon, hi)
-    else
-      let nr   = s:tab_num(N)
-      let icon = s:get_tab_icon(N, 1)
-      let left = printf("%s %s %s", nr, hi, icon)
-    endif
     let mod   = s:tab_mod_flag(N, 1)
     let label = s:right_corner_label()
-    return printf("%s%s %s", left, label, mod) . lcd
+    return printf("%s%s %s %s", icon, hi, label, mod) . lcd
+
+  else
+    " tab number in form n/N, plus tab name or cwd
+    let hi    = "%#XTCorner#"
+    let nr    = s:tab_num(N)
+    let icon  = s:get_tab_icon(N, 1)
+    let mod   = s:tab_mod_flag(N, 1)
+    let label = s:right_corner_label()
+    return printf("%s%s %s%s %s", nr, hi, icon, label, mod) . lcd
   endif
 endfun "}}}
 
@@ -607,6 +602,13 @@ fun! s:reuse_last_tabline() abort
   else
     return 1
   endif
+endfun "}}}
+
+fun! s:hide_tab_number() abort
+  " Verify if tab number should be printed in the top right corner. {{{1
+  return tabpagenr('$') == 1 &&
+        \ s:v.tabline_mode == 'buffers' &&
+        \ !s:Sets.tab_number_in_buffers_mode
 endfun "}}}
 
 
