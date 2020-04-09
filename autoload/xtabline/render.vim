@@ -517,12 +517,19 @@ fun! s:format_right_corner() abort
 
   elseif s:v.tabline_mode == 'buffers'
     " tab number in form n/N, plus tab name or cwd
-    let hi    = "%#XTCorner#"
-    let nr    = s:tab_num(N)
-    let icon  = s:get_tab_icon(N, 1)
+    let hi = "%#XTCorner#"
+    if tabpagenr('$') == 1 && !get(s:Sets, 'tab_number_in_buffers_mode', 1)
+      let nr   = ''
+      let icon = "%#XTNumSel# " . s:get_tab_icon(N, 1)
+      let left = printf("%s%s ", icon, hi)
+    else
+      let nr   = s:tab_num(N)
+      let icon = s:get_tab_icon(N, 1)
+      let left = printf("%s %s %s", nr, hi, icon)
+    endif
     let mod   = s:tab_mod_flag(N, 1)
     let label = s:right_corner_label()
-    return printf("%s %s %s%s %s", nr, hi, icon, label, mod) . lcd
+    return printf("%s%s %s", left, label, mod) . lcd
   endif
 endfun "}}}
 
