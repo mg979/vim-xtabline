@@ -362,6 +362,13 @@ function! s:Do(action, ...)
     call remove(X.Tabs, index(X.Tabs, V.last_tab))
     call xtabline#update()
 
+    """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+
+  elseif a:action == 'terminal'
+
+    call xtabline#buffer#terminal(B)
+    call xtabline#update()
+
   endif
 endfunction "}}}
 
@@ -382,6 +389,12 @@ augroup plugin-xtabline
   autocmd OptionSet     * call xtabline#update()
   autocmd VimResized    * call xtabline#update()
   autocmd VimLeavePre   * call xtabline#update_this_session()
+
+  if has('nvim')
+    autocmd TermOpen     * call s:Do('terminal')
+  else
+    autocmd TerminalOpen * call s:Do('terminal')
+  endif
 
   if exists('##DirChanged')
     autocmd DirChanged  * call xtabline#update()

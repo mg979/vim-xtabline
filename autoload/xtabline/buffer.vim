@@ -95,6 +95,30 @@ endfun
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 
+fun! xtabline#buffer#terminal(nr) abort
+  " Set special label for terminal buffers.
+  call xtabline#buffer#add(a:nr) " ensure buffer is indexed
+
+  let bufdict = has_key(s:X.Buffers, a:nr) ? s:X.Buffers : s:X._buffers
+
+  " buffer has already been labeled
+  if bufdict[a:nr].special | return | endif
+
+  if bufname(a:nr) =~ ';#FZF$'
+    let name = 'FZF'
+
+  elseif has('nvim')
+    let pid = matchstr(bufname(a:nr), '\d\+\ze:')
+    let name = printf('[PID %d]', pid)
+
+  else
+    let name = 'TERMINAL'
+  endif
+
+  call extend(bufdict[a:nr], {'name': name, 'special': 1})
+endfun
+
+
 fun! s:is_special(nr, ...) abort
   " Customize special buffers, if visible in a window.
   if !s:F.has_win(a:nr) | return { 'special': 0 } | endif
@@ -114,9 +138,6 @@ fun! s:is_special(nr, ...) abort
 
   elseif bufname(n) =~ '^\Cfugitive'
     let ret = {'name': 'fugitive', 'icon': s:Sets.icons.git}
-
-  elseif bufname(n) =~ ';#FZF$'
-    let ret = {'name': 'FZF'}
 
   elseif ft == "help" && getbufvar(n, '&modifiable') == 0
     let ret = {'name': 'HELP', 'icon': s:Sets.icons.book}
