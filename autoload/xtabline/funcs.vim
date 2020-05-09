@@ -130,16 +130,19 @@ fun! s:Funcs.tab_buffers() abort
 endfun "}}}
 
 
-fun! s:Funcs.add_ordered(buf, ...) abort
+fun! s:Funcs.add_ordered(buf, put_first) abort
   " Add a buffer to the Tab.buffers.order list. {{{1
-  let [ b, bufs, first, i ] = [ a:buf, s:oB(), a:0, index(s:oB(), a:buf) ]
+
+  let b    = a:buf          " the buffer number that must be added
+  let bufs = s:oB()         " the list of ordered buffers
+  let i    = index(bufs, b) " the index of the buffer in the list
 
   " if the buffer goes first, remove it from the list if present
-  if i >= 0 && first | call remove(bufs, i) | endif
+  if i >= 0 && a:put_first | call remove(bufs, i) | endif
 
   " if the buffer doesn't go first, only add it if not present
-  if first      | call insert(bufs, b, 0)
-  elseif i < 0  | call add(bufs, b)
+  if a:put_first | call insert(bufs, b, 0)
+  elseif i < 0   | call add(bufs, b)
   endif
 endfun "}}}
 

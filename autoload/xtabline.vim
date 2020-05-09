@@ -266,7 +266,7 @@ fun! s:ordered_buffers() abort
 
   " add missing entries in ordered list
   for buf in B.valid
-    call s:F.add_ordered(buf)
+    call s:F.add_ordered(buf, 0)
   endfor
 endfun "}}}
 
