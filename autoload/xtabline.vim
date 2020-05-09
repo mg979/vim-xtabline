@@ -20,8 +20,7 @@ let s:pB = { -> s:X.pinned_buffers      }       "pinned buffers list
 let s:oB = { -> s:T().buffers.order     }       "ordered buffers for tab
 let s:rB = { -> s:T().buffers.recent    }       "recent buffers for tab
 
-let s:invalid    = { b -> !buflisted(b) || getbufvar(b, "&buftype") == 'quickfix' }
-let s:is_special = { b -> s:F.has_win(b) && s:X._buffers[b].special }
+let s:invalid    = { b -> !buflisted(b) || getbufvar(b, "&buftype") != '' }
 let s:is_open    = { b -> s:F.has_win(b) && getbufvar(b, "&ma") }
 let s:ready      = { -> !(exists('g:SessionLoad') || s:v.halt) }
 let s:v.slash    = exists('+shellslash') && !&shellslash ? '\' : '/'
@@ -208,11 +207,17 @@ fun! xtabline#filter_buffers(...) abort
     let B = xtabline#buffer#get(buf)
 
     " if special, buffer will be handled by the render script
-    " if tab is locked, there's no filtering to do
+    let is_special = s:F.has_win(buf) && s:X._buffers[buf].special
 
-    if s:is_special(buf)   | continue
-    elseif s:invalid(buf)  | continue
+    if is_special
+      continue
+
+    elseif !buflisted(buf) || getbufvar(buf, "&buftype") != ''
+      " unlisted or otherwise invalid buffer, skip it
+      continue
+
     elseif !T.locked
+      " if tab is locked, there's no filtering to do
 
       if !s:Sets.buffer_filtering
         " buffer filtering is disabled, accept all buffers
