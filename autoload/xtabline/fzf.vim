@@ -546,10 +546,10 @@ fun! s:update_current_session() abort " {{{1
   if !filereadable(file) | return | endif
 
   if s:obsession()
-    exe "silent Obsession ".fnameescape(fiile)
+    exe "silent Obsession ".fnameescape(file)
     silent Obsession
   elseif !empty(file)
-    exe "silent mksession! ".fnameescape(fiile)
+    exe "silent mksession! ".fnameescape(file)
   endif
 endfun
 
