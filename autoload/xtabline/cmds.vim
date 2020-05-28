@@ -518,10 +518,12 @@ endfun "}}}
 fun! s:goto_last_tab() abort
   " Go back to the previously opened tab. "{{{1
 
-  let this = tabpagenr() - 1
-  let n = index(s:X.Tabs, s:v.last_tab)
-  exe "normal!" (n + 1)."gt"
-  let s:v.last_tab = s:X.Tabs[this]
+  if !exists('s:v.last_tabn')
+    return s:F.msg('[xtabline] no last tab', 1)
+  endif
+  let this = tabpagenr()
+  exe "normal!" s:v.last_tabn."gt"
+  let s:v.last_tabn = this
 endfun "}}}
 
 
