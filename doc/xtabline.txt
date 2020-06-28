@@ -13,7 +13,7 @@ XTABLINE - TABLE OF CONTENTS                                        *xtabline*
   Rename tabs and buffers                        |xtabline-rename|
   Tabs commands                                  |xtabline-tabs|
   Session management                             |xtabline-sessions|
-  Buffers clean-up                               |xtabline-clean-up|
+  Clean-up                                       |xtabline-clean-up|
   Tabline paths                                  |xtabline-paths|
   Other commands                                 |xtabline-other|
   Settings                                       |xtabline-settings|
@@ -269,7 +269,6 @@ Command                Mapping    Notes~
 *XTabIconBuffer*         *bi             ... buffer
 *XTabResetTab*           *tr        remove label/icon for tab
 *XTabResetBuffer*        *br                          ... buffer
-*XTabDeleteBuffers*      *bd        delete buffer(s) with fzf
 *XTabToggleLabels*       *.         visibility of custom names/icons
 
 
@@ -319,14 +318,20 @@ the description and the symbol `[%]` that marks the active session (if any).
 
 
 
-BUFFERS CLEAN-UP                                           *xtabline-clean-up*
+CLEAN-UP                                                   *xtabline-clean-up*
 ==============================================================================
 
 Command                Mapping~
+XTabResetAll           *R
 XTabPurge              *x
 XTabCleanUp            *k
 XTabCleanUp!           *K
+XTabDeleteBuffers      *bd
 
+
+*XTabResetAll*
+
+A sort of panic button to remove all tabs/buffers user customizations.
 
 *XTabPurge*
 
@@ -342,6 +347,9 @@ neovim, for example, or to keep slim your buffer list.
 With a bang, it also deletes tab buffers, leaving only the currently open
 windows/buffers for each tab.
 
+*XTabDeleteBuffers*
+
+Run |:bdelete| on selected buffers (with fzf).
 
 
 

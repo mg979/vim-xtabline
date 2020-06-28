@@ -72,6 +72,7 @@ fun! s:xtabline_prefix_mappings() abort
   call s:mapkey0(X.'+',  'Paths')
   call s:mapkey0(X.'-',  'Paths!')
   call s:mapkey_(X.'?',  'Menu')
+  call s:mapkey_(X.'R',  'ResetAll')
   call s:mapkeys(X.'T',  'Theme')
   call s:mapkey_(X.'tr', 'ResetTab')
   call s:mapkeys(X.'ti', 'IconTab')
@@ -147,6 +148,7 @@ fun! xtabline#maps#menu() abort
         \['k',    'Clean up tabs'],
         \['x',    'Purge tab'],
         \['K',    'Clean up! tabs'],
+        \['R',    'Reset all'],
         \['T',    'Select theme'],
         \]
 

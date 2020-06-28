@@ -507,6 +507,17 @@ fun! s:reset_buffer(...) abort
 endfun "}}}
 
 
+fun! s:reset_all(...) abort
+  " Reset all buffers and tabs, removing customizations. "{{{1
+
+  let s:X.Buffers = {}
+  let s:X._buffers = {}
+  let s:X.Tabs = []
+  call xtabline#tab#check_all()
+  call xtabline#update()
+endfun "}}}
+
+
 fun! s:toggle_tab_names() abort
   " Toggle between custom icon/name and short path/folder icons. "{{{1
 
