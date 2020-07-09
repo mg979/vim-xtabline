@@ -59,6 +59,7 @@ fun! s:xtabline_prefix_mappings() abort
   call s:mapkey_(X.'x',  'Purge')
   call s:mapkey_(X.'\',  'Last')
   call s:mapkey_(X.'u',  'Reopen')
+  call s:mapkey_(X.'U',  'ReopenList')
   call s:mapkey_(X.'p',  'PinBuffer')
   call s:mapkeyc(X.'m',  'MoveBuffer')
   call s:mapkeyc(X.']',  'MoveBufferNext')
@@ -141,6 +142,7 @@ fun! xtabline#maps#menu() abort
         \['h',    'Hide buffer'],
         \['q',    'Close buffer'],
         \['u',    'Reopen last tab'],
+        \['U',    'Reopen tab from list'],
         \['p',    'Pin buffer'],
         \['d',    'Tab todo'],
         \['', ''],

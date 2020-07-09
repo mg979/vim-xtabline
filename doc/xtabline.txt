@@ -282,7 +282,8 @@ TABS COMMANDS                                                  *xtabline-tabs*
 
 Command                Mapping    Notes~
 *XTabLast*               *\         brings you back to the last visited tab
-*XTabReopen*             *u         reopen a previosly closed tab
+*XTabReopen*             *u         reopen last closed tab
+*XTabReopenList*         *U         reopen a previosly closed tab (from list)
 
 *XTabListTabs*           *a         list tabs with CWDs of their active window
 *XTabListBuffers*        *z         list valid buffers for this tab

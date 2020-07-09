@@ -54,6 +54,14 @@ if exists('g:loaded_fzf') && !s:use_finder
     au! xt_fzf | aug! xt_fzf
   endfun
 
+  fun! xtabline#fzf#closed_tabs()
+    call s:fzf_statusline("Repoen Tab")
+    call fzf#run({
+          \ 'source': s:closed_tabs_list(), 'sink': function('s:tabreopen'), 'down': '30%',
+          \ 'options': '--ansi --header-lines=1 --no-preview'})
+    au! xt_fzf | aug! xt_fzf
+  endfun
+
   fun! xtabline#fzf#delete_buffers()
     call s:fzf_statusline("Delete Tab Buffer")
     call fzf#run({
@@ -235,11 +243,56 @@ if s:use_finder
   endfun
 endif "}}}
 
+fun! s:closed_tabs_list() abort
+  " Generate a formatted list of currently open tabs {{{1
+  let lines = []
+  let [rng, tabs] = [range(len(g:xtabline.closed_tabs)), g:xtabline.closed_tabs]
+
+  for tab in rng
+    let T = tabs[tab]
+    let bufs = len(T.buffers.valid)
+    let line = s:yellow(s:pad(tab+1, 5))."\t".
+          \    s:green(s:pad(bufs, 5))."\t".
+          \    s:cyan(s:pad(T.name, 20))."\t".
+          \    (&columns<150 ? s:F.short_cwd(tab+1, 1) : fnamemodify(T.cwd, ":~"))
+    call add(lines, line)
+  endfor
+  call add(lines, "Tab\tBufs\tName\t\t\tWorking Directory")
+  return reverse(lines)
+endfun
+
+if s:use_finder
+  fun! s:closed_tabs_list() abort
+    let lines = []
+    let [rng, tabs] = [range(len(g:xtabline.closed_tabs)), g:xtabline.closed_tabs]
+
+    for tab in rng
+      let T = tabs[tab]
+      let bufs = len(T.buffers.valid)
+      let line = s:pad(tab+1, 5)."\t" . s:pad(T.name, 20)."\t".
+            \    (&columns<150 ? s:F.short_cwd(tab+1, 1) : fnamemodify(T.cwd, ":~"))
+      call add(lines, line)
+    endfor
+    return reverse(lines)
+  endfun
+endif "}}}
+
 fun! s:tabopen(line) abort
   " Open the selected tab. {{{1
   let tab = a:line[0:(match(a:line, '\s')-1)]
   exe "normal!" tab."gt"
 endfun "}}}
+
+fun! s:tabreopen(line) abort
+  " Open the selected tab. {{{1
+  let tab = a:line[0:(match(a:line, '\s')-1)]
+  call add(g:xtabline.closed_tabs, remove(g:xtabline.closed_tabs, tab - 1))
+  XTabReopen
+endfun "}}}
+
+fun! s:closed_tabs() abort
+  return s:tablist(1)
+endfun
 
 
 

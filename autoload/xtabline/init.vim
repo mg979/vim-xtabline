@@ -28,6 +28,7 @@ com!                  XTabNERDBookmarks       call xtabline#fzf#nerd_bookmarks()
 com!                  XTabSaveTab             call xtabline#fzf#tab_save()
 com!                  XTabSaveSession         call xtabline#fzf#session_save(0)
 com!                  XTabNewSession          call xtabline#fzf#session_save(1)
+com!                  XTabReopenList          call xtabline#fzf#closed_tabs()
 
 com!                  XTabTodo                call xtabline#cmds#run('tab_todo')
 com!                  XTabPurge               call xtabline#cmds#run('purge_buffers')
