@@ -358,7 +358,15 @@ function! s:Do(action, ...)
 
   elseif a:action == 'close'
 
-    call add(X.closed_tabs, copy(V.last_tab))
+    " add this tab to the list of closed tabs, but first remove any tab with
+    " the same cwd, because the tab that we're adding is more up-to-date
+    for Tx in range(len(X.closed_tabs))
+      if X.closed_tabs[Tx].cwd ==# V.last_tab.cwd
+        call remove(X.closed_tabs, Tx)
+        break
+      endif
+    endfor
+    call add(X.closed_tabs, deepcopy(V.last_tab))
     call remove(X.Tabs, index(X.Tabs, V.last_tab))
     call xtabline#update()
 

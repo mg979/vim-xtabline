@@ -112,10 +112,10 @@ directory of the current file.
 If the command is used with <bang>, directory prompt is skipped.
 
 Command            Mapping~
-*XTabWD* [!] [dir]    cdw     Set the tab CWD
+*XTabWD* [!] [dir]    cdw     Set the global CWD
 *XTabLD* [!] [dir]    cdl     Set a window-local WD
 *XTabTD* [!] [dir]    cdt     Set a tab-local WD (where supported)
-*XTabCD* [!] [dir]    cdc     |:cd| to dir of open buffer, or <count> down
+*XTabCD* [!] [dir]    cdc     |:cd| to `[count parent]` directory of current buffer
 *XTabInfo*            cd?     show current cwd (global/local/tab), git dir, tags
 
 ------------------------------------------------------------------------------
@@ -158,7 +158,7 @@ First you have to initialize the settings dictionary:
 Most xtabline mappings are associated to a prefix.
 This means that most commands will be mapped to `<leader>x` + a modifier.
 You can change the prefix and all mappings will be changed accordingly.
-Most mappings presented are meant prefixed by <prefix>, when preceded by *.
+Most mappings presented are meant prefixed by <prefix>, when preceded by `*`.
 
 
 ----------------------------------------------------- *xtabline-tabline_modes*
