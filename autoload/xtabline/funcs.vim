@@ -241,13 +241,14 @@ fun! s:Funcs.short_path(bnr, h) abort
   if H !~ '/' | return H | endif
 
   let splits  = split(H, '/')
-  let h       = min([len(splits), abs(a:h)])
 
   if a:h < 0
+    let h = min([len(splits) - 1, abs(a:h)])
     let head = splits[:-2]
     let tail = splits[-1:]
-    return join(head[-h:] + tail, '\')
+    return join(head[-h:] + tail, s:v.winOS ? '\' : '/')
   else
+    let h = min([len(splits), abs(a:h)])
     let head = splits[:-(h+1)]
     let tail = splits[-h:]
   endif
