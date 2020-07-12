@@ -482,8 +482,7 @@ fun! s:sessions_list(...) abort " {{{1
   let sessions = split(globpath(s:sessions_path(), "*"), '\n')
 
   "remove __LAST__ session
-  let last = s:sessions_path() . '__LAST__'
-  silent! call remove(sessions, index(sessions, last))
+  call filter(sessions, "v:val !~ '__LAST__'")
 
   if !s:v.winOS
     "sort sessions by last modfication time
@@ -503,7 +502,7 @@ fun! s:sessions_list(...) abort " {{{1
   endif
 
   for s in ordered
-    let n = fnamemodify(expand(s), ':t:r')
+    let n = fnamemodify(expand(s), ':t')
     let description = s:desc_string(s, n, sfile, !a:0)
     call add(data, description)
   endfor
