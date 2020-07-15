@@ -55,7 +55,7 @@ if exists('g:loaded_fzf') && !s:use_finder
   endfun
 
   fun! xtabline#fzf#closed_tabs()
-    call s:fzf_statusline("Repoen Tab")
+    call s:fzf_statusline("Reopen Tab")
     call fzf#run({
           \ 'source': s:closed_tabs_list(), 'sink': function('s:tabreopen'), 'down': '30%',
           \ 'options': '--ansi --header-lines=1 --no-preview'})
@@ -128,6 +128,11 @@ else " using built-in finder instead
   fun! xtabline#fzf#list_tabs()
     let T = s:Find(s:tablist(), 'Open Tab')
     if T != '' | call s:tabopen(T) | endif
+  endfun
+
+  fun! xtabline#fzf#closed_tabs()
+    let T = s:Find(s:closed_tabs_list(), "Reopen Tab")
+    if T != '' | call s:tabreopen(T) | endif
   endfun
 
   fun! xtabline#fzf#delete_buffers()

@@ -166,7 +166,9 @@ fun! s:buffer(finder) "{{{1
   setlocal cursorline
   exe 'silent! setfiletype' a:finder.syntax
   if has('patch-8.1.1391')
-    set wincolor=FoldColumn
+    set wincolor=Pmenu
+  elseif has('nvim')
+    exe 'set winhighlight=Normal:Pmenu'
   endif
   normal! gg
   let a:finder.current_line = 1
@@ -243,7 +245,7 @@ fun! s:Finder.match(pattern) abort "{{{1
     call matchdelete(self.pattern)
   endif
   let case = a:pattern =~ '\u' ? '\C' : '\c'
-  let self.pattern = matchadd('Statement', '\V' . case . a:pattern)
+  let self.pattern = matchadd('SpellLocal', '\V' . case . a:pattern)
 endfun
 
 "--------------------------------------------------------------------------}}}
