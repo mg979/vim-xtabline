@@ -116,8 +116,11 @@ fun! s:render_buffers() abort
     for b in ( s:eB() + front + s:pinned() + specials )
       call s:F.add_ordered(b, 1)
     endfor
-  else
+  elseif !empty(argv())
     let labels = filter(map(argv(), 'bufnr(v:val)'), 'v:val > 0')
+    if empty(labels) | return s:no_arglist() | endif
+  else
+    return s:no_arglist()
   endif
 
   "no need to render more than 20 buffers at a time, since they'll be offscreen
@@ -176,6 +179,14 @@ fun! s:render_buffers() abort
   endfor
 
   return s:fit_tabline(center, tabs)
+endfun "}}}
+
+fun! s:no_arglist() abort
+  " Switch off arglist mode and restart tabline rendering {{{1
+    let s:v.time_to_update = 1
+    let s:v.tabline_mode = get(filter(copy(s:Sets.tabline_modes),
+          \                    'v:val != "arglist"'), 0, 'tabs')
+    return xtabline#render#tabline()
 endfun "}}}
 
 fun! s:fit_tabline(center, tabs) abort

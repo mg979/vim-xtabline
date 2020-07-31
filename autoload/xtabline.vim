@@ -408,6 +408,10 @@ augroup plugin-xtabline
     autocmd DirChanged  * call xtabline#update()
   endif
 
+  if exists('##CmdlineLeave')
+    autocmd CmdlineLeave  * call xtabline#update()
+  endif
+
   autocmd SessionLoadPost * call s:restore_session_info()
   autocmd ColorScheme   * if s:ready() | call xtabline#hi#update_theme() | endif
 augroup END
