@@ -325,6 +325,7 @@ fun! s:bufpath(bnr) abort
     return empty(bname)
           \ ? &buftype != '' ? s:Sets.volatile_buffer
           \                  : s:Sets.unnamed_buffer
+          \ : &buftype != '' ? bufname('')
           \ : minimal ? fnamemodify(bname, ':t')
           \ : s:F.short_path(a:bnr, 1)              " shortened buffer path
 
@@ -456,6 +457,7 @@ fun! s:tab_label(tnr) abort
     return empty(fname)
           \ ? &buftype != '' ? s:Sets.volatile_buffer
           \                  : s:Sets.unnamed_buffer
+          \ : &buftype != '' ? bufname('')
           \ : minimal ? fnamemodify(fname, ':t')
           \ : s:F.short_path(bnr, 1)
 
