@@ -126,8 +126,8 @@ let s:S = {
       \ 'other_tabs_paths':           1,
       \ 'buffer_format':              2,
       \ 'recent_buffers':             10,
-      \ 'unnamed_buffer':             '...',
-      \ 'volatile_buffer':            '[Volatile]',
+      \ 'unnamed_label':             '...',
+      \ 'scratch_label':            '[Scratch]',
       \ 'tab_icon':                   ["📂", "📁"],
       \}
 

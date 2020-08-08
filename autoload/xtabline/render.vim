@@ -323,8 +323,8 @@ fun! s:bufpath(bnr) abort
 
   if !filereadable(bname)                           " new files/scratch buffers
     return empty(bname)
-          \ ? &buftype != '' ? s:Sets.volatile_buffer
-          \                  : s:Sets.unnamed_buffer
+          \ ? &buftype != '' ? s:Sets.scratch_label
+          \                  : s:Sets.unnamed_label
           \ : &buftype != '' ? bufname('')
           \ : minimal ? fnamemodify(bname, ':t')
           \ : s:F.short_path(a:bnr, 1)              " shortened buffer path
@@ -455,8 +455,8 @@ fun! s:tab_label(tnr) abort
 
   if !filereadable(fname)                           " new files/scratch buffers
     return empty(fname)
-          \ ? &buftype != '' ? s:Sets.volatile_buffer
-          \                  : s:Sets.unnamed_buffer
+          \ ? &buftype != '' ? s:Sets.scratch_label
+          \                  : s:Sets.unnamed_label
           \ : &buftype != '' ? bufname('')
           \ : minimal ? fnamemodify(fname, ':t')
           \ : s:F.short_path(bnr, 1)
