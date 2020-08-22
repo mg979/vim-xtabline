@@ -193,7 +193,13 @@ fun! s:fit_tabline(center, tabs) abort
   " Toss away tabs and pieces until all fits {{{1
   let corner_label = s:format_right_corner()
   let corner_width = s:strwidth(corner_label)
+  let argslabel = ''
   let Tabs = a:tabs
+
+  if s:v.tabline_mode == 'arglist'
+    let argslabel = "%#XTExtra# arglist %#XTFill# "
+    let corner_width += s:strwidth(argslabel)
+  endif
 
   " limit is the max bufline length
   let limit = &columns - corner_width - 1
@@ -259,7 +265,7 @@ fun! s:fit_tabline(center, tabs) abort
       let labels[n] = '%' . (n+1) . 'T' . labels[n]
     endfor
   endif
-  let labels = join(labels, '')
+  let labels = argslabel . join(labels, '')
   let g:xtabline.last_tabline = labels . '%#XTFill#%=' . corner_label . '%999X'
   return g:xtabline.last_tabline
 endfun "}}}
@@ -513,10 +519,6 @@ fun! s:format_right_corner() abort
     " special right corner with its own label
     return s:T().corner
 
-  elseif s:v.tabline_mode == 'arglist'
-    " the number of the files in the arglist, in form n/N
-    return s:right_corner_label() . "%#XTSelect# arglist " . lcd
-
   elseif !s:Sets.show_right_corner
     " no label, just the tab number in form n/N
     return s:v.tabline_mode == 'tabs' || s:hide_tab_number()
@@ -557,11 +559,7 @@ fun! s:right_corner_label() abort
     return s:v.user_labels && !empty(s:T().name)
           \   ? s:T().name : s:F.short_cwd(N, 1)
 
-  elseif s:v.tabline_mode == 'arglist'
-    let [ n, N ]  = [ index(argv(), bufname(bufnr('%'))) + 1, len(argv()) ]
-    return "%#XTNumSel# " . n .'/' . N . " "
-
-  elseif s:v.tabline_mode == 'buffers'
+  elseif s:v.tabline_mode == 'buffers' || s:v.tabline_mode == 'arglist'
     return s:v.user_labels && !empty(s:T().name)
           \ ? s:T().name : s:F.short_cwd(N, 1)
   endif
