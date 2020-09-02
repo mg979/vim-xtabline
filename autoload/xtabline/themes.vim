@@ -44,7 +44,8 @@ let s:tm_dark   = [ 241, 236, '#666666',   '#2d2d2d', 0 ]
 let s:tm_lite   = [ 252, 242, '#cccccc',   '#666666', 0 ]
 let s:bg        = { c1, c2 -> &background=='light' ? c1 : c2 }
 
-let s:Themes.seoul = { -> {
+fun! s:Themes.seoul()
+  return {
       \"XTSelect":      [ 187, 23,  '#DFDEBD',   '#007173',   1 ],
       \"XTSelectMod":   [ 174, 23,  '#DF8C8C',   '#007173',   1 ],
       \"XTVisible":     [ 223, 233, '#F2C38F',   '#171717',   0 ],
@@ -58,10 +59,12 @@ let s:Themes.seoul = { -> {
       \"XTNum":         [ 223, 233, '#F2C38F',   '#171717',   0 ],
       \"XTCorner":      [ 223, 233, '#F2C38F',   '#171717',   0 ],
       \"XTFill":        s:bg(s:fill_lite, s:fill_dark),
-      \}}
+      \}
+endfun
 
 
-let s:Themes.tomorrow = { -> {
+fun! s:Themes.tomorrow()
+  return {
       \"XTSelect":      [ 235, 151, '#262626',   '#99cc99',   1 ],
       \"XTSelectMod":   [ 210, 151, '#f2777a',   '#99cc99',   1 ],
       \"XTVisible":     [ 222, 238, '#ffcc66',   '#444444',   0 ],
@@ -71,14 +74,16 @@ let s:Themes.tomorrow = { -> {
       \"XTExtra":       [ 235, 182, '#262626',   '#cc99cc',   1 ],
       \"XTExtraMod":    [ 210, 182, '#f2777a',   '#cc99cc',   1 ],
       \"XTSpecial":     [ 239, 222, '#3C4C55',   '#ffcc66',   1 ],
-      \"XTNumSel":      [ 239, 150, '#3C4C55',   '#A8CE93',   0 ],
+      \"XTNumSel":      [ 150, 239, '#A8CE93',   '#3C4C55',   0 ],
       \"XTNum":         [ 222, 238, '#ffcc66',   '#444444',   0 ],
       \"XTCorner":      [ 222, 238, '#ffcc66',   '#444444',   0 ],
       \"XTFill":        s:bg(s:tm_lite, s:tm_dark),
-      \}}
+      \}
+endfun
 
 
-let s:Themes.dracula = { -> {
+fun! s:Themes.dracula()
+  return {
       \"XTSelect":      [ 231, 60,  '#f8f8f2',   '#6272a4', 0 ],
       \"XTSelectMod":   [ 212, 60,  '#ff79c6',   '#6272a4', 1 ],
       \"XTVisible":     [ 81,  235, '#8be9fd',   '#282a36', 0 ],
@@ -92,10 +97,12 @@ let s:Themes.dracula = { -> {
       \"XTNum":         [ 228, 235, '#f1fa8c',   '#282a36', 0 ],
       \"XTCorner":      [ 231, 60,  '#f8f8f2',   '#6272a4', 0 ],
       \"XTFill":        s:bg(s:fill_lite, [ 248, 235, '#a9a9a9', '#282a36', 0 ]),
-      \}}
+      \}
+endfun
 
 
-let s:Themes.molokai = { -> {
+fun! s:Themes.molokai()
+  return {
       \"XTSelect":      [ 185, 241, '#e6db74',   '#616161', 0 ],
       \"XTSelectMod":   [ 9,   241, '#ff0000',   '#616161', 0 ],
       \"XTVisible":     [ 185, 238, '#e6db74',   '#444444', 1 ],
@@ -109,10 +116,12 @@ let s:Themes.molokai = { -> {
       \"XTNum":         [ 185, 235, '#e6db74',   '#232526', 0 ],
       \"XTCorner":      [ 185, 238, '#e6db74',   '#444444', 1 ],
       \"XTFill":        s:bg(s:fill_lite, [ 248, 235, '#a9a9a9', '#232526', 0 ]),
-      \}}
+      \}
+endfun
 
 
-let s:Themes.codedark = { -> {
+fun! s:Themes.codedark()
+  return {
       \"XTSelect":      [ 239, 110, '#3C4C55',   '#83AFE5', 1 ],
       \"XTSelectMod":   [ 160, 110, '#cf0000',   '#83AFE5', 1 ],
       \"XTVisible":     [ 39,  234, '#569cd6',   '#1e1e1e', 1 ],
@@ -126,10 +135,12 @@ let s:Themes.codedark = { -> {
       \"XTNum":         [ 39,  236, '#569cd6',   '#333333', 1 ],
       \"XTCorner":      [ 39,  234, '#569cd6',   '#1e1e1e', 1 ],
       \"XTFill":        s:bg(s:fill_lite, [ 248, 236, '#a9a9a9', '#333333', 0 ]),
-      \}}
+      \}
+endfun
 
 
-let s:Themes.slate = { -> {
+fun! s:Themes.slate()
+  return {
       \"XTSelect":      [ 223, 234, '#f2c38f',   '#1e1e1e', 1 ],
       \"XTSelectMod":   [ 160, 234, '#cf0000',   '#1e1e1e', 1 ],
       \"XTVisible":     [ 39,  234, '#569cd6',   '#1e1e1e', 1 ],
@@ -143,7 +154,46 @@ let s:Themes.slate = { -> {
       \"XTNum":         [ 39,  239, '#569cd6',   '#4c4e50', 1 ],
       \"XTCorner":      [ 39,  234, '#569cd6',   '#1e1e1e', 1 ],
       \"XTFill":        s:bg(s:fill_lite, [ 248, 236, '#a9a9a9', '#333333', 0 ]),
-      \}}
+      \}
+endfun
+
+
+fun! s:Themes.paper()
+  return {
+      \"XTSelect":      [ 16,    255,   '#000000', '#F0ECDD', 1 ],
+      \"XTSelectMod":   [ 160,   255,   '#cf0000', '#F0ECDD', 1 ],
+      \"XTVisible":     [ 16,    252,   '#555555', '#F0ECDD', 2 ],
+      \"XTVisibleMod":  [ 160,   252,   '#cf0000', '#F0ECDD', 1 ],
+      \"XTHidden":      [ 240,   252,   '#555555', '#D4D2C9', 2 ],
+      \"XTHiddenMod":   [ 174,   252,   '#DF8C8C', '#D4D2C9', 1 ],
+      \"XTExtra":       [ 16,    249,   '#000000', '#B3B2AE', 0 ],
+      \"XTExtraMod":    [ 174,   249,   '#DF8C8C', '#B3B2AE', 0 ],
+      \"XTSpecial":     [ 252,   245,   '#D4D2C9', '#8D8C86', 0 ],
+      \"XTNumSel":      [ 252,   245,   '#F0ECDD', '#8D8C86', 1 ],
+      \"XTNum":         [ 252,   245,   '#D4D2C9', '#B3B2AE', 0 ],
+      \"XTCorner":      [ 16,    252,   '#000000', '#D4D2C9', 1 ],
+      \"XTFill":        [ 16,    252,   '#000000', '#D4D2C9', 1 ],
+      \}
+endfun
+
+
+fun! s:Themes.paramount()
+  return {
+      \"XTSelect":      [ 251, 140, '#000000', '#a790d5', 0 ],
+      \"XTSelectMod":   [ 251, 140, '#cf0000', '#a790d5', 0 ],
+      \"XTVisible":     [ 243, 0,   '#767676', '#000000', 2 ],
+      \"XTVisibleMod":  [ 160, 234, '#cf0000', '#000000', 2 ],
+      \"XTHidden":      [ 251, 236, '#C6C6C6', '#303030', 0 ],
+      \"XTHiddenMod":   [ 251, 236, '#cf0000', '#303030', 0 ],
+      \"XTExtra":       [ 251, 140, '#C6C6C6', '#a790d5', 0 ],
+      \"XTExtraMod":    [ 174, 24,  '#cf0000', '#a790d5', 0 ],
+      \"XTSpecial":     [ 235, 228, '#262626', '#ffff87', 0 ],
+      \"XTNumSel":      [ 140, 239, '#a790d5', '#4E4E4E', 1 ],
+      \"XTNum":         [ 140, 239, '#a790d5', '#4E4E4E', 1 ],
+      \"XTCorner":      [ 243, 0,   '#767676', '#000000', 2 ],
+      \"XTFill":        [ 243, 0,   '#767676', '#000000', 0 ],
+      \}
+endfun
 
 
 fun! xtabline#themes#init(theme) abort

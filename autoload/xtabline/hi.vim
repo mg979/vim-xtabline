@@ -72,7 +72,10 @@ fun! xtabline#hi#generate(name, theme) abort
   let t = a:theme | let T = {}
 
   fun! s:style(k) abort
-    let s = !a:k ? "NONE" : a:k==1 ? "BOLD" : a:k==2 ? "ITALIC" : "UNDERLINE"
+    let s =   a:k == 0 ? "NONE"
+          \ : a:k == 1 ? "BOLD"
+          \ : a:k == 2 ? "ITALIC"
+          \ : a:k == 3 ? "ITALIC,BOLD" : "UNDERLINE"
     return ("term=".s." cterm=".s." gui=".s)
   endfun
 
