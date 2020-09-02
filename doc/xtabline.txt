@@ -475,12 +475,12 @@ informations such as custom tabs labels or pinned buffers.
 Set this value to 0 to remove the label on the right corner of the tabline.
 
 
----------------------------------------- *xtabline-tab_number_in_buffers_mode*
+----------------------------------------  *xtabline-tab_number_in_left_corner*
 >
-    let g:xtabline_settings.tab_number_in_buffers_mode = 1
+    let g:xtabline_settings.tab_number_in_left_corner = 1
 <
-In buffers mode, normally the tab's number is displayed in the top right
-corner. Set this value to 0 to hide it when there is a single tab.
+Set to 0 if you prefer the current tab number to appear in the right corner.
+Note that in |tabs-mode| the number is never displayed in the right corner.
 
 
 ---------------------------------------------------- *xtabline-recent_buffers*

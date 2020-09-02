@@ -116,7 +116,7 @@ let s:S = {
       \ 'wd_type_indicator':          0,
       \ 'theme':                      'default',
       \ 'show_right_corner':          1,
-      \ 'tab_number_in_buffers_mode': 1,
+      \ 'tab_number_in_left_corner':  1,
       \ 'last_open_first':            0,
       \ 'enable_mappings':            1,
       \ 'no_icons':                   0,

@@ -193,12 +193,17 @@ fun! s:fit_tabline(center, tabs) abort
   " Toss away tabs and pieces until all fits {{{1
   let corner_label = s:format_right_corner()
   let corner_width = s:strwidth(corner_label)
-  let argslabel = ''
+  let [argslabel, tabslabel] = ['', '']
   let Tabs = a:tabs
 
   if s:v.tabline_mode == 'arglist'
     let argslabel = "%#XTExtra# arglist %#XTFill# "
     let corner_width += s:strwidth(argslabel)
+  endif
+
+  if tabpagenr('$') > 1 && s:Sets.tab_number_in_left_corner
+    let tabslabel = '%#ErrorMsg# ' . tabpagenr() . '/'. tabpagenr('$') . ' %#XTFill# '
+    let corner_width += s:strwidth(tabslabel)
   endif
 
   " limit is the max bufline length
@@ -265,7 +270,7 @@ fun! s:fit_tabline(center, tabs) abort
       let labels[n] = '%' . (n+1) . 'T' . labels[n]
     endfor
   endif
-  let labels = argslabel . join(labels, '')
+  let labels = tabslabel . argslabel . join(labels, '')
   let g:xtabline.last_tabline = labels . '%#XTFill#%=' . corner_label . '%999X'
   return g:xtabline.last_tabline
 endfun "}}}
@@ -517,7 +522,7 @@ fun! s:format_right_corner() abort
 
   if has_key(s:T(), 'corner')
     " special right corner with its own label
-    return s:T().corner
+    return s:T()['corner']
 
   elseif !s:Sets.show_right_corner
     " no label, just the tab number in form n/N
@@ -616,10 +621,8 @@ fun! s:reuse_last_tabline() abort
 endfun "}}}
 
 fun! s:hide_tab_number() abort
-  " Verify if tab number should be printed in the top right corner. {{{1
-  return tabpagenr('$') == 1 &&
-        \ s:v.tabline_mode == 'buffers' &&
-        \ !s:Sets.tab_number_in_buffers_mode
+  " If tab number should be hidden from the top right corner. {{{1
+  return tabpagenr('$') == 1 || s:Sets.tab_number_in_left_corner
 endfun "}}}
 
 
