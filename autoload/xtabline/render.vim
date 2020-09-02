@@ -172,6 +172,8 @@ fun! s:render_buffers() abort
           \           s:F.has_win(bnr)          ? 'Visible' : 'Hidden'
           \}
 
+    let buf.himod = special ? buf.hilite : buf.hilite . 'Mod'
+
     if is_currentbuf | let center = bnr | endif
 
     let buf.label = s:format_buffer(buf)
@@ -315,8 +317,7 @@ fun! s:flat_buffer(buf) abort
         \ ? ' '.s:Sets.indicators.pinned.' ' : ' '
 
   if getbufvar(B.nr, "&modified")
-    let mod .= printf("%%#XT%sMod#%s ",
-          \    (curbuf ? "Select" : "Hidden"), s:Sets.indicators.modified)
+    let mod .= printf("%%#XT%s#%s ", B.himod, s:Sets.indicators.modified)
   endif
 
   let hi     = printf(" %%#XT%s# ", B.hilite)
