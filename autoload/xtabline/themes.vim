@@ -202,6 +202,9 @@ fun! xtabline#themes#init(theme) abort
   elseif has_key(s:Themes, a:theme)
     call xtabline#hi#generate(a:theme, s:Themes[a:theme]())
     return 1
+  elseif a:theme == "custom_theme"
+    call xtabline#hi#generate("custom_theme", g:xtabline_settings.custom_theme())
+    return 1
   endif
 endfun
 
