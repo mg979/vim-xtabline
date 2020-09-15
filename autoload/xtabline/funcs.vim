@@ -118,12 +118,6 @@ if has('win32')
 endif "}}}
 
 
-fun! s:Funcs.todo_path() abort
-  " Return path for todo file for the current tab. {{{1
-  return fnameescape(getcwd() . '/' . s:Sets.todo.file)
-endfun "}}}
-
-
 fun! s:Funcs.tab_buffers() abort
   " Return a list of buffers names for this tab. {{{1
   return map(copy(s:vB()), 'bufname(v:val)')

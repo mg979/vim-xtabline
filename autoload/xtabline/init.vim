@@ -174,10 +174,8 @@ let g:xtabline_settings.icons = extend({
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 let g:xtabline_settings.todo = extend({
-      \"command": 'sp',
-      \"prefix":  'below',
+      \"command": 'split',
       \"file":    ".TODO",
-      \"size":    20,
       \"syntax":  'markdown',
       \}, get(g:xtabline_settings, 'todo', {}))
 

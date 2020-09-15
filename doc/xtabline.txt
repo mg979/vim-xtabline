@@ -427,27 +427,26 @@ OTHER COMMANDS                                                *xtabline-other*
 ==============================================================================
 
   Command                Mapping    Notes~
-  *XTabTodo*               *d
-  *XTabTheme*  [theme]     *T
-  *XTabNERDBookmarks*
+  XTabTheme  [theme]     *T
+  XTabTodo               *d
 
-Th |XTabTodo| command opens a todo file at the tab's CWD.
 
-Inside the todo buffer, `\q` does |:update| and closes the buffer.
+*XTabTheme*   prints the current theme, or sets the given one.
 
-You can define the filename and other options:
+*XTabTodo*    opens a todo file at the tab's CWD. Inside the todo buffer, `gq`
+            does |:update| and closes the buffer.
+
+            You can define the filename and other options:
 >
-  let g:xtabline_settings.todo = { 'file': '.TODO', 'prefix': 'below',
-    \'command': 'sp', 'size': 20, 'syntax': 'markdown'}
-
-`file`    : the filename that will be used
-`command` : eg. `below 20sp`, `vs`, `edit`, etc, check |opening-window|
-`syntax`  : the filetype that will be assigned
-
-
-|XTabTheme| prints the current theme, or sets the given one.
-
-|XTabNERDBookmarks| opens the list of |NERDTreeBookmarks| with fzf.
+            let g:xtabline_settings.todo = {
+                \'file': '.TODO',
+                \'command': 'split',
+                \'syntax': 'markdown'
+                \}
+<
+            `file`    : the filename that will be used
+            `command` : eg. `below 20sp`, `vs`, `edit`, etc, check |opening-window|
+            `syntax`  : the filetype that will be assigned
 
 
 

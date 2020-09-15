@@ -328,16 +328,16 @@ fun! s:tab_todo() abort
         exe w.'wincmd w'
         update
       endif
-      execute b.'bw!'
+      execute b.'bdelete'
       return
     endif
   endfor
   let todo = s:Sets.todo
   let s:v.buffer_properties = { 'name': 'TODO', 'special': 1 }
-  execute todo['command'] s:F.todo_path()
-  execute "setf" todo['syntax']
+  execute todo.command fnameescape(getcwd() . '/' . todo.file)
+  execute "setf" todo.syntax
   let b:xtab_todo = 1
-  nnoremap <silent><nowait> <buffer> \q :update<bar>bwipeout<cr>
+  nnoremap <silent><nowait> <buffer> gq :update<bar>bdelete<cr>
 endfun "}}}
 
 
