@@ -195,17 +195,18 @@ fun! s:fit_tabline(center, tabs) abort
   " Toss away tabs and pieces until all fits {{{1
   let corner_label = s:format_right_corner()
   let corner_width = s:strwidth(corner_label)
-  let [argslabel, tabslabel] = ['', '']
   let Tabs = a:tabs
 
-  if s:v.tabline_mode == 'arglist'
-    let argslabel = "%#XTExtra# arglist %#XTFill# "
-    let corner_width += s:strwidth(argslabel)
+  let modelabel = s:get_mode_label()
+  if modelabel != ''
+    let corner_width += s:strwidth(modelabel)
   endif
 
   if tabpagenr('$') > 1 && s:Sets.tab_number_in_left_corner
-    let tabslabel = '%#ErrorMsg# ' . tabpagenr() . '/'. tabpagenr('$') . ' %#XTFill# '
-    let corner_width += s:strwidth(tabslabel)
+    let tabsnums = '%#ErrorMsg# ' . tabpagenr() . '/'. tabpagenr('$') . ' %#XTFill# '
+    let corner_width += s:strwidth(tabsnums)
+  else
+    let tabsnums = ''
   endif
 
   " limit is the max bufline length
@@ -272,7 +273,7 @@ fun! s:fit_tabline(center, tabs) abort
       let labels[n] = '%' . (n+1) . 'T' . labels[n]
     endfor
   endif
-  let labels = tabslabel . argslabel . join(labels, '')
+  let labels = tabsnums . modelabel . join(labels, '')
   let g:xtabline.last_tabline = labels . '%#XTFill#%=' . corner_label . '%999X'
   return g:xtabline.last_tabline
 endfun "}}}
@@ -506,7 +507,7 @@ endfun "}}}
 
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Right corner label
+" Corner labels
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:format_right_corner() abort
@@ -570,6 +571,17 @@ fun! s:right_corner_label() abort
           \ ? s:T().name : s:F.short_cwd(N, 1)
   endif
 endfun "}}}
+
+fun! s:get_mode_label() abort
+  let [labels, mode] = [s:Sets.mode_labels, s:v.tabline_mode]
+  if labels == 'none' ||
+        \ labels == 'secondary' && index(s:Sets.tabline_modes, mode) == 0 ||
+        \ labels != 'all' && labels != 'secondary' && labels !~ mode
+    return ''
+  else
+    return printf("%%#XTExtra# %s %%#XTFill# ", mode)
+  endif
+endfun
 
 
 
