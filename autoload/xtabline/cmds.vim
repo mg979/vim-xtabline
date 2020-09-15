@@ -115,8 +115,8 @@ fun! s:change_mode(mode) abort
     let modes = copy(s:Sets.tabline_modes)
   endif
 
-  " only allow arglist as mode, if the arglist isn't empty
-  let nargs = len(map(argv(), 'bufnr(v:val)'))
+  " only allow arglist, if the arglist isn't empty and files are valid
+  let nargs = len(filter(argv(), 'filereadable(v:val)'))
   if !nargs && index(modes, 'arglist') >= 0
     call remove(modes, index(modes, 'arglist'))
     if empty(modes)
