@@ -29,21 +29,21 @@ INTRODUCTION                                           *xtabline-introduction*
 
 This plugin tries to give you full control on the tabline:
 
-* three tabline modes: tabs, (filtered) buffers, |arglist|
-* buffer filtering on the base of the CWD (also local)
-* rename tabs and/or buffers, and assign them icons
+  * three tabline modes: tabs, (filtered) buffers, |arglist|
+  * buffer filtering on the base of the CWD (also local)
+  * rename tabs and/or buffers, and assign them icons
 
 Also:
 
-* tab CWD/name is shown in the right corner of the tabline
-* commands to quickly set/change (tab/window) working directory
-* reopen closed tabs
-* clean up buffers across all tabs
-* session management and tabs bookmarks
+  * tab CWD/name is shown in the right corner of the tabline
+  * commands to quickly set/change (tab/window) working directory
+  * reopen closed tabs
+  * clean up buffers across all tabs
+  * session management and tabs bookmarks
 
 With the help of:
 
-* |vim-obsession| for optional persistance (for custom names and icons)
+  * |vim-obsession| for optional persistance (for custom names and icons)
 
 
 
@@ -54,10 +54,10 @@ FEATURES LIST                                             *xtabline-features*
 
 The main features of the plugin are:
 
-- custom tabline rendering    |xtabline-rendering|
-- |:cd| mappings                |xtabline-directories|
-- rename tabs/buffers         |xtabline-rename|
-- sessions management         |xtabline-sessions|
+  - custom tabline rendering    |xtabline-rendering|
+  - |:cd| mappings                |xtabline-directories|
+  - rename tabs/buffers         |xtabline-rename|
+  - sessions management         |xtabline-sessions|
 
 
 
@@ -68,29 +68,35 @@ TABLINE RENDERING                                         *xtabline-rendering*
 
 The tabline can be rendered in three different modes:
 
-- 'tabs':     tab name, CWD, or buffer name
-- 'arglist':  buffers contained in the arglist
-- 'buffers':  up to a max of N (default 10) recent buffers
+    - 'tabs':     tab name, CWD, or buffer name
+    - 'arglist':  buffers contained in the arglist
+    - 'buffers':  up to a max of N (default 10) recent buffers
 
 Default order is ['tabs', 'buffers', 'arglist'].
+                                                                   *tabs-mode*
+    In `tabs-mode`, the tabline will show the numbered tabs. This is the
+    closest to vim default tabline, and it's the default mode.
 
-In *tabs-mode* , the tabline will show the numbered tabs. This is the closest to
-vim default tabline, and it's the default mode.
+                                                                *arglist-mode*
+    In `arglist-mode`, the tabline will show the files included in the
+    arglist. You can switch file with the usual commands (|:next|, etc). If
+    the arglist is empty, this mode won't be available.
 
-In *arglist-mode* , the tabline will show the files included in the arglist.
-You can switch file with the usual commands (|:next|, etc). Note that if the
-arglist is empty, this mode won't be available.
+                                                                *buffers-mode*
+    In `buffers-mode`, the tabline will show a list of the most recently
+    accessed buffers (10 by default). This list will be filtered on the base
+    of the current tab's CWD, if |buffer_filtering| is active.
 
-In *buffers-mode* , the tabline will show a list of the most recently accessed
-buffers (10 by default). This list will be filtered on the base of the current
-tab's CWD, if |buffer_filtering| is active.
+    Buffer filtering makes sense if per-tab CWD is being used, either via
+    |:tcd| or |:lcd|. It means that in the tabline, only buffers whose path is
+    within the current CWD will be listed.
 
-Buffer filtering makes sense if per-tab CWD is being used, either via |:tcd|
-or |:lcd|. It means that in the tabline, only buffers whose path is within the
-current CWD will be listed.
+    Buffers and tabs can be renamed, and also given a custom icon.
 
-Buffers and tabs can be renamed, and also given a custom icon.
+Mode labels ~
 
+    In the let corner a label can be shown, that tells you the mode you're in.
+    See |mode_labels| for details.
 
 
 
@@ -111,12 +117,12 @@ directory of the current file.
 
 If the command is used with <bang>, directory prompt is skipped.
 
-Command            Mapping~
-*XTabWD* [!] [dir]    cdw     Set the global CWD
-*XTabLD* [!] [dir]    cdl     Set a window-local WD
-*XTabTD* [!] [dir]    cdt     Set a tab-local WD (where supported)
-*XTabCD* [!] [dir]    cdc     |:cd| to `[count parent]` directory of current buffer
-*XTabInfo*            cd?     show current cwd (global/local/tab), git dir, tags
+  Command            Mapping~
+  *XTabWD* [!] [dir]    cdw     Set the global CWD
+  *XTabLD* [!] [dir]    cdl     Set a window-local WD
+  *XTabTD* [!] [dir]    cdt     Set a tab-local WD (where supported)
+  *XTabCD* [!] [dir]    cdc     |:cd| to `[count]` parent directory of current buffer
+  *XTabInfo*            cd?     show cwd (global/local/tab), git dir, tags
 
 ------------------------------------------------------------------------------
 
@@ -146,39 +152,52 @@ MAIN SETTINGS                                                  *xtabline-init*
 Here are described the most important settings, for the full list read
 |xtabline-settings|.
 
-First you have to initialize the settings dictionary:
+    First you have to initialize the settings dictionary:
 >
-    let g:xtabline_settings = {}
+    let g:xtabline_settings = get(g:, 'xtabline_settings', {})
+<
 
-
--------------------------------------------------------- *xtabline-map_prefix*
->
+                                                      *xtabline-map_prefix*  >
     let g:xtabline_settings.map_prefix = '<leader>x'
+<
+        Most xtabline mappings are associated to a prefix.
+        This means that most commands will be mapped to `<leader>x` + a
+        modifier. You can change the prefix and all mappings will be changed
+        accordingly. Most mappings presented are meant prefixed by <prefix>,
+        when preceded by `*`.
 
-Most xtabline mappings are associated to a prefix.
-This means that most commands will be mapped to `<leader>x` + a modifier.
-You can change the prefix and all mappings will be changed accordingly.
-Most mappings presented are meant prefixed by <prefix>, when preceded by `*`.
 
-
------------------------------------------------------ *xtabline-tabline_modes*
+                                                      *xtabline-tabline_modes*
 >
     let g:xtabline_settings.tabline_modes = ['tabs', 'buffers', 'arglist']
+<
+        The modes that can be put in this list are:
 
-The modes that can be put in this list are:
+        - |tabs|:       similar to the default vim tabline, with CWD
+        - |buffers|:    buffer names
+        - |arglist|:    the files in the arglist, as shown by |:args|
 
-- |tabs|:       similar to the default vim tabline, with CWD in the corner
-- |buffers|:    buffer names, formatted with |xtabline-buffer_format|.
-- |arglist|:    the files contained in the arglist, as shown by |:args|
-
-The modes can be cycled with <F5> (default).
+        The modes can be cycled with <F5> (default mapping).
 
 
--------------------------------------------------- *xtabline-buffer_filtering*
+                                                        *xtabline-mode_labels*
+>
+    let g:xtabline_settings.mode_labels = 'secondary'
+<
+        This setting controls the label for the current mode, shown in the
+        left corner. Valid values are:
+
+        'secondary'  all modes, except the irst in |tabline_modes|
+        'all'        all modes
+        'none'       never
+        {modes}      one or more modes, eg. `'tabs'` or `'tabs,arglist'`
+
+
+                                                *xtabline-buffer_filtering*
 >
     let g:xtabline_settings.buffer_filtering = 1
 <
-Set this value to 0 to disable directory-based buffer filtering.
+        Set this value to 0 to disable directory-based buffer filtering.
 
 
 
@@ -188,68 +207,59 @@ Set this value to 0 to disable directory-based buffer filtering.
 BUFFERS-MODE                                                *xtabline-buffers*
 ==============================================================================
                                                       *xtabline-select-buffer*
-Plug                              Mapping~
-<Plug>(XT-Select-Buffer)          [count] <BS>
+  Plug                              Mapping~
+  <Plug>(XT-Select-Buffer)          [count] <BS>
 
-Command                           Mapping~
-XTabNextBuffer                    [count] ]b
-XTabPrevBuffer                    [count] [b
-XTabCloseBuffer                   *q
-XTabHideBuffer                    *h
-XTabMoveBuffer                    *m
-XTabMoveBufferNext                *]
-XTabMoveBufferPrev                *[
-XTabPinBuffer                     *p
+  Command                           Mapping~
+  XTabNextBuffer                    [count] ]b
+  XTabPrevBuffer                    [count] [b
+  XTabCloseBuffer                   *q
+  XTabHideBuffer                    *h
+  XTabMoveBuffer                    *m
+  XTabMoveBufferNext                *]
+  XTabMoveBufferPrev                *[
+  XTabPinBuffer                     *p
 
 ------------------------------------------------------------------------------
 
 `Select-Buffer` works this way:
 
-* it needs a [count] to work, eg. 2<BS> would bring you to buffer #2
-* when not using a [count], it will execute a command of your choice
+  * it needs a [count] to work, eg. 2<BS> would bring you to buffer #2
+  * when not using a [count], it will execute a command of your choice
 
-Define this command by changing the |select_buffer_alt_action| setting.
-Default is `:buffer #` (go to alternate buffer).
+  Define this command by changing the |select_buffer_alt_action| setting.
+  Default is `:buffer #` (go to alternate buffer).
 
-When in |tabs-mode|, [count]<BS> can still be used, and will bring you to the
-N tab (<BS> is an alias for |gt| in this case).
+  When in |tabs-mode|, [count]<BS> can still be used, and will bring you to
+  the N tab (<BS> is an alias for |gt| in this case).
 
-------------------------------------------------------------------------------
 
-*XTabNextBuffer* and *XTabPrevBuffer* accept a [count], to move to ±N buffer,
-as they are shown in the tabline.  If moving beyond the limit, it will start
-from the start (or the end).
+*XTabNextBuffer*      They accept a [count], to move to ±N buffer, as they are
+*XTabPrevBuffer*      shown in the tabline. If moving beyond the limit, it will
+                    start from the start (or the end). This works also in
+                    |tabs-mode|, by selecting buffers that belong to the tab.
 
-------------------------------------------------------------------------------
+*XTabCloseBuffer*     It will close and delete the current buffer, while
+                    keeping the window open, and loading either:
 
-*XTabCloseBuffer* will close and delete the current buffer, while keeping the
-window open, and loading either:
+                    * the alternate buffer
+                    * a valid buffer for the tab
 
-* the alternate buffer
-* a valid buffer for the tab
+*XTabHideBuffer*      Removes the buffer from the list of recent buffers for the
+                    tab, effectively hiding it from the tabline if there are
+                    enough tab buffers, otherwise it will be shown last.
+                    Then [count] (or the first) buffer will be selected.
+                    The buffer is not deleted.
 
-------------------------------------------------------------------------------
+*XTabMoveBuffer*      Move the current buffer at [count] position, or to the
+                    first position if no count is given.
 
-*XTabHideBuffer* removes the buffer from the list of recent buffers for the
-tab, effectively hiding it from the tabline if there are enough tab buffers,
-so that the next most recent one will take its place. Then [count] buffer will
-be selected, as by |Select-Buffer|. Selects first if no count is given.
-Differently from |XTabCloseBuffer|, the buffer is not deleted.
 
-------------------------------------------------------------------------------
+*XTabMoveBufferNext*  Move the current buffer to the next/previous position in
+*XTabMoveBufferPrev*  the tabline, but they only work for buffers that are
+                    considered valid for the current tab.
 
-*XTabMoveBuffer* will move the current buffer at [count] position, or first if
-no count is given.
-
-------------------------------------------------------------------------------
-
-*XTabMoveBufferNext* and *XTabMoveBufferPrev* move the current buffer to the
-next/previous position in the tabline, but they only work for buffers that are
-considered valid for the current tab.
-
-------------------------------------------------------------------------------
-
-*XTabPinBuffer* pins a buffer, so that it will be visible in all tabs.
+*XTabPinBuffer*       Pins a buffer, so that it will be visible in all tabs.
 
 
 
@@ -262,14 +272,14 @@ RENAME TABS AND BUFFERS                                      *xtabline-rename*
 You can customize tabs and buffers to give them a special name or icon.
 You can do this with the following commands:
 
-Command                Mapping    Notes~
-*XTabNameTab*            *tn        custom label for tab
-*XTabNameBuffer*         *bn                     ... buffer
-*XTabIconTab*            *ti        icon for tab
-*XTabIconBuffer*         *bi             ... buffer
-*XTabResetTab*           *tr        remove label/icon for tab
-*XTabResetBuffer*        *br                          ... buffer
-*XTabToggleLabels*       *.         visibility of custom names/icons
+  Command                Mapping    Notes~
+  *XTabNameTab*            *tn        custom label for tab
+  *XTabNameBuffer*         *bn                     ... buffer
+  *XTabIconTab*            *ti        icon for tab
+  *XTabIconBuffer*         *bi             ... buffer
+  *XTabResetTab*           *tr        remove label/icon for tab
+  *XTabResetBuffer*        *br                          ... buffer
+  *XTabToggleLabels*       *.         visibility of custom names/icons
 
 
 
@@ -280,17 +290,17 @@ TABS COMMANDS                                                  *xtabline-tabs*
 ==============================================================================
 
 
-Command                Mapping    Notes~
-*XTabLast*               *\         brings you back to the last visited tab
-*XTabReopen*             *u         reopen last closed tab
-*XTabReopenList*         *U         reopen a previosly closed tab (from list)
+  Command                Mapping    Notes~
+  *XTabLast*               *\         brings you back to the last visited tab
+  *XTabReopen*             *u         reopen last closed tab
+  *XTabReopenList*         *U         reopen a previosly closed tab (from list)
 
-*XTabListTabs*           *a         list tabs with CWDs of their active window
-*XTabListBuffers*        *z         list valid buffers for this tab
+  *XTabListTabs*           *a         list tabs with CWDs of their active window
+  *XTabListBuffers*        *z         list valid buffers for this tab
 
-*XTabLoadTab*            *tl        load a tab bookmark
-*XTabSaveTab*            *ts        save   ,,   ,,
-*XTabDeleteTab*          *td        delete ,,   ,,
+  *XTabLoadTab*            *tl        load a tab bookmark
+  *XTabSaveTab*            *ts        save   ,,   ,,
+  *XTabDeleteTab*          *td        delete ,,   ,,
 
 Saved tab bookmarks are stored in `.XTablineBookmarks`, located in your user
 vim (or neovim) directory.
@@ -302,11 +312,11 @@ vim (or neovim) directory.
 SESSION MANAGEMENT                                         *xtabline-sessions*
 ==============================================================================
 
-Command                Mapping ~
-*XTabLoadSession*        *sl
-*XTabSaveSession*        *ss
-*XTabDeleteSession*      *sd
-*XTabNewSession*         *sn
+  Command                Mapping ~
+  *XTabLoadSession*        *sl
+  *XTabSaveSession*        *ss
+  *XTabDeleteSession*      *sd
+  *XTabNewSession*         *sn
 
 Session descriptions are stored in `.XTablineSessions`, located in your user
 vim (or neovim) directory.
@@ -322,35 +332,36 @@ the description and the symbol `[%]` that marks the active session (if any).
 CLEAN-UP                                                   *xtabline-clean-up*
 ==============================================================================
 
-Command                Mapping~
-XTabResetAll           *R
-XTabPurge              *x
-XTabCleanUp            *k
-XTabCleanUp!           *K
-XTabDeleteBuffers      *bd
+  Command                Mapping~
+  XTabResetAll           *R
+  XTabPurge              *x
+  XTabCleanUp            *k
+  XTabCleanUp!           *K
+  XTabDeleteBuffers      *bd
 
 
 *XTabResetAll*
 
-A sort of panic button to remove all tabs/buffers user customizations.
+    A sort of panic button to remove all tabs/buffers user customizations.
 
 *XTabPurge*
 
-This command is handy to close all buffers that aren't bound to a physical
-file (eg. git logs, previews, quickfix windows etc). The tab won't be closed.
+    This command is handy to close all buffers that aren't bound to a physical
+    file (eg. git logs, previews, quickfix windows etc). The tab won't be
+    closed.
 
 *XTabCleanUp* [!]
 
-This command deletes all buffers from the global buffers list, that are not
-valid for any of the current tabs. Useful to get rid of terminal buffers in
-neovim, for example, or to keep slim your buffer list.
+    This command deletes all buffers from the global buffers list, that are
+    not valid for any of the current tabs. Useful to get rid of terminal
+    buffers in neovim, for example, or to keep slim your buffer list.
 
-With a bang, it also deletes tab buffers, leaving only the currently open
-windows/buffers for each tab.
+    With a bang, it also deletes tab buffers, leaving only the currently open
+    windows/buffers for each tab.
 
 *XTabDeleteBuffers*
 
-Run |:bdelete| on selected buffers (with fzf).
+    Run |:bdelete| on selected buffers (with fzf).
 
 
 
@@ -387,12 +398,12 @@ to show only the basename for tabs other than the current one, and not the
 shortened full path, as is Vim default. This can be achieved by setting:
 >
     let g:xtabline_settings.other_tabs_paths = 0
+<
 
-
------------------------------------------------------------------- *XTabPaths*
-Command                           Mapping~
-XTabPaths  [count]                *+
-XTabPaths! [count]                *-
+                                                                   *XTabPaths*
+  Command                           Mapping~
+  XTabPaths  [count]                *+
+  XTabPaths! [count]                *-
 
 These commands (and relative mappings) can be used to temporarily change the
 settings described above.
@@ -415,10 +426,10 @@ and +1/-1 (respectively).
 OTHER COMMANDS                                                *xtabline-other*
 ==============================================================================
 
-Command                Mapping    Notes~
-*XTabTodo*               *d
-*XTabTheme*  [theme]     *T
-*XTabNERDBookmarks*
+  Command                Mapping    Notes~
+  *XTabTodo*               *d
+  *XTabTheme*  [theme]     *T
+  *XTabNERDBookmarks*
 
 Th |XTabTodo| command opens a todo file at the tab's CWD.
 
@@ -446,112 +457,114 @@ SETTINGS                                                   *xtabline-settings*
 ==============================================================================
                                                          *xtabline-enabled*  >
     let g:xtabline_settings.enabled = 1
-
-If set to 0, xtabline is disabled. You can also disable it per-buffer, if you
-set a buffer variable:
->
-  let b:no_xtabline = 1
 <
-
---------------------------------------------------- *xtabline-enable_mappings*
+        If set to 0, xtabline is disabled. You can also disable it per-buffer,
+        if you set a buffer variable:
+>
+          let b:no_xtabline = 1
+<
+                                                    *xtabline-enable_mappings*
 >
     let g:xtabline_settings.enable_mappings = 1
+<
+        Mappings are enabled by default.
 
-Mappings are enabled by default.
 
-
------------------------------------------------- *xtabline-enable_persistance*
+                                                 *xtabline-enable_persistance*
 >
     let g:xtabline_settings.enable_persistance = 0
+<
+        Persistance is disabled by default. It is used to save in current
+        session file informations such as custom tabs labels or pinned
+        buffers.
 
-Persistance is disabled by default. It is used to save in current session file
-informations such as custom tabs labels or pinned buffers.
 
-
-------------------------------------------------- *xtabline-show_right_corner*
+                                                  *xtabline-show_right_corner*
 >
     let g:xtabline_settings.show_right_corner = 1
 <
-Set this value to 0 to remove the label on the right corner of the tabline.
+        Set this value to 0 to remove the label on the right corner of the
+        tabline.
 
 
-----------------------------------------  *xtabline-tab_number_in_left_corner*
+                                          *xtabline-tab_number_in_left_corner*
 >
     let g:xtabline_settings.tab_number_in_left_corner = 1
 <
-Set to 0 if you prefer the current tab number to appear in the right corner.
-Note that in |tabs-mode| the number is never displayed in the right corner.
+        Set to 0 if you prefer the current tab number to appear in the right
+        corner. In |tabs-mode| the number is never displayed in the right
+        corner.
 
 
----------------------------------------------------- *xtabline-recent_buffers*
+                                                     *xtabline-recent_buffers*
 >
     let g:xtabline_settings.recent_buffers = 10
+<
+        The number of buffers that can be shown in the tabline is limited (by
+        default) to the 10 most recently accessed buffers.
 
-The number of buffers that can be shown in the tabline is limited (by default)
-to the 10 most recently accessed buffers.
 
-
------------------------------------------------------- *xtabline-special_tabs*
+                                                       *xtabline-special_tabs*
 >
     let g:xtabline_settings.special_tabs = 0
+<
+        In |tabs-mode|, special buffers don't have a special highlighting by
+        default. Set to 1 if you want it also in tabs mode.
 
-In |tabs-mode|, special buffers don't have a special highlighting by default.
-Set to 1 if you want it also in tabs mode.
 
-
---------------------------------------------------- *xtabline-last_open_first*
+                                                    *xtabline-last_open_first*
 >
     let g:xtabline_settings.last_open_first = 0
+<
+        Valid buffers will be ordered by time of access. Special or extra
+        buffers can still be listed before them, but they are also highlighted
+        differently.
 
-Valid buffers will be ordered by time of access. Note that special or extra
-buffers can still be listed before them, but they are also highlighted
-differently.
 
-
------------------------------------------------------ *xtabline-buffer_format*
+                                                      *xtabline-buffer_format*
 >
     let g:xtabline_settings.buffer_format = 2
+<
+        This setting controls how the buffers are formatted in the tabline.
+        Valid values are:
 
-This setting controls how the buffers are formatted in the tabline. Valid
-values are:
+        `1`     the buffer number (as by bufnr('%')), and the buffer base name
+        `2`     the buffer position in the tabline, and the buffer base name
+        `func`  a funcref (the buffer number is passed as parameter)
 
-  `1`       the buffer number (as by bufnr('%')), and the buffer base name
-  `2`       the buffer position in the tabline, and the buffer base name
-  `func`    a funcref (the buffer number is passed as parameter)
-
-Function example:
+        Function example:
 >
-    fun! MyBuflineFormat(bufnr)
-      let A = '%#TabLineSel#'
-      let B = bufnr('%') == a:bufnr ? '%#PmenuSel#' : '%#TabLine#'
-      let name = bufname(a:bufnr) != '' ? bufname(a:bufnr) : '...'
-      return printf('%s %s %s %s ', A, a:bufnr, B, name)
-    endfun
+        fun! MyBuflineFormat(bufnr)
+          let A = '%#TabLineSel#'
+          let B = bufnr('%') == a:bufnr ? '%#PmenuSel#' : '%#TabLine#'
+          let name = bufname(a:bufnr) != '' ? bufname(a:bufnr) : '...'
+          return printf('%s %s %s %s ', A, a:bufnr, B, name)
+        endfun
 
-    let g:xtabline_settings.buffer_format = function('MyBuflineFormat')
+        let g:xtabline_settings.buffer_format = function('MyBuflineFormat')
+<
 
-
------------------------------------------------------- *xtabline-use_devicons*
+                                                       *xtabline-use_devicons*
 >
     let g:xtabline_settings.use_devicons = 1
 <
-Enabled by default, if |vim-devicons| is installed, labels will use the
-filetype icon provided by said plugin. A custom icon has higher precedence.
+        Enabled by default, if |vim-devicons| is installed, labels will use
+        the filetype icon provided by said plugin. A custom icon has higher
+        precedence.
 
 
-------------------------------------------------- *xtabline-wd_type_indicator*
+                                                  *xtabline-wd_type_indicator*
 >
     let g:xtabline_settings.wd_type_indicator = 0
 <
-Disabled by default, if enabled it adds an indicator in the right corner:
+        Disabled by default, if enabled it adds an indicator in the right
+        corner:
 
-- `W`: there is a window-local directory set for the current buffer
-- `T`: there is a tab-local directory set for the current tab
+        - `W`: there is a window-local directory set for the current buffer
+        - `T`: there is a tab-local directory set for the current tab
 
-Only one letter will be shown, and window-local directories override tab-local
-ones.
-
-
+        Only one letter will be shown, and window-local directories override
+        tab-local ones.
 
 
 
@@ -561,70 +574,66 @@ OTHER OPTIONS                                               *xtabline-options*
 
 You can add any of these to your `.vimrc`, after having initialized the
 `g:xtabline_settings` dictionary.
-
-    let g:xtabline_settings = {}
+>
+    let g:xtabline_settings = get(g:, 'xtabline_settings', {})
     let g:xtabline_settings.option_name = option_value
+<
+    Option                     Default ~
+    select_buffer_alt_action   `buffer #`
+    sessions_path              {USERDIR}`/session`
+    bookmarks_file             {USERDIR}`/.XTablineBookmarks`
+    sessions_data              {USERDIR}`/.XTablineSessions`
 
-{USERDIR} is the default directory that will be searched for sessions and data
-files is either `/.vim`, `/vimfiles` or the neovim data directory.
-
----------------------------+--------------------------------------------------
-Option                     | Default ~
----------------------------+--------------------------------------------------
-select_buffer_alt_action   | `buffer #`
-sessions_path              | {USERDIR}`/session`
-bookmarks_file             | {USERDIR}`/.XTablineBookmarks`
-sessions_data              | {USERDIR}`/.XTablineSessions`
+    {USERDIR} is the default directory that will be searched for sessions and
+    data files is either `/.vim`, `/vimfiles` or the neovim data directory.
 
 
 LAZY LOADING                                                   *xtabline-lazy*
 
-If you want to lazy load the plugin (since it can affect your startup time),
-set: >
-      let g:xtabline_lazy = 1
-
-The plugin will then load after you add/create a buffer after the first one,
-or you can initialize it with the command `XTablineInit`. Until then, mappings
-and commands will not work.
+    If you want to lazy load the plugin (since it can affect your startup time),
+    set: >
+          let g:xtabline_lazy = 1
+<
+    The plugin will then load after you add/create a buffer after the first
+    one, or you can initialize it with the command `XTablineInit`. Until then,
+    mappings and commands will not work.
 
 
 FORMATTING                                               *xtabline-formatting*
 
----------------------------+--------------------------------------------------
-Option                     | Default ~
----------------------------+--------------------------------------------------
-buffers_paths              | 1
-current_tab_paths          | 1
-other_tabs_paths           | 1
-buffer_format              | 2
-tab_icon                   | ["📂", "📁"]
+    Option                     Default ~
+    buffers_paths              1
+    current_tab_paths          1
+    other_tabs_paths           1
+    buffer_format              2
+    tab_icon                   ["📂", "📁"]
 
-`icons` are the ones that can be used when assigning an icon to a tab/buffer,
-and can be used in other contexts (special buffers icon).
+    `icons` are the ones that can be used when assigning an icon to a tab/buffer,
+    and can be used in other contexts (special buffers icon).
 >
-  let g:xtabline_settings.indicators = {
-      \ 'modified': '[+]',
-      \ 'pinned': '[📌]',
-      \}
+    let g:xtabline_settings.indicators = {
+        \ 'modified': '[+]',
+        \ 'pinned': '[📌]',
+        \}
 
-  let g:xtabline_settings.icons = {
-      \'pin': '📌',
-      \'star': '★',
-      \'book': '📖',
-      \'lock': '🔒',
-      \'hammer': '🔨',
-      \'tick': '✔',
-      \'cross': '✖',
-      \'warning': '⚠',
-      \'menu': '☰',
-      \'apple': '🍎',
-      \'linux': '🐧',
-      \'windows': '⌘',
-      \'git': '',
-      \'palette': '🎨',
-      \'lens': '🔍',
-      \'flag': '🏁',
-      \}
+    let g:xtabline_settings.icons = {
+        \'pin': '📌',
+        \'star': '★',
+        \'book': '📖',
+        \'lock': '🔒',
+        \'hammer': '🔨',
+        \'tick': '✔',
+        \'cross': '✖',
+        \'warning': '⚠',
+        \'menu': '☰',
+        \'apple': '🍎',
+        \'linux': '🐧',
+        \'windows': '⌘',
+        \'git': '',
+        \'palette': '🎨',
+        \'lens': '🔍',
+        \'flag': '🏁',
+        \}
 
 
 
@@ -680,8 +689,8 @@ persistance will not be enabled on sessions that aren't handled by
 You may need some patched font for icons. In a Debian-based distribution you
 can install the following packages:
 
-- ttf-ancient-fonts-symbola
-- fonts-powerline
+  - ttf-ancient-fonts-symbola
+  - fonts-powerline
 
 In Windows, one of the pre-patched `nerd-fonts` is recommended.
 
