@@ -340,28 +340,20 @@ CLEAN-UP                                                   *xtabline-clean-up*
   XTabDeleteBuffers      *bd
 
 
-*XTabResetAll*
+*XTabResetAll*        A sort of panic button to remove all tabs/buffers user
+                    customizations.
 
-    A sort of panic button to remove all tabs/buffers user customizations.
+*XTabPurge*           This command is handy to close all buffers that aren't
+                    bound to a physical file (eg. git logs, previews, quickfix
+                    windows etc). The tab won't be closed.
 
-*XTabPurge*
+*XTabCleanUp* [!]     This command deletes all buffers from the global buffers
+                    list, that are not valid for any of the current tabs.
+                    Useful to keep slim your buffer list. With <bang>, it will
+                    only leave the currently open windows/buffers for each
+                    tab.
 
-    This command is handy to close all buffers that aren't bound to a physical
-    file (eg. git logs, previews, quickfix windows etc). The tab won't be
-    closed.
-
-*XTabCleanUp* [!]
-
-    This command deletes all buffers from the global buffers list, that are
-    not valid for any of the current tabs. Useful to get rid of terminal
-    buffers in neovim, for example, or to keep slim your buffer list.
-
-    With a bang, it also deletes tab buffers, leaving only the currently open
-    windows/buffers for each tab.
-
-*XTabDeleteBuffers*
-
-    Run |:bdelete| on selected buffers (with fzf).
+*XTabDeleteBuffers*   Run |:bdelete| on selected buffers (with fzf).
 
 
 
