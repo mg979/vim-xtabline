@@ -331,8 +331,6 @@ endfun "}}}
 fun! s:tab_load(...) abort
   " Load a saved tab bookmark.  {{{1
   let json = json_decode(readfile(s:Sets.bookmarks_file)[0])
-  let s:v.halt = 1
-
   for bm in a:000
     let name = substitute(bm, '\(\w*\)\s*\t.*', '\1', '')
     let saved = json[name]
@@ -391,13 +389,11 @@ fun! s:tab_load(...) abort
           \       [cd.' cwd has been set to: '.cwd, 'None']])
   endif
 
-  let s:v.halt = 0
   call xtabline#update()
 endfun
 
 fun! s:abort_load(name, fzf_line, error_type) abort
   " Invalid saved tab, abort operation.
-  let s:v.halt = 0
   if a:error_type == 'buffers'
     call s:F.msg([[ a:name, 'Type' ],
           \[ ": no saved buffers. Remove entry?\t", 'WarningMsg' ]])

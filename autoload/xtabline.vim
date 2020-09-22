@@ -11,7 +11,6 @@ let s:Sets = g:xtabline_settings
 let s:v.tab_properties = {}                     "if not empty, newly created tab will inherit them
 let s:v.buffer_properties = {}                  "if not empty, newly created tab will inherit them
 let s:v.user_labels    = 1                      "tabline shows custom names/icons
-let s:v.halt           = 0                      "used to temporarily halt some functions
 
 let s:T  = { -> s:X.Tabs[tabpagenr()-1] }       "current tab
 let s:vB = { -> s:T().buffers.valid     }       "valid buffers for tab
@@ -22,7 +21,7 @@ let s:rB = { -> s:T().buffers.recent    }       "recent buffers for tab
 
 let s:invalid    = { b -> !buflisted(b) || getbufvar(b, "&buftype") != '' }
 let s:is_open    = { b -> s:F.has_win(b) && getbufvar(b, "&ma") }
-let s:ready      = { -> !(exists('g:SessionLoad') || s:v.halt) }
+let s:ready      = { -> !exists('g:SessionLoad') && get(s:v, 'filter_buffers', 0) }
 let s:v.slash    = exists('+shellslash') && !&shellslash ? '\' : '/'
 "}}}
 
@@ -183,6 +182,7 @@ fun! xtabline#filter_buffers(...) abort
   elseif  !s:ready()                 | return
   endif
 
+  let s:v.filter_buffers = 0
   " Types of tab buffers:
   "
   " 'valid' is a list of buffer numbers that belong to the tab, either because:
@@ -398,6 +398,9 @@ augroup plugin-xtabline
   autocmd VimResized    * call xtabline#update()
   autocmd VimLeavePre   * call xtabline#update_this_session()
 
+  " set the flag so that buffers are refiltered
+  autocmd BufAdd        * let s:v.filter_buffers = 1
+
   if has('nvim')
     autocmd TermOpen     * call s:Do('terminal')
   else
@@ -413,7 +416,7 @@ augroup plugin-xtabline
   endif
 
   autocmd SessionLoadPost * call s:restore_session_info()
-  autocmd ColorScheme   * if s:ready() | call xtabline#hi#update_theme() | endif
+  autocmd ColorScheme     * call xtabline#hi#update_theme()
 augroup END
 
 " vim: et sw=2 ts=2 sts=2 fdm=marker
