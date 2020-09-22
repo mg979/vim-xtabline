@@ -19,20 +19,6 @@ let s:Funcs.has_win = { b -> index(s:Funcs.wins(), b) >= 0 }
 " Misc functions
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-
-fun! s:Funcs.delay(time, func) abort
-  " Call a function with a timer {{{1
-
-  " if exists('g:SessionLoad') || s:v.halt | return | endif
-  let s:delayed_func = a:func
-  call timer_start(a:time, self._delay)
-endfun
-
-fun! s:Funcs._delay(timer) abort
-  exe "call" s:delayed_func
-endfun "}}}
-
-
 fun! s:Funcs.input(prompt, ...) abort
   " Input with colored prompt. {{{1
   echohl Label
