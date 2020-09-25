@@ -13,7 +13,7 @@ let s:vB = { -> s:T().buffers.valid     }       "valid buffers for tab
 let s:eB = { -> s:T().buffers.extra     }       "extra buffers for tab
 let s:oB = { -> s:T().buffers.order     }       "ordered buffers for tab
 
-let s:buf        = { nr -> get(s:X.Buffers, nr, s:X._buffers[nr]) }
+let s:buf        = function('xtabline#buffer#get')
 let s:is_special = { nr -> s:buf(nr).special }
 let s:is_open    = { n -> s:F.has_win(n) && index(s:vB(), n) < 0 && getbufvar(n, "&ma") }
 let s:is_extra   = { n -> index(s:eB(), n) >= 0 }

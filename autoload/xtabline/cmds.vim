@@ -513,6 +513,7 @@ fun! s:reset_all(...) abort
   let s:X.Buffers = {}
   let s:X._buffers = {}
   let s:X.Tabs = []
+  let s:v.filter_buffers = 1
   call xtabline#tab#check_all()
   call xtabline#update()
 endfun "}}}

@@ -39,35 +39,30 @@ fun! xtabline#buffer#add(nr) abort
     if has_key(s:X.Buffers, a:nr) | unlet s:X.Buffers[a:nr] | endif
     let s:X._buffers[a:nr] = s:template(a:nr)
   endif
+  return s:X._buffers[a:nr]
 endfun
 
 
 fun! xtabline#buffer#get(nr) abort
   " Get buffer properties while filtering.
-  call xtabline#buffer#add(a:nr) " ensure buffer is indexed
-  let bufdict = has_key(s:X.Buffers, a:nr) ? s:X.Buffers : s:X._buffers
-  return bufdict[a:nr]
+  return get(s:X.Buffers, a:nr, get(s:X._buffers, a:nr, xtabline#buffer#add(a:nr)))
 endfun
 
 
 fun! xtabline#buffer#update(nr) abort
   " Refresh buffer informations.
-  call xtabline#buffer#add(a:nr) " ensure buffer is indexed
-
-  let bufdict = has_key(s:X.Buffers, a:nr) ? s:X.Buffers : s:X._buffers
-  let bufdict[a:nr].path = s:bufpath(bufname(a:nr))
+  let buf = xtabline#buffer#get(a:nr)
+  let buf.path = s:bufpath(bufname(a:nr))
 endfun
 
 
 fun! xtabline#buffer#is_special(nr) abort
   " Check if a buffer is special.
-  call xtabline#buffer#add(a:nr) " ensure buffer is indexed
-
-  let bufdict = has_key(s:X.Buffers, a:nr) ? s:X.Buffers : s:X._buffers
-  if !bufdict[a:nr].special
-    call extend(bufdict[a:nr], s:is_special(a:nr))
+  let buf = xtabline#buffer#get(a:nr)
+  if !buf.special
+    call extend(buf, s:is_special(a:nr))
   endif
-  return bufdict[a:nr].special
+  return buf.special
 endfun
 
 
@@ -97,12 +92,9 @@ endfun
 
 fun! xtabline#buffer#terminal(nr) abort
   " Set special label for terminal buffers.
-  call xtabline#buffer#add(a:nr) " ensure buffer is indexed
-
-  let bufdict = has_key(s:X.Buffers, a:nr) ? s:X.Buffers : s:X._buffers
-
+  let buf = xtabline#buffer#get(a:nr)
   " buffer has already been labeled
-  if bufdict[a:nr].special | return | endif
+  if buf.special | return | endif
 
   if bufname(a:nr) =~ ';#FZF$'
     let name = 'FZF'
@@ -115,7 +107,7 @@ fun! xtabline#buffer#terminal(nr) abort
     let name = 'TERMINAL'
   endif
 
-  call extend(bufdict[a:nr], {'name': name, 'special': 1})
+  call extend(buf, {'name': name, 'special': 1})
 endfun
 
 
