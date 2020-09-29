@@ -449,11 +449,9 @@ SETTINGS                                                   *xtabline-settings*
                                                          *xtabline-enabled*  >
     let g:xtabline_settings.enabled = 1
 <
-        If set to 0, xtabline is disabled. You can also disable it per-buffer,
-        if you set a buffer variable:
->
-          let b:no_xtabline = 1
-<
+        If set to 0, xtabline is disabled.
+
+
                                                     *xtabline-enable_mappings*
 >
     let g:xtabline_settings.enable_mappings = 1

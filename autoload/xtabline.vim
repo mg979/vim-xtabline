@@ -155,7 +155,7 @@ endfun "}}}
 fun! xtabline#update(...) abort
   "
   " Set the variable that triggers tabline update. {{{1
-  if !s:Sets.enabled || ( exists('b:no_xtabline') && b:no_xtabline )
+  if !s:Sets.enabled
     return
   elseif empty(s:Sets.tabline_modes)
     set tabline=
