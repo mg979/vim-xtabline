@@ -35,10 +35,11 @@ fun! xtabline#init() abort
   set showtabline=2
   let s:X.Funcs = xtabline#funcs#init()
   let s:F = s:X.Funcs
-  let s:v.filter_buffers = 1
   call xtabline#maps#init()
   call xtabline#tab#check_all()
-  call xtabline#update()
+  let s:v.filter_buffers = 1
+  let s:v.time_to_update = 1
+  set tabline=%!xtabline#render#tabline()
 endfun "}}}
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -153,16 +154,17 @@ endfun "}}}
 " Update tabline
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
+" Set the flag that allows tabline update.
+
 fun! xtabline#update(...) abort
-  "
-  " Set the variable that triggers tabline update. {{{1
+  "{{{1
   if !s:Sets.enabled
     return
-  elseif empty(s:Sets.tabline_modes)
+  elseif empty(s:Sets.tabline_modes) && !empty(&tabline)
     set tabline=
   else
     let s:v.time_to_update = 1
-    set tabline=%!xtabline#render#tabline()
+    redrawtabline
   endif
 endfun "}}}
 
