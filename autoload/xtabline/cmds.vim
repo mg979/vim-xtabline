@@ -102,6 +102,19 @@ fun! xtabline#cmds#run(cmd, ...) abort
 endfun " }}}
 
 
+fun! s:toggle() abort
+  " Toggle XTabline. {{{1
+  if s:Sets.enabled
+    let s:Sets.enabled = 0
+    set tabline=
+  else
+    let s:Sets.enabled = 1
+    let s:v.filter_buffers = 1
+    let s:v.time_to_update = 1
+    set tabline=%!xtabline#render#tabline()
+  endif
+endfun "}}}
+
 fun! s:change_mode(mode) abort
   " Cycle the active tabline mode. "{{{1
 

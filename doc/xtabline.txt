@@ -418,10 +418,13 @@ and +1/-1 (respectively).
 OTHER COMMANDS                                                *xtabline-other*
 ==============================================================================
 
-  Command                Mapping    Notes~
+  Command                Mapping~
+  XTabToggle
   XTabTheme  [theme]     *T
   XTabTodo               *d
 
+
+*XTabToggle*  toggle the tabline rendering on and off
 
 *XTabTheme*   prints the current theme, or sets the given one.
 
@@ -584,8 +587,8 @@ LAZY LOADING                                                   *xtabline-lazy*
           let g:xtabline_lazy = 1
 <
     The plugin will then load after you add/create a buffer after the first
-    one, or you can initialize it with the command `XTablineInit`. Until then,
-    mappings and commands will not work.
+    one, or you can initialize it with the command |XTabToggle|.
+    Until then, mappings and commands will not work.
 
 
 FORMATTING                                               *xtabline-formatting*

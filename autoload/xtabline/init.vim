@@ -58,6 +58,7 @@ com! -count           XTabMoveBufferPrev      call xtabline#cmds#run('move_buffe
 com! -count           XTabMoveBuffer          call xtabline#cmds#run('move_buffer_to', <count>)
 com! -count           XTabHideBuffer          call xtabline#cmds#run('hide_buffer', <count>)
 com!                  XTabLastTab             call xtabline#cmds#run('goto_last_tab')
+com!                  XTabToggle              call xtabline#cmds#run('toggle')
 com!                  XTabInfo                call xtabline#dir#info()
 com!                  XTablineUpdate          call xtabline#update()
 
@@ -191,7 +192,6 @@ endif
 if get(g:, 'xtabline_lazy', 0)
   silent! autocmd! xtabline_lazy
   silent! augroup! xtabline_lazy
-  delcommand XTablineInit
   call xtabline#init()
   silent! delfunction XtablineStarted
   doautocmd BufEnter

@@ -38,7 +38,7 @@ if exists("g:loaded_xtabline")
 endif
 
 if get(g:, 'xtabline_lazy', 0)
-  command! XTablineInit call xtabline#init#start()
+  command! XTabToggle call xtabline#init#start()
 
   " load on TabNew, BufAdd or SessionLoadPost
   augroup xtabline_lazy
