@@ -107,7 +107,7 @@ fun! s:render_buffers() abort
     for b in s:F.wins()
       if s:buf(b).special
         call add(specials, b)
-      elseif s:is_open(b)
+      elseif s:is_open(b) && getbufvar(b, '&buftype') == ''
         call add(front, b)
       endif
     endfor
