@@ -259,24 +259,5 @@ fun! s:Funcs.bdelete(buf) abort
 endfun "}}}
 
 
-fun! s:Funcs.not_enough_buffers(pinned) abort
-  " Just return if there aren't enough buffers. {{{1
-
-  let bufs = a:pinned ? s:v.pinned_buffers : s:oB()
-  let pin  = a:pinned ? ' pinned ' : ' '
-
-  if len(bufs) < 2
-    if empty(bufs)
-      call self.msg([[ "No available".pin."buffers for this tab.", 'WarningMsg' ]])
-    elseif index(bufs, bufnr("%")) == -1
-      return
-    else
-      call self.msg([[ "No other available".pin."buffers for this tab.", 'WarningMsg' ]])
-    endif
-    return 1
-  endif
-endfun "}}}
-
-
 " vim: et sw=2 ts=2 sts=2 fdm=marker
 

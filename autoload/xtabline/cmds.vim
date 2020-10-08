@@ -46,7 +46,7 @@ endfun "}}}
 
 fun! xtabline#cmds#next_buffer(nr, last) abort
   " Switch to next visible/pinned buffer. "{{{1
-  if s:F.not_enough_buffers(0) | return | endif
+  if s:not_enough_buffers() | return | endif
   let max = min([len(s:oB()) - 1, s:Sets.recent_buffers - 1])
   let nr = a:nr > max + 1 ? a:nr % (max + 1) : a:nr ? a:nr : 1
 
@@ -70,7 +70,7 @@ endfun "}}}
 
 fun! xtabline#cmds#prev_buffer(nr, first) abort
   " Switch to previous visible/pinned buffer. "{{{1
-  if s:F.not_enough_buffers(0) | return | endif
+  if s:not_enough_buffers() | return | endif
   let max = min([len(s:oB()) - 1, s:Sets.recent_buffers - 1])
   let nr = a:nr > max + 1 ? a:nr % (max + 1) : a:nr ? a:nr : 1
 
@@ -540,5 +540,21 @@ fun! s:invalid_buffer(b) abort
     return 1
   endif
 endfun " }}}
+
+fun! s:not_enough_buffers() abort
+  "{{{1
+  let bufs = s:oB()
+  if len(bufs) < 2
+    if empty(bufs)
+      call self.msg([[ "No available buffers for this tab.", 'WarningMsg' ]])
+      return v:true
+    elseif index(bufs, bufnr("%")) >= 0
+      call self.msg([[ "No other available buffers for this tab.", 'WarningMsg' ]])
+      return v:true
+    endif
+  endif
+  return v:false
+endfun "}}}
+
 
 " vim: et sw=2 ts=2 sts=2 fdm=marker
