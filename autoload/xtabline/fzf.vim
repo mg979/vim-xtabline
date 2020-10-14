@@ -552,7 +552,7 @@ fun! s:session_load(file) abort " {{{1
   "-----------------------------------------------------------
   " confirm session unloading
 
-  if get(s:Sets, 'unload_session_ask_confirm', 1) &&
+  if exists('g:this_session') && get(s:Sets, 'unload_session_ask_confirm', 1) &&
         \ !s:F.confirm("Current session will be unloaded. Confirm?")
     return s:F.msg("Canceled.", 1)
   endif
