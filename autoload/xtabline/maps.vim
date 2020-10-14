@@ -2,7 +2,7 @@
 " Mappings
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:xtabline_base_mappings() abort
+fun! s:base_mappings() abort
   if !hasmapto('<Plug>(XT-Select-Buffer)')
     silent! nmap <BS> <Plug>(XT-Select-Buffer)
   endif
@@ -49,7 +49,7 @@ fun! s:xtabline_base_mappings() abort
 endfun
 
 
-fun! s:xtabline_prefix_mappings() abort
+fun! s:prefix_mappings() abort
   let S = g:xtabline_settings
   let X = substitute(S.map_prefix, '<leader>', get(g:, 'mapleader', '\'), 'g')
 
@@ -91,7 +91,6 @@ fun! s:xtabline_prefix_mappings() abort
   call s:mapkey_(X.'sn', 'NewSession')
 
   exe 'nnoremap' X '<Nop>'
-  call feedkeys(X)
 endfun
 
 
@@ -99,12 +98,13 @@ function! xtabline#maps#init()
   nnoremap <unique> <silent> <expr> <Plug>(XT-Select-Buffer) v:count
         \ ? xtabline#cmds#select_buffer(v:count-1)
         \ : ":\<C-U>".g:xtabline_settings.select_buffer_alt_action."\<cr>"
-  if g:xtabline_settings.enable_mappings
-    call s:xtabline_base_mappings()
-    let x = g:xtabline_settings.map_prefix
-    if empty(mapcheck(x, 'n'))
-      exe 'nnoremap <silent>' x ':<c-u>call <sid>xtabline_prefix_mappings()<cr>'
+  let S = g:xtabline_settings
+  if S.enable_mappings
+    call s:base_mappings()
+    if get(g:, 'mapleader', '\') =~ ' \+'
+      let S.map_prefix = substitute(S.map_prefix, '<leader>', '<space>', 'g')
     endif
+    call s:prefix_mappings()
   endif
 endfunction
 
