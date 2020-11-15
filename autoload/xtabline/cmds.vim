@@ -418,57 +418,40 @@ endfun "}}}
 fun! s:name_buffer(label) abort
   " Rename the current buffer. "{{{1
   if empty(a:label) | return | endif
-  let B = s:F.set_buffer_var('name', a:label)
-  if empty(B) | return | endif
+  let B = s:F.set_buffer_var(bufnr(''), 'name', a:label)
+  if &buftype != ''
+    let B.special = 1
+  endif
   call xtabline#update()
 endfun "}}}
 
 
 fun! s:get_icon(ico) abort
   " Get current icon for this tab. "{{{1
-
   let I = get(s:Sets, 'icons', {})
   if index(keys(I), a:ico) >= 0
     return I[a:ico]
   elseif strchars(a:ico) == 1
     return a:ico
   else
-    return s:F.msg([[ "Invalid icon.", 'WarningMsg']])
+    call s:F.msg([[ "Invalid icon.", 'WarningMsg']])
+    return ''
   endif
 endfun "}}}
 
 
 fun! s:tab_icon(bang, icon) abort
   " Set an icon for this tab. "{{{1
-
   let T = s:T()
-  if a:bang
-    let T.icon = ''
-  else
-    let icon = s:get_icon(a:icon)
-    if !empty(icon)
-      let T = s:T()
-      let T.icon = icon
-    endif
-  endif
+  let T.icon = a:bang ? '' : s:get_icon(a:icon)
   call xtabline#update()
 endfun "}}}
 
 
 fun! s:buffer_icon(bang, icon) abort
   " Set an icon for this buffer. "{{{1
-
-  let B = s:F.set_buffer_var('icon')
-  if empty(B) | return | endif
-
-  if a:bang
-    let B.icon = ''
-  else
-    let icon = s:get_icon(a:icon)
-    if !empty(icon)
-      let B.icon = icon
-    endif
-  endif
+  let icon = a:bang ? '' : s:get_icon(a:icon)
+  call s:F.set_buffer_var(bufnr(''), 'icon', icon)
   call xtabline#update()
 endfun "}}}
 
@@ -479,8 +462,10 @@ fun! s:toggle_pin_buffer(...) abort
   let B = bufnr('%') | let i = s:pinned(B)
 
   if a:0 && match(a:1, "\S") >= 0
-    if empty(s:F.set_buffer_var('name', a:1)) | return | endif
-  elseif i < 0 && s:invalid_buffer(B)         | return | endif
+    call s:F.set_buffer_var(B, 'name', a:1)
+  elseif i < 0 && s:invalid_buffer(B)
+    return
+  endif
 
   if i >= 0
     call remove(s:X.pinned_buffers, i)

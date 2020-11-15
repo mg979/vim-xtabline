@@ -52,20 +52,16 @@ fun! s:Funcs.confirm(txt) abort
 endfun "}}}
 
 
-fun! s:Funcs.set_buffer_var(var, ...) abort
-  " Init buffer variable in Tabs dict to 0 or a given value. {{{1
-  " Return buffer dict if successful
-  let B = bufnr('%') | let bufs = s:X.Buffers | let val = a:0 ? a:1 : 0
-
-  if !self.is_tab_buffer(B)
-    call self.msg([[ "Invalid buffer.", 'WarningMsg']])
-    return {}
-  endif
+fun! s:Funcs.set_buffer_var(buf, var, val) abort
+  " Set variable in Buffers dict to given value. Return buffer dict. {{{1
+  let [B, bufs] = [a:buf, s:X.Buffers]
 
   " create key in custom buffers dict if buffer wasn't customized yet
-  if !has_key(bufs, B) | let s:X.Buffers[B] = copy(s:X._buffers[B]) | endif
+  if !has_key(bufs, B)
+    let bufs[B] = copy(s:X._buffers[B])
+  endif
 
-  let bufs[B][a:var] = val
+  let bufs[B][a:var] = a:val
   return bufs[B]
 endfun "}}}
 
