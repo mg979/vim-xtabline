@@ -400,7 +400,7 @@ augroup plugin-xtabline
   autocmd VimLeavePre   * call xtabline#update_this_session()
 
   " set the flag so that buffers are refiltered
-  autocmd BufAdd,BufUnload * let s:v.filter_buffers = 1
+  autocmd BufAdd,BufUnload,BufFilePost * let s:v.filter_buffers = 1
 
   if has('nvim')
     autocmd TermOpen     * call s:Do('terminal')
