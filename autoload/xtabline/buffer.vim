@@ -8,8 +8,7 @@ let s:F = s:X.Funcs
 let s:v = s:X.Vars
 let s:Sets = g:xtabline_settings
 
-let s:T       = { -> s:X.Tabs[tabpagenr()-1] }
-let s:bufpath = { f -> filereadable(f) ? s:F.fullpath(f) : '' }
+let s:T = { -> s:X.Tabs[tabpagenr()-1] }
 
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 " Template
@@ -19,7 +18,7 @@ fun! s:template(nr) abort
   " Template for buffer entry.
   let buf = {
         \ 'name':    '',
-        \ 'path':    s:bufpath(bufname(a:nr)),
+        \ 'path':    fnamemodify(bufname(a:nr), ':p'),
         \ 'icon':    '',
         \}
 
@@ -52,7 +51,7 @@ endfun
 fun! xtabline#buffer#update(nr) abort
   " Refresh buffer informations.
   let buf = xtabline#buffer#get(a:nr)
-  let buf.path = s:bufpath(bufname(a:nr))
+  let buf.path = fnamemodify(bufname(a:nr), ':p')
 endfun
 
 
