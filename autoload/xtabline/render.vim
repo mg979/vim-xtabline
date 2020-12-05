@@ -611,8 +611,8 @@ fun! s:get_default_buffer_format() abort
 endfun "}}}
 
 fun! s:ready() abort
-  " Do not update when a session is still loading. {{{1
-   return !exists('g:SessionLoad')
+  " Do not update during completion or when a session is still loading. {{{1
+   return mode(1) !~ '.c' && !exists('g:SessionLoad')
  endfun "}}}
 
 fun! s:reuse_last_tabline() abort
