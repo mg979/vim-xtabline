@@ -156,6 +156,7 @@ endfun "}}}
 
 fun! s:purge_buffers() abort
   " Remove unmodified buffers with invalid paths. "{{{1
+  call xtabline#filter_buffers()
 
   let bcnt = 0
   let purged = []
@@ -188,6 +189,7 @@ endfun "}}}
 
 fun! s:clean_up(bang) abort
   " Remove all invalid/not open(!) buffers in all tabs. "{{{1
+  call xtabline#filter_buffers()
 
   let valid  = s:F.all_valid_buffers()
   let active = s:F.all_open_buffers()
@@ -498,8 +500,8 @@ fun! s:reset_all(...) abort
   let s:X.Buffers = {}
   let s:X._buffers = {}
   let s:X.Tabs = []
-  let s:v.filter_buffers = 1
   call xtabline#tab#check_all()
+  call xtabline#filter_buffers()
   call xtabline#update()
 endfun "}}}
 

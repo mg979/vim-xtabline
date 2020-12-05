@@ -44,7 +44,6 @@ fun! xtabline#render#tabline() abort
   if !s:ready() | return g:xtabline.last_tabline | endif
   call xtabline#tab#check_all()
   call xtabline#tab#check_index()
-  call xtabline#filter_buffers() " filter buffers is called only from here
 
   " no room for a full tabline
   if &columns < 40 | return s:format_right_corner() | endif

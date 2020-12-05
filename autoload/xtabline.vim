@@ -21,7 +21,7 @@ let s:rB = { -> s:T().buffers.recent    }       "recent buffers for tab
 
 let s:invalid    = { b -> !buflisted(b) || getbufvar(b, "&buftype") != '' }
 let s:is_open    = { b -> s:F.has_win(b) && getbufvar(b, "&ma") }
-let s:ready      = { -> !exists('g:SessionLoad') && get(s:v, 'filter_buffers', 0) }
+let s:ready      = { -> !exists('g:SessionLoad') }
 let s:v.slash    = exists('+shellslash') && !&shellslash ? '\' : '/'
 "}}}
 
@@ -35,9 +35,9 @@ fun! xtabline#init() abort
   set showtabline=2
   let s:X.Funcs = xtabline#funcs#init()
   let s:F = s:X.Funcs
-  let s:v.filter_buffers = 1
   call xtabline#maps#init()
   call xtabline#tab#check_all()
+  call xtabline#filter_buffers()
   call xtabline#update()
 endfun "}}}
 
@@ -117,6 +117,7 @@ fun! s:restore_session_info() abort
   elseif !exists('g:this_obsession')
     call xtabline#session_loaded()
   endif
+  call timer_start(50, { t -> xtabline#filter_buffers() })
 endfun "}}}
 
 " called directly from inside the session file (if using obsession), or when
@@ -141,7 +142,6 @@ fun! xtabline#session_loaded() abort
     endif
   endfor
 
-  let s:v.force_update = 1
   call xtabline#tab#check()
   call xtabline#update()
 endfun "}}}
@@ -173,17 +173,13 @@ endfun "}}}
 " Filter buffers
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-" This function is called in the render script, every time the tabline is
-" updated. It will run if the flag s:v.filter_buffers is on.
+" This function is called by (auto)commands to update the list of valid
+" buffers.
 
-fun! xtabline#filter_buffers(...) abort
+fun! xtabline#filter_buffers() abort
   " Filter buffers so that only valid buffers for this tab will be shown. {{{1
+  if !s:ready() | return | endif
 
-  if      exists('s:v.force_update') | unlet s:v.force_update
-  elseif  !s:ready()                 | return
-  endif
-
-  let s:v.filter_buffers = 0
   " Types of tab buffers:
   "
   " 'valid' is a list of buffer numbers that belong to the tab, either because:
@@ -306,6 +302,11 @@ function! s:Do(action, ...)
 
     call xtabline#buffer#update(B)
 
+    if get(s:, 'last_dir', '') != getcwd()
+      call xtabline#filter_buffers()
+    endif
+    let s:last_dir = getcwd()
+
     " if variable for buffer customization has been set, pick it up
     if !empty(s:v.buffer_properties)
       let s:X.Buffers[B] = extend(copy(s:X._buffers[B]), s:v.buffer_properties)
@@ -399,8 +400,7 @@ augroup plugin-xtabline
   autocmd VimResized    * call xtabline#update()
   autocmd VimLeavePre   * call xtabline#update_this_session()
 
-  " set the flag so that buffers are refiltered
-  autocmd BufAdd,BufUnload,BufFilePost * let s:v.filter_buffers = 1
+  autocmd BufAdd,BufUnload,BufFilePost * call xtabline#filter_buffers()
 
   if has('nvim')
     autocmd TermOpen     * call s:Do('terminal')
@@ -409,7 +409,7 @@ augroup plugin-xtabline
   endif
 
   if exists('##DirChanged')
-    autocmd DirChanged  * call xtabline#update()
+    autocmd DirChanged  * call xtabline#filter_buffers()
   endif
 
   if exists('##CmdlineLeave')
