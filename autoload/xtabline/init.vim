@@ -7,7 +7,7 @@ if exists("g:loaded_xtabline")
   finish
 endif
 
-silent! call XtablineStarted()
+silent doautocmd <nomodeline> User XTablineStarted
 
 fun! xtabline#init#start() abort
   let g:loaded_xtabline = 1
@@ -193,7 +193,6 @@ if get(g:, 'xtabline_lazy', 0)
   silent! augroup! xtabline_lazy
   delcommand XTablineInit
   call xtabline#init()
-  silent! delfunction XtablineStarted
   doautocmd BufEnter
   unlet g:xtabline_lazy
 endif

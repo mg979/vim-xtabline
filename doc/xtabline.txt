@@ -587,6 +587,9 @@ LAZY LOADING                                                   *xtabline-lazy*
     one, or you can initialize it with the command `XTablineInit`. Until then,
     mappings and commands will not work.
 
+    When xtabline is initialized, an autocommand is triggered:  >
+          au User XTablineStarted ... do stuff
+
 
 FORMATTING                                               *xtabline-formatting*
 
