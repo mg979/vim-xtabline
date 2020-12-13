@@ -101,6 +101,25 @@ fun! s:Themes.dracula()
 endfun
 
 
+fun! s:Themes.wwdc16()
+  return {
+      \"XTSelect":      [ 231, 26,  '#f8f8f2',   '#4670d8', 0 ],
+      \"XTSelectMod":   [ 167, 26,  '#e64547',   '#4670d8', 1 ],
+      \"XTVisible":     [ 81,  238, '#8be9fd',   '#44475a', 0 ],
+      \"XTVisibleMod":  [ 167, 238, '#e64547',   '#44475a', 1 ],
+      \"XTHidden":      [ 248, 238, '#a9a9a9',   '#44475a', 0 ],
+      \"XTHiddenMod":   [ 167, 238, '#e64547',   '#44475a', 0 ],
+      \"XTExtra":       [ 231, 66,  '#f8f8f2',   '#64878f', 1 ],
+      \"XTExtraMod":    [ 167, 24,  '#e64547',   '#073655', 1 ],
+      \"XTSpecial":     [ 238, 150, '#44475a',   '#95c76f', 0 ],
+      \"XTNumSel":      [ 238, 150, '#44475a',   '#95c76f', 0 ],
+      \"XTNum":         [ 173, 235, '#c98351',   '#282a36', 0 ],
+      \"XTCorner":      [ 231, 26,  '#f8f8f2',   '#4670d8', 0 ],
+      \"XTFill":        s:bg(s:fill_lite, [ 248, 237, '#a9a9a9', '#353547', 0 ]),
+      \}
+endfun
+
+
 fun! s:Themes.molokai()
   return {
       \"XTSelect":      [ 185, 241, '#e6db74',   '#616161', 0 ],
