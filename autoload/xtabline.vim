@@ -190,7 +190,11 @@ fun! xtabline#filter_buffers() abort
   "     - not a dynamic list, elements are manually added or removed
   "     - they aren't handled here, they are handled at render time
 
-  let T = xtabline#tab#check()
+  try
+    let T = xtabline#tab#check()
+  catch /.*/
+    return
+  endtry
 
   let T.buffers.valid = T.locked? T.buffers.valid : []
   let use_files = !empty(get(T, 'files', []))
