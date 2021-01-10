@@ -106,7 +106,9 @@ fun! s:change_mode(mode) abort
   " Cycle the active tabline mode. "{{{1
 
   if !empty(a:mode)
-    if index(['tabs', 'buffers', 'arglist'], a:mode) >= 0
+    if a:mode == s:v.tabline_mode
+      return
+    elseif index(['tabs', 'buffers', 'arglist'], a:mode) >= 0
       let modes = [a:mode]
     else
       return s:F.msg('[xtabline] wrong mode', 1)
