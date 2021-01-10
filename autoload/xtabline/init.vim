@@ -179,12 +179,6 @@ let g:xtabline_settings.todo = extend({
       \"syntax":  'markdown',
       \}, get(g:xtabline_settings, 'todo', {}))
 
-if v:vim_did_enter
-  call xtabline#hi#init()
-else
-  au VimEnter * call xtabline#hi#init()
-endif
-
 if get(g:, 'xtabline_lazy', 0)
   silent! autocmd! xtabline_lazy
   silent! augroup! xtabline_lazy
@@ -192,6 +186,9 @@ if get(g:, 'xtabline_lazy', 0)
   call xtabline#init()
   doautocmd BufEnter
   unlet g:xtabline_lazy
+else
+  call xtabline#init()
+  doautocmd BufEnter
 endif
 
 "------------------------------------------------------------------------------

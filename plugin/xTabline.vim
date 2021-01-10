@@ -71,7 +71,6 @@ if get(g:, 'xtabline_lazy', 0)
 
 else
   call xtabline#init#start()
-  autocmd VimEnter  * call xtabline#init() | doautocmd BufEnter
 endif
 
 "------------------------------------------------------------------------------

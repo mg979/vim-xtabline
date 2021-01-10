@@ -35,6 +35,7 @@ fun! xtabline#init() abort
   set showtabline=2
   let s:X.Funcs = xtabline#funcs#init()
   let s:F = s:X.Funcs
+  call xtabline#hi#init()
   call xtabline#maps#init()
   call xtabline#tab#check_all()
   call xtabline#filter_buffers()
