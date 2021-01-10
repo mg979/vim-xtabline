@@ -179,9 +179,6 @@ let g:xtabline_settings.todo = extend({
       \"syntax":  'markdown',
       \}, get(g:xtabline_settings, 'todo', {}))
 
-if !filereadable(g:xtabline_settings.bookmarks_file) | call writefile(['{}'], g:xtabline_settings.bookmarks_file) | endif
-if !filereadable(g:xtabline_settings.sessions_data) | call writefile(['{}'], g:xtabline_settings.sessions_data) | endif
-
 if v:vim_did_enter
   call xtabline#hi#init()
 else

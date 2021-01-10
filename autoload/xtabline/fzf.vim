@@ -307,7 +307,7 @@ endfun
 
 fun! s:tabs() abort
   " Generate a formatted list of saved tabs. {{{1
-  let json = json_decode(readfile(s:Sets.bookmarks_file)[0])
+  let json = json_decode(s:bm_file()[0])
 
   let bookmarks = s:use_finder ? [] : &columns > 99 ?
         \ ["Name\t\t\tDescription\t\t\t\tBuffers\t\tWorking Directory"] :
@@ -330,7 +330,7 @@ endfun "}}}
 
 fun! s:tab_load(...) abort
   " Load a saved tab bookmark.  {{{1
-  let json = json_decode(readfile(s:Sets.bookmarks_file)[0])
+  let json = json_decode(s:bm_file()[0])
   for bm in a:000
     let name = substitute(bm, '\(\w*\)\s*\t.*', '\1', '')
     let saved = json[name]
@@ -408,7 +408,7 @@ endfun "}}}
 
 fun! s:tab_delete(...) abort
   " Delete a saved tab bookmark.  {{{1
-  let json = json_decode(readfile(s:Sets.bookmarks_file)[0])
+  let json = json_decode(s:bm_file()[0])
 
   for bm in a:000
     let name = substitute(bm, '\(\w*\)\s*\t.*', '\1', '')
@@ -428,7 +428,7 @@ fun! xtabline#fzf#tab_save() abort
   if !s:Sets.buffer_filtering
     call s:F.msg("Activate buffer filtering first.", 1) | return | endif
 
-  let json = json_decode(readfile(s:Sets.bookmarks_file)[0])
+  let json = json_decode(s:bm_file()[0])
   let T = s:T()
 
   " get name
@@ -479,7 +479,7 @@ endfun "}}}
 fun! s:sessions_list(...) abort " {{{1
   " Generate a formatted list of sessions.
   let data = a:0 ? [] : ["Session\t\t\t\tTimestamp\tDescription"]
-  let sfile = json_decode(readfile(s:Sets.sessions_data)[0])
+  let sfile = json_decode(s:ss_file()[0])
   let sessions = split(globpath(s:sessions_path(), "*"), '\n')
 
   "remove __LAST__ session
@@ -629,7 +629,7 @@ fun! xtabline#fzf#session_save(new_session) abort
     endif
   endif
 
-  let data = json_decode(readfile(s:Sets.sessions_data)[0])
+  let data = json_decode(s:ss_file()[0])
 
   " get description of current session, if already registered
   let _name = a:new_session || empty(v:this_session)
@@ -794,6 +794,24 @@ fun! s:pad(t, n) abort " {{{1
     let spaces = a:n - len(a:t)
     let spaces = printf("%".spaces."s", "")
     return a:t.spaces
+  endif
+endfun
+
+fun! s:bm_file() " {{{1
+  if !filereadable(s:Sets.bookmarks_file)
+    call writefile(['{}'], s:Sets.bookmarks_file)
+    return ['{}']
+  else
+    return readfile(s:Sets.bookmarks_file)
+  endif
+endfun
+
+fun! s:ss_file() " {{{1
+  if !filereadable(s:Sets.sessions_data)
+    call writefile(['{}'], s:Sets.sessions_data)
+    return ['{}']
+  else
+    return readfile(s:Sets.sessions_data)
   endif
 endfun "}}}
 
