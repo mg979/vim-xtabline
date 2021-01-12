@@ -7,6 +7,15 @@ let s:F = g:xtabline.Funcs
 let s:v = g:xtabline.Vars
 let s:Sets = g:xtabline_settings
 
+let s:datadir = has('nvim') ? expand(stdpath('data'))
+      \      : !has('win32unix') && !has('win32') ? expand('$HOME/.vim')
+      \      : isdirectory(expand('$HOME/vimfiles')) ? expand('$HOME/vimfiles')
+      \                                              : expand('$HOME/.vim')
+
+let s:Sets.sessions_path  = get(s:Sets, 'sessions_path', s:datadir . '/session')
+let s:Sets.sessions_data  = get(s:Sets, 'sessions_data', s:datadir . '/.XTablineSessions')
+let s:Sets.bookmarks_file = get(s:Sets, 'bookmarks_file', s:datadir . '/.XTablineBookmarks')
+
 let s:T =  { -> s:X.Tabs[tabpagenr()-1] }       "current tab
 let s:vB = { -> s:T().buffers.valid     }       "valid buffers for tab
 let s:oB = { -> s:T().buffers.order     }       "ordered buffers for tab
