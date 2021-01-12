@@ -87,7 +87,7 @@ fun! s:render_buffers() abort
     "limiting to x most recent buffers, if option is set; here we consider only
     "valid buffers, special/extra/etc will be added later
     if max > 0
-      let recent = s:get_recent_buffers(s:T(), max)
+      let recent = s:T().buffers.recent
       call filter(labels, 'index(recent, v:val) >= 0')
     endif
 
@@ -634,13 +634,6 @@ endfun "}}}
 fun! s:hide_tab_number() abort
   " If tab number should be hidden from the top right corner. {{{1
   return tabpagenr('$') == 1 || s:Sets.tab_number_in_left_corner
-endfun "}}}
-
-fun! s:get_recent_buffers(tab, max)
-  " Get updated list of recent buffers for the current tab. {{{1
-  call extend(a:tab.buffers.recent, filter(copy(a:tab.buffers.valid),
-        \                           'index(a:tab.buffers.recent, v:val) < 0'))
-  return a:tab.buffers.recent[:(a:max - 1)]
 endfun "}}}
 
 

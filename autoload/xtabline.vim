@@ -245,7 +245,8 @@ fun! xtabline#filter_buffers() abort
 
   " //////////////////////////////////////////////////////////
 
-  call s:ordered_buffers()
+  let T.buffers.order  = s:ordered_buffers(T)
+  let T.buffers.recent = s:recent_buffers(T)
   call xtabline#persistance()
 endfun "}}}
 
@@ -256,25 +257,39 @@ endfun "}}}
 " Helpers
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
-fun! s:ordered_buffers() abort
-  " Ensure the tab's buffers lists are valid. {{{1
-  let B = s:T().buffers
-
-  " if list of recent buffers is still empty, set it to current valid buffers
-  if empty(B.recent)
-    let B.recent = copy(B.valid)
-  endif
+fun! s:ordered_buffers(tab) abort
+  " Ensure the tab's ordered buffers are valid. {{{1
+  let B = a:tab.buffers
 
   "clean up ordered/recent buffers list
   call filter(B.order, 'index(B.valid, v:val) >= 0 || index(B.extra, v:val) >= 0')
-  call filter(B.recent, 'index(B.valid, v:val) >= 0')
-  " call s:F.uniq(B.order)
   call s:F.uniq(B.extra)
 
   " add missing entries in ordered list
   for buf in B.valid
     call s:F.add_ordered(buf, 0)
   endfor
+  return B.order
+endfun "}}}
+
+fun! s:recent_buffers(tab)
+  " Update list of recent buffers for the current tab. {{{1
+  let B = a:tab.buffers
+
+  let max = get(s:Sets, 'recent_buffers', 10)
+  if max <= 0
+    return copy(B.valid)
+  endif
+
+  " if list of recent buffers is still empty, set it to current valid buffers
+  if empty(B.recent)
+    let B.recent = copy(B.valid)
+  else
+    call filter(B.recent, 'index(B.valid, v:val) >= 0')
+    call extend(B.recent, filter(copy(B.valid), 'index(B.recent, v:val) < 0'))
+  endif
+
+  return B.recent[:(max - 1)]
 endfun "}}}
 
 
@@ -291,8 +306,11 @@ function! s:Do(action, ...)
   " Called by several autocommands. {{{1
   if exists('g:SessionLoad') || empty(g:xtabline.Tabs) | return | endif
 
-  let X = g:xtabline | let F = X.Funcs | let V = X.Vars
+  let X = g:xtabline
+  let F = X.Funcs
+  let V = X.Vars
   let N = tabpagenr() - 1
+  let T = X.Tabs[N]
   let B = bufnr(str2nr(expand('<abuf>')))
 
   " """""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -309,7 +327,10 @@ function! s:Do(action, ...)
 
     if get(s:, 'last_dir', '') != getcwd()
       call xtabline#filter_buffers()
+    else
+      let T.buffers.recent = s:recent_buffers(T)
     endif
+
     let s:last_dir = getcwd()
 
     " if variable for buffer customization has been set, pick it up
@@ -356,7 +377,7 @@ function! s:Do(action, ...)
   elseif a:action == 'leave'
 
     let V.last_tabn = N + 1
-    let V.last_tab = X.Tabs[N]
+    let V.last_tab = T
     let V.last_tab.active_buffer = B
     let V.last_tab.wd_cmd = F.is_local_dir() ? 2 : F.is_tab_dir() ? 1 : 0
     call F.set_tab_wd()
