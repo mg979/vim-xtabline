@@ -286,18 +286,25 @@ endfun "}}}
 
 fun! s:reorder_recent_buffers(buf)
   " Move the current buffer at the top of the recent buffers list. {{{1
-  let bufs      = s:T().buffers
-  let rix       = index(bufs.recent, a:buf)
-  let is_recent = rix >= 0
-  let is_valid  = index(bufs.valid, a:buf) >= 0
+  let bufs = s:T().buffers
 
-  " remove the current buffer if present, it will be inserted if valid
-  if is_recent
-    call remove(bufs.recent, rix)
+  " not a valid buffer, nothing to do
+  if index(bufs.valid, a:buf) < 0
+    return
   endif
 
-  if is_valid
-    call insert(bufs.recent, a:buf)
+  " put the current buffer upfront in the recent list
+  let rix = index(bufs.recent, a:buf)
+  call insert(bufs.recent, remove(bufs.recent, rix))
+
+  " if opening a buffer that was not shown because not recent enough, put it
+  " upfront also in the order list, so that it's shown first in the tabline
+  let max = get(s:Sets, 'recent_buffers', 10)
+  if max && rix >= max
+    let oix = index(bufs.order, a:buf)
+    if oix >= 0
+      call insert(bufs.order, remove(bufs.order, oix))
+    endif
   endif
 endfun "}}}
 
