@@ -104,7 +104,6 @@ endfun " }}}
 
 fun! s:change_mode(mode) abort
   " Cycle the active tabline mode. "{{{1
-
   if !empty(a:mode)
     if a:mode == s:v.tabline_mode
       return
@@ -145,7 +144,6 @@ endfun "}}}
 
 fun! s:toggle_filtering() abort
   " Toggle buffer filtering in the tabline. "{{{1
-
   if s:Sets.buffer_filtering
     call s:F.msg([[ "Buffer filtering turned off", 'WarningMsg' ]])
   else
@@ -215,7 +213,6 @@ endfun "}}}
 
 fun! s:reopen_last_tab() abort
   " Reopen the last closed tab. "{{{1
-
   if empty(s:X.closed_tabs)
     call s:F.msg("No recent tabs.", 1) | return
   endif
@@ -252,7 +249,6 @@ endfun "}}}
 
 fun! s:lock_tab() abort
   " Lock a tab, including currently displayed buffers as valid buffers. "{{{1
-
   let T = s:T()
   let T.locked = !T.locked
   let un = T.locked ? '' : 'un'
@@ -266,7 +262,6 @@ endfun "}}}
 
 fun! s:close_buffer() abort
   " Close and delete a buffer, without closing the tab. "{{{1
-
   let current = bufnr("%") | let alt = bufnr("#") | let tbufs = len(s:vB())
 
   if s:F.is_tab_buffer(alt)
@@ -290,7 +285,6 @@ endfun "}}}
 fun! s:paths_style(bang, cnt) abort
   " Change paths displaying format. "{{{1
   " without a count, toggle between 0 and (+1 * -bang)
-
   let T = s:T()
 
   " find out which setting we're going to change
@@ -371,7 +365,6 @@ endfun "}}}
 
 fun! s:move_buffer_to(cnt, ...) abort
   " Move buffer in the bufferline to a new position. "{{{1
-
   let b = bufnr("%")
   let oB = s:oB()
   let max = len(oB) - 1
@@ -394,7 +387,6 @@ endfun "}}}
 
 fun! s:hide_buffer(new) abort
   " Move buffer to the last position, then select another one. "{{{1
-
   let b = bufnr("%") | let oB = s:oB() | let max = len(oB) - 1
   let i = index(oB, b)
   call s:move_buffer_to(1000)
@@ -465,7 +457,6 @@ endfun "}}}
 
 fun! s:toggle_pin_buffer(...) abort
   " Pin this buffer, so that it will be shown in all tabs. Optionally rename. "{{{1
-
   let B = bufnr('%') | let i = s:pinned(B)
 
   if a:0 && match(a:1, "\S") >= 0
@@ -492,7 +483,6 @@ endfun "}}}
 
 fun! s:reset_buffer(...) abort
   " Reset the buffer to a pristine state. "{{{1
-
   let B = s:B() | let n = bufnr("%")
   if has_key(B, n) | unlet B[n] | endif
   call xtabline#update()
@@ -501,7 +491,6 @@ endfun "}}}
 
 fun! s:reset_all(...) abort
   " Reset all buffers and tabs, removing customizations. "{{{1
-
   let s:X.Buffers = {}
   let s:X._buffers = {}
   let s:X.Tabs = []
@@ -513,7 +502,6 @@ endfun "}}}
 
 fun! s:toggle_tab_names() abort
   " Toggle between custom icon/name and short path/folder icons. "{{{1
-
   let s:v.user_labels = !s:v.user_labels
   call xtabline#update()
 endfun "}}}
@@ -521,7 +509,6 @@ endfun "}}}
 
 fun! s:goto_last_tab() abort
   " Go back to the previously opened tab. "{{{1
-
   if !exists('s:v.last_tabn')
     return s:F.msg('[xtabline] no last tab', 1)
   endif
