@@ -324,7 +324,6 @@ endfun "}}}
 
 fun! s:tab_todo() abort
   " Open or close the Tab todo file. "{{{1
-
   for b in tabpagebuflist()
     if getbufvar(b, 'xtab_todo', 0)
       if getbufvar(b, '&modified')
@@ -336,7 +335,11 @@ fun! s:tab_todo() abort
       return
     endif
   endfor
-  let todo = s:Sets.todo
+  let todo = extend({
+        \"command": 'split',
+        \"file":    ".TODO",
+        \"syntax":  'markdown',
+        \}, get(s:Sets, 'todo', {}))
   let s:v.buffer_properties = { 'name': 'TODO', 'special': 1 }
   execute todo.command fnameescape(getcwd() . '/' . todo.file)
   execute "setf" todo.syntax

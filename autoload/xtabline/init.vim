@@ -161,16 +161,6 @@ let g:xtabline_settings.icons = extend({
 " \'folder_open': '📂',
 " \'folder_closed': '📁',
 
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" TabTodo settings
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-
-let g:xtabline_settings.todo = extend({
-      \"command": 'split',
-      \"file":    ".TODO",
-      \"syntax":  'markdown',
-      \}, get(g:xtabline_settings, 'todo', {}))
-
 if get(g:, 'xtabline_lazy', 0)
   silent! autocmd! xtabline_lazy
   silent! augroup! xtabline_lazy
