@@ -235,9 +235,8 @@ BUFFERS-MODE                                                *xtabline-buffers*
 
 
 *XTabNextBuffer*      They accept a [count], to move to ±N buffer, as they are
-*XTabPrevBuffer*      shown in the tabline. If moving beyond the limit, it will
-                    start from the start (or the end). This works also in
-                    |tabs-mode|, by selecting buffers that belong to the tab.
+*XTabPrevBuffer*      shown in the tabline. This works also in |tabs-mode|, by
+                    selecting buffers that belong to the tab.
 
 *XTabCloseBuffer*     It will close and delete the current buffer, while
                     keeping the window open, and loading either:
@@ -247,9 +246,9 @@ BUFFERS-MODE                                                *xtabline-buffers*
 
 *XTabHideBuffer*      Removes the buffer from the list of recent buffers for the
                     tab, effectively hiding it from the tabline if there are
-                    enough tab buffers, otherwise it will be shown last.
+                    enough tab buffers, otherwise it will be put last.
                     Then [count] (or the first) buffer will be selected.
-                    The buffer is not deleted.
+                    The buffer is closed but not deleted.
 
 *XTabMoveBuffer*      Move the current buffer at [count] position, or to the
                     first position if no count is given.
