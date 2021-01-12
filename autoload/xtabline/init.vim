@@ -180,7 +180,6 @@ if get(g:, 'xtabline_lazy', 0)
   unlet g:xtabline_lazy
 else
   call xtabline#init()
-  doautocmd BufEnter
 endif
 
 "------------------------------------------------------------------------------
