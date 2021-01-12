@@ -79,7 +79,6 @@ fun! s:render_buffers() abort
 
   " pick up data on all the buffers
   let tabs = []
-  let Tab  = s:T()
 
   if s:v.tabline_mode == 'buffers'
     let labels = filter(s:oB(), 'bufexists(v:val)')
@@ -88,7 +87,7 @@ fun! s:render_buffers() abort
     "limiting to x most recent buffers, if option is set; here we consider only
     "valid buffers, special/extra/etc will be added later
     if max > 0
-      let recent = Tab.buffers.recent[:(max-1)]
+      let recent = s:get_recent_buffers(s:T(), max)
       call filter(labels, 'index(recent, v:val) >= 0')
     endif
 
@@ -637,6 +636,12 @@ fun! s:hide_tab_number() abort
   return tabpagenr('$') == 1 || s:Sets.tab_number_in_left_corner
 endfun "}}}
 
+fun! s:get_recent_buffers(tab, max)
+  " Get updated list of recent buffers for the current tab. {{{1
+  call extend(a:tab.buffers.recent, filter(copy(a:tab.buffers.valid),
+        \                           'index(a:tab.buffers.recent, v:val) < 0'))
+  return a:tab.buffers.recent[:(a:max - 1)]
+endfun "}}}
 
 
 
