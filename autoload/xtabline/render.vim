@@ -87,7 +87,7 @@ fun! s:render_buffers() abort
     "limiting to x most recent buffers, if option is set; here we consider only
     "valid buffers, special/extra/etc will be added later
     if max > 0
-      let recent = s:T().buffers.recent
+      let recent = s:T().buffers.recent[:(max-1)]
       call filter(labels, 'index(recent, v:val) >= 0')
     endif
 

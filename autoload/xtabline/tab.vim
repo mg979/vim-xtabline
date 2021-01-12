@@ -49,24 +49,6 @@ fun! xtabline#tab#new(...) abort
 endfun
 
 
-fun! xtabline#tab#recent_buffers(buf) abort
-  " Update the recent buffers list.
-  let bufs = s:T().buffers
-  let r = index(bufs.recent, a:buf)
-
-  let [ is_recent, is_valid ] = [ r >= 0, index(bufs.valid, a:buf) >= 0 ]
-
-  " remove the current buffer if present, it will be inserted if valid
-  if is_recent
-    call remove(bufs.recent, r)
-  endif
-
-  if is_valid
-    call insert(bufs.recent, a:buf)
-  endif
-endfun
-
-
 fun! xtabline#tab#lock(tabnr, bufs, ...) abort
   " Lock tab with predefined buffers and properties.
   let T = g:xtabline.Tabs[a:tabnr-1]

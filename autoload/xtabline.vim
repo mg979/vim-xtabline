@@ -17,7 +17,6 @@ let s:vB = { -> s:T().buffers.valid     }       "valid buffers for tab
 let s:eB = { -> s:T().buffers.extra     }       "extra buffers for tab
 let s:pB = { -> s:X.pinned_buffers      }       "pinned buffers list
 let s:oB = { -> s:T().buffers.order     }       "ordered buffers for tab
-let s:rB = { -> s:T().buffers.recent    }       "recent buffers for tab
 
 let s:invalid    = { b -> !buflisted(b) || getbufvar(b, "&buftype") != '' }
 let s:is_open    = { b -> s:F.has_win(b) && getbufvar(b, "&ma") }
@@ -155,7 +154,6 @@ endfun "}}}
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! xtabline#update(...) abort
-  "
   " Set the variable that triggers tabline update. {{{1
   if !s:Sets.enabled
     return
@@ -223,7 +221,7 @@ fun! xtabline#filter_buffers() abort
 
       if !s:Sets.buffer_filtering
         " buffer filtering is disabled, accept all buffers
-        let valid = 1
+        let valid = v:true
 
       elseif use_files
         " to be accepted, buffer's path must be among valid files
@@ -236,9 +234,6 @@ fun! xtabline#filter_buffers() abort
 
       if valid
         call add(T.buffers.valid, buf)
-        if index(T.buffers.recent, buf) < 0
-          call add(T.buffers.recent, buf)
-        endif
       endif
     endif
   endfor
@@ -254,7 +249,7 @@ endfun "}}}
 
 
 """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
-" Helpers
+" Ordered and recent buffers lists
 """""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
 fun! s:ordered_buffers(tab) abort
@@ -276,22 +271,35 @@ fun! s:recent_buffers(tab)
   " Update list of recent buffers for the current tab. {{{1
   let B = a:tab.buffers
 
-  let max = get(s:Sets, 'recent_buffers', 10)
-  if max <= 0
+  if get(s:Sets, 'recent_buffers', 10) <= 0
     return copy(B.valid)
   endif
 
   " if list of recent buffers is still empty, set it to current valid buffers
   if empty(B.recent)
-    let B.recent = copy(B.valid)
-  else
-    call filter(B.recent, 'index(B.valid, v:val) >= 0')
-    call extend(B.recent, filter(copy(B.valid), 'index(B.recent, v:val) < 0'))
+    return copy(B.valid)
   endif
-
-  return B.recent[:(max - 1)]
+  " ensure recent buffers are valid, and all valid buffers are present
+  call filter(B.recent, 'index(B.valid, v:val) >= 0')
+  return extend(B.recent, filter(copy(B.valid), 'index(B.recent, v:val) < 0'))
 endfun "}}}
 
+fun! s:reorder_recent_buffers(buf)
+  " Move the current buffer at the top of the recent buffers list. {{{1
+  let bufs      = s:T().buffers
+  let rix       = index(bufs.recent, a:buf)
+  let is_recent = rix >= 0
+  let is_valid  = index(bufs.valid, a:buf) >= 0
+
+  " remove the current buffer if present, it will be inserted if valid
+  if is_recent
+    call remove(bufs.recent, rix)
+  endif
+
+  if is_valid
+    call insert(bufs.recent, a:buf)
+  endif
+endfun "}}}
 
 
 
@@ -330,6 +338,7 @@ function! s:Do(action, ...)
     else
       let T.buffers.recent = s:recent_buffers(T)
     endif
+    call s:reorder_recent_buffers(B)
 
     let s:last_dir = getcwd()
 
@@ -339,7 +348,6 @@ function! s:Do(action, ...)
       let s:v.buffer_properties = {}
     endif
 
-    call xtabline#tab#recent_buffers(B)
     call xtabline#update()
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
