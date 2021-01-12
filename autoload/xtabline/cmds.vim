@@ -150,6 +150,9 @@ fun! s:toggle_filtering() abort
     call s:F.msg([[ "Buffer filtering turned on", 'StorageClass' ]])
   endif
   let s:Sets.buffer_filtering = !s:Sets.buffer_filtering
+  for T in s:X.Tabs
+    let T.refilter = 1
+  endfor
   call xtabline#update()
 endfun "}}}
 

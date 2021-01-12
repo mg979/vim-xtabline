@@ -624,11 +624,16 @@ fun! s:reuse_last_tabline() abort
         \|| !has_key(s:last_modified_state, currentbuf)
         \|| &modified != s:last_modified_state[currentbuf]
 
+    let T = s:T()
+    if exists('T.refilter')
+      unlet T.refilter
+      call xtabline#filter_buffers()
+    endif
     let s:last_modified_state[currentbuf] = &modified
     silent! unlet s:v.time_to_update
-  else
-    return 1
+    return v:false
   endif
+  return v:true
 endfun "}}}
 
 fun! s:hide_tab_number() abort
