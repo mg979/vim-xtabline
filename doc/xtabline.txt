@@ -187,7 +187,7 @@ Here are described the most important settings, for the full list read
         This setting controls the label for the current mode, shown in the
         left corner. Valid values are:
 
-        'secondary'  all modes, except the irst in |tabline_modes|
+        'secondary'  all modes, except the first in |tabline_modes|
         'all'        all modes
         'none'       never
         {modes}      one or more modes, eg. `'tabs'` or `'tabs,arglist'`
