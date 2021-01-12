@@ -9,7 +9,6 @@ let s:Sets = g:xtabline_settings
 let s:T    =  { -> s:X.Tabs[tabpagenr()-1] }       "current tab
 let s:B    =  { -> s:X.Buffers             }       "customized buffers
 let s:vB   =  { -> s:T().buffers.valid     }       "valid buffers for tab
-let s:eB   =  { -> s:T().buffers.extra     }       "extra buffers for tab
 let s:oB   =  { -> s:T().buffers.order     }       "ordered buffers for tab
 
 let s:scratch =  { nr -> index(['nofile','acwrite','help'], getbufvar(nr, '&buftype')) >= 0 }

@@ -123,22 +123,6 @@ fun! s:Funcs.add_ordered(buf, put_first) abort
 endfun "}}}
 
 
-fun! s:Funcs.uniq(list) abort
-  " Make sure an element appears only once in the list. {{{1
-  let [ i, max ] = [ 0, len(a:list)-2 ]
-  while i <= max
-    let extra = index(a:list, a:list[i], i+1)
-    if extra > 0
-      call remove(a:list, extra)
-      let max -= 1
-    else
-      let i += 1
-    endif
-  endwhile
-  return a:list
-endfun "}}}
-
-
 fun! s:Funcs.is_tab_buffer(...) abort
   " Verify that the buffer belongs to the tab {{{1
   return (index(s:vB(), a:1) != -1)

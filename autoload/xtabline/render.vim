@@ -10,18 +10,16 @@ let s:Sets = g:xtabline_settings
 let s:T  = { -> s:X.Tabs[tabpagenr()-1] }       "current tab
 let s:Tn = { n -> s:X.Tabs[n-1]         }       "tab n
 let s:vB = { -> s:T().buffers.valid     }       "valid buffers for tab
-let s:eB = { -> s:T().buffers.extra     }       "extra buffers for tab
 let s:oB = { -> s:T().buffers.order     }       "ordered buffers for tab
 
 let s:buf        = function('xtabline#buffer#get')
 let s:is_special = { nr -> s:buf(nr).special }
 let s:is_open    = { n -> s:F.has_win(n) && index(s:vB(), n) < 0 && getbufvar(n, "&ma") }
-let s:is_extra   = { n -> index(s:eB(), n) >= 0 }
 
 let s:scratch           = { nr -> index(['nofile','acwrite'], getbufvar(nr, '&buftype')) >= 0 }
 let s:pinned            = { -> s:X.pinned_buffers                                             }
 let s:has_buf_icon      = { nr -> !empty(get(s:buf(nr), 'icon', ''))                          }
-let s:extraHi           = { b -> s:is_extra(b) || s:is_open(b) || index(s:pinned(), b) >= 0   }
+let s:extraHi           = { b -> s:is_open(b) || index(s:pinned(), b) >= 0   }
 let s:strwidth          = { label -> strwidth(substitute(label, '%#\w*#\|%\d\+T', '', 'g'))   }
 let s:tab_buffer        = { t -> tabpagebuflist(t)[tabpagewinnr(t)-1]                         }
 
@@ -81,7 +79,7 @@ fun! s:render_buffers() abort
   let tabs = []
 
   if s:v.tabline_mode == 'buffers'
-    let labels = filter(s:oB(), 'bufexists(v:val)')
+    let labels = filter(copy(s:oB()), 'bufexists(v:val)')
     let max = get(s:Sets, 'recent_buffers', 10)
 
     "limiting to x most recent buffers, if option is set; here we consider only
@@ -110,8 +108,8 @@ fun! s:render_buffers() abort
       endif
     endfor
 
-    "put upfront: special > pinned > open > extra buffers
-    for b in ( s:eB() + front + s:pinned() + specials )
+    "put upfront: special > pinned > extra open buffers
+    for b in ( front + s:pinned() + specials )
       call s:F.add_ordered(b, 1)
     endfor
   elseif !empty(argv())

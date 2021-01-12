@@ -14,7 +14,6 @@ let s:v.user_labels    = 1                      "tabline shows custom names/icon
 
 let s:T  = { -> s:X.Tabs[tabpagenr()-1] }       "current tab
 let s:vB = { -> s:T().buffers.valid     }       "valid buffers for tab
-let s:eB = { -> s:T().buffers.extra     }       "extra buffers for tab
 let s:pB = { -> s:X.pinned_buffers      }       "pinned buffers list
 let s:oB = { -> s:T().buffers.order     }       "ordered buffers for tab
 
@@ -179,16 +178,6 @@ fun! xtabline#filter_buffers() abort
   " Filter buffers so that only valid buffers for this tab will be shown. {{{1
   if !s:ready() | return | endif
 
-  " Types of tab buffers:
-  "
-  " 'valid' is a list of buffer numbers that belong to the tab, either because:
-  "     - their path is valid for this tab
-  "     - tab is locked and buffers are included
-  "
-  " 'extra' are buffers that have been purposefully added by other means to the tab
-  "     - not a dynamic list, elements are manually added or removed
-  "     - they aren't handled here, they are handled at render time
-
   try
     let T = xtabline#tab#check()
   catch /.*/
@@ -257,8 +246,7 @@ fun! s:ordered_buffers(tab) abort
   let B = a:tab.buffers
 
   "clean up ordered/recent buffers list
-  call filter(B.order, 'index(B.valid, v:val) >= 0 || index(B.extra, v:val) >= 0')
-  call s:F.uniq(B.extra)
+  call filter(B.order, 'index(B.valid, v:val) >= 0')
 
   " add missing entries in ordered list
   for buf in B.valid
