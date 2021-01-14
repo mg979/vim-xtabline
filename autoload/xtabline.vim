@@ -318,7 +318,6 @@ function! s:Do(action, ...)
   let F = X.Funcs
   let V = X.Vars
   let N = tabpagenr() - 1
-  let T = X.Tabs[N]
   let B = bufnr(str2nr(expand('<abuf>')))
 
   " """""""""""""""""""""""""""""""""""""""""""""""""""""""""
@@ -336,7 +335,7 @@ function! s:Do(action, ...)
     if get(s:, 'last_dir', '') != getcwd()
       call xtabline#filter_buffers()
     else
-      let T.buffers.recent = s:recent_buffers(T)
+      let X.Tabs[N].buffers.recent = s:recent_buffers(X.Tabs[N])
     endif
     call s:reorder_recent_buffers(B)
 
@@ -385,7 +384,7 @@ function! s:Do(action, ...)
   elseif a:action == 'leave'
 
     let V.last_tabn = N + 1
-    let V.last_tab = T
+    let V.last_tab = X.Tabs[N]
     let V.last_tab.active_buffer = B
     let V.last_tab.wd_cmd = F.is_local_dir() ? 2 : F.is_tab_dir() ? 1 : 0
     call F.set_tab_wd()
