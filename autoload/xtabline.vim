@@ -117,7 +117,7 @@ fun! s:restore_session_info() abort
   elseif !exists('g:this_obsession')
     call xtabline#session_loaded()
   endif
-  call timer_start(50, { t -> xtabline#filter_buffers() })
+  call timer_start(50, { t -> xtabline#update(1) })
 endfun "}}}
 
 " called directly from inside the session file (if using obsession), or when
@@ -160,6 +160,9 @@ fun! xtabline#update(...) abort
   elseif empty(s:Sets.tabline_modes)
     set tabline=
   else
+    if a:0
+      call xtabline#filter_buffers()
+    endif
     let s:v.time_to_update = 1
     set tabline=%!xtabline#render#tabline()
   endif

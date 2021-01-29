@@ -138,7 +138,7 @@ fun! s:change_mode(mode) abort
 
   call s:F.msg([[ "Showing " . s:v.tabline_mode, 'StorageClass' ]])
 
-  call xtabline#update()
+  call xtabline#update(1)
 endfun "}}}
 
 
@@ -246,7 +246,7 @@ fun! s:reopen_last_tab() abort
   elseif tab.wd_cmd == 1
     tcd `=tab.cwd`
   endif
-  call xtabline#update()
+  call xtabline#update(1)
 endfun "}}}
 
 
@@ -309,7 +309,7 @@ fun! s:paths_style(bang, cnt) abort
     let s:Sets.buffers_paths = format
   endif
 
-  call xtabline#update()
+  call xtabline#update(1)
 
   if format
     call s:F.msg([["Tabline shows paths with format [".format."]", 'StorageClass']])
@@ -362,7 +362,7 @@ fun! s:move_buffer(next, cnt) abort
     let new_index = (i - nr) < 0 ? 0 : i - nr
   endif
   call insert(s:oB(), remove(s:oB(), i), new_index)
-  call xtabline#update()
+  call xtabline#update(1)
 endfun "}}}
 
 
@@ -384,7 +384,7 @@ fun! s:move_buffer_to(cnt, ...) abort
   else
     call add(oB, b)
   endif
-  call xtabline#update()
+  call xtabline#update(1)
 endfun "}}}
 
 
@@ -405,7 +405,7 @@ fun! s:hide_buffer(new) abort
   let then_select = new >= 0 ?  oB[new] : oB[0]
 
   silent! exe 'b'.then_select
-  call xtabline#update()
+  call xtabline#update(1)
 endfun "}}}
 
 
@@ -473,14 +473,14 @@ fun! s:toggle_pin_buffer(...) abort
   else
     call add(s:X.pinned_buffers, B)
   endif
-  call xtabline#update()
+  call xtabline#update(1)
 endfun "}}}
 
 
 fun! s:reset_tab(...) abort
   " Reset the tab and its cwd. "{{{1
   let s:X.Tabs[tabpagenr()-1] = xtabline#tab#new({'cwd': getcwd()})
-  call xtabline#update()
+  call xtabline#update(1)
 endfun "}}}
 
 

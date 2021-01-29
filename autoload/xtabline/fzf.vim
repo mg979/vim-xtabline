@@ -218,7 +218,7 @@ fun! s:bufdelete(name) abort
   else
     call xtabline#cmds#run('close_buffer')
   endif
-  call xtabline#update()
+  call xtabline#update(1)
 endfun "}}}
 
 
@@ -295,6 +295,7 @@ fun! s:tabopen(line) abort
   " Open the selected tab. {{{1
   let tab = a:line[0:(match(a:line, '\s')-1)]
   exe "normal!" tab."gt"
+  call xtabline#update(1)
 endfun "}}}
 
 fun! s:tabreopen(line) abort
@@ -303,10 +304,6 @@ fun! s:tabreopen(line) abort
   call add(g:xtabline.closed_tabs, remove(g:xtabline.closed_tabs, tab - 1))
   XTabReopen
 endfun "}}}
-
-fun! s:closed_tabs() abort
-  return s:tablist(1)
-endfun
 
 
 
@@ -398,7 +395,7 @@ fun! s:tab_load(...) abort
           \       [cd.' cwd has been set to: '.cwd, 'None']])
   endif
 
-  call xtabline#update()
+  call xtabline#update(1)
 endfun
 
 fun! s:abort_load(name, fzf_line, error_type) abort
@@ -572,6 +569,7 @@ fun! s:session_load(file) abort " {{{1
   call s:update_current_session()
   execute "silent! %bdelete"
   execute "source ".fnameescape(file)
+  call xtabline#update(1)
 endfun
 
 
@@ -709,7 +707,7 @@ fun! s:tab_nerd_bookmarks_load(...) abort
       call s:F.auto_change_dir(fnamemodify(bm, ":p:h"))
     endif
   endfor
-  call xtabline#update()
+  call xtabline#update(1)
 endfun "}}}
 
 

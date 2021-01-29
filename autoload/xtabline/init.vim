@@ -59,7 +59,7 @@ com! -count           XTabMoveBuffer          call xtabline#cmds#run('move_buffe
 com! -count           XTabHideBuffer          call xtabline#cmds#run('hide_buffer', <count>)
 com! -bar             XTabLastTab             call xtabline#cmds#run('goto_last_tab')
 com! -bar             XTabInfo                call xtabline#dir#info()
-com! -bar             XTablineUpdate          call xtabline#update()
+com! -bar             XTablineUpdate          call xtabline#update(1)
 
 com! -nargs=? -bang  -complete=dir                   XTabCD              call xtabline#dir#cd(<q-args>, <bang>0)
 com! -nargs=? -bang  -complete=dir                   XTabWD              call xtabline#dir#set('working', <bang>0, <q-args>)

@@ -73,7 +73,7 @@ fun! xtabline#dir#set(...) abort
     let s:X.Tabs[tabpagenr()-1].name = ''
   endif
 
-  call xtabline#update()
+  call xtabline#update(1)
 endfun "}}}
 
 
@@ -133,7 +133,7 @@ fun! s:Dir.manual_cwd(dir, type) abort
     return self.msg([[ "Directory not set: ", 'WarningMsg' ], [ out, 'None' ]])
   endif
 
-  call xtabline#update()
+  call xtabline#update(1)
   call self.msg([[ out." directory: ", 'Label' ], [ dir, 'None' ]])
   return 1
 endfun "}}}
