@@ -26,12 +26,8 @@ let s:lastmodified  = { f -> str2nr(system(s:date_command.' -r '.f.' +%s')) }
 let s:obsession     = { -> exists('g:loaded_obsession') }
 
 " date and stat commands. In macOS, the corresponding ones of GNU version should be used.
-let s:date_command = 'date'
-let s:stat_command = 'stat'
-if has('mac')
-  let s:date_command = 'gdate'
-  let s:stat_command = 'gstat'
-endif
+let s:date_command = has('mac') ? 'gdate' : 'date'
+let s:stat_command = has('mac') ? 'gstat' : 'stat'
 
 " fzf/finder functions  {{{1
 
@@ -89,6 +85,7 @@ if exists('g:loaded_fzf') && !s:use_finder
   endfun
 
   fun! xtabline#fzf#load_session()
+    if s:mac_no_gnu() | return | endif
     call s:fzf_statusline("Load Session")
     call fzf#run({
           \ 'source': s:sessions_list(),
@@ -98,6 +95,7 @@ if exists('g:loaded_fzf') && !s:use_finder
   endfun
 
   fun! xtabline#fzf#delete_session()
+    if s:mac_no_gnu() | return | endif
     call s:fzf_statusline("Delete Session")
     call fzf#run({
           \ 'source': s:sessions_list(),
@@ -158,6 +156,7 @@ else " using built-in finder instead
   endfun
 
   fun! xtabline#fzf#load_session()
+    if s:mac_no_gnu() | return | endif
     let t = '      '
     let header = printf("Session%s%s%s%sTimestamp%sDescription",t,t,t,t,t)
     let s = s:Find(s:sessions_list(1), header)
@@ -165,6 +164,7 @@ else " using built-in finder instead
   endfun
 
   fun! xtabline#fzf#delete_session()
+    if s:mac_no_gnu() | return | endif
     let t = '    '
     let header = printf("Session%s%s%s%sTimestamp%sDescription",t,t,t,t,t)
     let s = s:Find(s:sessions_list(1), header)
@@ -526,13 +526,15 @@ endfun
 
 
 fun! s:desc_string(s, n, sfile, color) abort " {{{1
-  let active_mark = (a:s ==# v:this_session) ? a:color ? s:green(" [%]  ") : " [%]  " : '      '
+  let active_mark = (a:s ==# v:this_session) ?
+        \ a:color ? s:green(" [%]  ") : " [%]  " : '      '
   let description = get(a:sfile, a:n, '')
   let spaces = 30 - len(a:n)
   let spaces = printf("%".spaces."s", "")
   let pad = empty(active_mark) ? '     ' : ''
   if !s:v.winOS
-    let time = system('date=`'.s:stat_command.' -c %Y '.fnameescape(a:s).'` && '.s:date_command.' -d@"$date" +%Y.%m.%d')[:-2]
+    let time = system('date=`'.s:stat_command.' -c %Y '.fnameescape(a:s).
+          \           '` && '.s:date_command.' -d@"$date" +%Y.%m.%d')[:-2]
   else
     let time = ''
   endif
@@ -630,6 +632,18 @@ fun! s:save_session(file) abort " {{{1
     silent execute "mksession! ".fnameescape(a:file)
   endif
   call s:F.msg("Session '".a:file."' has been saved.", 0)
+endfun
+
+fun! s:mac_no_gnu() "{{{1
+  if has('mac') && !executable('gstat')
+    echohl WarningMsg
+    echo '[xtabline]'
+    echohl None
+    echon 'You must install GNU gstat and gdate:'
+    echo "\n\tbrew install coreutils"
+    return v:true
+  endif
+  return v:false
 endfun "}}}
 
 
