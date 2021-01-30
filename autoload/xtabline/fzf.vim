@@ -22,8 +22,16 @@ let s:oB = { -> s:T().buffers.order     }       "ordered buffers for tab
 
 let s:sessions_path = { -> s:F.fulldir(s:Sets.sessions_path) }
 let s:use_finder    = !exists('g:loaded_fzf') || get(s:Sets, 'use_builtin_finder', 0)
-let s:lastmodified  = { f -> str2nr(system('date -r '.f.' +%s')) }
+let s:lastmodified  = { f -> str2nr(system(s:date_command.' -r '.f.' +%s')) }
 let s:obsession     = { -> exists('g:loaded_obsession') }
+
+" date and stat commands. In macOS, the corresponding ones of GNU version should be used.
+let s:date_command = 'date'
+let s:stat_command = 'stat'
+if has('mac')
+  let s:date_command = 'gdate'
+  let s:stat_command = 'gstat'
+endif
 
 " fzf/finder functions  {{{1
 
@@ -524,7 +532,7 @@ fun! s:desc_string(s, n, sfile, color) abort " {{{1
   let spaces = printf("%".spaces."s", "")
   let pad = empty(active_mark) ? '     ' : ''
   if !s:v.winOS
-    let time = system('date=`stat -c %Y '.fnameescape(a:s).'` && date -d@"$date" +%Y.%m.%d')[:-2]
+    let time = system('date=`'.s:stat_command.' -c %Y '.fnameescape(a:s).'` && '.s:date_command.' -d@"$date" +%Y.%m.%d')[:-2]
   else
     let time = ''
   endif

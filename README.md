@@ -69,6 +69,19 @@ Buffers and tabs can be renamed, and also given a custom icon.
  
 ### Installation
 
+##### Prerequisite for macOS users:
+
+Install the GNU core utilities. The implementation of the session management feature 
+internally requires GNU version `stat` and `date` commands. The built-in ones in 
+macOS are BSD version which are incomplete and not that powerful.
+
+    brew install coreutils
+
+The corresponding GNU version commands are prefixed with `g` such as `gstat` and
+`gdate`.
+
+##### Install the plugin:
+
 Use [vim-plug](https://github.com/junegunn/vim-plug) or any other Vim plugin manager.
 
 With vim-plug:
