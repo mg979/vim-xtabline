@@ -11,6 +11,7 @@ let s:Sets = g:xtabline_settings
 let s:v.tab_properties = {}                     "if not empty, newly created tab will inherit them
 let s:v.buffer_properties = {}                  "if not empty, newly created tab will inherit them
 let s:v.user_labels    = 1                      "tabline shows custom names/icons
+let s:v.queued_update = 0
 
 let s:T  = { -> s:X.Tabs[tabpagenr()-1] }       "current tab
 let s:vB = { -> s:T().buffers.valid     }       "valid buffers for tab
@@ -168,6 +169,16 @@ fun! xtabline#update(...) abort
   endif
 endfun "}}}
 
+fun! xtabline#queue_update()
+  " Queue buffers refiltering, but only if not queued already. {{{1
+  " A timer is used to prevent that buffers deletion in batch retriggers buffer
+  " filtering every time. s:v.queued_update is set to 1 in the render script.
+  if !s:v.queued_update
+    let s:v.queued_update = 2
+    let s:v.time_to_update = 1
+    call timer_start(100, { -> execute('let s:v.queued_update = 0') })
+  endif
+endfun "}}}
 
 
 
@@ -431,12 +442,11 @@ augroup plugin-xtabline
   autocmd BufEnter      * call s:Do('bufenter')
   autocmd BufFilePost   * call s:Do('buffilepost')
   autocmd BufWritePost  * call s:Do('bufwrite')
-  autocmd BufDelete     * call xtabline#update()
   autocmd OptionSet     * call xtabline#update()
   autocmd VimResized    * call xtabline#update()
   autocmd VimLeavePre   * call xtabline#update_this_session()
 
-  autocmd BufAdd,BufUnload,BufFilePost * call xtabline#filter_buffers()
+  autocmd BufAdd,BufDelete,BufFilePost * call xtabline#queue_update()
 
   if has('nvim')
     autocmd TermOpen     * call s:Do('terminal')

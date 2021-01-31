@@ -624,10 +624,15 @@ fun! s:reuse_last_tabline() abort
         \|| !has_key(s:last_modified_state, currentbuf)
         \|| &modified != s:last_modified_state[currentbuf]
 
-    let T = s:T()
-    if exists('T.refilter')
-      unlet T.refilter
+    if s:v.queued_update == 2
+      let s:v.queued_update = 1
       call xtabline#filter_buffers()
+    else
+      let T = s:T()
+      if exists('T.refilter')
+        unlet T.refilter
+        call xtabline#filter_buffers()
+      endif
     endif
     let s:last_modified_state[currentbuf] = &modified
     silent! unlet s:v.time_to_update

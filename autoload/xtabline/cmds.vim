@@ -284,7 +284,6 @@ fun! s:close_buffer() abort
   else
     call s:F.msg("There is only one tab.", 1)
   endif
-  call xtabline#update(1)
 endfun "}}}
 
 
