@@ -183,10 +183,10 @@ endfun "}}}
 
 fun! s:no_arglist() abort
   " Switch off arglist mode and restart tabline rendering {{{1
-    let s:v.time_to_update = 1
-    let s:v.tabline_mode = get(filter(copy(s:Sets.tabline_modes),
-          \                    'v:val != "arglist"'), 0, 'tabs')
-    return xtabline#render#tabline()
+  let s:v.time_to_update = 1
+  let s:v.tabline_mode = get(filter(copy(s:Sets.tabline_modes),
+        \                    'v:val != "arglist"'), 0, 'tabs')
+  return xtabline#render#tabline()
 endfun "}}}
 
 fun! s:fit_tabline(center, tabs) abort
@@ -611,8 +611,8 @@ endfun "}}}
 
 fun! s:ready() abort
   " Do not update during completion or when a session is still loading. {{{1
-   return mode(1) !~ '.c' && !exists('g:SessionLoad')
- endfun "}}}
+  return mode(1) !~ '.c' && !exists('g:SessionLoad')
+endfun "}}}
 
 fun! s:reuse_last_tabline() abort
   " Check if it's time to update the tabline or not. {{{1
