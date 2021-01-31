@@ -391,7 +391,7 @@ function! s:Do(action, ...)
 
     call xtabline#tab#check_all()
     call xtabline#tab#check()
-    call xtabline#update()
+    call xtabline#update(1)
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
