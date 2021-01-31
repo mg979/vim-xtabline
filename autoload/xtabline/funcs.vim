@@ -250,11 +250,9 @@ fun! s:Funcs.bdelete(buf) abort
 
   elseif getbufvar(a:buf, '&ft') == 'nofile'
     exe "silent! bwipe ".a:buf
-    call xtabline#update()
 
   elseif !getbufvar(a:buf, '&modified')
     exe "silent! bdelete ".a:buf
-    call xtabline#update()
   endif
 endfun "}}}
 

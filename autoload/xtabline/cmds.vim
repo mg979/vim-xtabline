@@ -268,10 +268,12 @@ fun! s:close_buffer() abort
   let current = bufnr("%") | let alt = bufnr("#") | let tbufs = len(s:vB())
 
   if s:F.is_tab_buffer(alt)
-    execute "buffer #" | call s:F.bdelete(current)
+    buffer #
+    call s:F.bdelete(current)
 
   elseif ( tbufs > 1 ) || ( tbufs && !s:F.is_tab_buffer(current) )
-    execute "normal \<Plug>(XT-Prev-Buffer)" | call s:F.bdelete(current)
+    execute "normal \<Plug>(XT-Prev-Buffer)"
+    call s:F.bdelete(current)
 
   elseif getbufvar(current, '&modified')
     call s:F.msg("Not deleting because of unsaved changes", 1)
@@ -282,6 +284,7 @@ fun! s:close_buffer() abort
   else
     call s:F.msg("There is only one tab.", 1)
   endif
+  call xtabline#update(1)
 endfun "}}}
 
 
