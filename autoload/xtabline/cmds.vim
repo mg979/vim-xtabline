@@ -541,10 +541,10 @@ fun! s:not_enough_buffers() abort
   let bufs = s:oB()
   if len(bufs) < 2
     if empty(bufs)
-      call self.msg([[ "No available buffers for this tab.", 'WarningMsg' ]])
+      call s:F.msg([[ "No available buffers for this tab.", 'WarningMsg' ]])
       return v:true
     elseif index(bufs, bufnr("%")) >= 0
-      call self.msg([[ "No other available buffers for this tab.", 'WarningMsg' ]])
+      call s:F.msg([[ "No other available buffers for this tab.", 'WarningMsg' ]])
       return v:true
     endif
   endif
