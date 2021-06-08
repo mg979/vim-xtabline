@@ -440,6 +440,7 @@ augroup plugin-xtabline
   autocmd TabClosed     * call s:Do('close')
   autocmd FileType      * call s:Do('filetype')
   autocmd BufEnter      * call s:Do('bufenter')
+  autocmd WinEnter      * call xtabline#update()
   autocmd BufFilePost   * call s:Do('buffilepost')
   autocmd BufWritePost  * call s:Do('bufwrite')
   autocmd OptionSet     * call xtabline#update()
