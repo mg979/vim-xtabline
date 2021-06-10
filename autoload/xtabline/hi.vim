@@ -41,9 +41,9 @@ endfun
 fun! xtabline#hi#load_theme(bang, theme) abort
   " Load a theme.
   if !empty(a:theme)
-    call xtabline#hi#apply_theme(a:theme)
+    call timer_start(50, { t -> xtabline#hi#apply_theme(a:theme) })
   elseif a:bang
-    call xtabline#hi#apply_theme(s:Sets.theme)
+    call timer_start(50, { t -> xtabline#hi#apply_theme(s:Sets.theme) })
   else
     echo "[xtabline] current theme is" s:Sets.theme
   endif
