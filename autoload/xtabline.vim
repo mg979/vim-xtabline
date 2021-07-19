@@ -160,6 +160,8 @@ fun! xtabline#update(...) abort
     return
   elseif empty(s:Sets.tabline_modes)
     set tabline=
+  elseif exists('b:xtabline_override')
+    let &tabline = b:xtabline_override
   else
     if a:0
       call xtabline#filter_buffers()

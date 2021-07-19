@@ -97,6 +97,14 @@ Mode labels ~
 
     In the let corner a label can be shown, that tells you the mode you're in.
     See |mode_labels| for details.
+                                                            *xtabline-override*
+Buffer-local tabline override ~
+
+    You can override the plugin tabline by setting a buffer-local variable:
+>
+    let b:xtabline_override = ''                " vim default tabline
+    let b:xtabline_override = '%!MyTabline()'   " use your own function
+
 
 
 
