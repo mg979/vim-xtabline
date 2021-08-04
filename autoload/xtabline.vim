@@ -32,7 +32,6 @@ let s:v.slash    = exists('+shellslash') && !&shellslash ? '\' : '/'
 
 fun! xtabline#init() abort
   " Initialize the plugin. {{{1
-  set showtabline=2
   let s:X.Funcs = xtabline#funcs#init()
   let s:F = s:X.Funcs
   call xtabline#hi#init()
