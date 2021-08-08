@@ -48,6 +48,15 @@ fun! xtabline#dir#cd(count, bang) abort
   let type = s:F.is_local_dir() ? 'window-local'
         \  : s:F.is_tab_dir()   ? 'tab-local' : 'working'
 
+  if type == 'working'
+    let t = confirm('Type of working directory?', "&Global\n&Tab\n&Window")
+    if t == 2
+      let type = 'tab-local'
+    elseif t == 3
+      let type = 'window-local'
+    endif
+  endif
+
   call xtabline#dir#set(type, a:bang, dir)
 endfun "}}}
 
