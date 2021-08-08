@@ -97,7 +97,7 @@ endfun
 function! xtabline#maps#init()
   nnoremap <unique> <silent> <expr> <Plug>(XT-Select-Buffer) v:count
         \ ? xtabline#cmds#select_buffer(v:count-1)
-        \ : ":\<C-U>".g:xtabline_settings.select_buffer_alt_action."\<cr>"
+        \ : ":\<C-U>buffer #\r"
   let S = g:xtabline_settings
   if S.enable_mappings
     call s:base_mappings()

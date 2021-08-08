@@ -112,7 +112,6 @@ let s:S = {
       \ 'map_prefix' :                '<leader>x',
       \ 'tabline_modes':              ['tabs', 'buffers', 'arglist'],
       \ 'mode_labels':                'secondary',
-      \ 'select_buffer_alt_action':   "buffer #",
       \ 'buffer_filtering':           1,
       \ 'wd_type_indicator':          0,
       \ 'theme':                      'default',

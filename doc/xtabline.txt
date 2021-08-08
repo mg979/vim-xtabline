@@ -214,7 +214,6 @@ Here are described the most important settings, for the full list read
 
 BUFFERS-MODE                                                *xtabline-buffers*
 ==============================================================================
-                                                      *xtabline-select-buffer*
   Plug                              Mapping~
   <Plug>(XT-Select-Buffer)          [count] <BS>
 
@@ -229,17 +228,16 @@ BUFFERS-MODE                                                *xtabline-buffers*
   XTabPinBuffer                     *p
 
 ------------------------------------------------------------------------------
+                                                       *xtabline-select-buffer*
+<Plug>(XT-Select-Buffer) works this way:
 
-`Select-Buffer` works this way:
+  - without [count], it brings you to the |alternate-file| 
+  - in |buffers-mode|, it brings you to the N buffer in the tabline order
+  - in |tabs-mode| it brings you to the N tab (an alias for |gt| in this case)
 
-  * it needs a [count] to work, eg. 2<BS> would bring you to buffer #2
-  * when not using a [count], it will execute a command of your choice
-
-  Define this command by changing the |select_buffer_alt_action| setting.
-  Default is `:buffer #` (go to alternate buffer).
-
-  When in |tabs-mode|, [count]<BS> can still be used, and will bring you to
-  the N tab (<BS> is an alias for |gt| in this case).
+  If you don't like that, you can do (for example):
+>
+  nmap <silent><expr> <BS> v:count ? "\<Plug>(XT-Select-Buffer)" : ":Buffers\r"
 
 
 *XTabNextBuffer*      They accept a [count], to move to ±N buffer, as they are
@@ -249,8 +247,8 @@ BUFFERS-MODE                                                *xtabline-buffers*
 *XTabCloseBuffer*     It will close and delete the current buffer, while
                     keeping the window open, and loading either:
 
-                    * the alternate buffer
-                    * a valid buffer for the tab
+                    - the alternate buffer
+                    - a valid buffer for the tab
 
 *XTabHideBuffer*      Removes the buffer from the list of recent buffers for the
                     tab, effectively hiding it from the tabline if there are
@@ -575,7 +573,6 @@ You can add any of these to your `.vimrc`, after having initialized the
     let g:xtabline_settings.option_name = option_value
 <
     Option                     Default ~
-    select_buffer_alt_action   `buffer #`
     sessions_path              {USERDIR}`/session`
     bookmarks_file             {USERDIR}`/.XTablineBookmarks`
     sessions_data              {USERDIR}`/.XTablineSessions`
