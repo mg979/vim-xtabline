@@ -460,16 +460,21 @@ fun! s:tab_label(tnr) abort
   endif
 
   let fname = bufname(bnr)
-  let minimal = &columns < 100                      " window is small
+  let minimal = &columns < 100         " window is small
   let current = a:tnr == tabpagenr()
 
-  if !filereadable(fname)                           " new files/scratch buffers
+  if !filereadable(fname)              " new files/scratch buffers
+    " 1. unnamed scratch buffer
+    " 2. unnamed regular buffer
+    " 3. named scratch buffer
+    " 4. window is too small
+    " 5. shortened file path
     return empty(fname)
-          \ ? &buftype != '' ? s:Sets.scratch_label " unnamed scratch buffer
-          \                  : s:Sets.unnamed_label " unnamed regular buffer
-          \ : &buftype != '' ? bufname('')          " named scratch buffer
-          \ : minimal ? fnamemodify(fname, ':t')    " window is too small
-          \ : s:F.short_path(bnr, 1)                " shortened file path
+          \ ? &buftype != '' ? s:Sets.scratch_label
+          \                  : s:Sets.unnamed_label
+          \ : &buftype != '' ? bufname('')
+          \ : minimal ? fnamemodify(fname, ':t')
+          \ : s:F.short_path(bnr, 1)
 
   elseif minimal
     return fnamemodify(fname, ':t')
