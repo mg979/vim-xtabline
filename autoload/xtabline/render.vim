@@ -437,7 +437,8 @@ fun! s:tab_label(tnr) abort
   " The label can be either:
   " 1. the shortened cwd
   " 2. the name of the active special buffer for this tab
-  " 3. the name of the active buffer for this tab (option-controlled)
+  " 3. custom tab or active buffer label (option: user_labels)
+  " 4. the name of the active buffer for this tab (option-controlled)
   "
   " @param tnr: the tab number
   " Returns: the formatted tab label
@@ -446,16 +447,11 @@ fun! s:tab_label(tnr) abort
   let buf = s:buf(bnr)            " a buffer object in the xtabline dicts
   let tab = s:X.Tabs[a:tnr-1]     " the tab object in the xtabline dicts
 
+  " custom label
   if s:is_special(bnr)
     return buf.name
-  endif
 
-  let fname = bufname(bnr)
-  let minimal = &columns < 100 " window is small
-  let current = a:tnr == tabpagenr()
-
-  " not current tab, and has custom name
-  if !current
+  elseif s:v.user_labels
     if !empty(tab.name)
       return tab.name
     elseif !empty(buf.name)
@@ -463,13 +459,17 @@ fun! s:tab_label(tnr) abort
     endif
   endif
 
+  let fname = bufname(bnr)
+  let minimal = &columns < 100                      " window is small
+  let current = a:tnr == tabpagenr()
+
   if !filereadable(fname)                           " new files/scratch buffers
     return empty(fname)
-          \ ? &buftype != '' ? s:Sets.scratch_label
-          \                  : s:Sets.unnamed_label
-          \ : &buftype != '' ? bufname('')
-          \ : minimal ? fnamemodify(fname, ':t')
-          \ : s:F.short_path(bnr, 1)
+          \ ? &buftype != '' ? s:Sets.scratch_label " unnamed scratch buffer
+          \                  : s:Sets.unnamed_label " unnamed regular buffer
+          \ : &buftype != '' ? bufname('')          " named scratch buffer
+          \ : minimal ? fnamemodify(fname, ':t')    " window is too small
+          \ : s:F.short_path(bnr, 1)                " shortened file path
 
   elseif minimal
     return fnamemodify(fname, ':t')
@@ -560,8 +560,7 @@ fun! s:right_corner_label() abort
   let N = tabpagenr()
 
   if s:v.tabline_mode == 'tabs'
-    return s:v.user_labels && !empty(s:T().name)
-          \   ? s:T().name : s:F.short_cwd(N, 1)
+    return s:F.short_cwd(N, 1)
 
   elseif s:v.tabline_mode == 'buffers' || s:v.tabline_mode == 'arglist'
     return s:v.user_labels && !empty(s:T().name)
