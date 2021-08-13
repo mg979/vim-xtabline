@@ -180,9 +180,8 @@ fun! xtabline#maps#menu() abort
   endif
 
   let X = substitute(g:xtabline_settings.map_prefix, '<leader>', get(g:, 'mapleader', '\'), 'g')
-  vnew +setlocal\ bt=nofile\ bh=wipe\ noswf\ nobl
+  vnew +setlocal\ bt=nofile\ bh=wipe\ noswf\ nobl xtabline mappings
   80wincmd |
-  file xtabline mappings
   let text = []
   for group in [[basic, 'basic'], [cd, 'cd'], [leader, X], [manage, X.' tabs/buffer/session']]
     let i = 1

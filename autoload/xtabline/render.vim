@@ -64,9 +64,8 @@ fun! s:render_tabs() abort
   " Tabline rendering in 'tabs' mode {{{1
   let center = tabpagenr()
   let tabs = []
-  let labels = range(1, tabpagenr('$'))
 
-  for tnr in labels
+  for tnr in range(1, tabpagenr('$'))
     call add(tabs, s:format_tab_label(tnr))
   endfor
 
