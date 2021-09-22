@@ -445,6 +445,7 @@ augroup plugin-xtabline
   autocmd BufFilePost   * call s:Do('buffilepost')
   autocmd BufWritePost  * call s:Do('bufwrite')
   autocmd OptionSet     * call xtabline#update()
+  autocmd CursorHold    * call xtabline#update()
   autocmd VimResized    * call xtabline#update()
   autocmd VimLeavePre   * call xtabline#update_this_session()
 
