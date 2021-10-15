@@ -399,10 +399,12 @@ function! s:Do(action, ...)
   elseif a:action == 'leave'
 
     let V.last_tabn = N + 1
-    let V.last_tab = X.Tabs[N]
-    let V.last_tab.active_buffer = B
-    let V.last_tab.wd_cmd = F.is_local_dir() ? 2 : F.is_tab_dir() ? 1 : 0
-    call F.set_tab_wd()
+    if index(X.Tabs, N) >= 0
+      let V.last_tab = X.Tabs[N]
+      let V.last_tab.active_buffer = B
+      let V.last_tab.wd_cmd = F.is_local_dir() ? 2 : F.is_tab_dir() ? 1 : 0
+      call F.set_tab_wd()
+    endif
 
     """"""""""""""""""""""""""""""""""""""""""""""""""""""""""""
 
