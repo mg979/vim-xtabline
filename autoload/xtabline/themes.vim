@@ -215,6 +215,25 @@ fun! s:Themes.paramount()
 endfun
 
 
+fun! s:Themes.eightbit()
+  return {
+      \"XTSelect":      [ 'black', 'blue',   'NONE',   'NONE',   1 ],
+      \"XTSelectMod":   [ 'black', 'blue',   'NONE',   'NONE',   1 ],
+      \"XTVisible":     [ 'blue', 'black',   'NONE',   'NONE',   0 ],
+      \"XTVisibleMod":  [ 'blue', 'black',   'NONE',   'NONE',   1 ],
+      \"XTHidden":      [ 'blue', 'black',   'NONE',   'NONE',   0 ],
+      \"XTHiddenMod":   [ 'blue', 'black',   'NONE',   'NONE',   0 ],
+      \"XTExtra":       [ 'blue', 'black',   'NONE',   'NONE',   1 ],
+      \"XTExtraMod":    [ 'blue', 'black',   'NONE',   'NONE',   1 ],
+      \"XTSpecial":     [ 'blue', 'black',   'NONE',   'NONE',   1 ],
+      \"XTNumSel":      [ 'black', 'blue',   'NONE',   'NONE',   0 ],
+      \"XTNum":         [ 'blue', 'black',   'NONE',   'NONE',   0 ],
+      \"XTCorner":      [ 'blue', 'black',   'NONE',   'NONE',   0 ],
+      \"XTFill":        [ 'blue', 'black',   'NONE',   'NONE',   0 ],
+      \}
+endfun
+
+
 fun! xtabline#themes#init(theme) abort
   if has_key(g:xtabline_highlight.themes, a:theme)
     return 1
